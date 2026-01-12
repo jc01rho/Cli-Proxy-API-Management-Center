@@ -157,7 +157,20 @@
     "routing_mode_hint": "provider-based: 每个提供商独立轮询。key-based: 同一模型的所有凭证共享一个轮询（跨提供商公平分配）。",
     "routing_mode_update": "更新",
     "routing_mode_provider_based": "provider-based (默认)",
-    "routing_mode_key_based": "key-based (公平分配)"
+    "routing_mode_key_based": "key-based (公平分配)",
+    "fallback_models_title": "回退模型",
+    "fallback_models_hint": "当某个模型的所有密钥被阻止时，回退到另一个模型。",
+    "fallback_models_source": "源模型",
+    "fallback_models_target": "回退模型",
+    "fallback_models_add": "添加回退",
+    "fallback_chain_title": "回退链",
+    "fallback_chain_hint": "未定义模型特定回退时使用的全局回退顺序。最多20个模型。",
+    "fallback_chain_add": "添加到链",
+    "fallback_chain_max_error": "回退链最多允许20个模型。",
+    "provider_priority_title": "提供商优先级",
+    "provider_priority_hint": "当多个提供商有相同模型时，尝试的顺序。",
+    "provider_order_label": "全局提供商顺序",
+    "provider_order_hint": "所有模型的默认顺序。"
   },
   "api_keys": {
     "title": "API 密钥管理",

@@ -157,7 +157,20 @@
     "routing_mode_hint": "provider-based: each provider rotates independently. key-based: all credentials for a model share one rotation (fair distribution across providers).",
     "routing_mode_update": "Update",
     "routing_mode_provider_based": "provider-based (default)",
-    "routing_mode_key_based": "key-based (fair distribution)"
+    "routing_mode_key_based": "key-based (fair distribution)",
+    "fallback_models_title": "Fallback Models",
+    "fallback_models_hint": "When all keys for a model are blocked, fallback to another model.",
+    "fallback_models_source": "Source Model",
+    "fallback_models_target": "Fallback Model",
+    "fallback_models_add": "Add Fallback",
+    "fallback_chain_title": "Fallback Chain",
+    "fallback_chain_hint": "Global fallback order when model-specific fallback is not defined. Max 20 models.",
+    "fallback_chain_add": "Add to Chain",
+    "fallback_chain_max_error": "Maximum 20 models allowed in fallback chain.",
+    "provider_priority_title": "Provider Priority",
+    "provider_priority_hint": "Order of providers to try when multiple have the same model.",
+    "provider_order_label": "Global Provider Order",
+    "provider_order_hint": "Default order for all models."
   },
   "api_keys": {
     "title": "API Keys Management",

@@ -21,7 +21,10 @@ type PendingKey =
   | 'switchPreview'
   | 'usage'
   | 'loggingToFile'
-  | 'wsAuth';
+  | 'wsAuth'
+  | 'fallbackModels'
+  | 'fallbackChain'
+  | 'providerOrder';
 
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -38,6 +41,9 @@ export function SettingsPage() {
   const [logsMaxTotalSizeMb, setLogsMaxTotalSizeMb] = useState(0);
 const [routingStrategy, setRoutingStrategy] = useState('round-robin');
   const [routingMode, setRoutingMode] = useState('provider-based');
+  const [fallbackModels, setFallbackModels] = useState<Record<string, string>>({});
+  const [fallbackChain, setFallbackChain] = useState<string[]>([]);
+  const [providerOrder, setProviderOrder] = useState<string[]>([]);
   const [pending, setPending] = useState<Record<PendingKey, boolean>>({} as Record<PendingKey, boolean>);
   const [error, setError] = useState('');
 
@@ -48,12 +54,15 @@ const [routingStrategy, setRoutingStrategy] = useState('round-robin');
       setLoading(true);
       setError('');
       try {
-const [configResult, logsResult, prefixResult, routingResult, modeResult] = await Promise.allSettled([
+const [configResult, logsResult, prefixResult, routingResult, modeResult, fallbackModelsResult, fallbackChainResult, providerOrderResult] = await Promise.allSettled([
           fetchConfig(),
           configApi.getLogsMaxTotalSizeMb(),
           configApi.getForceModelPrefix(),
           configApi.getRoutingStrategy(),
           configApi.getRoutingMode(),
+          configApi.getFallbackModels(),
+          configApi.getFallbackChain(),
+          configApi.getProviderOrder(),
         ]);
 
         if (configResult.status !== 'fulfilled') {
@@ -81,6 +90,18 @@ if (routingResult.status === 'fulfilled' && routingResult.value) {
         if (modeResult.status === 'fulfilled' && modeResult.value) {
           setRoutingMode(String(modeResult.value));
           updateConfigValue('routing/mode', String(modeResult.value));
+        }
+
+        if (fallbackModelsResult.status === 'fulfilled' && fallbackModelsResult.value) {
+          setFallbackModels(fallbackModelsResult.value as Record<string, string>);
+        }
+
+        if (fallbackChainResult.status === 'fulfilled' && fallbackChainResult.value) {
+          setFallbackChain(fallbackChainResult.value as string[]);
+        }
+
+        if (providerOrderResult.status === 'fulfilled' && providerOrderResult.value) {
+          setProviderOrder(providerOrderResult.value as string[]);
         }
       } catch (err: any) {
         setError(err?.message || t('notification.refresh_failed'));
@@ -474,6 +495,194 @@ const handleRoutingStrategyUpdate = async () => {
           >
             {t('basic_settings.routing_mode_update')}
           </Button>
+        </div>
+      </Card>
+
+      {/* Fallback Models Card */}
+      <Card title={t('basic_settings.fallback_models_title')}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="hint">{t('basic_settings.fallback_models_hint')}</div>
+          {Object.entries(fallbackModels).map(([source, target], idx) => (
+            <div key={idx} className={styles.retryRow} style={{ gap: 8, alignItems: 'center' }}>
+              <Input
+                value={source}
+                onChange={(e) => {
+                  const newModels = { ...fallbackModels };
+                  delete newModels[source];
+                  newModels[e.target.value] = target;
+                  setFallbackModels(newModels);
+                }}
+                placeholder={t('basic_settings.fallback_models_source')}
+                disabled={disableControls || loading}
+                style={{ flex: 1 }}
+              />
+              <span style={{ margin: '0 8px' }}>→</span>
+              <Input
+                value={target}
+                onChange={(e) => setFallbackModels({ ...fallbackModels, [source]: e.target.value })}
+                placeholder={t('basic_settings.fallback_models_target')}
+                disabled={disableControls || loading}
+                style={{ flex: 1 }}
+              />
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  const newModels = { ...fallbackModels };
+                  delete newModels[source];
+                  setFallbackModels(newModels);
+                }}
+                disabled={disableControls || loading}
+              >
+                {t('common.delete')}
+              </Button>
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <Button
+              variant="secondary"
+              onClick={() => setFallbackModels({ ...fallbackModels, '': '' })}
+              disabled={disableControls || loading}
+            >
+              {t('basic_settings.fallback_models_add')}
+            </Button>
+            <Button
+              onClick={async () => {
+                setPendingFlag('fallbackModels', true);
+                try {
+                  await configApi.updateFallbackModels(fallbackModels);
+                  showNotification(t('notification.settings_updated'), 'success');
+                } catch (err: any) {
+                  showNotification(`${t('notification.update_failed')}: ${err?.message || ''}`, 'error');
+                } finally {
+                  setPendingFlag('fallbackModels', false);
+                }
+              }}
+              loading={pending.fallbackModels}
+              disabled={disableControls || loading}
+            >
+              {t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Fallback Chain Card */}
+      <Card title={t('basic_settings.fallback_chain_title')}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="hint">{t('basic_settings.fallback_chain_hint')}</div>
+          {fallbackChain.map((model, idx) => (
+            <div key={idx} className={styles.retryRow} style={{ gap: 8, alignItems: 'center' }}>
+              <span style={{ minWidth: 24 }}>{idx + 1}.</span>
+              <Input
+                value={model}
+                onChange={(e) => {
+                  const newChain = [...fallbackChain];
+                  newChain[idx] = e.target.value;
+                  setFallbackChain(newChain);
+                }}
+                disabled={disableControls || loading}
+                style={{ flex: 1 }}
+              />
+              <Button
+                variant="secondary"
+                onClick={() => setFallbackChain(fallbackChain.filter((_, i) => i !== idx))}
+                disabled={disableControls || loading}
+              >
+                {t('common.delete')}
+              </Button>
+            </div>
+          ))}
+          {fallbackChain.length >= 20 && (
+            <div className="error">{t('basic_settings.fallback_chain_max_error')}</div>
+          )}
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <Button
+              variant="secondary"
+              onClick={() => fallbackChain.length < 20 && setFallbackChain([...fallbackChain, ''])}
+              disabled={disableControls || loading || fallbackChain.length >= 20}
+            >
+              {t('basic_settings.fallback_chain_add')}
+            </Button>
+            <Button
+              onClick={async () => {
+                setPendingFlag('fallbackChain', true);
+                try {
+                  await configApi.updateFallbackChain(fallbackChain);
+                  showNotification(t('notification.settings_updated'), 'success');
+                } catch (err: any) {
+                  showNotification(`${t('notification.update_failed')}: ${err?.message || ''}`, 'error');
+                } finally {
+                  setPendingFlag('fallbackChain', false);
+                }
+              }}
+              loading={pending.fallbackChain}
+              disabled={disableControls || loading}
+            >
+              {t('common.save')}
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Provider Priority Card */}
+      <Card title={t('basic_settings.provider_priority_title')}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="hint">{t('basic_settings.provider_priority_hint')}</div>
+          
+          <div>
+            <label style={{ fontWeight: 500, marginBottom: 4, display: 'block' }}>
+              {t('basic_settings.provider_order_label')}
+            </label>
+            <div className="hint" style={{ marginBottom: 8 }}>{t('basic_settings.provider_order_hint')}</div>
+            {providerOrder.map((provider, idx) => (
+              <div key={idx} className={styles.retryRow} style={{ gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ minWidth: 24 }}>{idx + 1}.</span>
+                <Input
+                  value={provider}
+                  onChange={(e) => {
+                    const newOrder = [...providerOrder];
+                    newOrder[idx] = e.target.value;
+                    setProviderOrder(newOrder);
+                  }}
+                  disabled={disableControls || loading}
+                  style={{ flex: 1 }}
+                />
+                <Button
+                  variant="secondary"
+                  onClick={() => setProviderOrder(providerOrder.filter((_, i) => i !== idx))}
+                  disabled={disableControls || loading}
+                >
+                  {t('common.delete')}
+                </Button>
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <Button
+                variant="secondary"
+                onClick={() => setProviderOrder([...providerOrder, ''])}
+                disabled={disableControls || loading}
+              >
+                {t('common.add')}
+              </Button>
+              <Button
+                onClick={async () => {
+                  setPendingFlag('providerOrder', true);
+                  try {
+                    await configApi.updateProviderOrder(providerOrder);
+                    showNotification(t('notification.settings_updated'), 'success');
+                  } catch (err: any) {
+                    showNotification(`${t('notification.update_failed')}: ${err?.message || ''}`, 'error');
+                  } finally {
+                    setPendingFlag('providerOrder', false);
+                  }
+                }}
+                loading={pending.providerOrder}
+                disabled={disableControls || loading}
+              >
+                {t('common.save')}
+              </Button>
+            </div>
+          </div>
         </div>
       </Card>
 

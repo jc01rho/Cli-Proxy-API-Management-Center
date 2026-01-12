@@ -125,4 +125,82 @@ export const configApi = {
    * 更新路由模式
    */
   updateRoutingMode: (mode: string) => apiClient.put('/routing/mode', { value: mode }),
+
+  // ============ Fallback Models ============
+
+  /**
+   * 获取模型回退配置
+   */
+  async getFallbackModels(): Promise<Record<string, string>> {
+    const data = await apiClient.get('/fallback/models');
+    return data?.['fallback-models'] ?? {};
+  },
+
+  /**
+   * 更新模型回退配置
+   */
+  updateFallbackModels: (models: Record<string, string>) =>
+    apiClient.put('/fallback/models', { value: models }),
+
+  // ============ Fallback Chain ============
+
+  /**
+   * 获取回退链配置
+   */
+  async getFallbackChain(): Promise<string[]> {
+    const data = await apiClient.get('/fallback/chain');
+    return data?.['fallback-chain'] ?? [];
+  },
+
+  /**
+   * 更新回退链配置
+   */
+  updateFallbackChain: (chain: string[]) =>
+    apiClient.put('/fallback/chain', { value: chain }),
+
+  // ============ Provider Priority ============
+
+  /**
+   * 获取模型级别的 Provider 优先级配置
+   */
+  async getProviderPriority(): Promise<Record<string, string[]>> {
+    const data = await apiClient.get('/provider-priority');
+    return data?.['provider-priority'] ?? {};
+  },
+
+  /**
+   * 更新模型级别的 Provider 优先级配置
+   */
+  updateProviderPriority: (priority: Record<string, string[]>) =>
+    apiClient.put('/provider-priority', { value: priority }),
+
+  /**
+   * 获取特定模型的 Provider 优先级
+   */
+  async getProviderPriorityForModel(model: string): Promise<string[]> {
+    const data = await apiClient.get(`/provider-priority/${encodeURIComponent(model)}`);
+    return data?.providers ?? [];
+  },
+
+  /**
+   * 更新特定模型的 Provider 优先级
+   */
+  updateProviderPriorityForModel: (model: string, providers: string[]) =>
+    apiClient.put(`/provider-priority/${encodeURIComponent(model)}`, { value: providers }),
+
+  // ============ Provider Order ============
+
+  /**
+   * 获取全局 Provider 顺序配置
+   */
+  async getProviderOrder(): Promise<string[]> {
+    const data = await apiClient.get('/provider-order');
+    return data?.['provider-order'] ?? [];
+  },
+
+  /**
+   * 更新全局 Provider 顺序配置
+   */
+  updateProviderOrder: (order: string[]) =>
+    apiClient.put('/provider-order', { value: order }),
 };

@@ -112,4 +112,17 @@ export const configApi = {
    * 更新路由策略
    */
   updateRoutingStrategy: (strategy: string) => apiClient.put('/routing/strategy', { value: strategy }),
+
+  /**
+   * 获取路由模式
+   */
+  async getRoutingMode(): Promise<string> {
+    const data = await apiClient.get('/routing/mode');
+    return data?.mode ?? 'provider-based';
+  },
+
+  /**
+   * 更新路由模式
+   */
+  updateRoutingMode: (mode: string) => apiClient.put('/routing/mode', { value: mode }),
 };

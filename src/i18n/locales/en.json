@@ -152,7 +152,12 @@
     "routing_strategy_hint": "round-robin cycles through keys; fill-first prioritizes the first available key.",
     "routing_strategy_update": "Update",
     "routing_strategy_round_robin": "round-robin (cycle)",
-    "routing_strategy_fill_first": "fill-first (prioritize)"
+    "routing_strategy_fill_first": "fill-first (prioritize)",
+    "routing_mode_label": "Routing mode:",
+    "routing_mode_hint": "provider-based: each provider rotates independently. key-based: all credentials for a model share one rotation (fair distribution across providers).",
+    "routing_mode_update": "Update",
+    "routing_mode_provider_based": "provider-based (default)",
+    "routing_mode_key_based": "key-based (fair distribution)"
   },
   "api_keys": {
     "title": "API Keys Management",
@@ -831,6 +836,7 @@
     "force_model_prefix_updated": "Model prefix setting updated",
     "ws_auth_updated": "WebSocket authentication setting updated",
     "routing_strategy_updated": "Routing strategy updated",
+    "routing_mode_updated": "Routing mode updated",
     "login_storage_cleared": "Local login data cleared",
     "api_key_added": "API key added successfully",
     "api_key_updated": "API key updated successfully",

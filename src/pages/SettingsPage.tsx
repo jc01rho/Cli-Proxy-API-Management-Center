@@ -16,6 +16,7 @@ type PendingKey =
   | 'logsMaxSize'
   | 'forceModelPrefix'
   | 'routingStrategy'
+  | 'routingMode'
   | 'switchProject'
   | 'switchPreview'
   | 'usage'
@@ -35,7 +36,8 @@ export function SettingsPage() {
   const [proxyValue, setProxyValue] = useState('');
   const [retryValue, setRetryValue] = useState(0);
   const [logsMaxTotalSizeMb, setLogsMaxTotalSizeMb] = useState(0);
-  const [routingStrategy, setRoutingStrategy] = useState('round-robin');
+const [routingStrategy, setRoutingStrategy] = useState('round-robin');
+  const [routingMode, setRoutingMode] = useState('provider-based');
   const [pending, setPending] = useState<Record<PendingKey, boolean>>({} as Record<PendingKey, boolean>);
   const [error, setError] = useState('');
 
@@ -46,11 +48,12 @@ export function SettingsPage() {
       setLoading(true);
       setError('');
       try {
-        const [configResult, logsResult, prefixResult, routingResult] = await Promise.allSettled([
+const [configResult, logsResult, prefixResult, routingResult, modeResult] = await Promise.allSettled([
           fetchConfig(),
           configApi.getLogsMaxTotalSizeMb(),
           configApi.getForceModelPrefix(),
           configApi.getRoutingStrategy(),
+          configApi.getRoutingMode(),
         ]);
 
         if (configResult.status !== 'fulfilled') {
@@ -70,9 +73,14 @@ export function SettingsPage() {
           updateConfigValue('force-model-prefix', Boolean(prefixResult.value));
         }
 
-        if (routingResult.status === 'fulfilled' && routingResult.value) {
+if (routingResult.status === 'fulfilled' && routingResult.value) {
           setRoutingStrategy(String(routingResult.value));
           updateConfigValue('routing/strategy', String(routingResult.value));
+        }
+
+        if (modeResult.status === 'fulfilled' && modeResult.value) {
+          setRoutingMode(String(modeResult.value));
+          updateConfigValue('routing/mode', String(modeResult.value));
         }
       } catch (err: any) {
         setError(err?.message || t('notification.refresh_failed'));
@@ -93,11 +101,14 @@ export function SettingsPage() {
       if (typeof config.logsMaxTotalSizeMb === 'number') {
         setLogsMaxTotalSizeMb(config.logsMaxTotalSizeMb);
       }
-      if (config.routingStrategy) {
+if (config.routingStrategy) {
         setRoutingStrategy(config.routingStrategy);
       }
+      if (config.routingMode) {
+        setRoutingMode(config.routingMode);
+      }
     }
-  }, [config?.proxyUrl, config?.requestRetry, config?.logsMaxTotalSizeMb, config?.routingStrategy]);
+  }, [config?.proxyUrl, config?.requestRetry, config?.logsMaxTotalSizeMb, config?.routingStrategy, config?.routingMode]);
 
   const setPendingFlag = (key: PendingKey, value: boolean) => {
     setPending((prev) => ({ ...prev, [key]: value }));
@@ -224,7 +235,7 @@ export function SettingsPage() {
     }
   };
 
-  const handleRoutingStrategyUpdate = async () => {
+const handleRoutingStrategyUpdate = async () => {
     const strategy = routingStrategy.trim();
     if (!strategy) {
       showNotification(t('login.error_invalid'), 'error');
@@ -243,6 +254,28 @@ export function SettingsPage() {
       showNotification(`${t('notification.update_failed')}: ${err?.message || ''}`, 'error');
     } finally {
       setPendingFlag('routingStrategy', false);
+    }
+  };
+
+  const handleRoutingModeUpdate = async () => {
+    const mode = routingMode.trim();
+    if (!mode) {
+      showNotification(t('login.error_invalid'), 'error');
+      return;
+    }
+    const previous = config?.routingMode ?? 'provider-based';
+    setPendingFlag('routingMode', true);
+    updateConfigValue('routing/mode', mode);
+    try {
+      await configApi.updateRoutingMode(mode);
+      clearCache('routing/mode');
+      showNotification(t('notification.routing_mode_updated'), 'success');
+    } catch (err: any) {
+      setRoutingMode(previous);
+      updateConfigValue('routing/mode', previous);
+      showNotification(`${t('notification.update_failed')}: ${err?.message || ''}`, 'error');
+    } finally {
+      setPendingFlag('routingMode', false);
     }
   };
 
@@ -395,7 +428,7 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <Card title={t('basic_settings.routing_title')}>
+<Card title={t('basic_settings.routing_title')}>
         <div className={`${styles.retryRow} ${styles.retryRowAligned} ${styles.retryRowInputGrow}`}>
           <div className="form-group">
             <label>{t('basic_settings.routing_strategy_label')}</label>
@@ -417,6 +450,29 @@ export function SettingsPage() {
             disabled={disableControls || loading}
           >
             {t('basic_settings.routing_strategy_update')}
+          </Button>
+        </div>
+        <div className={`${styles.retryRow} ${styles.retryRowAligned} ${styles.retryRowInputGrow}`} style={{ marginTop: 16 }}>
+          <div className="form-group">
+            <label>{t('basic_settings.routing_mode_label')}</label>
+            <select
+              className="input"
+              value={routingMode}
+              onChange={(e) => setRoutingMode(e.target.value)}
+              disabled={disableControls || loading}
+            >
+              <option value="provider-based">{t('basic_settings.routing_mode_provider_based')}</option>
+              <option value="key-based">{t('basic_settings.routing_mode_key_based')}</option>
+            </select>
+            <div className="hint">{t('basic_settings.routing_mode_hint')}</div>
+          </div>
+          <Button
+            className={styles.retryButton}
+            onClick={handleRoutingModeUpdate}
+            loading={pending.routingMode}
+            disabled={disableControls || loading}
+          >
+            {t('basic_settings.routing_mode_update')}
           </Button>
         </div>
       </Card>

@@ -951,6 +951,21 @@ export function AuthFilesPage() {
     );
   };
 
+  // 格式化恢复时间
+  const formatRecoverTime = (isoString: string): string => {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return '';
+    const now = new Date();
+    const diffMs = date.getTime() - now.getTime();
+    if (diffMs <= 0) return t('auth_files.recovering_soon');
+
+    const diffMin = Math.ceil(diffMs / 60000);
+    if (diffMin < 60) return t('auth_files.recover_in_minutes', { count: diffMin });
+
+    const diffHour = Math.ceil(diffMs / 3600000);
+    return t('auth_files.recover_in_hours', { count: diffHour });
+  };
+
   // 渲染单个认证文件卡片
   const renderFileCard = (item: AuthFileItem) => {
     const fileStats = resolveAuthFileStats(item, keyStats);
@@ -972,6 +987,15 @@ export function AuthFilesPage() {
           >
             {getTypeLabel(item.type || 'unknown')}
           </span>
+          {/* Tier badge for Antigravity keys */}
+          {(item.type === 'antigravity' || item.provider === 'antigravity') && item.tier && (
+            <span
+              className={`${styles.tierBadge} ${item.tier === 'pro' ? styles.tierPro : styles.tierFree}`}
+              title={item.tier_name || item.tier}
+            >
+              {item.tier === 'pro' ? 'Pro' : 'Free'}
+            </span>
+          )}
           <span className={styles.fileName}>{item.name}</span>
         </div>
 
@@ -983,6 +1007,48 @@ export function AuthFilesPage() {
             {t('auth_files.file_modified')}: {formatModified(item)}
           </span>
         </div>
+
+        {/* Key status indicator */}
+        {(item.quota_exceeded || item.unavailable || item.status === 'error') && (
+          <div className={styles.keyStatus}>
+            {item.quota_exceeded && (
+              <span className={`${styles.statusBadge} ${styles.statusBlocked}`}>
+                {t('auth_files.status_quota_exceeded')}
+                {item.quota_next_recover_at && (
+                  <span className={styles.recoverTime}>
+                    {formatRecoverTime(item.quota_next_recover_at)}
+                  </span>
+                )}
+              </span>
+            )}
+            {item.unavailable && !item.quota_exceeded && (
+              <span className={`${styles.statusBadge} ${styles.statusUnavailable}`}>
+                {t('auth_files.status_unavailable')}
+              </span>
+            )}
+            {item.status === 'error' && (
+              <span className={`${styles.statusBadge} ${styles.statusError}`}>
+                {t('auth_files.status_error')}
+                {item.status_message && (
+                  <span className={styles.statusMessage} title={item.status_message}>
+                    : {item.status_message.substring(0, 30)}...
+                  </span>
+                )}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Blocked models list */}
+        {item.blocked_models && item.blocked_models.length > 0 && (
+          <div className={styles.blockedModels}>
+            <span className={styles.blockedLabel}>{t('auth_files.blocked_models')}:</span>
+            <span className={styles.blockedList}>
+              {item.blocked_models.slice(0, 3).join(', ')}
+              {item.blocked_models.length > 3 && ` +${item.blocked_models.length - 3}`}
+            </span>
+          </div>
+        )}
 
         <div className={styles.cardStats}>
           <span className={`${styles.statPill} ${styles.statSuccess}`}>

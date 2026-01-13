@@ -25,6 +25,21 @@ export interface AuthFileItem {
   runtimeOnly?: boolean | string;
   disabled?: boolean;
   modified?: number;
+
+  // Key status fields
+  status?: 'active' | 'pending' | 'refreshing' | 'error' | 'disabled' | 'unknown';
+  status_message?: string;
+  unavailable?: boolean;
+  quota_exceeded?: boolean;
+  quota_reason?: string;
+  quota_next_recover_at?: string;
+  quota_backoff_level?: number;
+  blocked_models?: string[];
+
+  // Antigravity tier info
+  tier?: 'pro' | 'free' | string;
+  tier_name?: string;
+
   [key: string]: any;
 }
 

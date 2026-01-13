@@ -413,7 +413,14 @@
     "models_unsupported": "当前版本不支持此功能",
     "models_unsupported_desc": "请更新 CLI Proxy API 到最新版本后重试",
     "models_excluded_badge": "已排除",
-    "models_excluded_hint": "此模型已被 OAuth 排除"
+    "models_excluded_hint": "此模型已被 OAuth 排除",
+    "status_quota_exceeded": "配额超限",
+    "status_unavailable": "暂时不可用",
+    "status_error": "错误",
+    "blocked_models": "被阻止的模型",
+    "recovering_soon": "即将恢复",
+    "recover_in_minutes": "约{{count}}分钟",
+    "recover_in_hours": "约{{count}}小时"
   },
   "antigravity_quota": {
     "title": "Antigravity 额度",
@@ -792,7 +799,9 @@
     "title": "配额管理",
     "description": "集中查看 OAuth 额度与剩余情况",
     "refresh_files": "刷新认证文件",
-    "refresh_files_and_quota": "刷新认证文件&额度"
+    "refresh_files_and_quota": "刷新认证文件&额度",
+    "key_blocked": "密钥已阻止",
+    "key_unavailable": "不可用"
   },
   "system_info": {
     "title": "管理中心信息",

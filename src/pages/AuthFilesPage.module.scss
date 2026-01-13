@@ -277,27 +277,15 @@
 }
 
 .antigravityCard {
-  background-image: linear-gradient(
-    180deg,
-    rgba(224, 247, 250, 0.12),
-    rgba(224, 247, 250, 0)
-  );
+  background-image: linear-gradient(180deg, rgba(224, 247, 250, 0.12), rgba(224, 247, 250, 0));
 }
 
 .codexCard {
-  background-image: linear-gradient(
-    180deg,
-    rgba(255, 243, 224, 0.18),
-    rgba(255, 243, 224, 0)
-  );
+  background-image: linear-gradient(180deg, rgba(255, 243, 224, 0.18), rgba(255, 243, 224, 0));
 }
 
 .geminiCliCard {
-  background-image: linear-gradient(
-    180deg,
-    rgba(231, 239, 255, 0.2),
-    rgba(231, 239, 255, 0)
-  );
+  background-image: linear-gradient(180deg, rgba(231, 239, 255, 0.2), rgba(231, 239, 255, 0));
 }
 
 .quotaSection {
@@ -446,7 +434,10 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
-  transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast;
+  transition:
+    transform $transition-fast,
+    box-shadow $transition-fast,
+    border-color $transition-fast;
 
   &:hover {
     transform: translateY(-2px);
@@ -471,6 +462,28 @@
   flex-shrink: 0;
 }
 
+// Tier badge for Antigravity keys
+.tierBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.tierPro {
+  background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+  color: #1a1a1a;
+}
+
+.tierFree {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
 .fileName {
   font-size: 14px;
   font-weight: 600;
@@ -488,6 +501,72 @@
   padding: $spacing-xs 0;
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
+}
+
+// Key status indicator
+.keyStatus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusBlocked {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.statusUnavailable {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.statusError {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.recoverTime {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
+.statusMessage {
+  font-weight: normal;
+  opacity: 0.8;
+}
+
+.blockedModels {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.blockedLabel {
+  font-weight: 500;
+  color: #ef4444;
+}
+
+.blockedList {
+  font-family: var(--font-mono);
+  font-size: 11px;
 }
 
 .cardStats {
@@ -546,7 +625,9 @@
   height: 8px;
   border-radius: 2px;
   min-width: 6px;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
 
   &:hover {
     transform: scaleY(1.5);

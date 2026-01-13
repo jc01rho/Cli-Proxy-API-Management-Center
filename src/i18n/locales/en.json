@@ -413,7 +413,14 @@
     "models_unsupported": "This feature is not supported in the current version",
     "models_unsupported_desc": "Please update CLI Proxy API to the latest version and try again",
     "models_excluded_badge": "Excluded",
-    "models_excluded_hint": "This model is excluded by OAuth"
+    "models_excluded_hint": "This model is excluded by OAuth",
+    "status_quota_exceeded": "Quota Exceeded",
+    "status_unavailable": "Temporarily Unavailable",
+    "status_error": "Error",
+    "blocked_models": "Blocked models",
+    "recovering_soon": "recovering soon",
+    "recover_in_minutes": "~{{count}}m",
+    "recover_in_hours": "~{{count}}h"
   },
   "antigravity_quota": {
     "title": "Antigravity Quota",
@@ -792,7 +799,9 @@
     "title": "Quota Management",
     "description": "Monitor OAuth quota status for Antigravity, Codex, and Gemini CLI credentials.",
     "refresh_files": "Refresh auth files",
-    "refresh_files_and_quota": "Refresh files & quota"
+    "refresh_files_and_quota": "Refresh files & quota",
+    "key_blocked": "Key Blocked",
+    "key_unavailable": "Unavailable"
   },
   "system_info": {
     "title": "Management Center Info",

@@ -187,20 +187,4 @@ export const configApi = {
    */
   updateProviderPriorityForModel: (model: string, providers: string[]) =>
     apiClient.put(`/provider-priority/${encodeURIComponent(model)}`, { value: providers }),
-
-  // ============ Provider Order ============
-
-  /**
-   * 获取全局 Provider 顺序配置
-   */
-  async getProviderOrder(): Promise<string[]> {
-    const data = await apiClient.get('/provider-order');
-    return data?.['provider-order'] ?? [];
-  },
-
-  /**
-   * 更新全局 Provider 顺序配置
-   */
-  updateProviderOrder: (order: string[]) =>
-    apiClient.put('/provider-order', { value: order }),
 };

@@ -42,6 +42,7 @@ const SECTION_KEYS: RawConfigSection[] = [
   'ws-auth',
   'force-model-prefix',
   'routing/strategy',
+  'routing/mode',
   'api-keys',
   'ampcode',
   'gemini-api-key',
@@ -77,6 +78,8 @@ const extractSectionValue = (config: Config | null, section?: RawConfigSection) 
       return config.forceModelPrefix;
     case 'routing/strategy':
       return config.routingStrategy;
+    case 'routing/mode':
+      return config.routingMode;
     case 'api-keys':
       return config.apiKeys;
     case 'ampcode':
@@ -217,6 +220,9 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
           break;
         case 'routing/strategy':
           nextConfig.routingStrategy = value;
+          break;
+        case 'routing/mode':
+          nextConfig.routingMode = value;
           break;
         case 'api-keys':
           nextConfig.apiKeys = value;

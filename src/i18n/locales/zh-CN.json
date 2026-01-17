@@ -422,6 +422,14 @@
     "recover_in_minutes": "约{{count}}分钟",
     "recover_in_hours": "约{{count}}小时"
   },
+  "auth_status": {
+    "active": "活跃",
+    "pending": "等待中",
+    "refreshing": "刷新中",
+    "error": "错误",
+    "disabled": "已禁用",
+    "unknown": "未知"
+  },
   "antigravity_quota": {
     "title": "Antigravity 额度",
     "empty_title": "暂无 Antigravity 认证",

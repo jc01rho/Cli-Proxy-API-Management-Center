@@ -546,8 +546,15 @@
 }
 
 .statusMessage {
+  font-size: 12px;
   font-weight: normal;
-  opacity: 0.8;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  opacity: 0.9;
 }
 
 .blockedModels {

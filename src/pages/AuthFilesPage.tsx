@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import { IconBot, IconDownload, IconInfo, IconTrash2, IconX } from '@/components/ui/icons';
+import { StatusBadge } from '@/components/common/StatusBadge';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
 import { authFilesApi, usageApi } from '@/services/api';
 import { apiClient } from '@/services/api/client';
@@ -943,7 +944,14 @@ export function AuthFilesPage() {
             {getTypeLabel(item.type || 'unknown')}
           </span>
           <span className={styles.fileName}>{item.name}</span>
+          {item.status && <StatusBadge status={item.status} />}
         </div>
+
+        {(item.status_message || item.last_error?.message) && (
+          <div className={styles.statusMessage} title={item.status_message || item.last_error?.message}>
+            {item.last_error?.message || item.status_message}
+          </div>
+        )}
 
         <div className={styles.cardMeta}>
           <span>{t('auth_files.file_size')}: {item.size ? formatFileSize(item.size) : '-'}</span>

@@ -16,6 +16,20 @@ export type AuthFileType =
   | 'empty'
   | 'unknown';
 
+export interface LastError {
+  code?: string;
+  message: string;
+  retryable: boolean;
+  http_status?: number;
+}
+
+export interface QuotaState {
+  exceeded: boolean;
+  reason?: string;
+  next_recover_at?: string;
+  backoff_level?: number;
+}
+
 export interface AuthFileItem {
   name: string;
   type?: AuthFileType | string;
@@ -35,6 +49,10 @@ export interface AuthFileItem {
   quota_next_recover_at?: string;
   quota_backoff_level?: number;
   blocked_models?: string[];
+
+  quota?: QuotaState;
+  last_error?: LastError | null;
+  next_retry_after?: string;
 
   // Antigravity tier info
   tier?: 'pro' | 'free' | string;

@@ -7,6 +7,7 @@ import type { ReactElement, ReactNode } from 'react';
 import type { TFunction } from 'i18next';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import { TYPE_COLORS } from '@/utils/quota';
+import { StatusBadge } from '@/components/common/StatusBadge';
 import styles from '@/pages/QuotaPage.module.scss';
 
 type QuotaStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -110,6 +111,7 @@ export function QuotaCard<TState extends QuotaStatusState>({
           {getTypeLabel(displayType)}
         </span>
         <span className={styles.fileName}>{item.name}</span>
+        {item.status && <StatusBadge status={item.status} />}
         {item.tier && displayType === 'antigravity' && (
           <span
             className={`${styles.tierBadge} ${item.tier === 'pro' ? styles.tierPro : styles.tierFree}`}

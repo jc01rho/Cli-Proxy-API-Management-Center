@@ -55,7 +55,7 @@ export interface AuthFileItem {
   next_retry_after?: string;
 
   // Antigravity tier info
-  tier?: 'pro' | 'free' | string;
+  tier?: 'pro' | 'free' | 'ultra' | string;
   tier_name?: string;
 
   [key: string]: any;

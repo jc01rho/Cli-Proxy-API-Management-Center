@@ -112,13 +112,28 @@ export function QuotaCard<TState extends QuotaStatusState>({
         </span>
         <span className={styles.fileName}>{item.name}</span>
         {item.status && <StatusBadge status={item.status} />}
-        {item.tier && displayType === 'antigravity' && (
-          <span
-            className={`${styles.tierBadge} ${item.tier === 'pro' ? styles.tierPro : styles.tierFree}`}
-          >
-            {item.tier_name || (item.tier === 'pro' ? 'Pro' : 'Free')}
-          </span>
-        )}
+        {item.tier && displayType === 'antigravity' && (() => {
+          const tierLower = item.tier.toLowerCase();
+          let tierClass = styles.tierFree;
+          let tierLabel = item.tier_name || item.tier;
+          
+          if (tierLower.includes('ultra')) {
+            tierClass = styles.tierUltra;
+            tierLabel = item.tier_name || 'Ultra';
+          } else if (tierLower.includes('pro')) {
+            tierClass = styles.tierPro;
+            tierLabel = item.tier_name || 'Pro';
+          } else if (tierLower.includes('standard') || tierLower.includes('free')) {
+            tierClass = styles.tierFree;
+            tierLabel = item.tier_name || 'Free';
+          }
+          
+          return (
+            <span className={`${styles.tierBadge} ${tierClass}`}>
+              {tierLabel}
+            </span>
+          );
+        })()}
         {(item.quota_exceeded || item.unavailable) && displayType === 'antigravity' && (
           <span
             className={`${styles.statusBadge} ${item.quota_exceeded ? styles.statusBlocked : styles.statusUnavailable}`}

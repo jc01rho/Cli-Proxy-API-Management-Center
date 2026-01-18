@@ -422,6 +422,14 @@
     "recover_in_minutes": "~{{count}}m",
     "recover_in_hours": "~{{count}}h"
   },
+  "auth_status": {
+    "active": "Active",
+    "pending": "Pending",
+    "refreshing": "Refreshing",
+    "error": "Error",
+    "disabled": "Disabled",
+    "unknown": "Unknown"
+  },
   "antigravity_quota": {
     "title": "Antigravity Quota",
     "empty_title": "No Antigravity Auth Files",

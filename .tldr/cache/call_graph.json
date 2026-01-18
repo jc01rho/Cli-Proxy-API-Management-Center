@@ -1,0 +1,1863 @@
+{
+  "edges": [
+    {
+      "from_file": "src/hooks/usePagination.ts",
+      "from_func": "nextPage",
+      "to_file": "src/hooks/usePagination.ts",
+      "to_func": "goToPage"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "addMappingEntry",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "buildEmptyMappingEntry"
+    },
+    {
+      "from_file": "src/utils/connection.ts",
+      "from_func": "detectApiBaseFromLocation",
+      "to_file": "src/utils/connection.ts",
+      "to_func": "normalizeApiBase"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildDailySeriesByModel",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "extractTotalTokens"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeApiKeyEntry",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeHeaders"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteVertex",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/components/providers/OpenAISection/OpenAIModal.tsx",
+      "from_func": "removeEntry",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "buildApiKeyEntry"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "buildEmptyMappingEntry",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "generateMappingEntryId"
+    },
+    {
+      "from_file": "src/utils/quota/formatters.ts",
+      "from_func": "formatCodexResetLabel",
+      "to_file": "src/utils/quota/formatters.ts",
+      "to_func": "formatUnixSeconds"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "isModelExcluded",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "normalizeProviderKey"
+    },
+    {
+      "from_file": "src/components/ui/Modal.tsx",
+      "from_func": "Modal",
+      "to_file": "src/components/ui/Modal.tsx",
+      "to_func": "lockScroll"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "closeModal"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveGemini",
+      "to_file": "src/utils/headers.ts",
+      "to_func": "buildHeaderObject"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeOpenAIProvider",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeHeaders"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "computeKeyStats",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "ensureBucket"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useUsageData.ts",
+      "from_func": "useUsageData",
+      "to_file": "src/components/usage/hooks/useUsageData.ts",
+      "to_func": "loadUsage"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteOpenai",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildDailySeriesByModel",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "formatDayLabel"
+    },
+    {
+      "from_file": "src/services/api/client.ts",
+      "from_func": "ApiClient.readHeader",
+      "to_file": "src/services/api/client.ts",
+      "to_func": "normalizeValue"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveOpenai",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/router/ProtectedRoute.tsx",
+      "from_func": "ProtectedRoute",
+      "to_file": "src/router/ProtectedRoute.tsx",
+      "to_func": "checkAuth"
+    },
+    {
+      "from_file": "src/utils/quota/validators.ts",
+      "from_func": "isGeminiCliFile",
+      "to_file": "src/utils/quota/validators.ts",
+      "to_func": "resolveAuthProvider"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveVertex",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "setConfigEnabled"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "loadErrorLogs",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRoutingStrategyUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "setPendingFlag"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveGemini",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "decryptData",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "decodeText"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "handlePageSizeChange",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "clampCardPageSize"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "getApiStats",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "maskUsageSensitiveValue"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "parseLogLine",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "extractLogLevel"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "toggleSetting",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useSparklines.ts",
+      "from_func": "useSparklines",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "extractTotalTokens"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveVertex",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeOpenAIProvider",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeModelAliases"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "handleDeleteAll",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "isRuntimeOnlyAuthFile"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "parseLogLine",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "extractLatency"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleProxyUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/components/quota/quotaConfigs.ts",
+      "from_func": "fetchAntigravityQuota",
+      "to_file": "src/components/quota/quotaConfigs.ts",
+      "to_func": "isAntigravityUnknownFieldError"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "parseExcludedModels"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "downloadErrorLog",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/services/api/client.ts",
+      "from_func": "ApiClient.constructor",
+      "to_file": "src/services/api/client.ts",
+      "to_func": "setupInterceptors"
+    },
+    {
+      "from_file": "src/components/providers/OpenAISection/OpenAIDiscoveryModal.tsx",
+      "from_func": "OpenAIDiscoveryModal",
+      "to_file": "src/components/providers/OpenAISection/OpenAIDiscoveryModal.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "getApiStats",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "calculateCost"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "buildGeminiCliQuotaBuckets",
+      "to_file": "src/utils/quota/validators.ts",
+      "to_func": "isIgnoredGeminiCliModel"
+    },
+    {
+      "from_file": "src/utils/quota/formatters.ts",
+      "from_func": "formatCodexResetLabel",
+      "to_file": "src/utils/quota/parsers.ts",
+      "to_func": "normalizeNumberValue"
+    },
+    {
+      "from_file": "src/services/api/client.ts",
+      "from_func": "ApiClient.setConfig",
+      "to_file": "src/services/api/client.ts",
+      "to_func": "normalizeApiBase"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildAreaGradient",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "withAlpha"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteProviderEntry",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "setConfigEnabled",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/utils/connection.ts",
+      "from_func": "computeApiUrl",
+      "to_file": "src/utils/connection.ts",
+      "to_func": "normalizeApiBase"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildDailySeriesByModel",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "collectUsageDetails"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildHourlySeriesByModel",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "extractTotalTokens"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "encryptData",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "xorBytes"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeProviderKeyConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizePrefix"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRoutingStrategyUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteProviderEntry",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "setConfigEnabled",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "handleDeleteAll",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "getTypeLabel"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/utils/headers.ts",
+      "to_func": "buildHeaderObject"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "withAlpha",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "hexToRgb"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRoutingModeUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeOpenAIProvider",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeHeaders"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "getAntigravityQuotaInfo",
+      "to_file": "src/utils/quota/parsers.ts",
+      "to_func": "normalizeQuotaFraction"
+    },
+    {
+      "from_file": "src/pages/OAuthPage.tsx",
+      "from_func": "startAuth",
+      "to_file": "src/pages/OAuthPage.tsx",
+      "to_func": "startPolling"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "AmpcodeModal",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/hooks/useHeaderRefresh.ts",
+      "from_func": "triggerHeaderRefresh",
+      "to_file": "src/hooks/useHeaderRefresh.ts",
+      "to_func": "activeHeaderRefreshHandler"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleProxyClear",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "normalizeMappingEntries",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "generateMappingEntryId"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "clearAmpcodeUpstreamApiKey",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/components/providers/utils.ts",
+      "from_func": "buildOpenAIModelsEndpoint",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "normalizeOpenAIBaseUrl"
+    },
+    {
+      "from_file": "src/pages/OAuthPage.tsx",
+      "from_func": "getAuthKey",
+      "to_file": "src/pages/OAuthPage.tsx",
+      "to_func": "getProviderI18nPrefix"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "decryptData",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "xorBytes"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "saveAmpcode",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/components/quota/useGridColumns.ts",
+      "from_func": "useGridColumns",
+      "to_file": "src/components/quota/useGridColumns.ts",
+      "to_func": "updateColumns"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "clearAmpcodeUpstreamApiKey",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "handleFileChange",
+      "to_file": "src/utils/format.ts",
+      "to_func": "formatFileSize"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveOpenai",
+      "to_file": "src/utils/headers.ts",
+      "to_func": "buildHeaderObject"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRetryUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeConfigResponse",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeOpenAIProvider"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "saveAmpcode",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "calculateTotalCost",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "calculateCost"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "handleFileChange",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "loadKeyStats"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "copyLogLine",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "copyToClipboard"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "cancelLongPress",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "clearLongPressTimer"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "getModelStats",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "calculateCost"
+    },
+    {
+      "from_file": "src/components/providers/OpenAISection/OpenAIModal.tsx",
+      "from_func": "addEntry",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "buildApiKeyEntry"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildHourlySeriesByModel",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "collectUsageDetails"
+    },
+    {
+      "from_file": "src/components/layout/MainLayout.tsx",
+      "from_func": "handleRefreshAll",
+      "to_file": "src/components/layout/MainLayout.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/ApiKeysPage.tsx",
+      "from_func": "handleSave",
+      "to_file": "src/pages/ApiKeysPage.tsx",
+      "to_func": "closeModal"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveOpenai",
+      "to_file": "src/components/ui/ModelInputList.tsx",
+      "to_func": "entriesToModels"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "load",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/components/layout/MainLayout.tsx",
+      "from_func": "handleRequestLogSave",
+      "to_file": "src/components/layout/MainLayout.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "deleteExcluded",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "loadExcluded"
+    },
+    {
+      "from_file": "src/pages/LoginPage.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/pages/LoginPage.tsx",
+      "to_func": "navigate"
+    },
+    {
+      "from_file": "src/utils/quota/parsers.ts",
+      "from_func": "parseIdTokenPayload",
+      "to_file": "src/utils/quota/parsers.ts",
+      "to_func": "decodeBase64UrlPayload"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "clearLogs",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "buildGroup",
+      "to_file": "src/utils/quota/builders.ts",
+      "to_func": "getAntigravityQuotaInfo"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveProvider",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/components/layout/MainLayout.tsx",
+      "from_func": "handleRefreshAll",
+      "to_file": "src/components/layout/MainLayout.tsx",
+      "to_func": "fetchConfig"
+    },
+    {
+      "from_file": "src/pages/LoginPage.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/pages/LoginPage.tsx",
+      "to_func": "login"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "handleFileChange",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "loadFiles"
+    },
+    {
+      "from_file": "src/utils/language.ts",
+      "from_func": "getInitialLanguage",
+      "to_file": "src/utils/language.ts",
+      "to_func": "getStoredLanguage"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "encryptData",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "getKeyBytes"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "openExcludedModal",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "normalizeProviderKey"
+    },
+    {
+      "from_file": "src/pages/OAuthPage.tsx",
+      "from_func": "submitCallback",
+      "to_file": "src/pages/OAuthPage.tsx",
+      "to_func": "updateProviderState"
+    },
+    {
+      "from_file": "src/components/providers/utils.ts",
+      "from_func": "buildAmpcodeFormState",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "ampcodeMappingsToEntries"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleLogsMaxTotalSizeUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "setPendingFlag"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "buildGeminiCliQuotaBuckets",
+      "to_file": "src/utils/quota/builders.ts",
+      "to_func": "minNullableNumber"
+    },
+    {
+      "from_file": "src/pages/OAuthPage.tsx",
+      "from_func": "startPolling",
+      "to_file": "src/pages/OAuthPage.tsx",
+      "to_func": "updateProviderState"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeVertexKey",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeHeaders"
+    },
+    {
+      "from_file": "src/pages/OAuthPage.tsx",
+      "from_func": "startAuth",
+      "to_file": "src/pages/OAuthPage.tsx",
+      "to_func": "updateProviderState"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "toggleSetting",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "setPendingFlag"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useSparklines.ts",
+      "from_func": "useSparklines",
+      "to_file": "src/components/usage/hooks/useSparklines.ts",
+      "to_func": "buildSparkline"
+    },
+    {
+      "from_file": "src/services/storage/secureStorage.ts",
+      "from_func": "SecureStorageService.setItem",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "encryptData"
+    },
+    {
+      "from_file": "src/App.tsx",
+      "from_func": "App",
+      "to_file": "src/App.tsx",
+      "to_func": "restoreSession"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "calculateTotalCost",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "collectUsageDetails"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteOpenai",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "setConfigEnabled",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "withoutDisableAllModelsRule"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "AmpcodeModal",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "entriesToAmpcodeMappings"
+    },
+    {
+      "from_file": "src/components/layout/MainLayout.tsx",
+      "from_func": "handleRefreshAll",
+      "to_file": "src/hooks/useHeaderRefresh.ts",
+      "to_func": "triggerHeaderRefresh"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteGemini",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "decryptData",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "getKeyBytes"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveOpenai",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "buildAntigravityQuotaGroups",
+      "to_file": "src/utils/quota/builders.ts",
+      "to_func": "findAntigravityModel"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useUsageData.ts",
+      "from_func": "useUsageData",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "saveModelPrices"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleLogsMaxTotalSizeUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/SystemPage.tsx",
+      "from_func": "fetchModels",
+      "to_file": "src/pages/SystemPage.tsx",
+      "to_func": "fetchModelsFromStore"
+    },
+    {
+      "from_file": "src/components/providers/hooks/useProviderStats.ts",
+      "from_func": "useProviderStats",
+      "to_file": "src/hooks/useInterval.ts",
+      "to_func": "useInterval"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeAmpcodeConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeAmpcodeModelMappings"
+    },
+    {
+      "from_file": "src/utils/models.ts",
+      "from_func": "classifyModels",
+      "to_file": "src/utils/models.ts",
+      "to_func": "matchCategory"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useUsageData.ts",
+      "from_func": "handleImportChange",
+      "to_file": "src/components/usage/hooks/useUsageData.ts",
+      "to_func": "loadUsage"
+    },
+    {
+      "from_file": "src/pages/ApiKeysPage.tsx",
+      "from_func": "handleSave",
+      "to_file": "src/pages/ApiKeysPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteVertex",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/services/api/models.ts",
+      "from_func": "buildModelsEndpoint",
+      "to_file": "src/services/api/models.ts",
+      "to_func": "normalizeBaseUrl"
+    },
+    {
+      "from_file": "src/hooks/usePagination.ts",
+      "from_func": "usePagination",
+      "to_file": "src/hooks/usePagination.ts",
+      "to_func": "goToPage"
+    },
+    {
+      "from_file": "src/router/ProtectedRoute.tsx",
+      "from_func": "ProtectedRoute",
+      "to_file": "src/router/ProtectedRoute.tsx",
+      "to_func": "tryRestore"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRoutingModeUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "setPendingFlag"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeVertexKey",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeVertexModelAliases"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "withDisableAllModelsRule"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeProviderKeyConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeModelAliases"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "normalizeMappingEntries",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "buildEmptyMappingEntry"
+    },
+    {
+      "from_file": "src/services/storage/secureStorage.ts",
+      "from_func": "SecureStorageService.setItem",
+      "to_file": "src/services/storage/secureStorage.ts",
+      "to_func": "removeItem"
+    },
+    {
+      "from_file": "src/hooks/usePagination.ts",
+      "from_func": "prevPage",
+      "to_file": "src/hooks/usePagination.ts",
+      "to_func": "goToPage"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeProviderKeyConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeExcludedModels"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveGemini",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeAmpcodeConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeBoolean"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRetryUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "setPendingFlag"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "renderStatusBar",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "calculateStatusBarData"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveGemini",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "startLongPress",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "clearLongPressTimer"
+    },
+    {
+      "from_file": "src/pages/ApiKeysPage.tsx",
+      "from_func": "handleSave",
+      "to_file": "src/utils/validation.ts",
+      "to_func": "isValidApiKeyCharset"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeHeaders",
+      "to_file": "src/utils/headers.ts",
+      "to_func": "buildHeaderObject"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "AmpcodeModal",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeGeminiKeyConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizePrefix"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleProxyUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeGeminiKey",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeHeaders"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeGeminiKeyConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeExcludedModels"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveProvider",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "parseExcludedModels"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "saveProvider"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "removeMappingEntry",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "buildEmptyMappingEntry"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "saveExcludedModels",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "normalizeProviderKey"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleProxyClear",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "setPendingFlag"
+    },
+    {
+      "from_file": "src/utils/quota/parsers.ts",
+      "from_func": "normalizePlanType",
+      "to_file": "src/utils/quota/parsers.ts",
+      "to_func": "normalizeStringValue"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeProviderKey",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeHeaders"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "deleteProviderEntry"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeProviderKeyConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeHeaders"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "openMappingsModal",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "normalizeMappingEntries"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveOpenai",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "closeModal"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "handleLongPressMove",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "cancelLongPress"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "deleteModelMappings",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "loadModelMappings"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveVertex",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "closeModal"
+    },
+    {
+      "from_file": "src/components/providers/hooks/useProviderStats.ts",
+      "from_func": "useProviderStats",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "collectUsageDetails"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveProvider",
+      "to_file": "src/components/ui/ModelInputList.tsx",
+      "to_func": "entriesToModels"
+    },
+    {
+      "from_file": "src/services/storage/secureStorage.ts",
+      "from_func": "SecureStorageService.getItem",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "decryptData"
+    },
+    {
+      "from_file": "src/components/providers/OpenAISection/OpenAIDiscoveryModal.tsx",
+      "from_func": "OpenAIDiscoveryModal",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "buildOpenAIModelsEndpoint"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeConfigResponse",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeAmpcodeConfig"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "openGeminiModal"
+    },
+    {
+      "from_file": "src/services/api/client.ts",
+      "from_func": "ApiClient.setupInterceptors",
+      "to_file": "src/services/api/client.ts",
+      "to_func": "handleError"
+    },
+    {
+      "from_file": "src/services/api/client.ts",
+      "from_func": "ApiClient.setupInterceptors",
+      "to_file": "src/services/api/client.ts",
+      "to_func": "readHeader"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleProxyClear",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "loadConfigs"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildChartData",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "buildAreaGradient"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeOauthExcluded",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeExcludedModels"
+    },
+    {
+      "from_file": "src/pages/ApiKeysPage.tsx",
+      "from_func": "handleDelete",
+      "to_file": "src/pages/ApiKeysPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveProvider",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "parseLogLine",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "extractHttpMethodAndPath"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveVertex",
+      "to_file": "src/utils/headers.ts",
+      "to_func": "buildHeaderObject"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "openProviderModal"
+    },
+    {
+      "from_file": "src/utils/language.ts",
+      "from_func": "getStoredLanguage",
+      "to_file": "src/utils/language.ts",
+      "to_func": "parseStoredLanguage"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "renderStatusBar",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "normalizeAuthIndexValue"
+    },
+    {
+      "from_file": "src/components/providers/OpenAISection/OpenAIDiscoveryModal.tsx",
+      "from_func": "OpenAIDiscoveryModal",
+      "to_file": "src/utils/headers.ts",
+      "to_func": "buildHeaderObject"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "buildGeminiCliQuotaBuckets",
+      "to_file": "src/utils/quota/builders.ts",
+      "to_func": "pickEarlierResetTime"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useSparklines.ts",
+      "from_func": "useSparklines",
+      "to_file": "src/components/usage/hooks/useSparklines.ts",
+      "to_func": "buildLastHourSeries"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "deleteExcluded",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "normalizeProviderKey"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "downloadRequestLog",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/App.tsx",
+      "from_func": "App",
+      "to_file": "src/App.tsx",
+      "to_func": "setLanguage"
+    },
+    {
+      "from_file": "src/components/layout/MainLayout.tsx",
+      "from_func": "handleRequestLogSave",
+      "to_file": "src/components/layout/MainLayout.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "parseLogLine",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "extractIp"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildChartData",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "buildDailySeriesByModel"
+    },
+    {
+      "from_file": "src/utils/quota/parsers.ts",
+      "from_func": "normalizeQuotaFraction",
+      "to_file": "src/utils/quota/parsers.ts",
+      "to_func": "normalizeNumberValue"
+    },
+    {
+      "from_file": "src/utils/helpers.ts",
+      "from_func": "deepClone",
+      "to_file": "src/utils/helpers.ts",
+      "to_func": "deepClone"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "openOpenaiModal"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeOpenAIProvider",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeApiKeyEntry"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "saveAmpcode",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "entriesToAmpcodeMappings"
+    },
+    {
+      "from_file": "src/stores/useThemeStore.ts",
+      "from_func": "listener",
+      "to_file": "src/stores/useThemeStore.ts",
+      "to_func": "getSystemTheme"
+    },
+    {
+      "from_file": "src/pages/OAuthPage.tsx",
+      "from_func": "startPolling",
+      "to_file": "src/pages/OAuthPage.tsx",
+      "to_func": "getAuthKey"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteGemini",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/pages/OAuthPage.tsx",
+      "from_func": "startAuth",
+      "to_file": "src/pages/OAuthPage.tsx",
+      "to_func": "getAuthKey"
+    },
+    {
+      "from_file": "src/App.tsx",
+      "from_func": "App",
+      "to_file": "src/App.tsx",
+      "to_func": "initializeTheme"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "parseLogLine",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "normalizeTimestampToSeconds"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeProviderKey",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeModelAliases"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeConfigResponse",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeProviderKeyConfig"
+    },
+    {
+      "from_file": "src/components/providers/utils.ts",
+      "from_func": "withDisableAllModelsRule",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "stripDisableAllModelsRule"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeConfigResponse",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeOauthExcluded"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "toggleSetting",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveVertex",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "resolveAuthFileStats",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "normalizeAuthIndexValue"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteVertex",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/services/storage/secureStorage.ts",
+      "from_func": "SecureStorageService.migratePlaintextKeys",
+      "to_file": "src/services/storage/secureStorage.ts",
+      "to_func": "setItem"
+    },
+    {
+      "from_file": "src/components/providers/OpenAISection/OpenAIModal.tsx",
+      "from_func": "buildEmptyForm",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "buildApiKeyEntry"
+    },
+    {
+      "from_file": "src/components/providers/OpenAISection/OpenAIDiscoveryModal.tsx",
+      "from_func": "OpenAIDiscoveryModal",
+      "to_file": "src/components/providers/OpenAISection/OpenAIDiscoveryModal.tsx",
+      "to_func": "fetchOpenaiModelDiscovery"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveGemini",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "parseExcludedModels"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "parseLogLine",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "inferLogLevel"
+    },
+    {
+      "from_file": "src/components/providers/utils.ts",
+      "from_func": "buildOpenAIChatCompletionsEndpoint",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "normalizeOpenAIBaseUrl"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRoutingStrategyUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteProviderEntry",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "setConfigEnabled",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveProvider",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "closeModal"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleProxyUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "setPendingFlag"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteOpenai",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/components/ui/ModelInputList.tsx",
+      "to_func": "entriesToModels"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeConfigResponse",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeGeminiKeyConfig"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveOpenai",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "AmpcodeModal",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "buildAmpcodeFormState"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeOpenAIProvider",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizePrefix"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "parseLogLine",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "detectHttpStatusCode"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRoutingModeUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "calculateRecentPerMinuteRates",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "collectUsageDetails"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "decryptData",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "fromBase64"
+    },
+    {
+      "from_file": "src/utils/quota/resolvers.ts",
+      "from_func": "resolveCodexPlanType",
+      "to_file": "src/utils/quota/parsers.ts",
+      "to_func": "normalizePlanType"
+    },
+    {
+      "from_file": "src/components/quota/QuotaCard.tsx",
+      "from_func": "QuotaProgressBar",
+      "to_file": "src/components/quota/QuotaCard.tsx",
+      "to_func": "clamp"
+    },
+    {
+      "from_file": "src/utils/quota/resolvers.ts",
+      "from_func": "resolveCodexChatgptAccountId",
+      "to_file": "src/utils/quota/resolvers.ts",
+      "to_func": "extractCodexChatgptAccountId"
+    },
+    {
+      "from_file": "src/pages/ApiKeysPage.tsx",
+      "from_func": "handleSave",
+      "to_file": "src/pages/ApiKeysPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/components/ui/Modal.tsx",
+      "from_func": "Modal",
+      "to_file": "src/components/ui/Modal.tsx",
+      "to_func": "startClose"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "saveModelMappings",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "loadModelMappings"
+    },
+    {
+      "from_file": "src/hooks/useMediaQuery.ts",
+      "from_func": "useMediaQuery",
+      "to_file": "src/hooks/useMediaQuery.ts",
+      "to_func": "listener"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "clearAmpcodeUpstreamApiKey",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "encryptData",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "encodeText"
+    },
+    {
+      "from_file": "src/pages/AuthFilesPage.tsx",
+      "from_func": "saveExcludedModels",
+      "to_file": "src/pages/AuthFilesPage.tsx",
+      "to_func": "loadExcluded"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "computeKeyStats",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "normalizeAuthIndex"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveProvider",
+      "to_file": "src/utils/headers.ts",
+      "to_func": "buildHeaderObject"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleRetryUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "saveAmpcode",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "loadLogs",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "isNearBottom"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "withoutDisableAllModelsRule"
+    },
+    {
+      "from_file": "src/utils/quota/validators.ts",
+      "from_func": "isCodexFile",
+      "to_file": "src/utils/quota/validators.ts",
+      "to_func": "resolveAuthProvider"
+    },
+    {
+      "from_file": "src/components/quota/quotaConfigs.ts",
+      "from_func": "renderCodexItems",
+      "to_file": "src/components/quota/quotaConfigs.ts",
+      "to_func": "getPlanLabel"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildChartData",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "getAllSeries"
+    },
+    {
+      "from_file": "src/utils/language.ts",
+      "from_func": "getInitialLanguage",
+      "to_file": "src/utils/language.ts",
+      "to_func": "getBrowserLanguage"
+    },
+    {
+      "from_file": "src/stores/useThemeStore.ts",
+      "from_func": "listener",
+      "to_file": "src/stores/useThemeStore.ts",
+      "to_func": "applyTheme"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildHourlySeriesByModel",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "formatHourLabel"
+    },
+    {
+      "from_file": "src/components/common/PageTransition.tsx",
+      "from_func": "PageTransition",
+      "to_file": "src/components/common/PageTransition.tsx",
+      "to_func": "resolveOrderIndex"
+    },
+    {
+      "from_file": "src/pages/LogsPage.tsx",
+      "from_func": "loadLogs",
+      "to_file": "src/pages/LogsPage.tsx",
+      "to_func": "getErrorMessage"
+    },
+    {
+      "from_file": "src/components/providers/utils.ts",
+      "from_func": "withoutDisableAllModelsRule",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "stripDisableAllModelsRule"
+    },
+    {
+      "from_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "from_func": "AmpcodeModal",
+      "to_file": "src/components/providers/AmpcodeSection/AmpcodeModal.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeGeminiKeyConfig",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeHeaders"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useSparklines.ts",
+      "from_func": "useSparklines",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "collectUsageDetails"
+    },
+    {
+      "from_file": "src/pages/LoginPage.tsx",
+      "from_func": "init",
+      "to_file": "src/pages/LoginPage.tsx",
+      "to_func": "restoreSession"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "buildAntigravityQuotaGroups",
+      "to_file": "src/utils/quota/builders.ts",
+      "to_func": "buildGroup"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useChartData.ts",
+      "from_func": "useChartData",
+      "to_file": "src/utils/usage/chartConfig.ts",
+      "to_func": "buildChartOptions"
+    },
+    {
+      "from_file": "src/services/api/providers.ts",
+      "from_func": "serializeOpenAIProvider",
+      "to_file": "src/services/api/providers.ts",
+      "to_func": "serializeModelAliases"
+    },
+    {
+      "from_file": "src/pages/SystemPage.tsx",
+      "from_func": "fetchModels",
+      "to_file": "src/pages/SystemPage.tsx",
+      "to_func": "resolveApiKeysForModels"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useUsageData.ts",
+      "from_func": "useUsageData",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "loadModelPrices"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "load",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "fetchConfig"
+    },
+    {
+      "from_file": "src/utils/quota/resolvers.ts",
+      "from_func": "extractCodexChatgptAccountId",
+      "to_file": "src/utils/quota/parsers.ts",
+      "to_func": "parseIdTokenPayload"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveGemini",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "closeModal"
+    },
+    {
+      "from_file": "src/components/quota/quotaConfigs.ts",
+      "from_func": "buildCodexQuotaWindows",
+      "to_file": "src/components/quota/quotaConfigs.ts",
+      "to_func": "addWindow"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "buildChartData",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "buildHourlySeriesByModel"
+    },
+    {
+      "from_file": "src/utils/quota/validators.ts",
+      "from_func": "isAntigravityFile",
+      "to_file": "src/utils/quota/validators.ts",
+      "to_func": "resolveAuthProvider"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeOpenAIProvider",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeApiKeyEntry"
+    },
+    {
+      "from_file": "src/components/ui/Modal.tsx",
+      "from_func": "Modal",
+      "to_file": "src/components/ui/Modal.tsx",
+      "to_func": "unlockScroll"
+    },
+    {
+      "from_file": "src/services/api/transformers.ts",
+      "from_func": "normalizeApiKeyEntry",
+      "to_file": "src/services/api/transformers.ts",
+      "to_func": "normalizeHeaders"
+    },
+    {
+      "from_file": "src/components/quota/useQuotaLoader.ts",
+      "from_func": "useQuotaLoader",
+      "to_file": "src/components/quota/useQuotaLoader.ts",
+      "to_func": "setQuota"
+    },
+    {
+      "from_file": "src/components/quota/quotaConfigs.ts",
+      "from_func": "fetchCodexQuota",
+      "to_file": "src/components/quota/quotaConfigs.ts",
+      "to_func": "buildCodexQuotaWindows"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "AiProvidersPage",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "fetchConfig"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "withAlpha",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "clamp"
+    },
+    {
+      "from_file": "src/components/usage/hooks/useChartData.ts",
+      "from_func": "useChartData",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "buildChartData"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "encryptData",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "toBase64"
+    },
+    {
+      "from_file": "src/pages/LoginPage.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/utils/connection.ts",
+      "to_func": "normalizeApiBase"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "computeKeyStats",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "maskUsageSensitiveValue"
+    },
+    {
+      "from_file": "src/utils/quota/resolvers.ts",
+      "from_func": "extractCodexChatgptAccountId",
+      "to_file": "src/utils/quota/parsers.ts",
+      "to_func": "normalizeStringValue"
+    },
+    {
+      "from_file": "src/utils/quota/resolvers.ts",
+      "from_func": "resolveGeminiCliProjectId",
+      "to_file": "src/utils/quota/resolvers.ts",
+      "to_func": "extractGeminiCliProjectId"
+    },
+    {
+      "from_file": "src/router/ProtectedRoute.tsx",
+      "from_func": "tryRestore",
+      "to_file": "src/router/ProtectedRoute.tsx",
+      "to_func": "checkAuth"
+    },
+    {
+      "from_file": "src/pages/ApiKeysPage.tsx",
+      "from_func": "handleDelete",
+      "to_file": "src/pages/ApiKeysPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/components/common/PageTransition.tsx",
+      "from_func": "PageTransition",
+      "to_file": "src/components/common/PageTransition.tsx",
+      "to_func": "resolveScrollContainer"
+    },
+    {
+      "from_file": "src/components/quota/quotaConfigs.ts",
+      "from_func": "fetchAntigravityQuota",
+      "to_file": "src/components/quota/quotaConfigs.ts",
+      "to_func": "resolveAntigravityProjectId"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "deleteGemini",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "clearCache"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "buildGroup",
+      "to_file": "src/utils/quota/builders.ts",
+      "to_func": "findAntigravityModel"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "calculateRecentPerMinuteRates",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "extractTotalTokens"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "setConfigEnabled",
+      "to_file": "src/components/providers/utils.ts",
+      "to_func": "withDisableAllModelsRule"
+    },
+    {
+      "from_file": "src/pages/AiProvidersPage.tsx",
+      "from_func": "saveProvider",
+      "to_file": "src/pages/AiProvidersPage.tsx",
+      "to_func": "updateConfigValue"
+    },
+    {
+      "from_file": "src/utils/encryption.ts",
+      "from_func": "getKeyBytes",
+      "to_file": "src/utils/encryption.ts",
+      "to_func": "encodeText"
+    },
+    {
+      "from_file": "src/utils/quota/builders.ts",
+      "from_func": "buildAntigravityQuotaGroups",
+      "to_file": "src/utils/quota/builders.ts",
+      "to_func": "getAntigravityQuotaInfo"
+    },
+    {
+      "from_file": "src/utils/usage.ts",
+      "from_func": "calculateTokenBreakdown",
+      "to_file": "src/utils/usage.ts",
+      "to_func": "collectUsageDetails"
+    },
+    {
+      "from_file": "src/pages/SettingsPage.tsx",
+      "from_func": "handleLogsMaxTotalSizeUpdate",
+      "to_file": "src/pages/SettingsPage.tsx",
+      "to_func": "clearCache"
+    }
+  ],
+  "languages": [
+    "javascript",
+    "typescript"
+  ],
+  "timestamp": 1768555249.0194404
+}

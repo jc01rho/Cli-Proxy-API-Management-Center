@@ -953,6 +953,28 @@ export function AuthFilesPage() {
           </span>
           <span className={styles.fileName}>{item.name}</span>
           {item.status && <StatusBadge status={item.status} />}
+          {item.tier && item.type === 'antigravity' && (() => {
+            const tierLower = item.tier.toLowerCase();
+            let tierClass = styles.tierFree;
+            let tierLabel = item.tier_name || item.tier;
+            
+            if (tierLower.includes('ultra')) {
+              tierClass = styles.tierUltra;
+              tierLabel = item.tier_name || 'Ultra';
+            } else if (tierLower.includes('pro')) {
+              tierClass = styles.tierPro;
+              tierLabel = item.tier_name || 'Pro';
+            } else if (tierLower.includes('standard') || tierLower.includes('free')) {
+              tierClass = styles.tierFree;
+              tierLabel = 'Free';
+            }
+            
+            return (
+              <span className={`${styles.tierBadge} ${tierClass}`}>
+                {tierLabel}
+              </span>
+            );
+          })()}
         </div>
 
         {(item.status_message || item.last_error?.message) && (

@@ -1004,3 +1004,27 @@
   border: 1px solid var(--danger-color);
   flex-shrink: 0;
 }
+
+// Tier badges for Antigravity auth files
+.tierBadge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+.tierUltra {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  color: white;
+}
+
+.tierPro {
+  background: #3b82f6;
+  color: white;
+}
+
+.tierFree {
+  background: rgba(156, 163, 175, 0.2);
+  color: #6b7280;
+}

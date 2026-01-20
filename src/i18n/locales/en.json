@@ -920,6 +920,13 @@
     "claude_api_key": "Claude API key",
     "link_copied": "Link copied to clipboard"
   },
+  "recover_time": {
+    "in_seconds": "in {{count}}s",
+    "in_minutes": "in {{count}}m",
+    "in_hours": "in {{count}}h",
+    "in_days": "in {{count}}d",
+    "resuming_soon": "Resuming soon"
+  },
   "language": {
     "switch": "Language",
     "chinese": "中文",

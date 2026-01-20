@@ -102,3 +102,70 @@ export function truncateText(text: string, maxLength: number): string {
   }
   return text.slice(0, maxLength) + '...';
 }
+
+/**
+ * Format a future timestamp as relative time (e.g., "in 5 min", "in 2 hours")
+ * Returns a translation key for past times or null values
+ * @param dateString - ISO 8601 timestamp string
+ * @param t - i18next translation function (optional)
+ * @returns Formatted relative time string or translation key
+ */
+export function formatRelativeTime(
+  dateString: string | null | undefined,
+  t?: (key: string, options?: Record<string, unknown>) => string
+): string {
+  if (!dateString) {
+    return '';
+  }
+
+  const targetDate = new Date(dateString);
+  if (isNaN(targetDate.getTime())) {
+    return '';
+  }
+
+  const now = Date.now();
+  const diffMs = targetDate.getTime() - now;
+
+  // Past time - return "resuming soon" translation key
+  if (diffMs <= 0) {
+    return t ? t('recover_time.resuming_soon') : 'Resuming soon';
+  }
+
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) {
+    return t 
+      ? t('recover_time.in_days', { count: diffDays })
+      : `in ${diffDays}d`;
+  }
+  if (diffHours > 0) {
+    return t 
+      ? t('recover_time.in_hours', { count: diffHours })
+      : `in ${diffHours}h`;
+  }
+  if (diffMinutes > 0) {
+    return t 
+      ? t('recover_time.in_minutes', { count: diffMinutes })
+      : `in ${diffMinutes}m`;
+  }
+  return t 
+    ? t('recover_time.in_seconds', { count: diffSeconds })
+    : `in ${diffSeconds}s`;
+}
+
+/**
+ * Format a timestamp as absolute datetime for tooltip display
+ */
+export function formatAbsoluteTime(dateString: string | null | undefined): string {
+  if (!dateString) {
+    return '';
+  }
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return '';
+  }
+  return date.toLocaleString();
+}

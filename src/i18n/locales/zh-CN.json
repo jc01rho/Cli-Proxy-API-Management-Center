@@ -920,6 +920,13 @@
     "claude_api_key": "Claude API密钥",
     "link_copied": "已复制"
   },
+  "recover_time": {
+    "in_seconds": "{{count}}秒后",
+    "in_minutes": "{{count}}分钟后",
+    "in_hours": "{{count}}小时后",
+    "in_days": "{{count}}天后",
+    "resuming_soon": "即将恢复"
+  },
   "language": {
     "switch": "语言",
     "chinese": "中文",

@@ -8,6 +8,7 @@ import type { TFunction } from 'i18next';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import { TYPE_COLORS } from '@/utils/quota';
 import { StatusBadge } from '@/components/common/StatusBadge';
+import { formatRelativeTime, formatAbsoluteTime } from '@/utils/format';
 import styles from '@/pages/QuotaPage.module.scss';
 
 type QuotaStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -143,6 +144,19 @@ export function QuotaCard<TState extends QuotaStatusState>({
               : t('quota_management.key_unavailable')}
           </span>
         )}
+        {displayType === 'antigravity' && 
+          (item.quota_exceeded || item.status === 'pending') && 
+          (item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after) && (() => {
+            const recoverTime = item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after;
+            const relativeTime = formatRelativeTime(recoverTime, t);
+            const absoluteTime = formatAbsoluteTime(recoverTime);
+            if (!relativeTime) return null;
+            return (
+              <span className={styles.recoverBadge} title={absoluteTime}>
+                {relativeTime}
+              </span>
+            );
+          })()}
       </div>
 
       <div className={styles.quotaSection}>

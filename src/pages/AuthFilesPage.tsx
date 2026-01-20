@@ -23,7 +23,7 @@ import {
   type KeyStats,
   type UsageDetail,
 } from '@/utils/usage';
-import { formatFileSize } from '@/utils/format';
+import { formatFileSize, formatRelativeTime, formatAbsoluteTime } from '@/utils/format';
 import { generateId } from '@/utils/helpers';
 import styles from './AuthFilesPage.module.scss';
 
@@ -975,6 +975,19 @@ export function AuthFilesPage() {
               </span>
             );
           })()}
+          {item.type === 'antigravity' && 
+            (item.quota_exceeded || item.status === 'pending') && 
+            (item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after) && (() => {
+              const recoverTime = item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after;
+              const relativeTime = formatRelativeTime(recoverTime, t);
+              const absoluteTime = formatAbsoluteTime(recoverTime);
+              if (!relativeTime) return null;
+              return (
+                <span className={styles.recoverBadge} title={absoluteTime}>
+                  {relativeTime}
+                </span>
+              );
+            })()}
         </div>
 
         {(item.status_message || item.last_error?.message) && (

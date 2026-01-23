@@ -131,6 +131,26 @@ function isRuntimeOnlyAuthFile(file: AuthFileItem): boolean {
   return false;
 }
 
+// Go zero time 체크 (0001-01-01T00:00:00Z)
+function isGoZeroTime(timeStr?: string): boolean {
+  if (!timeStr) return false;
+  return timeStr.startsWith('0001-01-01');
+}
+
+// last_error가 429 EXHAUSTED 에러인지 체크
+function isExhaustedError(item: AuthFileItem): boolean {
+  if (!item.last_error) return false;
+  const { http_status, message } = item.last_error;
+  return http_status === 429 && 
+    (message?.includes('RESOURCE_EXHAUSTED') || message?.includes('Resource has been exhausted'));
+}
+
+// quota.next_recover_at가 zero time인지 체크 (NEVER_RECOVER)
+function isNeverRecoverQuota(item: AuthFileItem): boolean {
+  const recoverAt = item.quota?.next_recover_at || item.quota_next_recover_at;
+  return isGoZeroTime(recoverAt);
+}
+
 // 解析认证文件的统计数据
 function resolveAuthFileStats(
   file: AuthFileItem,
@@ -953,6 +973,8 @@ export function AuthFilesPage() {
           </span>
           <span className={styles.fileName}>{item.name}</span>
           {item.status && <StatusBadge status={item.status} />}
+          {isExhaustedError(item) && <StatusBadge status="exhausted" />}
+          {isNeverRecoverQuota(item) && <StatusBadge status="never_recover" />}
           {item.tier && item.type === 'antigravity' && (() => {
             const tierLower = item.tier.toLowerCase();
             let tierClass = styles.tierFree;

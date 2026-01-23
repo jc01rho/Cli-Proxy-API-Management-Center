@@ -428,7 +428,9 @@
     "refreshing": "Refreshing",
     "error": "Error",
     "disabled": "Disabled",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "exhausted": "Exhausted",
+    "never_recover": "Never Recover"
   },
   "antigravity_quota": {
     "title": "Antigravity Quota",

@@ -13,6 +13,23 @@ import styles from '@/pages/QuotaPage.module.scss';
 
 type QuotaStatus = 'idle' | 'loading' | 'success' | 'error';
 
+function isGoZeroTime(timeStr?: string): boolean {
+  if (!timeStr) return false;
+  return timeStr.startsWith('0001-01-01');
+}
+
+function isExhaustedError(item: AuthFileItem): boolean {
+  if (!item.last_error) return false;
+  const { http_status, message } = item.last_error;
+  return http_status === 429 && 
+    (message?.includes('RESOURCE_EXHAUSTED') || message?.includes('Resource has been exhausted'));
+}
+
+function isNeverRecoverQuota(item: AuthFileItem): boolean {
+  const recoverAt = item.quota?.next_recover_at || item.quota_next_recover_at;
+  return isGoZeroTime(recoverAt);
+}
+
 export interface QuotaStatusState {
   status: QuotaStatus;
   error?: string;
@@ -113,6 +130,8 @@ export function QuotaCard<TState extends QuotaStatusState>({
         </span>
         <span className={styles.fileName}>{item.name}</span>
         {item.status && <StatusBadge status={item.status} />}
+        {isExhaustedError(item) && <StatusBadge status="exhausted" />}
+        {isNeverRecoverQuota(item) && <StatusBadge status="never_recover" />}
         {item.tier && displayType === 'antigravity' && (() => {
           const tierLower = item.tier.toLowerCase();
           let tierClass = styles.tierFree;

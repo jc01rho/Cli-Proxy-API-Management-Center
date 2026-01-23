@@ -428,7 +428,9 @@
     "refreshing": "刷新中",
     "error": "错误",
     "disabled": "已禁用",
-    "unknown": "未知"
+    "unknown": "未知",
+    "exhausted": "已耗尽",
+    "never_recover": "永不恢复"
   },
   "antigravity_quota": {
     "title": "Antigravity 额度",

@@ -46,6 +46,18 @@
   border: 1px solid rgba(107, 114, 128, 0.2);
 }
 
+.statusExhausted {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #ea580c;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.statusNeverRecover {
+  background-color: rgba(139, 92, 246, 0.15);
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
 :global([data-theme='dark']) {
   .statusActive {
     background-color: rgba(34, 197, 94, 0.2);
@@ -75,5 +87,15 @@
   .statusUnknown {
     background-color: rgba(107, 114, 128, 0.15);
     color: #d1d5db;
+  }
+
+  .statusExhausted {
+    background-color: rgba(249, 115, 22, 0.2);
+    color: #fb923c;
+  }
+
+  .statusNeverRecover {
+    background-color: rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
   }
 }

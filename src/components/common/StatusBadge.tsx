@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import styles from './StatusBadge.module.scss';
 
-export type AuthStatus = 'active' | 'pending' | 'refreshing' | 'error' | 'disabled' | 'unknown';
+export type AuthStatus = 'active' | 'pending' | 'refreshing' | 'error' | 'disabled' | 'unknown' | 'exhausted' | 'never_recover';
 
 interface StatusBadgeProps {
   status?: AuthStatus | string;
@@ -33,6 +33,8 @@ function normalizeStatus(status: string): AuthStatus {
   if (lower === 'refreshing') return 'refreshing';
   if (lower === 'error') return 'error';
   if (lower === 'disabled') return 'disabled';
+  if (lower === 'exhausted') return 'exhausted';
+  if (lower === 'never_recover') return 'never_recover';
   return 'unknown';
 }
 
@@ -48,6 +50,10 @@ function getStatusClass(status: AuthStatus): string {
       return styles.statusError;
     case 'disabled':
       return styles.statusDisabled;
+    case 'exhausted':
+      return styles.statusExhausted;
+    case 'never_recover':
+      return styles.statusNeverRecover;
     default:
       return styles.statusUnknown;
   }

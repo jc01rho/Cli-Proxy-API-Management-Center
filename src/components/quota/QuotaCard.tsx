@@ -137,21 +137,21 @@ export function QuotaCard<TState extends QuotaStatusState>({
         {item.tier && displayType === 'antigravity' && (() => {
           const tierLower = item.tier.toLowerCase();
           let tierClass = styles.tierFree;
-          let tierLabel = item.tier_name || item.tier;
+          let tierLabel = 'Free';
           
           if (tierLower.includes('ultra')) {
             tierClass = styles.tierUltra;
-            tierLabel = item.tier_name || 'Ultra';
+            tierLabel = 'Ultra';
           } else if (tierLower.includes('pro')) {
             tierClass = styles.tierPro;
-            tierLabel = item.tier_name || 'Pro';
+            tierLabel = 'Pro';
           } else if (tierLower.includes('standard') || tierLower.includes('free')) {
             tierClass = styles.tierFree;
-            tierLabel = item.tier_name || 'Free';
+            tierLabel = 'Free';
           }
           
           return (
-            <span className={`${styles.tierBadge} ${tierClass}`}>
+            <span className={`${styles.tierBadge} ${tierClass}`} title={item.tier_name || item.tier}>
               {tierLabel}
             </span>
           );

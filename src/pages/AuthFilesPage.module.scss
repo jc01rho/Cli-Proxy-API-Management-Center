@@ -698,12 +698,88 @@
   background: var(--failure-badge-bg, #fee2e2);
 }
 
+.prefixProxyEditor {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.prefixProxyLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: $spacing-sm 0;
+}
+
+.prefixProxyError {
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  border: 1px solid var(--danger-color);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  font-size: 12px;
+}
+
+.prefixProxyJsonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prefixProxyLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.prefixProxyTextarea {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: monospace;
+  resize: vertical;
+  min-height: 120px;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+  }
+}
+
+.prefixProxyFields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-sm;
+
+  :global(.form-group) {
+    margin: 0;
+  }
+}
+
 .cardActions {
   display: flex;
   gap: $spacing-xs;
   justify-content: flex-end;
+  align-items: center;
   margin-top: auto;
   padding-top: $spacing-sm;
+}
+
+.statusToggle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: $spacing-sm;
 }
 
 .iconButton:global(.btn.btn-sm) {

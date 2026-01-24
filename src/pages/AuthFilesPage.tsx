@@ -9,7 +9,14 @@ import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
-import { IconBot, IconDownload, IconInfo, IconTrash2, IconX } from '@/components/ui/icons';
+import {
+  IconBot,
+  IconCode,
+  IconDownload,
+  IconInfo,
+  IconTrash2,
+  IconX,
+} from '@/components/ui/icons';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
 import { authFilesApi, usageApi } from '@/services/api';
@@ -35,44 +42,44 @@ type ResolvedTheme = 'light' | 'dark';
 const TYPE_COLORS: Record<string, TypeColorSet> = {
   qwen: {
     light: { bg: '#e8f5e9', text: '#2e7d32' },
-    dark: { bg: '#1b5e20', text: '#81c784' }
+    dark: { bg: '#1b5e20', text: '#81c784' },
   },
   gemini: {
     light: { bg: '#e3f2fd', text: '#1565c0' },
-    dark: { bg: '#0d47a1', text: '#64b5f6' }
+    dark: { bg: '#0d47a1', text: '#64b5f6' },
   },
   'gemini-cli': {
     light: { bg: '#e7efff', text: '#1e4fa3' },
-    dark: { bg: '#1c3f73', text: '#a8c7ff' }
+    dark: { bg: '#1c3f73', text: '#a8c7ff' },
   },
   aistudio: {
     light: { bg: '#f0f2f5', text: '#2f343c' },
-    dark: { bg: '#373c42', text: '#cfd3db' }
+    dark: { bg: '#373c42', text: '#cfd3db' },
   },
   claude: {
     light: { bg: '#fce4ec', text: '#c2185b' },
-    dark: { bg: '#880e4f', text: '#f48fb1' }
+    dark: { bg: '#880e4f', text: '#f48fb1' },
   },
   codex: {
     light: { bg: '#fff3e0', text: '#ef6c00' },
-    dark: { bg: '#e65100', text: '#ffb74d' }
+    dark: { bg: '#e65100', text: '#ffb74d' },
   },
   antigravity: {
     light: { bg: '#e0f7fa', text: '#006064' },
-    dark: { bg: '#004d40', text: '#80deea' }
+    dark: { bg: '#004d40', text: '#80deea' },
   },
   iflow: {
     light: { bg: '#f3e5f5', text: '#7b1fa2' },
-    dark: { bg: '#4a148c', text: '#ce93d8' }
+    dark: { bg: '#4a148c', text: '#ce93d8' },
   },
   empty: {
     light: { bg: '#f5f5f5', text: '#616161' },
-    dark: { bg: '#424242', text: '#bdbdbd' }
+    dark: { bg: '#424242', text: '#bdbdbd' },
   },
   unknown: {
     light: { bg: '#f0f0f0', text: '#666666', border: '1px dashed #999999' },
-    dark: { bg: '#3a3a3a', text: '#aaaaaa', border: '1px dashed #666666' }
-  }
+    dark: { bg: '#3a3a3a', text: '#aaaaaa', border: '1px dashed #666666' },
+  },
 };
 
 const OAUTH_PROVIDER_PRESETS = [
@@ -83,7 +90,7 @@ const OAUTH_PROVIDER_PRESETS = [
   'claude',
   'codex',
   'qwen',
-  'iflow'
+  'iflow',
 ];
 
 const OAUTH_PROVIDER_EXCLUDES = new Set(['all', 'unknown', 'empty']);
@@ -106,11 +113,23 @@ interface ModelMappingsFormState {
   mappings: OAuthModelMappingFormEntry[];
 }
 
+interface PrefixProxyEditorState {
+  fileName: string;
+  loading: boolean;
+  saving: boolean;
+  error: string | null;
+  originalText: string;
+  rawText: string;
+  json: Record<string, unknown> | null;
+  prefix: string;
+  proxyUrl: string;
+}
+
 const buildEmptyMappingEntry = (): OAuthModelMappingFormEntry => ({
   id: generateId(),
   name: '',
   alias: '',
-  fork: false
+  fork: false,
 });
 // 标准化 auth_index 值（与 usage.ts 中的 normalizeAuthIndex 保持一致）
 function normalizeAuthIndexValue(value: unknown): string | null {
@@ -152,10 +171,7 @@ function isNeverRecoverQuota(item: AuthFileItem): boolean {
 }
 
 // 解析认证文件的统计数据
-function resolveAuthFileStats(
-  file: AuthFileItem,
-  stats: KeyStats
-): KeyStatBucket {
+function resolveAuthFileStats(file: AuthFileItem, stats: KeyStats): KeyStatBucket {
   const defaultStats: KeyStatBucket = { success: 0, failure: 0 };
   const rawFileName = file?.name || '';
 
@@ -183,7 +199,10 @@ function resolveAuthFileStats(
     if (nameWithoutExt && nameWithoutExt !== rawFileName) {
       const nameWithoutExtId = normalizeUsageSourceId(nameWithoutExt);
       const fromNameWithoutExt = nameWithoutExtId ? stats.bySource?.[nameWithoutExtId] : undefined;
-      if (fromNameWithoutExt && (fromNameWithoutExt.success > 0 || fromNameWithoutExt.failure > 0)) {
+      if (
+        fromNameWithoutExt &&
+        (fromNameWithoutExt.success > 0 || fromNameWithoutExt.failure > 0)
+      ) {
         return fromNameWithoutExt;
       }
     }
@@ -208,6 +227,7 @@ export function AuthFilesPage() {
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deletingAll, setDeletingAll] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState<Record<string, boolean>>({});
   const [keyStats, setKeyStats] = useState<KeyStats>({ bySource: {}, byAuthIndex: {} });
   const [usageDetails, setUsageDetails] = useState<UsageDetail[]>([]);
 
@@ -218,7 +238,9 @@ export function AuthFilesPage() {
   // 模型列表弹窗相关
   const [modelsModalOpen, setModelsModalOpen] = useState(false);
   const [modelsLoading, setModelsLoading] = useState(false);
-  const [modelsList, setModelsList] = useState<{ id: string; display_name?: string; type?: string }[]>([]);
+  const [modelsList, setModelsList] = useState<
+    { id: string; display_name?: string; type?: string }[]
+  >([]);
   const [modelsFileName, setModelsFileName] = useState('');
   const [modelsFileType, setModelsFileType] = useState('');
   const [modelsError, setModelsError] = useState<'unsupported' | null>(null);
@@ -227,7 +249,10 @@ export function AuthFilesPage() {
   const [excluded, setExcluded] = useState<Record<string, string[]>>({});
   const [excludedError, setExcludedError] = useState<'unsupported' | null>(null);
   const [excludedModalOpen, setExcludedModalOpen] = useState(false);
-  const [excludedForm, setExcludedForm] = useState<ExcludedFormState>({ provider: '', modelsText: '' });
+  const [excludedForm, setExcludedForm] = useState<ExcludedFormState>({
+    provider: '',
+    modelsText: '',
+  });
   const [savingExcluded, setSavingExcluded] = useState(false);
 
   // OAuth 模型映射相关
@@ -236,9 +261,11 @@ export function AuthFilesPage() {
   const [mappingModalOpen, setMappingModalOpen] = useState(false);
   const [mappingForm, setMappingForm] = useState<ModelMappingsFormState>({
     provider: '',
-    mappings: [buildEmptyMappingEntry()]
+    mappings: [buildEmptyMappingEntry()],
   });
   const [savingMappings, setSavingMappings] = useState(false);
+
+  const [prefixProxyEditor, setPrefixProxyEditor] = useState<PrefixProxyEditorState | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const loadingKeyStatsRef = useRef(false);
@@ -246,6 +273,29 @@ export function AuthFilesPage() {
   const mappingsUnsupportedRef = useRef(false);
 
   const disableControls = connectionStatus !== 'connected';
+
+  const prefixProxyUpdatedText = useMemo(() => {
+    if (!prefixProxyEditor?.json) return prefixProxyEditor?.rawText ?? '';
+    const next: Record<string, unknown> = { ...prefixProxyEditor.json };
+    if ('prefix' in next || prefixProxyEditor.prefix.trim()) {
+      next.prefix = prefixProxyEditor.prefix;
+    }
+    if ('proxy_url' in next || prefixProxyEditor.proxyUrl.trim()) {
+      next.proxy_url = prefixProxyEditor.proxyUrl;
+    }
+    return JSON.stringify(next);
+  }, [
+    prefixProxyEditor?.json,
+    prefixProxyEditor?.prefix,
+    prefixProxyEditor?.proxyUrl,
+    prefixProxyEditor?.rawText,
+  ]);
+
+  const prefixProxyDirty = useMemo(() => {
+    if (!prefixProxyEditor?.json) return false;
+    if (!prefixProxyEditor.originalText) return false;
+    return prefixProxyUpdatedText !== prefixProxyEditor.originalText;
+  }, [prefixProxyEditor?.json, prefixProxyEditor?.originalText, prefixProxyUpdatedText]);
 
   const normalizeProviderKey = (value: string) => value.trim().toLowerCase();
 
@@ -382,7 +432,6 @@ export function AuthFilesPage() {
     return Array.from(types);
   }, [files]);
 
-
   const excludedProviderLookup = useMemo(() => {
     const lookup = new Map<string, string>();
     Object.keys(excluded).forEach((provider) => {
@@ -513,7 +562,10 @@ export function AuthFilesPage() {
 
     if (successCount > 0) {
       const suffix = validFiles.length > 1 ? ` (${successCount}/${validFiles.length})` : '';
-      showNotification(`${t('auth_files.upload_success')}${suffix}`, failed.length ? 'warning' : 'success');
+      showNotification(
+        `${t('auth_files.upload_success')}${suffix}`,
+        failed.length ? 'warning' : 'success'
+      );
       await loadFiles();
       await loadKeyStats();
     }
@@ -562,9 +614,7 @@ export function AuthFilesPage() {
         setFiles((prev) => prev.filter((file) => isRuntimeOnlyAuthFile(file)));
       } else {
         // 删除筛选类型的文件
-        const filesToDelete = files.filter(
-          (f) => f.type === filter && !isRuntimeOnlyAuthFile(f)
-        );
+        const filesToDelete = files.filter((f) => f.type === filter && !isRuntimeOnlyAuthFile(f));
 
         if (filesToDelete.length === 0) {
           showNotification(t('auth_files.delete_filtered_none', { type: typeLabel }), 'info');
@@ -612,9 +662,12 @@ export function AuthFilesPage() {
   // 下载文件
   const handleDownload = async (name: string) => {
     try {
-      const response = await apiClient.getRaw(`/auth-files/download?name=${encodeURIComponent(name)}`, {
-        responseType: 'blob'
-      });
+      const response = await apiClient.getRaw(
+        `/auth-files/download?name=${encodeURIComponent(name)}`,
+        {
+          responseType: 'blob',
+        }
+      );
       const blob = new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -626,6 +679,167 @@ export function AuthFilesPage() {
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '';
       showNotification(`${t('notification.download_failed')}: ${errorMessage}`, 'error');
+    }
+  };
+
+  const openPrefixProxyEditor = async (name: string) => {
+    if (disableControls) return;
+    if (prefixProxyEditor?.fileName === name) {
+      setPrefixProxyEditor(null);
+      return;
+    }
+
+    setPrefixProxyEditor({
+      fileName: name,
+      loading: true,
+      saving: false,
+      error: null,
+      originalText: '',
+      rawText: '',
+      json: null,
+      prefix: '',
+      proxyUrl: '',
+    });
+
+    try {
+      const rawText = await authFilesApi.downloadText(name);
+      const trimmed = rawText.trim();
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(trimmed) as unknown;
+      } catch {
+        setPrefixProxyEditor((prev) => {
+          if (!prev || prev.fileName !== name) return prev;
+          return {
+            ...prev,
+            loading: false,
+            error: t('auth_files.prefix_proxy_invalid_json'),
+            rawText: trimmed,
+            originalText: trimmed,
+          };
+        });
+        return;
+      }
+
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        setPrefixProxyEditor((prev) => {
+          if (!prev || prev.fileName !== name) return prev;
+          return {
+            ...prev,
+            loading: false,
+            error: t('auth_files.prefix_proxy_invalid_json'),
+            rawText: trimmed,
+            originalText: trimmed,
+          };
+        });
+        return;
+      }
+
+      const json = parsed as Record<string, unknown>;
+      const originalText = JSON.stringify(json);
+      const prefix = typeof json.prefix === 'string' ? json.prefix : '';
+      const proxyUrl = typeof json.proxy_url === 'string' ? json.proxy_url : '';
+
+      setPrefixProxyEditor((prev) => {
+        if (!prev || prev.fileName !== name) return prev;
+        return {
+          ...prev,
+          loading: false,
+          originalText,
+          rawText: originalText,
+          json,
+          prefix,
+          proxyUrl,
+          error: null,
+        };
+      });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : t('notification.download_failed');
+      setPrefixProxyEditor((prev) => {
+        if (!prev || prev.fileName !== name) return prev;
+        return { ...prev, loading: false, error: errorMessage, rawText: '' };
+      });
+      showNotification(`${t('notification.download_failed')}: ${errorMessage}`, 'error');
+    }
+  };
+
+  const handlePrefixProxyChange = (field: 'prefix' | 'proxyUrl', value: string) => {
+    setPrefixProxyEditor((prev) => {
+      if (!prev) return prev;
+      if (field === 'prefix') return { ...prev, prefix: value };
+      return { ...prev, proxyUrl: value };
+    });
+  };
+
+  const handlePrefixProxySave = async () => {
+    if (!prefixProxyEditor?.json) return;
+    if (!prefixProxyDirty) return;
+
+    const name = prefixProxyEditor.fileName;
+    const payload = prefixProxyUpdatedText;
+    const fileSize = new Blob([payload]).size;
+    if (fileSize > MAX_AUTH_FILE_SIZE) {
+      showNotification(
+        t('auth_files.upload_error_size', { maxSize: formatFileSize(MAX_AUTH_FILE_SIZE) }),
+        'error'
+      );
+      return;
+    }
+
+    setPrefixProxyEditor((prev) => {
+      if (!prev || prev.fileName !== name) return prev;
+      return { ...prev, saving: true };
+    });
+
+    try {
+      const file = new File([payload], name, { type: 'application/json' });
+      await authFilesApi.upload(file);
+      showNotification(t('auth_files.prefix_proxy_saved_success', { name }), 'success');
+      await loadFiles();
+      await loadKeyStats();
+      setPrefixProxyEditor(null);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '';
+      showNotification(`${t('notification.upload_failed')}: ${errorMessage}`, 'error');
+      setPrefixProxyEditor((prev) => {
+        if (!prev || prev.fileName !== name) return prev;
+        return { ...prev, saving: false };
+      });
+    }
+  };
+
+  const handleStatusToggle = async (item: AuthFileItem, enabled: boolean) => {
+    const name = item.name;
+    const nextDisabled = !enabled;
+    const previousDisabled = item.disabled === true;
+
+    setStatusUpdating((prev) => ({ ...prev, [name]: true }));
+    // Optimistic update for snappy UI.
+    setFiles((prev) => prev.map((f) => (f.name === name ? { ...f, disabled: nextDisabled } : f)));
+
+    try {
+      const res = await authFilesApi.setStatus(name, nextDisabled);
+      setFiles((prev) => prev.map((f) => (f.name === name ? { ...f, disabled: res.disabled } : f)));
+      showNotification(
+        enabled
+          ? t('auth_files.status_enabled_success', { name })
+          : t('auth_files.status_disabled_success', { name }),
+        'success'
+      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '';
+      setFiles((prev) =>
+        prev.map((f) => (f.name === name ? { ...f, disabled: previousDisabled } : f))
+      );
+      showNotification(`${t('notification.update_failed')}: ${errorMessage}`, 'error');
+    } finally {
+      setStatusUpdating((prev) => {
+        if (!prev[name]) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
     }
   };
 
@@ -649,7 +863,11 @@ export function AuthFilesPage() {
     } catch (err) {
       // 检测是否是 API 不支持的错误 (404 或特定错误消息)
       const errorMessage = err instanceof Error ? err.message : '';
-      if (errorMessage.includes('404') || errorMessage.includes('not found') || errorMessage.includes('Not Found')) {
+      if (
+        errorMessage.includes('404') ||
+        errorMessage.includes('not found') ||
+        errorMessage.includes('Not Found')
+      ) {
         setModelsError('unsupported');
       } else {
         showNotification(`${t('notification.load_failed')}: ${errorMessage}`, 'error');
@@ -663,7 +881,7 @@ export function AuthFilesPage() {
   const isModelExcluded = (modelId: string, providerType: string): boolean => {
     const providerKey = normalizeProviderKey(providerType);
     const excludedModels = excluded[providerKey] || excluded[providerType] || [];
-    return excludedModels.some(pattern => {
+    return excludedModels.some((pattern) => {
       if (pattern.includes('*')) {
         // 支持通配符匹配
         const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$', 'i');
@@ -697,7 +915,7 @@ export function AuthFilesPage() {
     const models = lookupKey ? excluded[lookupKey] : [];
     setExcludedForm({
       provider: lookupKey || fallbackProvider,
-      modelsText: Array.isArray(models) ? models.join('\n') : ''
+      modelsText: Array.isArray(models) ? models.join('\n') : '',
     });
     setExcludedModalOpen(true);
   };
@@ -754,14 +972,21 @@ export function AuthFilesPage() {
         await loadExcluded();
         showNotification(t('oauth_excluded.delete_success'), 'success');
       } catch (fallbackErr: unknown) {
-        const errorMessage = fallbackErr instanceof Error ? fallbackErr.message : err instanceof Error ? err.message : '';
+        const errorMessage =
+          fallbackErr instanceof Error
+            ? fallbackErr.message
+            : err instanceof Error
+              ? err.message
+              : '';
         showNotification(`${t('oauth_excluded.delete_failed')}: ${errorMessage}`, 'error');
       }
     }
   };
 
   // OAuth 模型映射相关方法
-  const normalizeMappingEntries = (entries?: OAuthModelMappingEntry[]): OAuthModelMappingFormEntry[] => {
+  const normalizeMappingEntries = (
+    entries?: OAuthModelMappingEntry[]
+  ): OAuthModelMappingFormEntry[] => {
     if (!Array.isArray(entries) || entries.length === 0) {
       return [buildEmptyMappingEntry()];
     }
@@ -787,7 +1012,11 @@ export function AuthFilesPage() {
     setMappingModalOpen(true);
   };
 
-  const updateMappingEntry = (index: number, field: keyof OAuthModelMappingEntry, value: string | boolean) => {
+  const updateMappingEntry = (
+    index: number,
+    field: keyof OAuthModelMappingEntry,
+    value: string | boolean
+  ) => {
     setMappingForm((prev) => ({
       ...prev,
       mappings: prev.mappings.map((entry, idx) =>
@@ -868,7 +1097,10 @@ export function AuthFilesPage() {
     <div className={styles.filterTags}>
       {existingTypes.map((type) => {
         const isActive = filter === type;
-        const color = type === 'all' ? { bg: 'var(--bg-tertiary)', text: 'var(--text-primary)' } : getTypeColor(type);
+        const color =
+          type === 'all'
+            ? { bg: 'var(--bg-tertiary)', text: 'var(--text-primary)' }
+            : getTypeColor(type);
         const activeTextColor = resolvedTheme === 'dark' ? '#111827' : '#fff';
         return (
           <button
@@ -877,7 +1109,7 @@ export function AuthFilesPage() {
             style={{
               backgroundColor: isActive ? color.text : color.bg,
               color: isActive ? activeTextColor : color.text,
-              borderColor: color.text
+              borderColor: color.text,
             }}
             onClick={() => {
               setFilter(type);
@@ -918,7 +1150,8 @@ export function AuthFilesPage() {
     const rawAuthIndex = item['auth_index'] ?? item.authIndex;
     const authIndexKey = normalizeAuthIndexValue(rawAuthIndex);
 
-    const statusData = (authIndexKey && statusBarCache.get(authIndexKey)) || calculateStatusBarData([]);
+    const statusData =
+      (authIndexKey && statusBarCache.get(authIndexKey)) || calculateStatusBarData([]);
     const hasData = statusData.totalSuccess + statusData.totalFailure > 0;
     const rateClass = !hasData
       ? ''
@@ -966,7 +1199,7 @@ export function AuthFilesPage() {
             style={{
               backgroundColor: typeColor.bg,
               color: typeColor.text,
-              ...(typeColor.border ? { border: typeColor.border } : {})
+              ...(typeColor.border ? { border: typeColor.border } : {}),
             }}
           >
             {getTypeLabel(item.type || 'unknown')}
@@ -1019,8 +1252,12 @@ export function AuthFilesPage() {
         )}
 
         <div className={styles.cardMeta}>
-          <span>{t('auth_files.file_size')}: {item.size ? formatFileSize(item.size) : '-'}</span>
-          <span>{t('auth_files.file_modified')}: {formatModified(item)}</span>
+          <span>
+            {t('auth_files.file_size')}: {item.size ? formatFileSize(item.size) : '-'}
+          </span>
+          <span>
+            {t('auth_files.file_modified')}: {formatModified(item)}
+          </span>
         </div>
 
         <div className={styles.cardStats}>
@@ -1071,6 +1308,16 @@ export function AuthFilesPage() {
                 <IconDownload className={styles.actionIcon} size={16} />
               </Button>
               <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => void openPrefixProxyEditor(item.name)}
+                className={styles.iconButton}
+                title={t('auth_files.prefix_proxy_button')}
+                disabled={disableControls}
+              >
+                <IconCode className={styles.actionIcon} size={16} />
+              </Button>
+              <Button
                 variant="danger"
                 size="sm"
                 onClick={() => handleDelete(item.name)}
@@ -1086,8 +1333,20 @@ export function AuthFilesPage() {
               </Button>
             </>
           )}
+          {!isRuntimeOnly && (
+            <div className={styles.statusToggle}>
+              <ToggleSwitch
+                ariaLabel={t('auth_files.status_toggle_label')}
+                checked={!item.disabled}
+                disabled={disableControls || statusUpdating[item.name] === true}
+                onChange={(value) => void handleStatusToggle(item, value)}
+              />
+            </div>
+          )}
           {isRuntimeOnly && (
-            <div className={styles.virtualBadge}>{t('auth_files.type_virtual') || '虚拟认证文件'}</div>
+            <div className={styles.virtualBadge}>
+              {t('auth_files.type_virtual') || '虚拟认证文件'}
+            </div>
           )}
         </div>
       </div>
@@ -1112,12 +1371,7 @@ export function AuthFilesPage() {
         title={titleNode}
         extra={
           <div className={styles.headerActions}>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleHeaderRefresh}
-              disabled={loading}
-            >
+            <Button variant="secondary" size="sm" onClick={handleHeaderRefresh} disabled={loading}>
               {t('common.refresh')}
             </Button>
             <Button
@@ -1127,9 +1381,16 @@ export function AuthFilesPage() {
               disabled={disableControls || loading || deletingAll}
               loading={deletingAll}
             >
-              {filter === 'all' ? t('auth_files.delete_all_button') : `${t('common.delete')} ${getTypeLabel(filter)}`}
+              {filter === 'all'
+                ? t('auth_files.delete_all_button')
+                : `${t('common.delete')} ${getTypeLabel(filter)}`}
             </Button>
-            <Button size="sm" onClick={handleUploadClick} disabled={disableControls || uploading} loading={uploading}>
+            <Button
+              size="sm"
+              onClick={handleUploadClick}
+              disabled={disableControls || uploading}
+              loading={uploading}
+            >
               {t('auth_files.upload_button')}
             </Button>
             <input
@@ -1180,11 +1441,12 @@ export function AuthFilesPage() {
         {loading ? (
           <div className={styles.hint}>{t('common.loading')}</div>
         ) : pageItems.length === 0 ? (
-          <EmptyState title={t('auth_files.search_empty_title')} description={t('auth_files.search_empty_desc')} />
+          <EmptyState
+            title={t('auth_files.search_empty_title')}
+            description={t('auth_files.search_empty_desc')}
+          />
         ) : (
-          <div className={styles.fileGrid}>
-            {pageItems.map(renderFileCard)}
-          </div>
+          <div className={styles.fileGrid}>{pageItems.map(renderFileCard)}</div>
         )}
 
         {/* 分页 */}
@@ -1202,7 +1464,7 @@ export function AuthFilesPage() {
               {t('auth_files.pagination_info', {
                 current: currentPage,
                 total: totalPages,
-                count: filtered.length
+                count: filtered.length,
               })}
             </div>
             <Button
@@ -1345,7 +1607,9 @@ export function AuthFilesPage() {
       <Modal
         open={modelsModalOpen}
         onClose={() => setModelsModalOpen(false)}
-        title={t('auth_files.models_title', { defaultValue: '支持的模型' }) + ` - ${modelsFileName}`}
+        title={
+          t('auth_files.models_title', { defaultValue: '支持的模型' }) + ` - ${modelsFileName}`
+        }
         footer={
           <Button variant="secondary" onClick={() => setModelsModalOpen(false)}>
             {t('common.close')}
@@ -1353,16 +1617,22 @@ export function AuthFilesPage() {
         }
       >
         {modelsLoading ? (
-          <div className={styles.hint}>{t('auth_files.models_loading', { defaultValue: '正在加载模型列表...' })}</div>
+          <div className={styles.hint}>
+            {t('auth_files.models_loading', { defaultValue: '正在加载模型列表...' })}
+          </div>
         ) : modelsError === 'unsupported' ? (
           <EmptyState
             title={t('auth_files.models_unsupported', { defaultValue: '当前版本不支持此功能' })}
-            description={t('auth_files.models_unsupported_desc', { defaultValue: '请更新 CLI Proxy API 到最新版本后重试' })}
+            description={t('auth_files.models_unsupported_desc', {
+              defaultValue: '请更新 CLI Proxy API 到最新版本后重试',
+            })}
           />
         ) : modelsList.length === 0 ? (
           <EmptyState
             title={t('auth_files.models_empty', { defaultValue: '该凭证暂无可用模型' })}
-            description={t('auth_files.models_empty_desc', { defaultValue: '该认证凭证可能尚未被服务器加载或没有绑定任何模型' })}
+            description={t('auth_files.models_empty_desc', {
+              defaultValue: '该认证凭证可能尚未被服务器加载或没有绑定任何模型',
+            })}
           />
         ) : (
           <div className={styles.modelsList}>
@@ -1374,23 +1644,115 @@ export function AuthFilesPage() {
                   className={`${styles.modelItem} ${isExcluded ? styles.modelItemExcluded : ''}`}
                   onClick={() => {
                     navigator.clipboard.writeText(model.id);
-                    showNotification(t('notification.link_copied', { defaultValue: '已复制到剪贴板' }), 'success');
+                    showNotification(
+                      t('notification.link_copied', { defaultValue: '已复制到剪贴板' }),
+                      'success'
+                    );
                   }}
-                  title={isExcluded ? t('auth_files.models_excluded_hint', { defaultValue: '此模型已被 OAuth 排除' }) : t('common.copy', { defaultValue: '点击复制' })}
+                  title={
+                    isExcluded
+                      ? t('auth_files.models_excluded_hint', {
+                          defaultValue: '此模型已被 OAuth 排除',
+                        })
+                      : t('common.copy', { defaultValue: '点击复制' })
+                  }
                 >
                   <span className={styles.modelId}>{model.id}</span>
                   {model.display_name && model.display_name !== model.id && (
                     <span className={styles.modelDisplayName}>{model.display_name}</span>
                   )}
-                  {model.type && (
-                    <span className={styles.modelType}>{model.type}</span>
-                  )}
+                  {model.type && <span className={styles.modelType}>{model.type}</span>}
                   {isExcluded && (
-                    <span className={styles.modelExcludedBadge}>{t('auth_files.models_excluded_badge', { defaultValue: '已排除' })}</span>
+                    <span className={styles.modelExcludedBadge}>
+                      {t('auth_files.models_excluded_badge', { defaultValue: '已排除' })}
+                    </span>
                   )}
                 </div>
               );
             })}
+          </div>
+        )}
+      </Modal>
+
+      {/* prefix/proxy_url 编辑弹窗 */}
+      <Modal
+        open={Boolean(prefixProxyEditor)}
+        onClose={() => setPrefixProxyEditor(null)}
+        closeDisabled={prefixProxyEditor?.saving === true}
+        width={720}
+        title={
+          prefixProxyEditor?.fileName
+            ? `${t('auth_files.prefix_proxy_button')} - ${prefixProxyEditor.fileName}`
+            : t('auth_files.prefix_proxy_button')
+        }
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setPrefixProxyEditor(null)}
+              disabled={prefixProxyEditor?.saving === true}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={() => void handlePrefixProxySave()}
+              loading={prefixProxyEditor?.saving === true}
+              disabled={
+                disableControls ||
+                prefixProxyEditor?.saving === true ||
+                !prefixProxyDirty ||
+                !prefixProxyEditor?.json
+              }
+            >
+              {t('common.save')}
+            </Button>
+          </>
+        }
+      >
+        {prefixProxyEditor && (
+          <div className={styles.prefixProxyEditor}>
+            {prefixProxyEditor.loading ? (
+              <div className={styles.prefixProxyLoading}>
+                <LoadingSpinner size={14} />
+                <span>{t('auth_files.prefix_proxy_loading')}</span>
+              </div>
+            ) : (
+              <>
+                {prefixProxyEditor.error && (
+                  <div className={styles.prefixProxyError}>{prefixProxyEditor.error}</div>
+                )}
+                <div className={styles.prefixProxyJsonWrapper}>
+                  <label className={styles.prefixProxyLabel}>
+                    {t('auth_files.prefix_proxy_source_label')}
+                  </label>
+                  <textarea
+                    className={styles.prefixProxyTextarea}
+                    rows={10}
+                    readOnly
+                    value={prefixProxyUpdatedText}
+                  />
+                </div>
+                <div className={styles.prefixProxyFields}>
+                  <Input
+                    label={t('auth_files.prefix_label')}
+                    value={prefixProxyEditor.prefix}
+                    disabled={
+                      disableControls || prefixProxyEditor.saving || !prefixProxyEditor.json
+                    }
+                    onChange={(e) => handlePrefixProxyChange('prefix', e.target.value)}
+                  />
+                  <Input
+                    label={t('auth_files.proxy_url_label')}
+                    value={prefixProxyEditor.proxyUrl}
+                    placeholder={t('auth_files.proxy_url_placeholder')}
+                    disabled={
+                      disableControls || prefixProxyEditor.saving || !prefixProxyEditor.json
+                    }
+                    onChange={(e) => handlePrefixProxyChange('proxyUrl', e.target.value)}
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
       </Modal>
@@ -1402,7 +1764,11 @@ export function AuthFilesPage() {
         title={t('oauth_excluded.add_title')}
         footer={
           <>
-            <Button variant="secondary" onClick={() => setExcludedModalOpen(false)} disabled={savingExcluded}>
+            <Button
+              variant="secondary"
+              onClick={() => setExcludedModalOpen(false)}
+              disabled={savingExcluded}
+            >
               {t('common.cancel')}
             </Button>
             <Button onClick={saveExcludedModels} loading={savingExcluded}>
@@ -1466,7 +1832,11 @@ export function AuthFilesPage() {
         title={t('oauth_model_mappings.add_title')}
         footer={
           <>
-            <Button variant="secondary" onClick={() => setMappingModalOpen(false)} disabled={savingMappings}>
+            <Button
+              variant="secondary"
+              onClick={() => setMappingModalOpen(false)}
+              disabled={savingMappings}
+            >
               {t('common.cancel')}
             </Button>
             <Button onClick={saveModelMappings} loading={savingMappings}>

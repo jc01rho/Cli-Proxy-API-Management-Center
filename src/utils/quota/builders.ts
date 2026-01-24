@@ -9,7 +9,6 @@ import type {
   GeminiCliParsedBucket,
   GeminiCliQuotaBucketState,
 } from '@/types';
-import { GEMINI_CLI_GROUP_LOOKUP } from './constants';
 import { normalizeQuotaFraction } from './parsers';
 import { isIgnoredGeminiCliModel } from './validators';
 
@@ -34,81 +33,23 @@ export function buildGeminiCliQuotaBuckets(
 ): GeminiCliQuotaBucketState[] {
   if (buckets.length === 0) return [];
 
-  type GeminiCliQuotaBucketGroup = {
-    id: string;
-    label: string;
-    tokenType: string | null;
-    modelIds: string[];
-    preferredModelId?: string;
-    preferredBucket?: GeminiCliParsedBucket;
-    fallbackRemainingFraction: number | null;
-    fallbackRemainingAmount: number | null;
-    fallbackResetTime: string | undefined;
-  };
+  const result: GeminiCliQuotaBucketState[] = [];
 
-  const grouped = new Map<string, GeminiCliQuotaBucketGroup>();
+  for (const bucket of buckets) {
+    if (isIgnoredGeminiCliModel(bucket.modelId)) continue;
 
-  buckets.forEach((bucket) => {
-    if (isIgnoredGeminiCliModel(bucket.modelId)) return;
-    const group = GEMINI_CLI_GROUP_LOOKUP.get(bucket.modelId);
-    const groupId = group?.id ?? bucket.modelId;
-    const label = group?.label ?? bucket.modelId;
-    const tokenKey = bucket.tokenType ?? '';
-    const mapKey = `${groupId}::${tokenKey}`;
-    const existing = grouped.get(mapKey);
-
-    if (!existing) {
-      const preferredModelId = group?.preferredModelId;
-      const preferredBucket =
-        preferredModelId && bucket.modelId === preferredModelId ? bucket : undefined;
-      grouped.set(mapKey, {
-        id: `${groupId}${tokenKey ? `-${tokenKey}` : ''}`,
-        label,
-        tokenType: bucket.tokenType,
-        modelIds: [bucket.modelId],
-        preferredModelId,
-        preferredBucket,
-        fallbackRemainingFraction: bucket.remainingFraction,
-        fallbackRemainingAmount: bucket.remainingAmount,
-        fallbackResetTime: bucket.resetTime,
-      });
-      return;
-    }
-
-    existing.fallbackRemainingFraction = minNullableNumber(
-      existing.fallbackRemainingFraction,
-      bucket.remainingFraction
-    );
-    existing.fallbackRemainingAmount = minNullableNumber(
-      existing.fallbackRemainingAmount,
-      bucket.remainingAmount
-    );
-    existing.fallbackResetTime = pickEarlierResetTime(existing.fallbackResetTime, bucket.resetTime);
-    existing.modelIds.push(bucket.modelId);
-
-    if (existing.preferredModelId && bucket.modelId === existing.preferredModelId) {
-      existing.preferredBucket = bucket;
-    }
-  });
-
-  return Array.from(grouped.values()).map((bucket) => {
-    const uniqueModelIds = Array.from(new Set(bucket.modelIds));
-    const preferred = bucket.preferredBucket;
-    const remainingFraction = preferred
-      ? preferred.remainingFraction
-      : bucket.fallbackRemainingFraction;
-    const remainingAmount = preferred ? preferred.remainingAmount : bucket.fallbackRemainingAmount;
-    const resetTime = preferred ? preferred.resetTime : bucket.fallbackResetTime;
-    return {
-      id: bucket.id,
-      label: bucket.label,
-      remainingFraction,
-      remainingAmount,
-      resetTime,
+    result.push({
+      id: bucket.modelId,
+      label: bucket.modelId,
+      remainingFraction: bucket.remainingFraction,
+      remainingAmount: bucket.remainingAmount,
+      resetTime: bucket.resetTime,
       tokenType: bucket.tokenType,
-      modelIds: uniqueModelIds,
-    };
-  });
+      modelIds: [bucket.modelId],
+    });
+  }
+
+  return result;
 }
 
 export function getAntigravityQuotaInfo(entry?: AntigravityQuotaInfo): {

@@ -87,7 +87,7 @@ const normalizeOauthModelMappings = (payload: unknown): Record<string, OAuthMode
       .filter(Boolean)
       .filter((entry) => {
         const mapping = entry as OAuthModelMappingEntry;
-        const dedupeKey = `${mapping.name.toLowerCase()}::${mapping.alias.toLowerCase()}::${mapping.fork ? '1' : '0'}`;
+        const dedupeKey = `${mapping.alias.toLowerCase()}::${mapping.fork ? '1' : '0'}`;
         if (seen.has(dedupeKey)) return false;
         seen.add(dedupeKey);
         return true;

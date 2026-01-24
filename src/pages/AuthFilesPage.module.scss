@@ -448,9 +448,26 @@
 
 .cardHeader {
   display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.cardHeaderRow {
+  display: flex;
   align-items: center;
   gap: $spacing-sm;
   min-height: 28px;
+}
+
+.cardBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  align-items: center;
+
+  &:empty {
+    display: none;
+  }
 }
 
 .typeBadge {

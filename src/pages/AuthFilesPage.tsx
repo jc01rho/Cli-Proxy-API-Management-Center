@@ -1382,55 +1382,59 @@ export function AuthFilesPage() {
     return (
       <div key={item.name} className={styles.fileCard}>
         <div className={styles.cardHeader}>
-          <span
-            className={styles.typeBadge}
-            style={{
-              backgroundColor: typeColor.bg,
-              color: typeColor.text,
-              ...(typeColor.border ? { border: typeColor.border } : {}),
-            }}
-          >
-            {getTypeLabel(item.type || 'unknown')}
-          </span>
-          <span className={styles.fileName}>{item.name}</span>
-          {item.status && <StatusBadge status={item.status} />}
-          {isExhaustedError(item) && <StatusBadge status="exhausted" />}
-          {isNeverRecoverQuota(item) && <StatusBadge status="never_recover" />}
-          {item.tier && item.type === 'antigravity' && (() => {
-            const tierLower = item.tier.toLowerCase();
-            let tierClass = styles.tierFree;
-            let tierLabel = 'Free';
-            
-            if (tierLower.includes('ultra')) {
-              tierClass = styles.tierUltra;
-              tierLabel = 'Ultra';
-            } else if (tierLower.includes('pro')) {
-              tierClass = styles.tierPro;
-              tierLabel = 'Pro';
-            } else if (tierLower.includes('standard') || tierLower.includes('free')) {
-              tierClass = styles.tierFree;
-              tierLabel = 'Free';
-            }
-            
-            return (
-              <span className={`${styles.tierBadge} ${tierClass}`} title={item.tier_name || item.tier}>
-                {tierLabel}
-              </span>
-            );
-          })()}
-          {item.type === 'antigravity' && 
-            (item.quota_exceeded || item.status === 'pending') && 
-            (item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after) && (() => {
-              const recoverTime = item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after;
-              const relativeTime = formatRelativeTime(recoverTime, t);
-              const absoluteTime = formatAbsoluteTime(recoverTime);
-              if (!relativeTime) return null;
+          <div className={styles.cardHeaderRow}>
+            <span
+              className={styles.typeBadge}
+              style={{
+                backgroundColor: typeColor.bg,
+                color: typeColor.text,
+                ...(typeColor.border ? { border: typeColor.border } : {}),
+              }}
+            >
+              {getTypeLabel(item.type || 'unknown')}
+            </span>
+            <span className={styles.fileName}>{item.name}</span>
+          </div>
+          <div className={styles.cardBadges}>
+            {item.status && <StatusBadge status={item.status} />}
+            {isExhaustedError(item) && <StatusBadge status="exhausted" />}
+            {isNeverRecoverQuota(item) && <StatusBadge status="never_recover" />}
+            {item.tier && item.type === 'antigravity' && (() => {
+              const tierLower = item.tier.toLowerCase();
+              let tierClass = styles.tierFree;
+              let tierLabel = 'Free';
+              
+              if (tierLower.includes('ultra')) {
+                tierClass = styles.tierUltra;
+                tierLabel = 'Ultra';
+              } else if (tierLower.includes('pro')) {
+                tierClass = styles.tierPro;
+                tierLabel = 'Pro';
+              } else if (tierLower.includes('standard') || tierLower.includes('free')) {
+                tierClass = styles.tierFree;
+                tierLabel = 'Free';
+              }
+              
               return (
-                <span className={styles.recoverBadge} title={absoluteTime}>
-                  {relativeTime}
+                <span className={`${styles.tierBadge} ${tierClass}`} title={item.tier_name || item.tier}>
+                  {tierLabel}
                 </span>
               );
             })()}
+            {item.type === 'antigravity' && 
+              (item.quota_exceeded || item.status === 'pending') && 
+              (item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after) && (() => {
+                const recoverTime = item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after;
+                const relativeTime = formatRelativeTime(recoverTime, t);
+                const absoluteTime = formatAbsoluteTime(recoverTime);
+                if (!relativeTime) return null;
+                return (
+                  <span className={styles.recoverBadge} title={absoluteTime}>
+                    {relativeTime}
+                  </span>
+                );
+              })()}
+          </div>
         </div>
 
         {(item.status_message || item.last_error?.message) && (

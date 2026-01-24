@@ -4,13 +4,12 @@
 
 import type {
   AntigravityQuotaGroup,
-  AntigravityQuotaGroupDefinition,
   AntigravityQuotaInfo,
   AntigravityModelsPayload,
   GeminiCliParsedBucket,
   GeminiCliQuotaBucketState,
 } from '@/types';
-import { ANTIGRAVITY_QUOTA_GROUPS, GEMINI_CLI_GROUP_LOOKUP } from './constants';
+import { GEMINI_CLI_GROUP_LOOKUP } from './constants';
 import { normalizeQuotaFraction } from './parsers';
 import { isIgnoredGeminiCliModel } from './validators';
 
@@ -135,107 +134,23 @@ export function getAntigravityQuotaInfo(entry?: AntigravityQuotaInfo): {
   };
 }
 
-export function findAntigravityModel(
-  models: AntigravityModelsPayload,
-  identifier: string
-): { id: string; entry: AntigravityQuotaInfo } | null {
-  const direct = models[identifier];
-  if (direct) {
-    return { id: identifier, entry: direct };
-  }
-
-  const match = Object.entries(models).find(([, entry]) => {
-    const name = typeof entry?.displayName === 'string' ? entry.displayName : '';
-    return name.toLowerCase() === identifier.toLowerCase();
-  });
-  if (match) {
-    return { id: match[0], entry: match[1] };
-  }
-
-  return null;
-}
-
 export function buildAntigravityQuotaGroups(
   models: AntigravityModelsPayload
 ): AntigravityQuotaGroup[] {
   const groups: AntigravityQuotaGroup[] = [];
-  let geminiProResetTime: string | undefined;
-  const [claudeDef, geminiProDef, flashDef, flashLiteDef, cuDef, geminiFlashDef, imageDef] =
-    ANTIGRAVITY_QUOTA_GROUPS;
 
-  const buildGroup = (
-    def: AntigravityQuotaGroupDefinition,
-    overrideResetTime?: string
-  ): AntigravityQuotaGroup | null => {
-    const matches = def.identifiers
-      .map((identifier) => findAntigravityModel(models, identifier))
-      .filter((entry): entry is { id: string; entry: AntigravityQuotaInfo } => Boolean(entry));
+  for (const [modelId, entry] of Object.entries(models)) {
+    const info = getAntigravityQuotaInfo(entry);
+    const remainingFraction = info.remainingFraction ?? (info.resetTime ? 0 : null);
+    if (remainingFraction === null) continue;
 
-    const quotaEntries = matches
-      .map(({ id, entry }) => {
-        const info = getAntigravityQuotaInfo(entry);
-        const remainingFraction = info.remainingFraction ?? (info.resetTime ? 0 : null);
-        if (remainingFraction === null) return null;
-        return {
-          id,
-          remainingFraction,
-          resetTime: info.resetTime,
-          displayName: info.displayName,
-        };
-      })
-      .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
-
-    if (quotaEntries.length === 0) return null;
-
-    const remainingFraction = Math.min(...quotaEntries.map((entry) => entry.remainingFraction));
-    const resetTime =
-      overrideResetTime ?? quotaEntries.map((entry) => entry.resetTime).find(Boolean);
-    const displayName = quotaEntries.map((entry) => entry.displayName).find(Boolean);
-    const label = def.labelFromModel && displayName ? displayName : def.label;
-
-    return {
-      id: def.id,
-      label,
-      models: quotaEntries.map((entry) => entry.id),
+    groups.push({
+      id: modelId,
+      label: info.displayName ?? modelId,
+      models: [modelId],
       remainingFraction,
-      resetTime,
-    };
-  };
-
-  const claudeGroup = buildGroup(claudeDef);
-  if (claudeGroup) {
-    groups.push(claudeGroup);
-  }
-
-  const geminiProGroup = buildGroup(geminiProDef);
-  if (geminiProGroup) {
-    geminiProResetTime = geminiProGroup.resetTime;
-    groups.push(geminiProGroup);
-  }
-
-  const flashGroup = buildGroup(flashDef);
-  if (flashGroup) {
-    groups.push(flashGroup);
-  }
-
-  const flashLiteGroup = buildGroup(flashLiteDef);
-  if (flashLiteGroup) {
-    groups.push(flashLiteGroup);
-  }
-
-  const cuGroup = buildGroup(cuDef);
-  if (cuGroup) {
-    groups.push(cuGroup);
-  }
-
-  const geminiFlashGroup = buildGroup(geminiFlashDef);
-  if (geminiFlashGroup) {
-    groups.push(geminiFlashGroup);
-  }
-
-  const imageGroup = buildGroup(imageDef, geminiProResetTime);
-  if (imageGroup) {
-    groups.push(imageGroup);
+      resetTime: info.resetTime,
+    });
   }
 
   return groups;

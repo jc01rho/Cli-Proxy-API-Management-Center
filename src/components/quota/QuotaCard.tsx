@@ -26,6 +26,8 @@ function isExhaustedError(item: AuthFileItem): boolean {
 }
 
 function isNeverRecoverQuota(item: AuthFileItem): boolean {
+  // Only show "never recover" if quota is actually exceeded
+  if (!item.quota?.exceeded && !item.quota_exceeded) return false;
   const recoverAt = item.quota?.next_recover_at || item.quota_next_recover_at;
   return isGoZeroTime(recoverAt);
 }

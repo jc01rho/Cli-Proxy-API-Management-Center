@@ -1024,6 +1024,27 @@
         "invalid_token": "Invalid token",
         "polling_failed": "Failed to check authentication status"
       }
+    },
+    "ampcode": {
+      "title": "AmpCode",
+      "description": "AmpCode (Sourcegraph Amp) - frontier coding agent using best models for each task.",
+      "login": "Add API Key",
+      "logout": "Delete",
+      "status": {
+        "connected": "Configured",
+        "disconnected": "Not configured",
+        "connecting": "Configuring...",
+        "error": "Error"
+      },
+      "account": {
+        "label": "API Key",
+        "not_logged_in": "No API key configured"
+      },
+      "errors": {
+        "login_failed": "Failed to add API key",
+        "invalid_token": "Invalid API key",
+        "polling_failed": "Failed to check AmpCode status"
+      }
     }
   }
 }

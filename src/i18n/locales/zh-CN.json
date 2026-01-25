@@ -1024,6 +1024,27 @@
         "invalid_token": "无效令牌",
         "polling_failed": "无法检查身份验证状态"
       }
+    },
+    "ampcode": {
+      "title": "AmpCode",
+      "description": "AmpCode (Sourcegraph Amp) - 最佳模型自适应编码助手，更快地完成编码任务。",
+      "login": "添加 API 密钥",
+      "logout": "删除",
+      "status": {
+        "connected": "已配置",
+        "disconnected": "未配置",
+        "connecting": "配置中...",
+        "error": "错误"
+      },
+      "account": {
+        "label": "API 密钥",
+        "not_logged_in": "未设置 API 密钥"
+      },
+      "errors": {
+        "login_failed": "添加密钥失败",
+        "invalid_token": "无效 API 密钥",
+        "polling_failed": "无法检查 AmpCode 状态"
+      }
     }
   }
 }

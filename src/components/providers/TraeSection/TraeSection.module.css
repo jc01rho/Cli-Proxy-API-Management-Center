@@ -1,0 +1,68 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.cardTitleIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.fieldRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.fieldLabel {
+  color: var(--text-tertiary);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fieldValue {
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-all;
+  font-family: 'Monaco', 'Menlo', 'Consolas', 'Ubuntu Mono', monospace;
+}
+
+.authUrlBox {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: $border-radius-md;
+}
+
+.authUrlLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: $spacing-xs;
+}
+
+.authUrlValue {
+  font-size: 13px;
+  color: var(--text-primary);
+  word-break: break-all;
+  margin-bottom: $spacing-sm;
+  padding: $spacing-sm;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: $border-radius-sm;
+}
+
+.authUrlActions {
+  display: flex;
+  gap: $spacing-sm;
+}

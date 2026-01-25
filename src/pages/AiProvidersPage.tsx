@@ -8,6 +8,7 @@ import {
   GeminiSection,
   OpenAISection,
   VertexSection,
+  TraeSection,
   useProviderStats,
   type GeminiFormState,
   type OpenAIFormState,
@@ -610,6 +611,8 @@ export function AiProvidersPage() {
           onCloseModal={closeModal}
           onSave={saveVertex}
         />
+
+        <TraeSection disableControls={disableControls} />
 
         <AmpcodeSection
           config={config?.ampcode}

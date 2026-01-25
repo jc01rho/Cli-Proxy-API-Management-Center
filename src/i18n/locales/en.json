@@ -391,6 +391,8 @@
     "filter_antigravity": "Antigravity",
     "filter_iflow": "iFlow",
     "filter_vertex": "Vertex",
+    "filter_kiro": "Kiro",
+    "filter_trae": "Trae",
     "filter_empty": "Empty",
     "filter_unknown": "Other",
     "type_qwen": "Qwen",
@@ -402,6 +404,8 @@
     "type_antigravity": "Antigravity",
     "type_iflow": "iFlow",
     "type_vertex": "Vertex",
+    "type_kiro": "Kiro",
+    "type_trae": "Trae",
     "type_empty": "Empty",
     "type_unknown": "Other",
     "type_virtual": "Virtual auth file",
@@ -969,5 +973,57 @@
     "build_date": "Build Time",
     "version": "Management UI Version",
     "author": "Author"
+  },
+  "providers": {
+    "trae": {
+      "title": "Trae",
+      "description": "Trae is an adaptive AI IDE that understands you better, helping you move from 'what to do' to 'getting it done' faster.",
+      "login": "Login with Trae",
+      "logout": "Logout",
+      "status_success": "Authentication successful!",
+      "status_error": "Authentication failed:",
+      "url_label": "Authorization URL:",
+      "copy_link": "Copy Link",
+      "open_link": "Open Link",
+      "empty_title": "No Trae Auth Files",
+      "empty_desc": "Login to start using Trae provider.",
+      "item_title": "Trae Account",
+      "status": {
+        "connected": "Connected",
+        "disconnected": "Disconnected",
+        "connecting": "Connecting...",
+        "error": "Error"
+      },
+      "account": {
+        "label": "Account",
+        "not_logged_in": "Not logged in"
+      },
+      "errors": {
+        "login_failed": "Login failed",
+        "invalid_token": "Invalid token",
+        "polling_failed": "Failed to check authentication status"
+      }
+    },
+    "kiro": {
+      "title": "Kiro",
+      "description": "Kiro (AWS CodeWhisperer) integration for enhanced coding assistance.",
+      "login": "Login with Kiro",
+      "logout": "Logout",
+      "status": {
+        "connected": "Connected",
+        "disconnected": "Disconnected",
+        "connecting": "Connecting...",
+        "error": "Error"
+      },
+      "account": {
+        "label": "Account",
+        "not_logged_in": "Not logged in"
+      },
+      "errors": {
+        "login_failed": "Login failed",
+        "invalid_token": "Invalid token",
+        "polling_failed": "Failed to check authentication status"
+      }
+    }
   }
 }

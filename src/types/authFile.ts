@@ -13,6 +13,8 @@ export type AuthFileType =
   | 'antigravity'
   | 'iflow'
   | 'vertex'
+  | 'kiro'
+  | 'trae'
   | 'empty'
   | 'unknown';
 

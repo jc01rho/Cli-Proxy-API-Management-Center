@@ -8,6 +8,7 @@ export type ProviderModal =
   | { type: 'claude'; index: number | null }
   | { type: 'vertex'; index: number | null }
   | { type: 'ampcode'; index: null }
+  | { type: 'trae'; index: null }
   | { type: 'openai'; index: number | null };
 
 export interface ModelEntry {

@@ -93,6 +93,8 @@ const OAUTH_PROVIDER_PRESETS = [
   'codex',
   'qwen',
   'iflow',
+  'trae',
+  'kiro',
 ];
 
 const OAUTH_PROVIDER_EXCLUDES = new Set(['all', 'unknown', 'empty']);

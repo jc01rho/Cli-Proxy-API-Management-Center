@@ -8,7 +8,7 @@ interface ProviderListProps<T> {
   loading: boolean;
   keyField: (item: T) => string;
   renderContent: (item: T, index: number) => ReactNode;
-  onEdit: (index: number) => void;
+  onEdit?: (index: number) => void;
   onDelete: (index: number) => void;
   emptyTitle: string;
   emptyDescription: string;
@@ -54,14 +54,16 @@ export function ProviderList<T>({
           >
             <div className="item-meta">{renderContent(item, index)}</div>
             <div className="item-actions">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => onEdit(index)}
-                disabled={actionsDisabled}
-              >
-                {t('common.edit')}
-              </Button>
+              {onEdit && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => onEdit(index)}
+                  disabled={actionsDisabled}
+                >
+                  {t('common.edit')}
+                </Button>
+              )}
               <Button
                 variant="danger"
                 size="sm"

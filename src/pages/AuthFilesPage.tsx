@@ -1382,7 +1382,7 @@ export function AuthFilesPage() {
     const typeColor = getTypeColor(item.type || 'unknown');
 
     return (
-      <div key={item.name} className={styles.fileCard}>
+      <div key={item.name} className={`${styles.fileCard} ${item.disabled ? styles.fileCardDisabled : ''}`}>
         <div className={styles.cardHeader}>
           <div className={styles.cardHeaderRow}>
             <span

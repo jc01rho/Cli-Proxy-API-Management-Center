@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 import { IconBot } from '@/components/ui/icons';
 import { useNotificationStore } from '@/stores';
 import { authFilesApi, oauthApi } from '@/services/api';
@@ -20,6 +21,10 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
   const [loading, setLoading] = useState(false);
   const [isLoginInProgress, setIsLoginInProgress] = useState(false);
   const [authUrl, setAuthUrl] = useState<string | null>(null);
+  const [callbackUrl, setCallbackUrl] = useState('');
+  const [callbackSubmitting, setCallbackSubmitting] = useState(false);
+  const [callbackStatus, setCallbackStatus] = useState<'success' | 'error' | null>(null);
+  const [callbackError, setCallbackError] = useState<string | null>(null);
   const pollingTimer = useRef<number | null>(null);
 
   const actionsDisabled = disableControls || loading || isLoginInProgress;
@@ -65,6 +70,28 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
         console.error('Polling failed', err);
       }
     }, 3000);
+  };
+
+  const handleSubmitCallback = async () => {
+    const url = callbackUrl.trim();
+    if (!url) {
+      showNotification(t('auth_login.oauth_callback_required', { defaultValue: 'Please enter the callback URL' }), 'warning');
+      return;
+    }
+    setCallbackSubmitting(true);
+    setCallbackStatus(null);
+    setCallbackError(null);
+    try {
+      await oauthApi.submitCallback('trae', url);
+      setCallbackStatus('success');
+      showNotification(t('auth_login.oauth_callback_success', { defaultValue: 'Callback submitted successfully' }), 'success');
+    } catch (err: any) {
+      setCallbackStatus('error');
+      setCallbackError(err?.message || 'Unknown error');
+      showNotification(`${t('auth_login.oauth_callback_error', { defaultValue: 'Callback failed' })}: ${err?.message || ''}`, 'error');
+    } finally {
+      setCallbackSubmitting(false);
+    }
   };
 
   const handleLogin = async () => {
@@ -134,22 +161,62 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
       <div className="hint" style={{ marginBottom: 16 }}>{t('providers.trae.description')}</div>
 
       {authUrl && (
-        <div className={styles.authUrlBox}>
-          <div className={styles.authUrlLabel}>{t('providers.trae.url_label', { defaultValue: 'Authorization URL:' })}</div>
-          <div className={styles.authUrlValue}>{authUrl}</div>
-          <div className={styles.authUrlActions}>
-            <Button variant="secondary" size="sm" onClick={copyLink}>
-              {t('providers.trae.copy_link', { defaultValue: 'Copy Link' })}
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => window.open(authUrl, '_blank', 'noopener,noreferrer')}
-            >
-              {t('providers.trae.open_link', { defaultValue: 'Open Link' })}
-            </Button>
+        <>
+          <div className={styles.authUrlBox}>
+            <div className={styles.authUrlLabel}>{t('providers.trae.url_label', { defaultValue: 'Authorization URL:' })}</div>
+            <div className={styles.authUrlValue}>{authUrl}</div>
+            <div className={styles.authUrlActions}>
+              <Button variant="secondary" size="sm" onClick={copyLink}>
+                {t('providers.trae.copy_link', { defaultValue: 'Copy Link' })}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => window.open(authUrl, '_blank', 'noopener,noreferrer')}
+              >
+                {t('providers.trae.open_link', { defaultValue: 'Open Link' })}
+              </Button>
+            </div>
           </div>
-        </div>
+
+          <div className={styles.callbackSection}>
+            <div className={styles.callbackLabel}>
+              {t('auth_login.oauth_callback_label', { defaultValue: 'Paste the redirected URL after login:' })}
+            </div>
+            <Input
+              value={callbackUrl}
+              onChange={(e) => {
+                setCallbackUrl(e.target.value);
+                setCallbackStatus(null);
+                setCallbackError(null);
+              }}
+              placeholder={t('auth_login.oauth_callback_placeholder', { defaultValue: 'https://...' })}
+            />
+            <div className={styles.callbackHint}>
+              {t('auth_login.oauth_callback_hint', { defaultValue: 'Copy the full URL from your browser after completing authentication' })}
+            </div>
+            <div className={styles.callbackActions}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleSubmitCallback}
+                loading={callbackSubmitting}
+              >
+                {t('auth_login.oauth_callback_button', { defaultValue: 'Submit Callback' })}
+              </Button>
+            </div>
+            {callbackStatus === 'success' && (
+              <div className="status-badge success" style={{ marginTop: 8 }}>
+                {t('auth_login.oauth_callback_status_success', { defaultValue: 'Callback submitted successfully!' })}
+              </div>
+            )}
+            {callbackStatus === 'error' && (
+              <div className="status-badge error" style={{ marginTop: 8 }}>
+                {t('auth_login.oauth_callback_status_error', { defaultValue: 'Callback failed:' })} {callbackError || ''}
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       <ProviderList<AuthFileItem>

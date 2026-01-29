@@ -66,3 +66,28 @@
   display: flex;
   gap: $spacing-sm;
 }
+
+.callbackSection {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.callbackLabel {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.callbackHint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.callbackActions {
+  display: flex;
+  gap: 8px;
+}

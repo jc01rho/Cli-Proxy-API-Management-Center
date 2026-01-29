@@ -184,6 +184,7 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
               {t('auth_login.oauth_callback_label', { defaultValue: 'Paste the redirected URL after login:' })}
             </div>
             <Input
+              className={styles.callbackInput}
               value={callbackUrl}
               onChange={(e) => {
                 setCallbackUrl(e.target.value);

@@ -73,12 +73,37 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
     }, 3000);
   };
 
+  /**
+   * Extract the actual callback URL from user input.
+   * If the URL contains auth_callback_url parameter (Trae authorization page URL),
+   * extract and decode that value. Otherwise, use the URL as-is.
+   */
+  const extractCallbackUrl = (inputUrl: string): string => {
+    try {
+      const parsed = new URL(inputUrl);
+      const authCallbackUrl = parsed.searchParams.get('auth_callback_url');
+      if (authCallbackUrl) {
+        // User pasted the Trae authorization page URL, extract the actual callback URL
+        return authCallbackUrl;
+      }
+      // User pasted the actual callback URL directly
+      return inputUrl;
+    } catch {
+      // Not a valid URL, return as-is
+      return inputUrl;
+    }
+  };
+
   const handleSubmitCallback = async () => {
-    const url = callbackUrl.trim();
-    if (!url) {
+    const rawUrl = callbackUrl.trim();
+    if (!rawUrl) {
       showNotification(t('auth_login.oauth_callback_required', { defaultValue: 'Please enter the callback URL' }), 'warning');
       return;
     }
+    
+    // Extract actual callback URL if user pasted authorization page URL
+    const url = extractCallbackUrl(rawUrl);
+    
     setCallbackSubmitting(true);
     setCallbackStatus(null);
     setCallbackError(null);

@@ -168,19 +168,34 @@ export function OAuthPage() {
     }
   };
 
+  const extractCallbackUrl = (inputUrl: string): string => {
+    try {
+      const parsed = new URL(inputUrl);
+      const authCallbackUrl = parsed.searchParams.get('auth_callback_url');
+      if (authCallbackUrl) {
+        return authCallbackUrl;
+      }
+      return inputUrl;
+    } catch {
+      return inputUrl;
+    }
+  };
+
   const submitCallback = async (provider: OAuthProvider) => {
-    const redirectUrl = (states[provider]?.callbackUrl || '').trim();
-    if (!redirectUrl) {
+    const rawUrl = (states[provider]?.callbackUrl || '').trim();
+    if (!rawUrl) {
       showNotification(t('auth_login.oauth_callback_required'), 'warning');
       return;
     }
+    const redirectUrl = extractCallbackUrl(rawUrl);
+    const state = states[provider]?.state;
     updateProviderState(provider, {
       callbackSubmitting: true,
       callbackStatus: undefined,
       callbackError: undefined
     });
     try {
-      await oauthApi.submitCallback(provider, redirectUrl);
+      await oauthApi.submitCallback(provider, redirectUrl, state);
       updateProviderState(provider, { callbackSubmitting: false, callbackStatus: 'success' });
       showNotification(t('auth_login.oauth_callback_success'), 'success');
     } catch (err: any) {

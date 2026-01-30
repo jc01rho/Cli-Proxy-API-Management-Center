@@ -20,6 +20,7 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
   const [configs, setConfigs] = useState<AuthFileItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [isLoginInProgress, setIsLoginInProgress] = useState(false);
+  const [oauthState, setOauthState] = useState<string | null>(null);
   const [authUrl, setAuthUrl] = useState<string | null>(null);
   const [callbackUrl, setCallbackUrl] = useState('');
   const [callbackSubmitting, setCallbackSubmitting] = useState(false);
@@ -82,7 +83,7 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
     setCallbackStatus(null);
     setCallbackError(null);
     try {
-      await oauthApi.submitCallback('trae', url);
+      await oauthApi.submitCallback('trae', url, oauthState || undefined);
       setCallbackStatus('success');
       showNotification(t('auth_login.oauth_callback_success', { defaultValue: 'Callback submitted successfully' }), 'success');
     } catch (err: any) {
@@ -97,10 +98,12 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
   const handleLogin = async () => {
     setIsLoginInProgress(true);
     setAuthUrl(null);
+    setOauthState(null);
     try {
       const res = await oauthApi.startAuth('trae');
       setAuthUrl(res.url);
       if (res.state) {
+        setOauthState(res.state);
         startPolling(res.state);
       }
     } catch (err: any) {

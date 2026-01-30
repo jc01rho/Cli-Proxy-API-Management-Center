@@ -26,6 +26,7 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
   const [callbackSubmitting, setCallbackSubmitting] = useState(false);
   const [callbackStatus, setCallbackStatus] = useState<'success' | 'error' | null>(null);
   const [callbackError, setCallbackError] = useState<string | null>(null);
+  const [urlWarning, setUrlWarning] = useState<string | null>(null);
   const pollingTimer = useRef<number | null>(null);
 
   const actionsDisabled = disableControls || loading || isLoginInProgress;
@@ -75,22 +76,21 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
 
   /**
    * Extract the actual callback URL from user input.
-   * If the URL contains auth_callback_url parameter (Trae authorization page URL),
-   * extract and decode that value. Otherwise, use the URL as-is.
+   * Checks for authorization URL vs callback URL and validates userJwt.
    */
-  const extractCallbackUrl = (inputUrl: string): string => {
+  const extractCallbackUrl = (inputUrl: string): { url: string; isAuthorizationUrl: boolean; hasUserJwt: boolean } => {
     try {
       const parsed = new URL(inputUrl);
+      // Check if this is the Trae authorization page URL
       const authCallbackUrl = parsed.searchParams.get('auth_callback_url');
-      if (authCallbackUrl) {
-        // User pasted the Trae authorization page URL, extract the actual callback URL
-        return authCallbackUrl;
+      if (authCallbackUrl || inputUrl.includes('www.trae.ai/authorization')) {
+        return { url: inputUrl, isAuthorizationUrl: true, hasUserJwt: false };
       }
-      // User pasted the actual callback URL directly
-      return inputUrl;
+      
+      const hasUserJwt = parsed.searchParams.has('userJwt');
+      return { url: inputUrl, isAuthorizationUrl: false, hasUserJwt };
     } catch {
-      // Not a valid URL, return as-is
-      return inputUrl;
+      return { url: inputUrl, isAuthorizationUrl: false, hasUserJwt: false };
     }
   };
 
@@ -101,8 +101,21 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
       return;
     }
     
-    // Extract actual callback URL if user pasted authorization page URL
-    const url = extractCallbackUrl(rawUrl);
+    const { url, isAuthorizationUrl, hasUserJwt } = extractCallbackUrl(rawUrl);
+    
+    if (isAuthorizationUrl) {
+      showNotification(t('providers.trae.error_auth_url', { 
+        defaultValue: 'This is the login page URL. Please copy the redirected URL after login completion.' 
+      }), 'warning');
+      return;
+    }
+
+    if (!hasUserJwt) {
+      showNotification(t('providers.trae.error_no_token', { 
+        defaultValue: 'No auth token found. Please copy the FULL URL from the address bar.' 
+      }), 'warning');
+      return;
+    }
     
     setCallbackSubmitting(true);
     setCallbackStatus(null);
@@ -207,7 +220,7 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
             </div>
           </div>
 
-          <div className={styles.callbackSection}>
+            <div className={styles.callbackSection}>
             <div className={styles.callbackLabel}>
               {t('auth_login.oauth_callback_label', { defaultValue: 'Paste the redirected URL after login:' })}
             </div>
@@ -215,15 +228,43 @@ export function TraeSection({ disableControls }: TraeSectionProps) {
               className={styles.callbackInput}
               value={callbackUrl}
               onChange={(e) => {
-                setCallbackUrl(e.target.value);
+                const val = e.target.value;
+                setCallbackUrl(val);
                 setCallbackStatus(null);
                 setCallbackError(null);
+
+                if (!val) {
+                  setUrlWarning(null);
+                  return;
+                }
+
+                const { isAuthorizationUrl, hasUserJwt } = extractCallbackUrl(val);
+                if (isAuthorizationUrl) {
+                  setUrlWarning(t('providers.trae.warning_auth_url', { 
+                    defaultValue: 'This looks like the login page URL. Please copy the URL you are redirected to AFTER logging in.' 
+                  }));
+                } else if (!hasUserJwt) {
+                  setUrlWarning(t('providers.trae.warning_no_token', { 
+                    defaultValue: 'No authentication token found in URL. Please copy the FULL URL from the address bar.' 
+                  }));
+                } else {
+                  setUrlWarning(null);
+                }
               }}
               placeholder={t('auth_login.oauth_callback_placeholder', { defaultValue: 'https://...' })}
             />
             <div className={styles.callbackHint}>
-              {t('auth_login.oauth_callback_hint', { defaultValue: 'Copy the full URL from your browser after completing authentication' })}
+              {t('auth_login.trae_callback_hint', { 
+                defaultValue: 'Login completed! Copy the URL from your browser address bar (even if it shows "Unable to connect").' 
+              })}
             </div>
+
+            {urlWarning && (
+              <div className="status-badge warning" style={{ marginTop: 8 }}>
+                {urlWarning}
+              </div>
+            )}
+
             <div className={styles.callbackActions}>
               <Button
                 variant="secondary"

@@ -122,7 +122,7 @@ if (config.routingStrategy) {
         setRoutingMode(config.routingMode);
       }
     }
-  }, [config?.proxyUrl, config?.requestRetry, config?.logsMaxTotalSizeMb, config?.routingStrategy, config?.routingMode]);
+  }, [config]);
 
   const setPendingFlag = (key: PendingKey, value: boolean) => {
     setPending((prev) => ({ ...prev, [key]: value }));

@@ -7,6 +7,7 @@ export { VertexSection } from './VertexSection';
 export { TraeSection } from './TraeSection';
 export { ProviderList } from './ProviderList';
 export { ProviderStatusBar } from './ProviderStatusBar';
+export { ProviderNav } from './ProviderNav';
 export * from './hooks/useProviderStats';
 export * from './types';
 export * from './utils';

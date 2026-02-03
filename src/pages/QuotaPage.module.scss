@@ -338,6 +338,13 @@
   line-height: 1.4;
 }
 
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  align-items: center;
+}
+
 // Tier badge for quota cards (Antigravity)
 .tierBadge {
   display: inline-flex;

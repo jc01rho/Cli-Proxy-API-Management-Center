@@ -117,6 +117,72 @@ export function QuotaCard<TState extends QuotaStatusState>({
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
+  const exhausted = isExhaustedError(item);
+
+  const tierBadge = item.tier && displayType === 'antigravity' ? (() => {
+    const tierLower = item.tier.toLowerCase();
+    let tierClass = styles.tierFree;
+    let tierLabel = 'Free';
+    
+    if (tierLower.includes('ultra')) {
+      tierClass = styles.tierUltra;
+      tierLabel = 'Ultra';
+    } else if (tierLower.includes('pro')) {
+      tierClass = styles.tierPro;
+      tierLabel = 'Pro';
+    } else if (tierLower.includes('standard') || tierLower.includes('free')) {
+      tierClass = styles.tierFree;
+      tierLabel = 'Free';
+    }
+    
+    return (
+      <span className={`${styles.tierBadge} ${tierClass}`} title={item.tier_name || item.tier}>
+        {tierLabel}
+      </span>
+    );
+  })() : null;
+
+  const recoverBadge = displayType === 'antigravity' && 
+    (item.quota_exceeded || item.status === 'pending') && 
+    (item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after) ? (() => {
+      const recoverTime = item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after;
+      const relativeTime = formatRelativeTime(recoverTime, t);
+      const absoluteTime = formatAbsoluteTime(recoverTime);
+      if (!relativeTime) return null;
+      return (
+        <span className={styles.recoverBadge} title={absoluteTime}>
+          {relativeTime}
+        </span>
+      );
+    })() : null;
+
+  const statusBadges: React.ReactNode[] = [];
+
+  if (exhausted) {
+    statusBadges.push(<StatusBadge key="exhausted" status="exhausted" />);
+  }
+
+  if (!exhausted && item.status && item.status !== 'active') {
+    statusBadges.push(<StatusBadge key="status" status={item.status} />);
+  }
+
+  if (isNeverRecoverQuota(item)) {
+    statusBadges.push(<StatusBadge key="never_recover" status="never_recover" />);
+  }
+
+  if (!exhausted && (item.quota_exceeded || item.unavailable) && displayType === 'antigravity') {
+    statusBadges.push(
+      <span
+        key="blocked"
+        className={`${styles.statusBadge} ${item.quota_exceeded ? styles.statusBlocked : styles.statusUnavailable}`}
+      >
+        {item.quota_exceeded
+          ? t('quota_management.key_blocked')
+          : t('quota_management.key_unavailable')}
+      </span>
+    );
+  }
+
   return (
     <div className={`${styles.fileCard} ${cardClassName}`}>
       <div className={styles.cardHeader}>
@@ -131,54 +197,14 @@ export function QuotaCard<TState extends QuotaStatusState>({
           {getTypeLabel(displayType)}
         </span>
         <span className={styles.fileName}>{item.name}</span>
-        {item.status && <StatusBadge status={item.status} />}
-        {isExhaustedError(item) && <StatusBadge status="exhausted" />}
-        {isNeverRecoverQuota(item) && <StatusBadge status="never_recover" />}
-        {item.tier && displayType === 'antigravity' && (() => {
-          const tierLower = item.tier.toLowerCase();
-          let tierClass = styles.tierFree;
-          let tierLabel = 'Free';
-          
-          if (tierLower.includes('ultra')) {
-            tierClass = styles.tierUltra;
-            tierLabel = 'Ultra';
-          } else if (tierLower.includes('pro')) {
-            tierClass = styles.tierPro;
-            tierLabel = 'Pro';
-          } else if (tierLower.includes('standard') || tierLower.includes('free')) {
-            tierClass = styles.tierFree;
-            tierLabel = 'Free';
-          }
-          
-          return (
-            <span className={`${styles.tierBadge} ${tierClass}`} title={item.tier_name || item.tier}>
-              {tierLabel}
-            </span>
-          );
-        })()}
-        {(item.quota_exceeded || item.unavailable) && displayType === 'antigravity' && (
-          <span
-            className={`${styles.statusBadge} ${item.quota_exceeded ? styles.statusBlocked : styles.statusUnavailable}`}
-          >
-            {item.quota_exceeded
-              ? t('quota_management.key_blocked')
-              : t('quota_management.key_unavailable')}
-          </span>
-        )}
-        {displayType === 'antigravity' && 
-          (item.quota_exceeded || item.status === 'pending') && 
-          (item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after) && (() => {
-            const recoverTime = item.quota?.next_recover_at || item.quota_next_recover_at || item.next_retry_after;
-            const relativeTime = formatRelativeTime(recoverTime, t);
-            const absoluteTime = formatAbsoluteTime(recoverTime);
-            if (!relativeTime) return null;
-            return (
-              <span className={styles.recoverBadge} title={absoluteTime}>
-                {relativeTime}
-              </span>
-            );
-          })()}
+        {tierBadge}
       </div>
+      {(statusBadges.length > 0 || recoverBadge) && (
+        <div className={styles.badgeRow}>
+          {statusBadges}
+          {recoverBadge}
+        </div>
+      )}
 
       <div className={styles.quotaSection}>
         {quotaStatus === 'loading' ? (

@@ -75,15 +75,47 @@ export function getAntigravityQuotaInfo(entry?: AntigravityQuotaInfo): {
   };
 }
 
+const IGNORED_ANTIGRAVITY_MODELS = new Set([
+  'tab_flash_lite_preview',
+  'gpt-oss-120b-medium',
+  'chat_20706',
+  'chat_23310',
+  'ulw',
+]);
+
+function isClaudeModel(modelId: string): boolean {
+  return modelId.toLowerCase().startsWith('claude');
+}
+
 export function buildAntigravityQuotaGroups(
   models: AntigravityModelsPayload
 ): AntigravityQuotaGroup[] {
   const groups: AntigravityQuotaGroup[] = [];
+  let claudeGroup: AntigravityQuotaGroup | null = null;
 
   for (const [modelId, entry] of Object.entries(models)) {
+    if (IGNORED_ANTIGRAVITY_MODELS.has(modelId)) continue;
+
     const info = getAntigravityQuotaInfo(entry);
     const remainingFraction = info.remainingFraction ?? (info.resetTime ? 0 : null);
     if (remainingFraction === null) continue;
+
+    if (isClaudeModel(modelId)) {
+      if (!claudeGroup) {
+        claudeGroup = {
+          id: 'claude-merged',
+          label: 'Claude',
+          models: [modelId],
+          remainingFraction,
+          resetTime: info.resetTime,
+        };
+      } else {
+        claudeGroup.models.push(modelId);
+        claudeGroup.remainingFraction = Math.min(claudeGroup.remainingFraction, remainingFraction);
+        claudeGroup.resetTime = pickEarlierResetTime(claudeGroup.resetTime, info.resetTime);
+      }
+      continue;
+    }
 
     groups.push({
       id: modelId,
@@ -92,6 +124,10 @@ export function buildAntigravityQuotaGroups(
       remainingFraction,
       resetTime: info.resetTime,
     });
+  }
+
+  if (claudeGroup) {
+    groups.unshift(claudeGroup);
   }
 
   return groups;

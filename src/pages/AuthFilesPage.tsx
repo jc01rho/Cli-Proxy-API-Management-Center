@@ -21,7 +21,6 @@ import {
   IconTrash2,
 } from '@/components/ui/icons';
 import type { TFunction } from 'i18next';
-import { StatusBadge } from '@/components/common/StatusBadge';
 import { ANTIGRAVITY_CONFIG, CODEX_CONFIG, GEMINI_CLI_CONFIG } from '@/components/quota';
 import { useAuthStore, useNotificationStore, useQuotaStore, useThemeStore } from '@/stores';
 import { authFilesApi, usageApi } from '@/services/api';
@@ -36,7 +35,7 @@ import {
   type KeyStats,
   type UsageDetail,
 } from '@/utils/usage';
-import { formatFileSize, formatRelativeTime, formatAbsoluteTime } from '@/utils/format';
+import { formatFileSize } from '@/utils/format';
 
 import styles from './AuthFilesPage.module.scss';
 
@@ -208,30 +207,6 @@ function isRuntimeOnlyAuthFile(file: AuthFileItem): boolean {
   if (typeof raw === 'boolean') return raw;
   if (typeof raw === 'string') return raw.trim().toLowerCase() === 'true';
   return false;
-}
-
-// Go zero time 체크 (0001-01-01T00:00:00Z)
-function isGoZeroTime(timeStr?: string): boolean {
-  if (!timeStr) return false;
-  return timeStr.startsWith('0001-01-01');
-}
-
-// last_error가 429 EXHAUSTED 에러인지 체크
-function isExhaustedError(item: AuthFileItem): boolean {
-  if (!item.last_error) return false;
-  const { http_status, message } = item.last_error;
-  return (
-    http_status === 429 &&
-    (message?.includes('RESOURCE_EXHAUSTED') || message?.includes('Resource has been exhausted'))
-  );
-}
-
-// quota.next_recover_at가 zero time인지 체크 (NEVER_RECOVER)
-function isNeverRecoverQuota(item: AuthFileItem): boolean {
-  // Only show "never recover" if quota is actually exceeded
-  if (!item.quota?.exceeded && !item.quota_exceeded) return false;
-  const recoverAt = item.quota?.next_recover_at || item.quota_next_recover_at;
-  return isGoZeroTime(recoverAt);
 }
 
 // 解析认证文件的统计数据

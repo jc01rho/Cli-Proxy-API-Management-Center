@@ -53,6 +53,14 @@ export function QuotaPage() {
     await Promise.all([loadConfig(), loadFiles()]);
   }, [loadConfig, loadFiles]);
 
+  const handleTierRefresh = useCallback((authId: string, tier: string, tierName: string) => {
+    setFiles((prev) =>
+      prev.map((file) =>
+        file.id === authId ? { ...file, tier, tier_name: tierName } : file
+      )
+    );
+  }, []);
+
   useHeaderRefresh(handleHeaderRefresh);
 
   useEffect(() => {
@@ -74,6 +82,7 @@ export function QuotaPage() {
         files={files}
         loading={loading}
         disabled={disableControls}
+        onTierRefresh={handleTierRefresh}
       />
       <QuotaSection
         config={CODEX_CONFIG}

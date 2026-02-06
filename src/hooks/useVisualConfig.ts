@@ -136,15 +136,17 @@ function parsePayloadRules(rules: unknown): PayloadRule[] {
         }))
       : [],
     params: (rule as any)?.params
-      ? Object.entries((rule as any).params as Record<string, unknown>).map(([path, value], pIndex) => {
-          const parsedValue = parsePayloadParamValue(value);
-          return {
-            id: `param-${index}-${pIndex}`,
-            path,
-            valueType: parsedValue.valueType,
-            value: parsedValue.value,
-          };
-        })
+      ? Object.entries((rule as any).params as Record<string, unknown>).map(
+          ([path, value], pIndex) => {
+            const parsedValue = parsePayloadParamValue(value);
+            return {
+              id: `param-${index}-${pIndex}`,
+              path,
+              valueType: parsedValue.valueType,
+              value: parsedValue.value,
+            };
+          }
+        )
       : [],
   }));
 }
@@ -161,7 +163,9 @@ function parsePayloadFilterRules(rules: unknown): PayloadFilterRule[] {
           protocol: typeof model === 'object' ? (model?.protocol as any) : undefined,
         }))
       : [],
-    params: Array.isArray((rule as any)?.params) ? ((rule as any).params as unknown[]).map(String) : [],
+    params: Array.isArray((rule as any)?.params)
+      ? ((rule as any).params as unknown[]).map(String)
+      : [],
   }));
 }
 
@@ -271,7 +275,13 @@ export function useVisualConfig() {
           parsed['quota-exceeded']?.['switch-preview-model'] ?? true
         ),
 
-        routingStrategy: (parsed.routing?.strategy || 'round-robin') as 'round-robin' | 'fill-first',
+        routingStrategy: (parsed.routing?.strategy || 'round-robin') as
+          | 'round-robin'
+          | 'fill-first',
+        routingMode: (parsed.routing?.mode || 'provider-based') as 'provider-based' | 'key-based',
+
+        fallbackModels: parsed.fallback?.models || parsed['fallback-models'] || {},
+        fallbackChain: parsed.fallback?.chain || parsed['fallback-chain'] || [],
 
         payloadDefaultRules: parsePayloadRules(parsed.payload?.default),
         payloadOverrideRules: parsePayloadRules(parsed.payload?.override),
@@ -356,23 +366,56 @@ export function useVisualConfig() {
         setIntFromString(parsed, 'max-retry-interval', values.maxRetryInterval);
         setBoolean(parsed, 'ws-auth', values.wsAuth);
 
-        if (hasOwn(parsed, 'quota-exceeded') || !values.quotaSwitchProject || !values.quotaSwitchPreviewModel) {
+        if (
+          hasOwn(parsed, 'quota-exceeded') ||
+          !values.quotaSwitchProject ||
+          !values.quotaSwitchPreviewModel
+        ) {
           const quota = ensureRecord(parsed, 'quota-exceeded');
           quota['switch-project'] = values.quotaSwitchProject;
           quota['switch-preview-model'] = values.quotaSwitchPreviewModel;
           deleteIfEmpty(parsed, 'quota-exceeded');
         }
 
-        if (hasOwn(parsed, 'routing') || values.routingStrategy !== 'round-robin') {
+        if (
+          hasOwn(parsed, 'routing') ||
+          values.routingStrategy !== 'round-robin' ||
+          values.routingMode !== 'provider-based'
+        ) {
           const routing = ensureRecord(parsed, 'routing');
           routing.strategy = values.routingStrategy;
+          routing.mode = values.routingMode;
           deleteIfEmpty(parsed, 'routing');
         }
 
+        if (
+          hasOwn(parsed, 'fallback') ||
+          Object.keys(values.fallbackModels).length > 0 ||
+          values.fallbackChain.length > 0
+        ) {
+          const fallback = ensureRecord(parsed, 'fallback');
+          if (Object.keys(values.fallbackModels).length > 0) {
+            fallback.models = values.fallbackModels;
+          } else if (hasOwn(fallback, 'models')) {
+            delete fallback['models'];
+          }
+
+          if (values.fallbackChain.length > 0) {
+            fallback.chain = values.fallbackChain;
+          } else if (hasOwn(fallback, 'chain')) {
+            delete fallback['chain'];
+          }
+          deleteIfEmpty(parsed, 'fallback');
+        }
+
         const keepaliveSeconds =
-          typeof values.streaming?.keepaliveSeconds === 'string' ? values.streaming.keepaliveSeconds : '';
+          typeof values.streaming?.keepaliveSeconds === 'string'
+            ? values.streaming.keepaliveSeconds
+            : '';
         const bootstrapRetries =
-          typeof values.streaming?.bootstrapRetries === 'string' ? values.streaming.bootstrapRetries : '';
+          typeof values.streaming?.bootstrapRetries === 'string'
+            ? values.streaming.bootstrapRetries
+            : '';
         const nonstreamKeepaliveInterval =
           typeof values.streaming?.nonstreamKeepaliveInterval === 'string'
             ? values.streaming.nonstreamKeepaliveInterval

@@ -957,7 +957,11 @@
           "force_model_prefix": "Force Model Prefix",
           "force_model_prefix_desc": "Unprefixed model requests only use credentials without prefix",
           "ws_auth": "WebSocket Authentication",
-          "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)"
+          "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)",
+          "routing_mode": "Routing Mode",
+          "routing_mode_hint": "Select credential rotation mode",
+          "mode_provider_based": "provider-based (default)",
+          "mode_key_based": "key-based (fair distribution)"
         },
         "quota": {
           "title": "Quota Fallback",
@@ -966,6 +970,19 @@
           "switch_project_desc": "Automatically switch to another project when quota is exceeded",
           "switch_preview_model": "Switch to Preview Model",
           "switch_preview_model_desc": "Switch to preview model version when quota is exceeded"
+        },
+        "fallback": {
+          "title": "Fallback Configuration",
+          "description": "Model fallback and fallback chain settings",
+          "models_title": "Fallback Models",
+          "models_hint": "When all keys for a model are blocked, fallback to another model",
+          "chain_title": "Fallback Chain",
+          "chain_hint": "Global fallback order (max 20 models)",
+          "source_placeholder": "Source Model",
+          "target_placeholder": "Target Model",
+          "add_model": "Add Fallback",
+          "add_chain": "Add to Chain",
+          "chain_max_error": "Maximum 20 models allowed in fallback chain"
         },
         "streaming": {
           "title": "Streaming Configuration",

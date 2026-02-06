@@ -173,7 +173,9 @@ function ToastSelect({
                 style={{
                   padding: '10px 12px',
                   borderRadius: 10,
-                  border: active ? '1px solid rgba(59, 130, 246, 0.5)' : '1px solid var(--border-color)',
+                  border: active
+                    ? '1px solid rgba(59, 130, 246, 0.5)'
+                    : '1px solid var(--border-color)',
                   background: active ? 'rgba(59, 130, 246, 0.10)' : 'var(--bg-primary)',
                   color: 'var(--text-primary)',
                   cursor: 'pointer',
@@ -265,7 +267,9 @@ function ApiKeysCardEditor({
 
   return (
     <div className="form-group" style={{ marginBottom: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
+      >
         <label style={{ margin: 0 }}>{t('config_management.visual.api_keys.label')}</label>
         <Button size="sm" onClick={openAddModal} disabled={disabled}>
           {t('config_management.visual.api_keys.add')}
@@ -294,10 +298,20 @@ function ApiKeysCardEditor({
                 <div className="item-subtitle">{maskApiKey(String(key || ''))}</div>
               </div>
               <div className="item-actions">
-                <Button variant="secondary" size="sm" onClick={() => openEditModal(index)} disabled={disabled}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => openEditModal(index)}
+                  disabled={disabled}
+                >
                   {t('config_management.visual.common.edit')}
                 </Button>
-                <Button variant="danger" size="sm" onClick={() => handleDelete(index)} disabled={disabled}>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => handleDelete(index)}
+                  disabled={disabled}
+                >
                   {t('config_management.visual.common.delete')}
                 </Button>
               </div>
@@ -311,14 +325,20 @@ function ApiKeysCardEditor({
       <Modal
         open={modalOpen}
         onClose={closeModal}
-        title={editingIndex !== null ? t('config_management.visual.api_keys.edit_title') : t('config_management.visual.api_keys.add_title')}
+        title={
+          editingIndex !== null
+            ? t('config_management.visual.api_keys.edit_title')
+            : t('config_management.visual.api_keys.add_title')
+        }
         footer={
           <>
             <Button variant="secondary" onClick={closeModal} disabled={disabled}>
               {t('config_management.visual.common.cancel')}
             </Button>
             <Button onClick={handleSave} disabled={disabled}>
-              {editingIndex !== null ? t('config_management.visual.common.update') : t('config_management.visual.common.add')}
+              {editingIndex !== null
+                ? t('config_management.visual.common.update')
+                : t('config_management.visual.common.add')}
             </Button>
           </>
         }
@@ -359,7 +379,10 @@ function StringListEditor({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {items.map((item, index) => (
-        <div key={index} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div
+          key={index}
+          style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}
+        >
           <input
             className="input"
             placeholder={placeholder}
@@ -413,7 +436,11 @@ function PayloadRulesEditor({
     updateRule(ruleIndex, { models: rule.models.filter((_, i) => i !== modelIndex) });
   };
 
-  const updateModel = (ruleIndex: number, modelIndex: number, patch: Partial<PayloadModelEntry>) => {
+  const updateModel = (
+    ruleIndex: number,
+    modelIndex: number,
+    patch: Partial<PayloadModelEntry>
+  ) => {
     const rule = rules[ruleIndex];
     updateRule(ruleIndex, {
       models: rule.models.map((m, i) => (i === modelIndex ? { ...m, ...patch } : m)),
@@ -436,7 +463,11 @@ function PayloadRulesEditor({
     updateRule(ruleIndex, { params: rule.params.filter((_, i) => i !== paramIndex) });
   };
 
-  const updateParam = (ruleIndex: number, paramIndex: number, patch: Partial<PayloadParamEntry>) => {
+  const updateParam = (
+    ruleIndex: number,
+    paramIndex: number,
+    patch: Partial<PayloadParamEntry>
+  ) => {
     const rule = rules[ruleIndex];
     updateRule(ruleIndex, {
       params: rule.params.map((p, i) => (i === paramIndex ? { ...p, ...patch } : p)),
@@ -481,18 +512,30 @@ function PayloadRulesEditor({
               flexWrap: 'wrap',
             }}
           >
-            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{t('config_management.visual.payload_rules.rule')} {ruleIndex + 1}</div>
-            <Button variant="ghost" size="sm" onClick={() => removeRule(ruleIndex)} disabled={disabled}>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
+              {t('config_management.visual.payload_rules.rule')} {ruleIndex + 1}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => removeRule(ruleIndex)}
+              disabled={disabled}
+            >
               {t('config_management.visual.common.delete')}
             </Button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('config_management.visual.payload_rules.models')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>
+              {t('config_management.visual.payload_rules.models')}
+            </div>
             {(rule.models.length ? rule.models : []).map((model, modelIndex) => (
               <div
                 key={model.id}
-                className={[styles.payloadRuleModelRow, protocolFirst ? styles.payloadRuleModelRowProtocolFirst : '']
+                className={[
+                  styles.payloadRuleModelRow,
+                  protocolFirst ? styles.payloadRuleModelRowProtocolFirst : '',
+                ]
                   .filter(Boolean)
                   .join(' ')}
               >
@@ -551,14 +594,21 @@ function PayloadRulesEditor({
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button variant="secondary" size="sm" onClick={() => addModel(ruleIndex)} disabled={disabled}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addModel(ruleIndex)}
+                disabled={disabled}
+              >
                 {t('config_management.visual.payload_rules.add_model')}
               </Button>
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('config_management.visual.payload_rules.params')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>
+              {t('config_management.visual.payload_rules.params')}
+            </div>
             {(rule.params.length ? rule.params : []).map((param, paramIndex) => (
               <div key={param.id} className={styles.payloadRuleParamRow}>
                 <input
@@ -574,7 +624,9 @@ function PayloadRulesEditor({
                   disabled={disabled}
                   ariaLabel={t('config_management.visual.payload_rules.param_type')}
                   onChange={(nextValue) =>
-                    updateParam(ruleIndex, paramIndex, { valueType: nextValue as PayloadParamValueType })
+                    updateParam(ruleIndex, paramIndex, {
+                      valueType: nextValue as PayloadParamValueType,
+                    })
                   }
                 />
                 <input
@@ -596,7 +648,12 @@ function PayloadRulesEditor({
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button variant="secondary" size="sm" onClick={() => addParam(ruleIndex)} disabled={disabled}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addParam(ruleIndex)}
+                disabled={disabled}
+              >
                 {t('config_management.visual.payload_rules.add_param')}
               </Button>
             </div>
@@ -656,7 +713,11 @@ function PayloadFilterRulesEditor({
     updateRule(ruleIndex, { models: rule.models.filter((_, i) => i !== modelIndex) });
   };
 
-  const updateModel = (ruleIndex: number, modelIndex: number, patch: Partial<PayloadModelEntry>) => {
+  const updateModel = (
+    ruleIndex: number,
+    modelIndex: number,
+    patch: Partial<PayloadModelEntry>
+  ) => {
     const rule = rules[ruleIndex];
     updateRule(ruleIndex, {
       models: rule.models.map((m, i) => (i === modelIndex ? { ...m, ...patch } : m)),
@@ -686,14 +747,23 @@ function PayloadFilterRulesEditor({
               flexWrap: 'wrap',
             }}
           >
-            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{t('config_management.visual.payload_rules.rule')} {ruleIndex + 1}</div>
-            <Button variant="ghost" size="sm" onClick={() => removeRule(ruleIndex)} disabled={disabled}>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
+              {t('config_management.visual.payload_rules.rule')} {ruleIndex + 1}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => removeRule(ruleIndex)}
+              disabled={disabled}
+            >
               {t('config_management.visual.common.delete')}
             </Button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('config_management.visual.payload_rules.models')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>
+              {t('config_management.visual.payload_rules.models')}
+            </div>
             {rule.models.map((model, modelIndex) => (
               <div key={model.id} className={styles.payloadFilterModelRow}>
                 <input
@@ -726,14 +796,21 @@ function PayloadFilterRulesEditor({
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button variant="secondary" size="sm" onClick={() => addModel(ruleIndex)} disabled={disabled}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => addModel(ruleIndex)}
+                disabled={disabled}
+              >
                 {t('config_management.visual.payload_rules.add_model')}
               </Button>
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('config_management.visual.payload_rules.remove_params')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>
+              {t('config_management.visual.payload_rules.remove_params')}
+            </div>
             <StringListEditor
               value={rule.params}
               disabled={disabled}
@@ -767,15 +844,90 @@ function PayloadFilterRulesEditor({
   );
 }
 
-export function VisualConfigEditor({ values, disabled = false, onChange }: VisualConfigEditorProps) {
+function FallbackModelsEditor({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: Record<string, string>;
+  disabled?: boolean;
+  onChange: (next: Record<string, string>) => void;
+}) {
   const { t } = useTranslation();
-  const isKeepaliveDisabled = values.streaming.keepaliveSeconds === '' || values.streaming.keepaliveSeconds === '0';
+  const entries = useMemo(() => Object.entries(value), [value]);
+
+  const updateEntry = (index: number, newKey: string, newValue: string) => {
+    const newEntries = [...entries];
+    newEntries[index] = [newKey, newValue];
+    onChange(Object.fromEntries(newEntries));
+  };
+
+  const removeEntry = (index: number) => {
+    const newEntries = entries.filter((_, i) => i !== index);
+    onChange(Object.fromEntries(newEntries));
+  };
+
+  const addEntry = () => {
+    if (Object.prototype.hasOwnProperty.call(value, '')) return;
+    onChange({ ...value, '': '' });
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {entries.map(([source, target], index) => (
+        <div
+          key={index}
+          style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}
+        >
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.fallback.source_placeholder')}
+            value={source}
+            onChange={(e) => updateEntry(index, e.target.value, target)}
+            disabled={disabled}
+            style={{ flex: 1 }}
+          />
+          <span style={{ color: 'var(--text-secondary)' }}>→</span>
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.fallback.target_placeholder')}
+            value={target}
+            onChange={(e) => updateEntry(index, source, e.target.value)}
+            disabled={disabled}
+            style={{ flex: 1 }}
+          />
+          <Button variant="ghost" size="sm" onClick={() => removeEntry(index)} disabled={disabled}>
+            {t('config_management.visual.common.delete')}
+          </Button>
+        </div>
+      ))}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="secondary" size="sm" onClick={addEntry} disabled={disabled}>
+          {t('config_management.visual.sections.fallback.add_model')}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export function VisualConfigEditor({
+  values,
+  disabled = false,
+  onChange,
+}: VisualConfigEditorProps) {
+  const { t } = useTranslation();
+  const isKeepaliveDisabled =
+    values.streaming.keepaliveSeconds === '' || values.streaming.keepaliveSeconds === '0';
   const isNonstreamKeepaliveDisabled =
-    values.streaming.nonstreamKeepaliveInterval === '' || values.streaming.nonstreamKeepaliveInterval === '0';
+    values.streaming.nonstreamKeepaliveInterval === '' ||
+    values.streaming.nonstreamKeepaliveInterval === '0';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <ConfigSection title={t('config_management.visual.sections.server.title')} description={t('config_management.visual.sections.server.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.server.title')}
+        description={t('config_management.visual.sections.server.description')}
+      >
         <SectionGrid>
           <Input
             label={t('config_management.visual.sections.server.host')}
@@ -795,7 +947,10 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
         </SectionGrid>
       </ConfigSection>
 
-      <ConfigSection title={t('config_management.visual.sections.tls.title')} description={t('config_management.visual.sections.tls.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.tls.title')}
+        description={t('config_management.visual.sections.tls.description')}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <ToggleRow
             title={t('config_management.visual.sections.tls.enable')}
@@ -828,7 +983,10 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
         </div>
       </ConfigSection>
 
-      <ConfigSection title={t('config_management.visual.sections.remote.title')} description={t('config_management.visual.sections.remote.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.remote.title')}
+        description={t('config_management.visual.sections.remote.description')}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <ToggleRow
             title={t('config_management.visual.sections.remote.allow_remote')}
@@ -864,7 +1022,10 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
         </div>
       </ConfigSection>
 
-      <ConfigSection title={t('config_management.visual.sections.auth.title')} description={t('config_management.visual.sections.auth.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.auth.title')}
+        description={t('config_management.visual.sections.auth.description')}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Input
             label={t('config_management.visual.sections.auth.auth_dir')}
@@ -882,7 +1043,10 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
         </div>
       </ConfigSection>
 
-      <ConfigSection title={t('config_management.visual.sections.system.title')} description={t('config_management.visual.sections.system.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.system.title')}
+        description={t('config_management.visual.sections.system.description')}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <SectionGrid>
             <ToggleRow
@@ -928,7 +1092,10 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
         </div>
       </ConfigSection>
 
-      <ConfigSection title={t('config_management.visual.sections.network.title')} description={t('config_management.visual.sections.network.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.network.title')}
+        description={t('config_management.visual.sections.network.description')}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <SectionGrid>
             <Input
@@ -959,8 +1126,14 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
               <ToastSelect
                 value={values.routingStrategy}
                 options={[
-                  { value: 'round-robin', label: t('config_management.visual.sections.network.strategy_round_robin') },
-                  { value: 'fill-first', label: t('config_management.visual.sections.network.strategy_fill_first') },
+                  {
+                    value: 'round-robin',
+                    label: t('config_management.visual.sections.network.strategy_round_robin'),
+                  },
+                  {
+                    value: 'fill-first',
+                    label: t('config_management.visual.sections.network.strategy_fill_first'),
+                  },
                 ]}
                 disabled={disabled}
                 ariaLabel={t('config_management.visual.sections.network.routing_strategy')}
@@ -968,7 +1141,33 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
                   onChange({ routingStrategy: nextValue as VisualConfigValues['routingStrategy'] })
                 }
               />
-              <div className="hint">{t('config_management.visual.sections.network.routing_strategy_hint')}</div>
+              <div className="hint">
+                {t('config_management.visual.sections.network.routing_strategy_hint')}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>{t('config_management.visual.sections.network.routing_mode')}</label>
+              <ToastSelect
+                value={values.routingMode}
+                options={[
+                  {
+                    value: 'provider-based',
+                    label: t('config_management.visual.sections.network.mode_provider_based'),
+                  },
+                  {
+                    value: 'key-based',
+                    label: t('config_management.visual.sections.network.mode_key_based'),
+                  },
+                ]}
+                disabled={disabled}
+                ariaLabel={t('config_management.visual.sections.network.routing_mode')}
+                onChange={(nextValue) =>
+                  onChange({ routingMode: nextValue as VisualConfigValues['routingMode'] })
+                }
+              />
+              <div className="hint">
+                {t('config_management.visual.sections.network.routing_mode_hint')}
+              </div>
             </div>
           </SectionGrid>
 
@@ -989,7 +1188,10 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
         </div>
       </ConfigSection>
 
-      <ConfigSection title={t('config_management.visual.sections.quota.title')} description={t('config_management.visual.sections.quota.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.quota.title')}
+        description={t('config_management.visual.sections.quota.description')}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <ToggleRow
             title={t('config_management.visual.sections.quota.switch_project')}
@@ -1008,7 +1210,51 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
         </div>
       </ConfigSection>
 
-      <ConfigSection title={t('config_management.visual.sections.streaming.title')} description={t('config_management.visual.sections.streaming.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.fallback.title')}
+        description={t('config_management.visual.sections.fallback.description')}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.fallback.models_title')}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              {t('config_management.visual.sections.fallback.models_hint')}
+            </div>
+            <FallbackModelsEditor
+              value={values.fallbackModels}
+              disabled={disabled}
+              onChange={(fallbackModels) => onChange({ fallbackModels })}
+            />
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.fallback.chain_title')}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              {t('config_management.visual.sections.fallback.chain_hint')}
+            </div>
+            <StringListEditor
+              value={values.fallbackChain}
+              disabled={disabled}
+              placeholder={t('config_management.visual.sections.fallback.target_placeholder')}
+              onChange={(chain) => onChange({ fallbackChain: chain })}
+            />
+            {values.fallbackChain.length > 20 && (
+              <div style={{ color: 'var(--error)', fontSize: 13, marginTop: 4 }}>
+                {t('config_management.visual.sections.fallback.chain_max_error')}
+              </div>
+            )}
+          </div>
+        </div>
+      </ConfigSection>
+
+      <ConfigSection
+        title={t('config_management.visual.sections.streaming.title')}
+        description={t('config_management.visual.sections.streaming.description')}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <SectionGrid>
             <div className="form-group">
@@ -1020,7 +1266,9 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
                   placeholder="0"
                   value={values.streaming.keepaliveSeconds}
                   onChange={(e) =>
-                    onChange({ streaming: { ...values.streaming, keepaliveSeconds: e.target.value } })
+                    onChange({
+                      streaming: { ...values.streaming, keepaliveSeconds: e.target.value },
+                    })
                   }
                   disabled={disabled}
                 />
@@ -1043,14 +1291,18 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
                   </span>
                 )}
               </div>
-              <div className="hint">{t('config_management.visual.sections.streaming.keepalive_hint')}</div>
+              <div className="hint">
+                {t('config_management.visual.sections.streaming.keepalive_hint')}
+              </div>
             </div>
             <Input
               label={t('config_management.visual.sections.streaming.bootstrap_retries')}
               type="number"
               placeholder="1"
               value={values.streaming.bootstrapRetries}
-              onChange={(e) => onChange({ streaming: { ...values.streaming, bootstrapRetries: e.target.value } })}
+              onChange={(e) =>
+                onChange({ streaming: { ...values.streaming, bootstrapRetries: e.target.value } })
+              }
               disabled={disabled}
               hint={t('config_management.visual.sections.streaming.bootstrap_hint')}
             />
@@ -1067,7 +1319,10 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
                   value={values.streaming.nonstreamKeepaliveInterval}
                   onChange={(e) =>
                     onChange({
-                      streaming: { ...values.streaming, nonstreamKeepaliveInterval: e.target.value },
+                      streaming: {
+                        ...values.streaming,
+                        nonstreamKeepaliveInterval: e.target.value,
+                      },
                     })
                   }
                   disabled={disabled}
@@ -1099,10 +1354,15 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
         </div>
       </ConfigSection>
 
-      <ConfigSection title={t('config_management.visual.sections.payload.title')} description={t('config_management.visual.sections.payload.description')}>
+      <ConfigSection
+        title={t('config_management.visual.sections.payload.title')}
+        description={t('config_management.visual.sections.payload.description')}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('config_management.visual.sections.payload.default_rules')}</div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.payload.default_rules')}
+            </div>
             <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
               {t('config_management.visual.sections.payload.default_rules_desc')}
             </div>
@@ -1114,7 +1374,9 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
           </div>
 
           <div>
-            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('config_management.visual.sections.payload.override_rules')}</div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.payload.override_rules')}
+            </div>
             <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
               {t('config_management.visual.sections.payload.override_rules_desc')}
             </div>
@@ -1127,7 +1389,9 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
           </div>
 
           <div>
-            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('config_management.visual.sections.payload.filter_rules')}</div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.payload.filter_rules')}
+            </div>
             <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
               {t('config_management.visual.sections.payload.filter_rules_desc')}
             </div>

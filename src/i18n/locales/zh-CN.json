@@ -957,7 +957,11 @@
           "force_model_prefix": "强制模型前缀",
           "force_model_prefix_desc": "未带前缀的模型请求只使用无前缀凭据",
           "ws_auth": "WebSocket 认证",
-          "ws_auth_desc": "启用 WebSocket 连接认证 (/v1/ws)"
+          "ws_auth_desc": "启用 WebSocket 连接认证 (/v1/ws)",
+          "routing_mode": "路由模式",
+          "routing_mode_hint": "选择凭据轮询模式",
+          "mode_provider_based": "provider-based (默认)",
+          "mode_key_based": "key-based (公平分配)"
         },
         "quota": {
           "title": "配额回退",
@@ -966,6 +970,19 @@
           "switch_project_desc": "配额耗尽时自动切换到其他项目",
           "switch_preview_model": "切换预览模型",
           "switch_preview_model_desc": "配额耗尽时切换到预览版本模型"
+        },
+        "fallback": {
+          "title": "回退配置",
+          "description": "模型回退与回退链设置",
+          "models_title": "回退模型",
+          "models_hint": "当模型的所有密钥被阻止时回退到其他模型",
+          "chain_title": "回退链",
+          "chain_hint": "全局回退顺序（最多 20 个）",
+          "source_placeholder": "源模型",
+          "target_placeholder": "目标模型",
+          "add_model": "添加回退",
+          "add_chain": "添加回退链",
+          "chain_max_error": "回退链最多允许 20 个模型"
         },
         "streaming": {
           "title": "流式传输配置",

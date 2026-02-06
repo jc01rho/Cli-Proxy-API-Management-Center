@@ -55,6 +55,9 @@ export type VisualConfigValues = {
   quotaSwitchProject: boolean;
   quotaSwitchPreviewModel: boolean;
   routingStrategy: 'round-robin' | 'fill-first';
+  routingMode: 'provider-based' | 'key-based';
+  fallbackModels: Record<string, string>;
+  fallbackChain: string[];
   wsAuth: boolean;
   payloadDefaultRules: PayloadRule[];
   payloadOverrideRules: PayloadRule[];
@@ -91,6 +94,9 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   quotaSwitchProject: true,
   quotaSwitchPreviewModel: true,
   routingStrategy: 'round-robin',
+  routingMode: 'provider-based',
+  fallbackModels: {},
+  fallbackChain: [],
   wsAuth: false,
   payloadDefaultRules: [],
   payloadOverrideRules: [],

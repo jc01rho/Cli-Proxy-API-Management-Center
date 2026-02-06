@@ -4,11 +4,17 @@
 
 import type {
   AntigravityQuotaGroup,
+  AntigravityQuotaGroupDefinition,
   AntigravityQuotaInfo,
   AntigravityModelsPayload,
   GeminiCliParsedBucket,
   GeminiCliQuotaBucketState,
 } from '@/types';
+import {
+  ANTIGRAVITY_QUOTA_GROUPS,
+  GEMINI_CLI_GROUP_LOOKUP,
+  GEMINI_CLI_GROUP_ORDER,
+} from './constants';
 import { normalizeQuotaFraction } from './parsers';
 import { isIgnoredGeminiCliModel } from './validators';
 
@@ -33,23 +39,97 @@ export function buildGeminiCliQuotaBuckets(
 ): GeminiCliQuotaBucketState[] {
   if (buckets.length === 0) return [];
 
-  const result: GeminiCliQuotaBucketState[] = [];
+  type GeminiCliQuotaBucketGroup = {
+    id: string;
+    label: string;
+    tokenType: string | null;
+    modelIds: string[];
+    preferredModelId?: string;
+    preferredBucket?: GeminiCliParsedBucket;
+    fallbackRemainingFraction: number | null;
+    fallbackRemainingAmount: number | null;
+    fallbackResetTime: string | undefined;
+  };
 
-  for (const bucket of buckets) {
-    if (isIgnoredGeminiCliModel(bucket.modelId)) continue;
+  const grouped = new Map<string, GeminiCliQuotaBucketGroup>();
 
-    result.push({
-      id: bucket.modelId,
-      label: bucket.modelId,
-      remainingFraction: bucket.remainingFraction,
-      remainingAmount: bucket.remainingAmount,
-      resetTime: bucket.resetTime,
-      tokenType: bucket.tokenType,
-      modelIds: [bucket.modelId],
+  buckets.forEach((bucket) => {
+    if (isIgnoredGeminiCliModel(bucket.modelId)) return;
+    const group = GEMINI_CLI_GROUP_LOOKUP.get(bucket.modelId);
+    const groupId = group?.id ?? bucket.modelId;
+    const label = group?.label ?? bucket.modelId;
+    const tokenKey = bucket.tokenType ?? '';
+    const mapKey = `${groupId}::${tokenKey}`;
+    const existing = grouped.get(mapKey);
+
+    if (!existing) {
+      const preferredModelId = group?.preferredModelId;
+      const preferredBucket =
+        preferredModelId && bucket.modelId === preferredModelId ? bucket : undefined;
+      grouped.set(mapKey, {
+        id: `${groupId}${tokenKey ? `-${tokenKey}` : ''}`,
+        label,
+        tokenType: bucket.tokenType,
+        modelIds: [bucket.modelId],
+        preferredModelId,
+        preferredBucket,
+        fallbackRemainingFraction: bucket.remainingFraction,
+        fallbackRemainingAmount: bucket.remainingAmount,
+        fallbackResetTime: bucket.resetTime,
+      });
+      return;
+    }
+
+    existing.fallbackRemainingFraction = minNullableNumber(
+      existing.fallbackRemainingFraction,
+      bucket.remainingFraction
+    );
+    existing.fallbackRemainingAmount = minNullableNumber(
+      existing.fallbackRemainingAmount,
+      bucket.remainingAmount
+    );
+    existing.fallbackResetTime = pickEarlierResetTime(existing.fallbackResetTime, bucket.resetTime);
+    existing.modelIds.push(bucket.modelId);
+
+    if (existing.preferredModelId && bucket.modelId === existing.preferredModelId) {
+      existing.preferredBucket = bucket;
+    }
+  });
+
+  const toGroupOrder = (bucket: GeminiCliQuotaBucketGroup): number => {
+    const tokenSuffix = bucket.tokenType ? `-${bucket.tokenType}` : '';
+    const groupId = bucket.id.endsWith(tokenSuffix)
+      ? bucket.id.slice(0, bucket.id.length - tokenSuffix.length)
+      : bucket.id;
+    return GEMINI_CLI_GROUP_ORDER.get(groupId) ?? Number.MAX_SAFE_INTEGER;
+  };
+
+  return Array.from(grouped.values())
+    .sort((a, b) => {
+      const orderDiff = toGroupOrder(a) - toGroupOrder(b);
+      if (orderDiff !== 0) return orderDiff;
+      const tokenTypeA = a.tokenType ?? '';
+      const tokenTypeB = b.tokenType ?? '';
+      return tokenTypeA.localeCompare(tokenTypeB);
+    })
+    .map((bucket) => {
+      const uniqueModelIds = Array.from(new Set(bucket.modelIds));
+      const preferred = bucket.preferredBucket;
+      const remainingFraction = preferred
+        ? preferred.remainingFraction
+        : bucket.fallbackRemainingFraction;
+      const remainingAmount = preferred ? preferred.remainingAmount : bucket.fallbackRemainingAmount;
+      const resetTime = preferred ? preferred.resetTime : bucket.fallbackResetTime;
+      return {
+        id: bucket.id,
+        label: bucket.label,
+        remainingFraction,
+        remainingAmount,
+        resetTime,
+        tokenType: bucket.tokenType,
+        modelIds: uniqueModelIds,
+      };
     });
-  }
-
-  return result;
 }
 
 export function getAntigravityQuotaInfo(entry?: AntigravityQuotaInfo): {
@@ -75,59 +155,107 @@ export function getAntigravityQuotaInfo(entry?: AntigravityQuotaInfo): {
   };
 }
 
-const IGNORED_ANTIGRAVITY_MODELS = new Set([
-  'tab_flash_lite_preview',
-  'gpt-oss-120b-medium',
-  'chat_20706',
-  'chat_23310',
-  'ulw',
-]);
+export function findAntigravityModel(
+  models: AntigravityModelsPayload,
+  identifier: string
+): { id: string; entry: AntigravityQuotaInfo } | null {
+  const direct = models[identifier];
+  if (direct) {
+    return { id: identifier, entry: direct };
+  }
 
-function isClaudeModel(modelId: string): boolean {
-  return modelId.toLowerCase().startsWith('claude');
+  const match = Object.entries(models).find(([, entry]) => {
+    const name = typeof entry?.displayName === 'string' ? entry.displayName : '';
+    return name.toLowerCase() === identifier.toLowerCase();
+  });
+  if (match) {
+    return { id: match[0], entry: match[1] };
+  }
+
+  return null;
 }
 
 export function buildAntigravityQuotaGroups(
   models: AntigravityModelsPayload
 ): AntigravityQuotaGroup[] {
   const groups: AntigravityQuotaGroup[] = [];
-  let claudeGroup: AntigravityQuotaGroup | null = null;
+  let geminiProResetTime: string | undefined;
+  const [claudeDef, geminiProDef, flashDef, flashLiteDef, cuDef, geminiFlashDef, imageDef] =
+    ANTIGRAVITY_QUOTA_GROUPS;
 
-  for (const [modelId, entry] of Object.entries(models)) {
-    if (IGNORED_ANTIGRAVITY_MODELS.has(modelId)) continue;
+  const buildGroup = (
+    def: AntigravityQuotaGroupDefinition,
+    overrideResetTime?: string
+  ): AntigravityQuotaGroup | null => {
+    const matches = def.identifiers
+      .map((identifier) => findAntigravityModel(models, identifier))
+      .filter((entry): entry is { id: string; entry: AntigravityQuotaInfo } => Boolean(entry));
 
-    const info = getAntigravityQuotaInfo(entry);
-    const remainingFraction = info.remainingFraction ?? (info.resetTime ? 0 : null);
-    if (remainingFraction === null) continue;
-
-    if (isClaudeModel(modelId)) {
-      if (!claudeGroup) {
-        claudeGroup = {
-          id: 'claude-merged',
-          label: 'Claude',
-          models: [modelId],
+    const quotaEntries = matches
+      .map(({ id, entry }) => {
+        const info = getAntigravityQuotaInfo(entry);
+        const remainingFraction = info.remainingFraction ?? (info.resetTime ? 0 : null);
+        if (remainingFraction === null) return null;
+        return {
+          id,
           remainingFraction,
           resetTime: info.resetTime,
+          displayName: info.displayName,
         };
-      } else {
-        claudeGroup.models.push(modelId);
-        claudeGroup.remainingFraction = Math.min(claudeGroup.remainingFraction, remainingFraction);
-        claudeGroup.resetTime = pickEarlierResetTime(claudeGroup.resetTime, info.resetTime);
-      }
-      continue;
-    }
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
 
-    groups.push({
-      id: modelId,
-      label: info.displayName ?? modelId,
-      models: [modelId],
+    if (quotaEntries.length === 0) return null;
+
+    const remainingFraction = Math.min(...quotaEntries.map((entry) => entry.remainingFraction));
+    const resetTime =
+      overrideResetTime ?? quotaEntries.map((entry) => entry.resetTime).find(Boolean);
+    const displayName = quotaEntries.map((entry) => entry.displayName).find(Boolean);
+    const label = def.labelFromModel && displayName ? displayName : def.label;
+
+    return {
+      id: def.id,
+      label,
+      models: quotaEntries.map((entry) => entry.id),
       remainingFraction,
-      resetTime: info.resetTime,
-    });
+      resetTime,
+    };
+  };
+
+  const claudeGroup = buildGroup(claudeDef);
+  if (claudeGroup) {
+    groups.push(claudeGroup);
   }
 
-  if (claudeGroup) {
-    groups.unshift(claudeGroup);
+  const geminiProGroup = buildGroup(geminiProDef);
+  if (geminiProGroup) {
+    geminiProResetTime = geminiProGroup.resetTime;
+    groups.push(geminiProGroup);
+  }
+
+  const flashGroup = buildGroup(flashDef);
+  if (flashGroup) {
+    groups.push(flashGroup);
+  }
+
+  const flashLiteGroup = buildGroup(flashLiteDef);
+  if (flashLiteGroup) {
+    groups.push(flashLiteGroup);
+  }
+
+  const cuGroup = buildGroup(cuDef);
+  if (cuGroup) {
+    groups.push(cuGroup);
+  }
+
+  const geminiFlashGroup = buildGroup(geminiFlashDef);
+  if (geminiFlashGroup) {
+    groups.push(geminiFlashGroup);
+  }
+
+  const imageGroup = buildGroup(imageDef, geminiProResetTime);
+  if (imageGroup) {
+    groups.push(imageGroup);
   }
 
   return groups;

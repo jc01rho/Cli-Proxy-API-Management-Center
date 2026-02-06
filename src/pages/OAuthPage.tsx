@@ -12,6 +12,8 @@ import iconCodexDark from '@/assets/icons/codex_drak.svg';
 import iconClaude from '@/assets/icons/claude.svg';
 import iconAntigravity from '@/assets/icons/antigravity.svg';
 import iconGemini from '@/assets/icons/gemini.svg';
+import iconKimiLight from '@/assets/icons/kimi-light.svg';
+import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconIflow from '@/assets/icons/iflow.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
@@ -54,16 +56,71 @@ interface VertexImportState {
   result?: VertexImportResult;
 }
 
-const PROVIDERS: { id: OAuthProvider; titleKey: string; hintKey: string; urlLabelKey: string; icon: string | { light: string; dark: string } }[] = [
-  { id: 'codex', titleKey: 'auth_login.codex_oauth_title', hintKey: 'auth_login.codex_oauth_hint', urlLabelKey: 'auth_login.codex_oauth_url_label', icon: { light: iconCodexLight, dark: iconCodexDark } },
-  { id: 'anthropic', titleKey: 'auth_login.anthropic_oauth_title', hintKey: 'auth_login.anthropic_oauth_hint', urlLabelKey: 'auth_login.anthropic_oauth_url_label', icon: iconClaude },
-  { id: 'antigravity', titleKey: 'auth_login.antigravity_oauth_title', hintKey: 'auth_login.antigravity_oauth_hint', urlLabelKey: 'auth_login.antigravity_oauth_url_label', icon: iconAntigravity },
-  { id: 'gemini-cli', titleKey: 'auth_login.gemini_cli_oauth_title', hintKey: 'auth_login.gemini_cli_oauth_hint', urlLabelKey: 'auth_login.gemini_cli_oauth_url_label', icon: iconGemini },
-  { id: 'trae', titleKey: 'auth_login.trae_oauth_title', hintKey: 'auth_login.trae_oauth_hint', urlLabelKey: 'auth_login.trae_oauth_url_label', icon: iconGemini },
-  { id: 'qwen', titleKey: 'auth_login.qwen_oauth_title', hintKey: 'auth_login.qwen_oauth_hint', urlLabelKey: 'auth_login.qwen_oauth_url_label', icon: iconQwen }
+const PROVIDERS: {
+  id: OAuthProvider;
+  titleKey: string;
+  hintKey: string;
+  urlLabelKey: string;
+  icon: string | { light: string; dark: string };
+}[] = [
+  {
+    id: 'codex',
+    titleKey: 'auth_login.codex_oauth_title',
+    hintKey: 'auth_login.codex_oauth_hint',
+    urlLabelKey: 'auth_login.codex_oauth_url_label',
+    icon: { light: iconCodexLight, dark: iconCodexDark },
+  },
+  {
+    id: 'anthropic',
+    titleKey: 'auth_login.anthropic_oauth_title',
+    hintKey: 'auth_login.anthropic_oauth_hint',
+    urlLabelKey: 'auth_login.anthropic_oauth_url_label',
+    icon: iconClaude,
+  },
+  {
+    id: 'antigravity',
+    titleKey: 'auth_login.antigravity_oauth_title',
+    hintKey: 'auth_login.antigravity_oauth_hint',
+    urlLabelKey: 'auth_login.antigravity_oauth_url_label',
+    icon: iconAntigravity,
+  },
+  {
+    id: 'gemini-cli',
+    titleKey: 'auth_login.gemini_cli_oauth_title',
+    hintKey: 'auth_login.gemini_cli_oauth_hint',
+    urlLabelKey: 'auth_login.gemini_cli_oauth_url_label',
+    icon: iconGemini,
+  },
+  {
+    id: 'trae',
+    titleKey: 'auth_login.trae_oauth_title',
+    hintKey: 'auth_login.trae_oauth_hint',
+    urlLabelKey: 'auth_login.trae_oauth_url_label',
+    icon: iconGemini,
+  },
+  {
+    id: 'kimi',
+    titleKey: 'auth_login.kimi_oauth_title',
+    hintKey: 'auth_login.kimi_oauth_hint',
+    urlLabelKey: 'auth_login.kimi_oauth_url_label',
+    icon: { light: iconKimiLight, dark: iconKimiDark },
+  },
+  {
+    id: 'qwen',
+    titleKey: 'auth_login.qwen_oauth_title',
+    hintKey: 'auth_login.qwen_oauth_hint',
+    urlLabelKey: 'auth_login.qwen_oauth_url_label',
+    icon: iconQwen,
+  },
 ];
 
-const CALLBACK_SUPPORTED: OAuthProvider[] = ['codex', 'anthropic', 'antigravity', 'gemini-cli', 'trae'];
+const CALLBACK_SUPPORTED: OAuthProvider[] = [
+  'codex',
+  'anthropic',
+  'antigravity',
+  'gemini-cli',
+  'trae',
+];
 const getProviderI18nPrefix = (provider: OAuthProvider) => provider.replace('-', '_');
 const getAuthKey = (provider: OAuthProvider, suffix: string) =>
   `auth_login.${getProviderI18nPrefix(provider)}_${suffix}`;
@@ -76,12 +133,14 @@ export function OAuthPage() {
   const { t } = useTranslation();
   const { showNotification } = useNotificationStore();
   const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
-  const [states, setStates] = useState<Record<OAuthProvider, ProviderState>>({} as Record<OAuthProvider, ProviderState>);
+  const [states, setStates] = useState<Record<OAuthProvider, ProviderState>>(
+    {} as Record<OAuthProvider, ProviderState>
+  );
   const [iflowCookie, setIflowCookie] = useState<IFlowCookieState>({ cookie: '', loading: false });
   const [vertexState, setVertexState] = useState<VertexImportState>({
     fileName: '',
     location: '',
-    loading: false
+    loading: false,
   });
   const timers = useRef<Record<string, number>>({});
   const vertexFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -100,7 +159,7 @@ export function OAuthPage() {
   const updateProviderState = (provider: OAuthProvider, next: Partial<ProviderState>) => {
     setStates((prev) => ({
       ...prev,
-      [provider]: { ...(prev[provider] ?? {}), ...next }
+      [provider]: { ...(prev[provider] ?? {}), ...next },
     }));
   };
 
@@ -135,7 +194,8 @@ export function OAuthPage() {
   };
 
   const startAuth = async (provider: OAuthProvider) => {
-    const projectId = provider === 'gemini-cli' ? (states[provider]?.projectId || '').trim() : undefined;
+    const projectId =
+      provider === 'gemini-cli' ? (states[provider]?.projectId || '').trim() : undefined;
     // 项目 ID 现在是可选的，如果不输入将自动选择第一个可用项目
     if (provider === 'gemini-cli') {
       updateProviderState(provider, { projectIdError: undefined });
@@ -146,20 +206,28 @@ export function OAuthPage() {
       error: undefined,
       callbackStatus: undefined,
       callbackError: undefined,
-      callbackUrl: ''
+      callbackUrl: '',
     });
     try {
       const res = await oauthApi.startAuth(
         provider,
         provider === 'gemini-cli' ? { projectId: projectId || undefined } : undefined
       );
-      updateProviderState(provider, { url: res.url, state: res.state, status: 'waiting', polling: true });
+      updateProviderState(provider, {
+        url: res.url,
+        state: res.state,
+        status: 'waiting',
+        polling: true,
+      });
       if (res.state) {
         startPolling(provider, res.state);
       }
     } catch (err: any) {
       updateProviderState(provider, { status: 'error', error: err?.message, polling: false });
-      showNotification(`${t(getAuthKey(provider, 'oauth_start_error'))} ${err?.message || ''}`, 'error');
+      showNotification(
+        `${t(getAuthKey(provider, 'oauth_start_error'))} ${err?.message || ''}`,
+        'error'
+      );
     }
   };
 
@@ -197,7 +265,7 @@ export function OAuthPage() {
     updateProviderState(provider, {
       callbackSubmitting: true,
       callbackStatus: undefined,
-      callbackError: undefined
+      callbackError: undefined,
     });
     try {
       await oauthApi.submitCallback(provider, redirectUrl, state);
@@ -207,13 +275,13 @@ export function OAuthPage() {
       const errorMessage =
         err?.status === 404
           ? t('auth_login.oauth_callback_upgrade_hint', {
-              defaultValue: 'Please update CLI Proxy API or check the connection.'
+              defaultValue: 'Please update CLI Proxy API or check the connection.',
             })
           : err?.message;
       updateProviderState(provider, {
         callbackSubmitting: false,
         callbackStatus: 'error',
-        callbackError: errorMessage
+        callbackError: errorMessage,
       });
       const notificationMessage = errorMessage
         ? `${t('auth_login.oauth_callback_error')} ${errorMessage}`
@@ -233,7 +301,7 @@ export function OAuthPage() {
       loading: true,
       error: undefined,
       errorType: undefined,
-      result: undefined
+      result: undefined,
     }));
     try {
       const res = await oauthApi.iflowCookieAuth(cookie);
@@ -245,19 +313,35 @@ export function OAuthPage() {
           ...prev,
           loading: false,
           error: res.error,
-          errorType: 'error'
+          errorType: 'error',
         }));
-        showNotification(`${t('auth_login.iflow_cookie_status_error')} ${res.error || ''}`, 'error');
+        showNotification(
+          `${t('auth_login.iflow_cookie_status_error')} ${res.error || ''}`,
+          'error'
+        );
       }
     } catch (err: any) {
       if (err?.status === 409) {
         const message = t('auth_login.iflow_cookie_config_duplicate');
-        setIflowCookie((prev) => ({ ...prev, loading: false, error: message, errorType: 'warning' }));
+        setIflowCookie((prev) => ({
+          ...prev,
+          loading: false,
+          error: message,
+          errorType: 'warning',
+        }));
         showNotification(message, 'warning');
         return;
       }
-      setIflowCookie((prev) => ({ ...prev, loading: false, error: err?.message, errorType: 'error' }));
-      showNotification(`${t('auth_login.iflow_cookie_start_error')} ${err?.message || ''}`, 'error');
+      setIflowCookie((prev) => ({
+        ...prev,
+        loading: false,
+        error: err?.message,
+        errorType: 'error',
+      }));
+      showNotification(
+        `${t('auth_login.iflow_cookie_start_error')} ${err?.message || ''}`,
+        'error'
+      );
     }
   };
 
@@ -278,7 +362,7 @@ export function OAuthPage() {
       file,
       fileName: file.name,
       error: undefined,
-      result: undefined
+      result: undefined,
     }));
     event.target.value = '';
   };
@@ -301,7 +385,7 @@ export function OAuthPage() {
         projectId: res.project_id,
         email: res.email,
         location: res.location,
-        authFile: res['auth-file'] ?? res.auth_file
+        authFile: res['auth-file'] ?? res.auth_file,
       };
       setVertexState((prev) => ({ ...prev, loading: false, result }));
       showNotification(t('vertex_import.success'), 'success');
@@ -310,7 +394,7 @@ export function OAuthPage() {
       setVertexState((prev) => ({
         ...prev,
         loading: false,
-        error: message || t('notification.upload_failed')
+        error: message || t('notification.upload_failed'),
       }));
       const notification = message
         ? `${t('notification.upload_failed')}: ${message}`
@@ -357,7 +441,7 @@ export function OAuthPage() {
                       onChange={(e) =>
                         updateProviderState(provider.id, {
                           projectId: e.target.value,
-                          projectIdError: undefined
+                          projectIdError: undefined,
                         })
                       }
                       placeholder={t('auth_login.gemini_cli_project_id_placeholder')}
@@ -392,7 +476,7 @@ export function OAuthPage() {
                         updateProviderState(provider.id, {
                           callbackUrl: e.target.value,
                           callbackStatus: undefined,
-                          callbackError: undefined
+                          callbackError: undefined,
                         })
                       }
                       placeholder={t('auth_login.oauth_callback_placeholder')}
@@ -455,7 +539,7 @@ export function OAuthPage() {
             onChange={(e) =>
               setVertexState((prev) => ({
                 ...prev,
-                location: e.target.value
+                location: e.target.value,
               }))
             }
             placeholder={t('vertex_import.location_placeholder')}

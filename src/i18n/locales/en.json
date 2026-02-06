@@ -1029,7 +1029,9 @@
     "refresh_files": "Refresh auth files",
     "refresh_files_and_quota": "Refresh files & quota",
     "key_blocked": "Key Blocked",
-    "key_unavailable": "Unavailable"
+    "key_unavailable": "Unavailable",
+    "refresh_tier": "Refresh tier",
+    "tier_unknown": "Unknown tier"
   },
   "system_info": {
     "title": "Management Center Info",

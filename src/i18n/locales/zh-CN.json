@@ -1029,7 +1029,9 @@
     "refresh_files": "刷新认证文件",
     "refresh_files_and_quota": "刷新认证文件&额度",
     "key_blocked": "密钥已阻止",
-    "key_unavailable": "不可用"
+    "key_unavailable": "不可用",
+    "refresh_tier": "刷新等级",
+    "tier_unknown": "未知等级"
   },
   "system_info": {
     "title": "管理中心信息",

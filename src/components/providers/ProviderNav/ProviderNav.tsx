@@ -1,6 +1,7 @@
 import { CSSProperties, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
+import { usePageTransitionLayer } from '@/components/common/PageTransition';
 import { useThemeStore } from '@/stores';
 import iconGemini from '@/assets/icons/gemini.svg';
 import iconOpenaiLight from '@/assets/icons/openai-light.svg';
@@ -34,10 +35,13 @@ type ScrollContainer = HTMLElement | (Window & typeof globalThis);
 
 export function ProviderNav() {
   const location = useLocation();
+  const pageTransitionLayer = usePageTransitionLayer();
+  const isCurrentLayer = pageTransitionLayer ? pageTransitionLayer.status === 'current' : true;
   const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
   const [activeProvider, setActiveProvider] = useState<ProviderId | null>(null);
   const contentScrollerRef = useRef<HTMLElement | null>(null);
   const navListRef = useRef<HTMLDivElement | null>(null);
+  const navContainerRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<Record<ProviderId, HTMLButtonElement | null>>({
     gemini: null,
     codex: null,
@@ -62,7 +66,7 @@ export function ProviderNav() {
     location.pathname.length > 1 && location.pathname.endsWith('/')
       ? location.pathname.slice(0, -1)
       : location.pathname;
-  const shouldShow = normalizedPathname === '/ai-providers';
+  const shouldShow = isCurrentLayer && normalizedPathname === '/ai-providers';
 
   const getHeaderHeight = useCallback(() => {
     const header = document.querySelector('.main-header') as HTMLElement | null;
@@ -167,6 +171,31 @@ export function ProviderNav() {
     updateIndicator(activeProvider);
   }, [activeProvider, shouldShow, updateIndicator]);
 
+  // Expose overlay height to the page, so it can reserve bottom padding and avoid being covered.
+  useLayoutEffect(() => {
+    if (!shouldShow) return;
+
+    const el = navContainerRef.current;
+    if (!el) return;
+
+    const updateHeight = () => {
+      const height = el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--provider-nav-height', `${height}px`);
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateHeight);
+    ro?.observe(el);
+
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', updateHeight);
+      document.documentElement.style.removeProperty('--provider-nav-height');
+    };
+  }, [shouldShow]);
+
   const scrollToProvider = (providerId: ProviderId) => {
     const container = getScrollContainer();
     const element = document.getElementById(`provider-${providerId}`);
@@ -201,7 +230,7 @@ export function ProviderNav() {
   }, [activeProvider, shouldShow, updateIndicator]);
 
   const navContent = (
-    <div className={styles.navContainer}>
+    <div className={styles.navContainer} ref={navContainerRef}>
       <div className={styles.navList} ref={navListRef}>
         <div
           className={[

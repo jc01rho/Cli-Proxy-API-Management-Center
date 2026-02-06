@@ -1056,7 +1056,10 @@
     "key_blocked": "Key Blocked",
     "key_unavailable": "Unavailable",
     "refresh_tier": "Refresh tier",
-    "tier_unknown": "Unknown tier"
+    "tier_unknown": "Unknown tier",
+    "refresh_all_tiers": "Refresh All Tiers",
+    "refresh_all_success": "Refreshed {{count}} tier(s)",
+    "refresh_all_partial": "Refreshed {{success}}, failed {{fail}}"
   },
   "system_info": {
     "title": "Management Center Info",

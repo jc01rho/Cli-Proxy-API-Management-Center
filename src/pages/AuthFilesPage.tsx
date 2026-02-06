@@ -282,6 +282,7 @@ export function AuthFilesPage() {
   const [keyStats, setKeyStats] = useState<KeyStats>({ bySource: {}, byAuthIndex: {} });
   const [usageDetails, setUsageDetails] = useState<UsageDetail[]>([]);
   const [refreshingTiers, setRefreshingTiers] = useState<Record<string, boolean>>({});
+  const [refreshingAllTiers, setRefreshingAllTiers] = useState(false);
 
   // 详情弹窗相关
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -1621,8 +1622,7 @@ export function AuthFilesPage() {
         );
       }
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : t('notification.refresh_failed');
+      const errorMessage = err instanceof Error ? err.message : t('notification.refresh_failed');
       showNotification(errorMessage, 'error');
     } finally {
       setRefreshingTiers((prev) => {
@@ -1630,6 +1630,66 @@ export function AuthFilesPage() {
         delete next[authId];
         return next;
       });
+    }
+  };
+
+  const handleRefreshAllAntigravityTiers = async () => {
+    const antigravityFiles = files.filter(
+      (f) => resolveQuotaType(f) === 'antigravity' && !isRuntimeOnlyAuthFile(f) && !f.disabled
+    );
+    if (antigravityFiles.length === 0) return;
+
+    setRefreshingAllTiers(true);
+    try {
+      const results = await Promise.all(
+        antigravityFiles.map(async (item) => {
+          const authId = item.id || item.name;
+          try {
+            const result = await providersApi.refreshTier(authId);
+            return { authId, tier: result.tier, tier_name: result.tier_name, error: false };
+          } catch {
+            return { authId, tier: '', tier_name: '', error: true };
+          }
+        })
+      );
+
+      const successCount = results.filter((r) => !r.error).length;
+      const failCount = results.filter((r) => r.error).length;
+
+      setFiles((prev) =>
+        prev.map((f) => {
+          const fId = f.id || f.name;
+          const result = results.find((r) => r.authId === fId && !r.error);
+          if (result) {
+            return { ...f, tier: result.tier, tier_name: result.tier_name };
+          }
+          return f;
+        })
+      );
+
+      if (failCount === 0) {
+        showNotification(
+          t('quota_management.refresh_all_success', {
+            count: successCount,
+            defaultValue: `Refreshed ${successCount} tier(s)`,
+          }),
+          'success'
+        );
+      } else {
+        showNotification(
+          t('quota_management.refresh_all_partial', {
+            success: successCount,
+            fail: failCount,
+            defaultValue: `Refreshed ${successCount}, failed ${failCount}`,
+          }),
+          'warning'
+        );
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : t('notification.refresh_failed');
+      showNotification(errorMessage, 'error');
+    } finally {
+      setRefreshingAllTiers(false);
     }
   };
 
@@ -1715,9 +1775,7 @@ export function AuthFilesPage() {
         key={item.name}
         className={`${styles.fileCard} ${providerCardClass} ${item.disabled ? styles.fileCardDisabled : ''}`}
       >
-        <div
-          className={styles.fileCardLayout}
-        >
+        <div className={styles.fileCardLayout}>
           <div className={styles.fileCardMain}>
             <div className={styles.cardHeader}>
               <span
@@ -1927,6 +1985,25 @@ export function AuthFilesPage() {
                 }}
               />
             </div>
+            {quotaFilterType === 'antigravity' && (
+              <div className={styles.filterItem}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleRefreshAllAntigravityTiers}
+                  disabled={disableControls || refreshingAllTiers}
+                >
+                  {refreshingAllTiers ? (
+                    <>
+                      <LoadingSpinner size={14} />
+                      {t('common.loading')}
+                    </>
+                  ) : (
+                    t('quota_management.refresh_all_tiers', { defaultValue: 'Refresh All Tiers' })
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

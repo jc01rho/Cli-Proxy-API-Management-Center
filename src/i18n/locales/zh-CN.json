@@ -1056,7 +1056,10 @@
     "key_blocked": "密钥已阻止",
     "key_unavailable": "不可用",
     "refresh_tier": "刷新等级",
-    "tier_unknown": "未知等级"
+    "tier_unknown": "未知等级",
+    "refresh_all_tiers": "刷新所有等级",
+    "refresh_all_success": "已刷新 {{count}} 个等级",
+    "refresh_all_partial": "已刷新 {{success}} 个, 失败 {{fail}} 个"
   },
   "system_info": {
     "title": "管理中心信息",

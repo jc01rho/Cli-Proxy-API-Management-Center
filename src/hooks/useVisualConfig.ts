@@ -280,8 +280,8 @@ export function useVisualConfig() {
           | 'fill-first',
         routingMode: (parsed.routing?.mode || 'provider-based') as 'provider-based' | 'key-based',
 
-        fallbackModels: parsed.fallback?.models || parsed['fallback-models'] || {},
-        fallbackChain: parsed.fallback?.chain || parsed['fallback-chain'] || [],
+        fallbackModels: parsed.routing?.['fallback-models'] || {},
+        fallbackChain: parsed.routing?.['fallback-chain'] || [],
 
         payloadDefaultRules: parsePayloadRules(parsed.payload?.default),
         payloadOverrideRules: parsePayloadRules(parsed.payload?.override),
@@ -380,32 +380,27 @@ export function useVisualConfig() {
         if (
           hasOwn(parsed, 'routing') ||
           values.routingStrategy !== 'round-robin' ||
-          values.routingMode !== 'provider-based'
+          values.routingMode !== 'provider-based' ||
+          Object.keys(values.fallbackModels).length > 0 ||
+          values.fallbackChain.length > 0
         ) {
           const routing = ensureRecord(parsed, 'routing');
           routing.strategy = values.routingStrategy;
           routing.mode = values.routingMode;
-          deleteIfEmpty(parsed, 'routing');
-        }
 
-        if (
-          hasOwn(parsed, 'fallback') ||
-          Object.keys(values.fallbackModels).length > 0 ||
-          values.fallbackChain.length > 0
-        ) {
-          const fallback = ensureRecord(parsed, 'fallback');
           if (Object.keys(values.fallbackModels).length > 0) {
-            fallback.models = values.fallbackModels;
-          } else if (hasOwn(fallback, 'models')) {
-            delete fallback['models'];
+            routing['fallback-models'] = values.fallbackModels;
+          } else if (hasOwn(routing, 'fallback-models')) {
+            delete routing['fallback-models'];
           }
 
           if (values.fallbackChain.length > 0) {
-            fallback.chain = values.fallbackChain;
-          } else if (hasOwn(fallback, 'chain')) {
-            delete fallback['chain'];
+            routing['fallback-chain'] = values.fallbackChain;
+          } else if (hasOwn(routing, 'fallback-chain')) {
+            delete routing['fallback-chain'];
           }
-          deleteIfEmpty(parsed, 'fallback');
+
+          deleteIfEmpty(parsed, 'routing');
         }
 
         const keepaliveSeconds =

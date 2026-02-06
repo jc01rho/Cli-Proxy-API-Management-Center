@@ -23,6 +23,7 @@ import type { TFunction } from 'i18next';
 import { ANTIGRAVITY_CONFIG, CODEX_CONFIG, GEMINI_CLI_CONFIG } from '@/components/quota';
 import { useAuthStore, useNotificationStore, useQuotaStore, useThemeStore } from '@/stores';
 import { authFilesApi, usageApi } from '@/services/api';
+import { providersApi } from '@/services/api/providers';
 import { apiClient } from '@/services/api/client';
 import type { AuthFileItem, OAuthModelAliasEntry } from '@/types';
 import { getStatusFromError, resolveAuthProvider } from '@/utils/quota';
@@ -280,6 +281,7 @@ export function AuthFilesPage() {
   const [statusUpdating, setStatusUpdating] = useState<Record<string, boolean>>({});
   const [keyStats, setKeyStats] = useState<KeyStats>({ bySource: {}, byAuthIndex: {} });
   const [usageDetails, setUsageDetails] = useState<UsageDetail[]>([]);
+  const [refreshingTiers, setRefreshingTiers] = useState<Record<string, boolean>>({});
 
   // 详情弹窗相关
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -1596,6 +1598,41 @@ export function AuthFilesPage() {
     );
   };
 
+  const handleRefreshTier = async (item: AuthFileItem) => {
+    const authId = item.id || item.name;
+    if (!authId || refreshingTiers[authId]) return;
+
+    setRefreshingTiers((prev) => ({ ...prev, [authId]: true }));
+    try {
+      const result = await providersApi.refreshTier(authId);
+      if (result.tier) {
+        setFiles((prev) =>
+          prev.map((f) => {
+            const fId = f.id || f.name;
+            if (fId === authId) {
+              return { ...f, tier: result.tier, tier_name: result.tier_name };
+            }
+            return f;
+          })
+        );
+        showNotification(
+          t('quota_management.refresh_success', { defaultValue: 'Refreshed' }),
+          'success'
+        );
+      }
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : t('notification.refresh_failed');
+      showNotification(errorMessage, 'error');
+    } finally {
+      setRefreshingTiers((prev) => {
+        const next = { ...prev };
+        delete next[authId];
+        return next;
+      });
+    }
+  };
+
   // 渲染单个认证文件卡片
   const renderFileCard = (item: AuthFileItem) => {
     const fileStats = resolveAuthFileStats(item, keyStats);
@@ -1618,6 +1655,61 @@ export function AuthFilesPage() {
             ? styles.geminiCliCard
             : '';
 
+    const tierBadge =
+      quotaType === 'antigravity'
+        ? (() => {
+            const tierLower = (item.tier || '').toLowerCase();
+            let tierClass = styles.tierFree;
+            let tierLabel = 'Free';
+
+            if (tierLower.includes('ultra')) {
+              tierClass = styles.tierUltra;
+              tierLabel = 'Ultra';
+            } else if (tierLower.includes('pro')) {
+              tierClass = styles.tierPro;
+              tierLabel = 'Pro';
+            } else if (
+              tierLower.includes('standard') ||
+              tierLower.includes('free') ||
+              tierLower === ''
+            ) {
+              tierClass = styles.tierFree;
+              tierLabel = item.tier ? 'Free' : '?';
+            }
+
+            const isRefreshing = refreshingTiers[item.id || item.name] === true;
+
+            return (
+              <span className={styles.tierBadgeWrapper}>
+                <span
+                  className={`${styles.tierBadge} ${tierClass}`}
+                  title={
+                    item.tier_name ||
+                    item.tier ||
+                    t('quota_management.tier_unknown', { defaultValue: 'Unknown Tier' })
+                  }
+                >
+                  {tierLabel}
+                </span>
+                <button
+                  type="button"
+                  className={`${styles.tierRefreshBtn} ${
+                    isRefreshing ? styles.tierRefreshBtnLoading : ''
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleRefreshTier(item);
+                  }}
+                  disabled={isRefreshing || disableControls}
+                  title={t('quota_management.refresh_tier', { defaultValue: 'Refresh Tier' })}
+                >
+                  ↻
+                </button>
+              </span>
+            );
+          })()
+        : null;
+
     return (
       <div
         key={item.name}
@@ -1639,6 +1731,7 @@ export function AuthFilesPage() {
                 {getTypeLabel(item.type || 'unknown')}
               </span>
               <span className={styles.fileName}>{item.name}</span>
+              {tierBadge}
             </div>
 
             <div className={styles.cardMeta}>

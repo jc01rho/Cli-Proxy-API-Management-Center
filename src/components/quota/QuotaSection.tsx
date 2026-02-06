@@ -95,13 +95,15 @@ interface QuotaSectionProps<TState extends QuotaStatusState, TData> {
   files: AuthFileItem[];
   loading: boolean;
   disabled: boolean;
+  onTierRefresh?: (authId: string, tier: string, tierName: string) => void;
 }
 
 export function QuotaSection<TState extends QuotaStatusState, TData>({
   config,
   files,
   loading,
-  disabled
+  disabled,
+  onTierRefresh
 }: QuotaSectionProps<TState, TData>) {
   const { t } = useTranslation();
   const resolvedTheme: ResolvedTheme = useThemeStore((state) => state.resolvedTheme);
@@ -274,6 +276,7 @@ export function QuotaSection<TState extends QuotaStatusState, TData>({
                 cardClassName={config.cardClassName}
                 defaultType={config.type}
                 renderQuotaItems={config.renderQuotaItems}
+                onTierRefresh={onTierRefresh}
               />
             ))}
           </div>

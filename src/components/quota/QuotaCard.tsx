@@ -2,6 +2,7 @@
  * Generic quota card component.
  */
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ReactElement, ReactNode } from 'react';
 import type { TFunction } from 'i18next';
@@ -9,6 +10,7 @@ import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import { TYPE_COLORS } from '@/utils/quota';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatRelativeTime, formatAbsoluteTime } from '@/utils/format';
+import { providersApi } from '@/services/api/providers';
 import styles from '@/pages/QuotaPage.module.scss';
 
 type QuotaStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -84,6 +86,7 @@ interface QuotaCardProps<TState extends QuotaStatusState> {
   cardClassName: string;
   defaultType: string;
   renderQuotaItems: (quota: TState, t: TFunction, helpers: QuotaRenderHelpers) => ReactNode;
+  onTierRefresh?: (authId: string, tier: string, tierName: string) => void;
 }
 
 export function QuotaCard<TState extends QuotaStatusState>({
@@ -94,8 +97,10 @@ export function QuotaCard<TState extends QuotaStatusState>({
   cardClassName,
   defaultType,
   renderQuotaItems,
+  onTierRefresh,
 }: QuotaCardProps<TState>) {
   const { t } = useTranslation();
+  const [refreshingTier, setRefreshingTier] = useState(false);
 
   const displayType = item.type || item.provider || defaultType;
   const typeColorSet = TYPE_COLORS[displayType] || TYPE_COLORS.unknown;
@@ -119,8 +124,22 @@ export function QuotaCard<TState extends QuotaStatusState>({
 
   const exhausted = isExhaustedError(item);
 
-  const tierBadge = item.tier && displayType === 'antigravity' ? (() => {
-    const tierLower = item.tier.toLowerCase();
+  const handleRefreshTier = async () => {
+    if (!item.id || refreshingTier) return;
+    setRefreshingTier(true);
+    try {
+      const result = await providersApi.refreshTier(item.id);
+      if (onTierRefresh && result.tier) {
+        onTierRefresh(item.id, result.tier, result.tier_name);
+      }
+    } catch {
+    } finally {
+      setRefreshingTier(false);
+    }
+  };
+
+  const tierBadge = displayType === 'antigravity' ? (() => {
+    const tierLower = (item.tier || '').toLowerCase();
     let tierClass = styles.tierFree;
     let tierLabel = 'Free';
     
@@ -130,14 +149,25 @@ export function QuotaCard<TState extends QuotaStatusState>({
     } else if (tierLower.includes('pro')) {
       tierClass = styles.tierPro;
       tierLabel = 'Pro';
-    } else if (tierLower.includes('standard') || tierLower.includes('free')) {
+    } else if (tierLower.includes('standard') || tierLower.includes('free') || tierLower === '') {
       tierClass = styles.tierFree;
-      tierLabel = 'Free';
+      tierLabel = item.tier ? 'Free' : '?';
     }
     
     return (
-      <span className={`${styles.tierBadge} ${tierClass}`} title={item.tier_name || item.tier}>
-        {tierLabel}
+      <span className={styles.tierBadgeWrapper}>
+        <span className={`${styles.tierBadge} ${tierClass}`} title={item.tier_name || item.tier || t('quota_management.tier_unknown')}>
+          {tierLabel}
+        </span>
+        <button
+          type="button"
+          className={`${styles.tierRefreshBtn} ${refreshingTier ? styles.tierRefreshBtnLoading : ''}`}
+          onClick={handleRefreshTier}
+          disabled={refreshingTier}
+          title={t('quota_management.refresh_tier')}
+        >
+          ↻
+        </button>
       </span>
     );
   })() : null;

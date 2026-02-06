@@ -194,5 +194,8 @@ export const providersApi = {
     apiClient.patch('/openai-compatibility', { index, value: serializeOpenAIProvider(value) }),
 
   deleteOpenAIProvider: (name: string) =>
-    apiClient.delete(`/openai-compatibility?name=${encodeURIComponent(name)}`)
+    apiClient.delete(`/openai-compatibility?name=${encodeURIComponent(name)}`),
+
+  refreshTier: (authId: string): Promise<{ status: string; tier: string; tier_name: string }> =>
+    apiClient.post(`/auth-files/${encodeURIComponent(authId)}/refresh-tier`, {})
 };

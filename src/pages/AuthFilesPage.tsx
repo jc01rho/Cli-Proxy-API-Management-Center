@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useInterval } from '@/hooks/useInterval';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { Card } from '@/components/ui/Card';
+import { StatusBadge } from '@/components/common/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Input } from '@/components/ui/Input';
@@ -1790,6 +1791,8 @@ export function AuthFilesPage() {
               </span>
               <span className={styles.fileName}>{item.name}</span>
               {tierBadge}
+              {item.quota?.exceeded && <StatusBadge status="exhausted" />}
+              {item.last_error && <StatusBadge status="error" />}
             </div>
 
             <div className={styles.cardMeta}>

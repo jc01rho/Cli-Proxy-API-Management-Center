@@ -234,37 +234,81 @@ export function AuthFilesOAuthModelAliasEditPage() {
     setModelsLoading(true);
     setModelsError(null);
 
-    authFilesApi
-      .getModelDefinitions(resolvedProviderKey)
-      .then((models) => {
-        if (cancelled) return;
-        setModelsList(models);
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        const status =
-          typeof err === 'object' && err !== null && 'status' in err
-            ? (err as { status?: unknown }).status
-            : undefined;
+    const loadModels = async () => {
+      try {
+        const defPromise = authFilesApi
+          .getModelDefinitions(resolvedProviderKey)
+          .then((models) => ({ models, error: null as number | null }))
+          .catch((err) => {
+            const status =
+              typeof err === 'object' && err !== null && 'status' in err
+                ? (err as { status?: unknown }).status
+                : undefined;
+            if (status === 404) return { models: [], error: 404 };
+            throw err;
+          });
 
-        if (status === 404) {
+        const matchingFiles = files.filter((f) => {
+          const fType =
+            typeof f.type === 'string' ? normalizeProviderKey(f.type) : '';
+          const fProvider =
+            typeof f.provider === 'string'
+              ? normalizeProviderKey(f.provider)
+              : '';
+          return (
+            fType === resolvedProviderKey || fProvider === resolvedProviderKey
+          );
+        });
+
+        const filePromises = matchingFiles.map((f) =>
+          authFilesApi.getModelsForAuthFile(f.name).catch(() => [])
+        );
+
+        const [defResult, ...fileResults] = await Promise.all([
+          defPromise,
+          ...filePromises,
+        ]);
+
+        if (cancelled) return;
+
+        const allModels = [
+          ...defResult.models,
+          ...(fileResults as AuthFileModelItem[][]).flat(),
+        ];
+
+        if (allModels.length === 0 && defResult.error === 404) {
           setModelsList([]);
           setModelsError('unsupported');
           return;
         }
 
+        const uniqueModels = allModels.filter(
+          (model, index, self) =>
+            index === self.findIndex((m) => m.id === model.id)
+        );
+
+        uniqueModels.sort((a, b) => a.id.localeCompare(b.id));
+
+        setModelsList(uniqueModels);
+      } catch (err: unknown) {
+        if (cancelled) return;
         const errorMessage = err instanceof Error ? err.message : '';
-        showNotification(`${t('notification.load_failed')}: ${errorMessage}`, 'error');
-      })
-      .finally(() => {
+        showNotification(
+          `${t('notification.load_failed')}: ${errorMessage}`,
+          'error'
+        );
+      } finally {
         if (cancelled) return;
         setModelsLoading(false);
-      });
+      }
+    };
+
+    loadModels();
 
     return () => {
       cancelled = true;
     };
-  }, [modelAliasUnsupported, resolvedProviderKey, showNotification, t]);
+  }, [modelAliasUnsupported, resolvedProviderKey, showNotification, t, files]);
 
   const updateProvider = useCallback(
     (value: string) => {

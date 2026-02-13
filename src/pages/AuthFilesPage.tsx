@@ -87,10 +87,6 @@ const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#fff8e1', text: '#ff6f00' },
     dark: { bg: '#e65100', text: '#ffcc80' },
   },
-  trae: {
-    light: { bg: '#e8eaf6', text: '#303f9f' },
-    dark: { bg: '#1a237e', text: '#9fa8da' },
-  },
   kilocode: {
     light: { bg: '#ede7f6', text: '#5e35b1' },
     dark: { bg: '#4527a0', text: '#b39ddb' },

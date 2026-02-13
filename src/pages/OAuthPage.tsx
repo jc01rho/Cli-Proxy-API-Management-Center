@@ -92,13 +92,6 @@ const PROVIDERS: {
     icon: iconGemini,
   },
   {
-    id: 'trae',
-    titleKey: 'auth_login.trae_oauth_title',
-    hintKey: 'auth_login.trae_oauth_hint',
-    urlLabelKey: 'auth_login.trae_oauth_url_label',
-    icon: iconGemini,
-  },
-  {
     id: 'kimi',
     titleKey: 'auth_login.kimi_oauth_title',
     hintKey: 'auth_login.kimi_oauth_hint',
@@ -119,7 +112,6 @@ const CALLBACK_SUPPORTED: OAuthProvider[] = [
   'anthropic',
   'antigravity',
   'gemini-cli',
-  'trae',
 ];
 const getProviderI18nPrefix = (provider: OAuthProvider) => provider.replace('-', '_');
 const getAuthKey = (provider: OAuthProvider, suffix: string) =>

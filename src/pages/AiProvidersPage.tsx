@@ -8,7 +8,6 @@ import {
   GeminiSection,
   OpenAISection,
   VertexSection,
-  TraeSection,
   ProviderNav,
   useProviderStats,
 } from '@/components/providers';
@@ -400,8 +399,6 @@ export function AiProvidersPage() {
             onDelete={deleteVertex}
           />
         </div>
-
-        <TraeSection disableControls={disableControls} />
 
         <div id="provider-ampcode">
           <AmpcodeSection

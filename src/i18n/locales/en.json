@@ -402,7 +402,6 @@
     "filter_iflow": "iFlow",
     "filter_vertex": "Vertex",
     "filter_kiro": "Kiro",
-    "filter_trae": "Trae",
     "filter_empty": "Empty",
     "filter_unknown": "Other",
     "type_qwen": "Qwen",
@@ -416,7 +415,6 @@
     "type_iflow": "iFlow",
     "type_vertex": "Vertex",
     "type_kiro": "Kiro",
-    "type_trae": "Trae",
     "type_empty": "Empty",
     "type_unknown": "Other",
     "type_virtual": "Virtual auth file",
@@ -663,17 +661,6 @@
     "antigravity_oauth_status_error": "Authentication failed:",
     "antigravity_oauth_start_error": "Failed to start Antigravity OAuth:",
     "antigravity_oauth_polling_error": "Failed to check authentication status:",
-    "trae_oauth_title": "Trae OAuth",
-    "trae_oauth_button": "Start Trae Login",
-    "trae_oauth_hint": "Login to Trae service through OAuth flow, automatically obtain and save authentication files.",
-    "trae_oauth_url_label": "Authorization URL:",
-    "trae_open_link": "Open Link",
-    "trae_copy_link": "Copy Link",
-    "trae_oauth_status_waiting": "Waiting for authentication...",
-    "trae_oauth_status_success": "Authentication successful!",
-    "trae_oauth_status_error": "Authentication failed:",
-    "trae_oauth_start_error": "Failed to start Trae OAuth:",
-    "trae_oauth_polling_error": "Failed to check authentication status:",
     "gemini_cli_oauth_title": "Gemini CLI OAuth",
     "gemini_cli_oauth_button": "Start Gemini CLI Login",
     "gemini_cli_oauth_hint": "Login to Google Gemini CLI service through OAuth flow, automatically obtain and save authentication files.",
@@ -1201,35 +1188,6 @@
     "author": "Author"
   },
   "providers": {
-    "trae": {
-      "title": "Trae",
-      "description": "Trae is an adaptive AI IDE that understands you better, helping you move from 'what to do' to 'getting it done' faster.",
-      "login": "Login with Trae",
-      "logout": "Logout",
-      "status_success": "Authentication successful!",
-      "status_error": "Authentication failed:",
-      "url_label": "Authorization URL:",
-      "copy_link": "Copy Link",
-      "open_link": "Open Link",
-      "empty_title": "No Trae Auth Files",
-      "empty_desc": "Login to start using Trae provider.",
-      "item_title": "Trae Account",
-      "status": {
-        "connected": "Connected",
-        "disconnected": "Disconnected",
-        "connecting": "Connecting...",
-        "error": "Error"
-      },
-      "account": {
-        "label": "Account",
-        "not_logged_in": "Not logged in"
-      },
-      "errors": {
-        "login_failed": "Login failed",
-        "invalid_token": "Invalid token",
-        "polling_failed": "Failed to check authentication status"
-      }
-    },
     "kiro": {
       "title": "Kiro",
       "description": "Kiro (AWS CodeWhisperer) integration for enhanced coding assistance.",

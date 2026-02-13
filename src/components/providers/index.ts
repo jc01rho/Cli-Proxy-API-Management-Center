@@ -4,7 +4,6 @@ export { CodexSection } from './CodexSection';
 export { GeminiSection } from './GeminiSection';
 export { OpenAISection } from './OpenAISection';
 export { VertexSection } from './VertexSection';
-export { TraeSection } from './TraeSection';
 export { ProviderList } from './ProviderList';
 export { ProviderStatusBar } from './ProviderStatusBar';
 export { ProviderNav } from './ProviderNav';

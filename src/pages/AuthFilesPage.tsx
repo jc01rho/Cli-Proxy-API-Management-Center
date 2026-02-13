@@ -986,7 +986,6 @@ export function AuthFilesPage() {
     setDetailModalOpen(true);
   };
 
-  // 显示模型列表
   const showModels = async (item: AuthFileItem) => {
     setModelsFileName(item.name);
     setModelsFileType(item.type || '');
@@ -1003,11 +1002,40 @@ export function AuthFilesPage() {
 
     setModelsLoading(true);
     try {
-      const models = await authFilesApi.getModelsForAuthFile(item.name);
-      modelsCacheRef.current.set(item.name, models);
-      setModelsList(models);
+      const providerType = item.type || '';
+      const [dynamicModels, staticModels] = await Promise.all([
+        authFilesApi.getModelsForAuthFile(item.name).catch(() => [] as AuthFileModelItem[]),
+        providerType ? authFilesApi.getModelDefinitions(providerType).catch(() => [] as AuthFileModelItem[]) : Promise.resolve([] as AuthFileModelItem[]),
+      ]);
+
+      const seenIds = new Set<string>();
+      const mergedModels: AuthFileModelItem[] = [];
+
+      dynamicModels.forEach((model) => {
+        const id = model.id?.toLowerCase();
+        if (id && !seenIds.has(id)) {
+          seenIds.add(id);
+          mergedModels.push(model);
+        }
+      });
+
+      staticModels.forEach((model) => {
+        const id = model.id?.toLowerCase();
+        if (id && !seenIds.has(id)) {
+          seenIds.add(id);
+          mergedModels.push(model);
+        }
+      });
+
+      mergedModels.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+
+      modelsCacheRef.current.set(item.name, mergedModels);
+      setModelsList(mergedModels);
+
+      if (mergedModels.length === 0 && dynamicModels.length === 0 && staticModels.length === 0) {
+        setModelsError('unsupported');
+      }
     } catch (err) {
-      // 检测是否是 API 不支持的错误 (404 或特定错误消息)
       const errorMessage = err instanceof Error ? err.message : '';
       if (
         errorMessage.includes('404') ||

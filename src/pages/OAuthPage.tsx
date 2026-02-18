@@ -17,6 +17,7 @@ import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconIflow from '@/assets/icons/iflow.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
+import iconCline from '@/assets/icons/cline.svg';
 
 interface ProviderState {
   url?: string;
@@ -105,6 +106,13 @@ const PROVIDERS: {
     urlLabelKey: 'auth_login.qwen_oauth_url_label',
     icon: iconQwen,
   },
+  {
+    id: 'cline',
+    titleKey: 'auth_login.cline_oauth_title',
+    hintKey: 'auth_login.cline_oauth_hint',
+    urlLabelKey: 'auth_login.cline_oauth_url_label',
+    icon: iconCline,
+  },
 ];
 
 const CALLBACK_SUPPORTED: OAuthProvider[] = [
@@ -112,6 +120,7 @@ const CALLBACK_SUPPORTED: OAuthProvider[] = [
   'anthropic',
   'antigravity',
   'gemini-cli',
+  'cline',
 ];
 const getProviderI18nPrefix = (provider: OAuthProvider) => provider.replace('-', '_');
 const getAuthKey = (provider: OAuthProvider, suffix: string) =>

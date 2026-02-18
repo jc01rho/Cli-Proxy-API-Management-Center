@@ -11,8 +11,7 @@ export type OAuthProvider =
   | 'gemini-cli'
   | 'kimi'
   | 'qwen'
-  | 'kiro'
-  | 'cline';
+  | 'kiro';
 
 export interface OAuthStartResponse {
   url: string;
@@ -38,7 +37,6 @@ const WEBUI_SUPPORTED: OAuthProvider[] = [
   'antigravity',
   'gemini-cli',
   'kiro',
-  'cline',
 ];
 const CALLBACK_PROVIDER_MAP: Partial<Record<OAuthProvider, string>> = {
   'gemini-cli': 'gemini',

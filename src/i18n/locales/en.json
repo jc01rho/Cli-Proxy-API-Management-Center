@@ -764,6 +764,8 @@
     "export_success": "Usage export downloaded",
     "import_success": "Import complete: added {{added}}, skipped {{skipped}}, total {{total}}, failed {{failed}}",
     "import_invalid": "Invalid usage export file",
+    "filter_api_key": "API Key",
+    "filter_all_keys": "All Keys",
     "chart_line_label_1": "Line 1",
     "chart_line_label_2": "Line 2",
     "chart_line_label_3": "Line 3",

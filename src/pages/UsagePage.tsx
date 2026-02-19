@@ -27,7 +27,12 @@ import {
   useSparklines,
   useChartData
 } from '@/components/usage';
-import { getModelNamesFromUsage, getApiStats, getModelStats } from '@/utils/usage';
+import {
+  getModelNamesFromUsage,
+  getApiStats,
+  getModelStats,
+  maskUsageSensitiveValue
+} from '@/utils/usage';
 import styles from './UsagePage.module.scss';
 
 // Register Chart.js components
@@ -41,6 +46,26 @@ ChartJS.register(
   Legend,
   Filler
 );
+
+// Local interface for better type safety
+interface UsageDetail {
+  failed?: boolean;
+  [key: string]: unknown;
+}
+
+interface ApiEntry {
+  models?: Record<string, {
+    details?: UsageDetail[];
+    success_count?: number;
+    failure_count?: number;
+    total_requests?: number;
+    total_tokens?: number;
+  }>;
+  total_requests?: number;
+  total_tokens?: number;
+  success_count?: number;
+  failure_count?: number;
+}
 
 export function UsagePage() {
   const { t } = useTranslation();
@@ -66,6 +91,70 @@ export function UsagePage() {
 
   useHeaderRefresh(loadUsage);
 
+  // Filter state
+  const [selectedApiKey, setSelectedApiKey] = useState<string>('all');
+
+  // Available API keys
+  const apiKeys = useMemo(() => {
+    if (!usage?.apis) return [];
+    return Object.keys(usage.apis).sort();
+  }, [usage]);
+
+  // Filtered usage data
+  const filteredUsage = useMemo(() => {
+    if (!usage || selectedApiKey === 'all' || !usage.apis || !usage.apis[selectedApiKey]) {
+      return usage;
+    }
+
+    const apiEntry = usage.apis[selectedApiKey] as ApiEntry;
+    const models = apiEntry.models || {};
+
+    let derivedSuccessCount = 0;
+    let derivedFailureCount = 0;
+
+    // Calculate derived counts from models if needed
+    Object.values(models).forEach((modelEntry) => {
+      const details = Array.isArray(modelEntry.details) ? modelEntry.details : [];
+      const hasExplicitCounts =
+        typeof modelEntry.success_count === 'number' || typeof modelEntry.failure_count === 'number';
+
+      if (hasExplicitCounts) {
+        derivedSuccessCount += Number(modelEntry.success_count) || 0;
+        derivedFailureCount += Number(modelEntry.failure_count) || 0;
+      } else {
+        details.forEach((detail) => {
+          if (detail?.failed === true) {
+            derivedFailureCount += 1;
+          } else {
+            derivedSuccessCount += 1;
+          }
+        });
+      }
+    });
+
+    const hasApiExplicitCounts =
+      typeof apiEntry.success_count === 'number' || typeof apiEntry.failure_count === 'number';
+
+    const successCount = hasApiExplicitCounts
+      ? Number(apiEntry.success_count) || 0
+      : derivedSuccessCount;
+
+    const failureCount = hasApiExplicitCounts
+      ? Number(apiEntry.failure_count) || 0
+      : derivedFailureCount;
+
+    return {
+      ...usage,
+      total_requests: Number(apiEntry.total_requests) || 0,
+      total_tokens: Number(apiEntry.total_tokens) || 0,
+      success_count: successCount,
+      failure_count: failureCount,
+      apis: {
+        [selectedApiKey]: apiEntry
+      }
+    };
+  }, [usage, selectedApiKey]);
+
   // Chart lines state
   const [chartLines, setChartLines] = useState<string[]>(['all']);
   const MAX_CHART_LINES = 9;
@@ -77,7 +166,7 @@ export function UsagePage() {
     rpmSparkline,
     tpmSparkline,
     costSparkline
-  } = useSparklines({ usage, loading });
+  } = useSparklines({ usage: filteredUsage, loading });
 
   // Chart data hook
   const {
@@ -89,12 +178,12 @@ export function UsagePage() {
     tokensChartData,
     requestsChartOptions,
     tokensChartOptions
-  } = useChartData({ usage, chartLines, isDark, isMobile });
+  } = useChartData({ usage: filteredUsage, chartLines, isDark, isMobile });
 
   // Derived data
-  const modelNames = useMemo(() => getModelNamesFromUsage(usage), [usage]);
-  const apiStats = useMemo(() => getApiStats(usage, modelPrices), [usage, modelPrices]);
-  const modelStats = useMemo(() => getModelStats(usage, modelPrices), [usage, modelPrices]);
+  const modelNames = useMemo(() => getModelNamesFromUsage(filteredUsage), [filteredUsage]);
+  const apiStats = useMemo(() => getApiStats(filteredUsage, modelPrices), [filteredUsage, modelPrices]);
+  const modelStats = useMemo(() => getModelStats(filteredUsage, modelPrices), [filteredUsage, modelPrices]);
   const hasPrices = Object.keys(modelPrices).length > 0;
 
   return (
@@ -111,6 +200,19 @@ export function UsagePage() {
       <div className={styles.header}>
         <h1 className={styles.pageTitle}>{t('usage_stats.title')}</h1>
         <div className={styles.headerActions}>
+          <select
+            className={styles.select}
+            value={selectedApiKey}
+            onChange={(e) => setSelectedApiKey(e.target.value)}
+            disabled={loading || !usage}
+          >
+            <option value="all">{t('usage_stats.filter_all_keys')}</option>
+            {apiKeys.map((key) => (
+              <option key={key} value={key}>
+                {maskUsageSensitiveValue(key)}
+              </option>
+            ))}
+          </select>
           <Button
             variant="secondary"
             size="sm"
@@ -151,7 +253,7 @@ export function UsagePage() {
 
       {/* Stats Overview Cards */}
       <StatCards
-        usage={usage}
+        usage={filteredUsage}
         loading={loading}
         modelPrices={modelPrices}
         sparklines={{

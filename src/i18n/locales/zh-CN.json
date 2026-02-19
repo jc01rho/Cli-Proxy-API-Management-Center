@@ -764,6 +764,8 @@
     "export_success": "使用统计已导出",
     "import_success": "导入完成：新增 {{added}}，跳过 {{skipped}}，总请求 {{total}}，失败 {{failed}}",
     "import_invalid": "导入文件格式不正确",
+    "filter_api_key": "API 密钥",
+    "filter_all_keys": "全部密钥",
     "chart_line_label_1": "曲线 1",
     "chart_line_label_2": "曲线 2",
     "chart_line_label_3": "曲线 3",

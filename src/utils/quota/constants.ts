@@ -34,6 +34,10 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#fff3e0', text: '#ef6c00' },
     dark: { bg: '#e65100', text: '#ffb74d' },
   },
+  kimi: {
+    light: { bg: '#fff4e5', text: '#ad6800' },
+    dark: { bg: '#7c4a03', text: '#ffd591' },
+  },
   antigravity: {
     light: { bg: '#e0f7fa', text: '#006064' },
     dark: { bg: '#004d40', text: '#80deea' },
@@ -134,8 +138,8 @@ export const GEMINI_CLI_QUOTA_GROUPS: GeminiCliQuotaGroupDefinition[] = [
   {
     id: 'gemini-pro-series',
     label: 'Gemini Pro Series',
-    preferredModelId: 'gemini-3-pro-preview',
-    modelIds: ['gemini-3-pro-preview', 'gemini-2.5-pro'],
+    preferredModelId: 'gemini-3.1-pro-preview',
+    modelIds: ['gemini-3.1-pro-preview', 'gemini-3-pro-preview', 'gemini-2.5-pro'],
   },
 ];
 
@@ -151,6 +155,25 @@ export const GEMINI_CLI_GROUP_LOOKUP = new Map(
 
 export const GEMINI_CLI_IGNORED_MODEL_PREFIXES = ['gemini-2.0-flash'];
 
+// Claude API configuration
+export const CLAUDE_USAGE_URL = 'https://api.anthropic.com/api/oauth/usage';
+
+export const CLAUDE_REQUEST_HEADERS = {
+  Authorization: 'Bearer $TOKEN$',
+  'Content-Type': 'application/json',
+  'anthropic-beta': 'oauth-2025-04-20',
+};
+
+export const CLAUDE_USAGE_WINDOW_KEYS = [
+  { key: 'five_hour', id: 'five-hour', labelKey: 'claude_quota.five_hour' },
+  { key: 'seven_day', id: 'seven-day', labelKey: 'claude_quota.seven_day' },
+  { key: 'seven_day_oauth_apps', id: 'seven-day-oauth-apps', labelKey: 'claude_quota.seven_day_oauth_apps' },
+  { key: 'seven_day_opus', id: 'seven-day-opus', labelKey: 'claude_quota.seven_day_opus' },
+  { key: 'seven_day_sonnet', id: 'seven-day-sonnet', labelKey: 'claude_quota.seven_day_sonnet' },
+  { key: 'seven_day_cowork', id: 'seven-day-cowork', labelKey: 'claude_quota.seven_day_cowork' },
+  { key: 'iguana_necktie', id: 'iguana-necktie', labelKey: 'claude_quota.iguana_necktie' },
+] as const;
+
 // Codex API configuration
 export const CODEX_USAGE_URL = 'https://chatgpt.com/backend-api/wham/usage';
 
@@ -158,4 +181,11 @@ export const CODEX_REQUEST_HEADERS = {
   Authorization: 'Bearer $TOKEN$',
   'Content-Type': 'application/json',
   'User-Agent': 'codex_cli_rs/0.76.0 (Debian 13.0.0; x86_64) WindowsTerminal',
+};
+
+// Kimi API configuration
+export const KIMI_USAGE_URL = 'https://api.kimi.com/coding/v1/usages';
+
+export const KIMI_REQUEST_HEADERS = {
+  Authorization: 'Bearer $TOKEN$',
 };

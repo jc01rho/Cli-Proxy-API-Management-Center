@@ -308,6 +308,72 @@ function StringListEditor({
   );
 }
 
+function FallbackModelsEditor({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: Record<string, string>;
+  disabled?: boolean;
+  onChange: (next: Record<string, string>) => void;
+}) {
+  const { t } = useTranslation();
+  const entries = useMemo(() => Object.entries(value), [value]);
+
+  const updateEntry = (index: number, newKey: string, newValue: string) => {
+    const newEntries = [...entries];
+    newEntries[index] = [newKey, newValue];
+    onChange(Object.fromEntries(newEntries));
+  };
+
+  const removeEntry = (index: number) => {
+    const newEntries = entries.filter((_, i) => i !== index);
+    onChange(Object.fromEntries(newEntries));
+  };
+
+  const addEntry = () => {
+    if (Object.prototype.hasOwnProperty.call(value, '')) return;
+    onChange({ ...value, '': '' });
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {entries.map(([source, target], index) => (
+        <div
+          key={`${source}-${index}`}
+          style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}
+        >
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.fallback.source_placeholder')}
+            value={source}
+            onChange={(e) => updateEntry(index, e.target.value, target)}
+            disabled={disabled}
+            style={{ flex: 1 }}
+          />
+          <span style={{ color: 'var(--text-secondary)' }}>→</span>
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.fallback.target_placeholder')}
+            value={target}
+            onChange={(e) => updateEntry(index, source, e.target.value)}
+            disabled={disabled}
+            style={{ flex: 1 }}
+          />
+          <Button variant="ghost" size="sm" onClick={() => removeEntry(index)} disabled={disabled}>
+            {t('config_management.visual.common.delete')}
+          </Button>
+        </div>
+      ))}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="secondary" size="sm" onClick={addEntry} disabled={disabled}>
+          {t('config_management.visual.sections.fallback.add_model')}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function PayloadRulesEditor({
   value,
   disabled,
@@ -920,6 +986,28 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
               />
               <div className="hint">{t('config_management.visual.sections.network.routing_strategy_hint')}</div>
             </div>
+            <div className="form-group">
+              <label>{t('config_management.visual.sections.network.routing_mode')}</label>
+              <Select
+                value={values.routingMode}
+                options={[
+                  {
+                    value: 'provider-based',
+                    label: t('config_management.visual.sections.network.mode_provider_based'),
+                  },
+                  {
+                    value: 'key-based',
+                    label: t('config_management.visual.sections.network.mode_key_based'),
+                  },
+                ]}
+                disabled={disabled}
+                ariaLabel={t('config_management.visual.sections.network.routing_mode')}
+                onChange={(nextValue) =>
+                  onChange({ routingMode: nextValue as VisualConfigValues['routingMode'] })
+                }
+              />
+              <div className="hint">{t('config_management.visual.sections.network.routing_mode_hint')}</div>
+            </div>
           </SectionGrid>
 
           <ToggleRow
@@ -955,6 +1043,47 @@ export function VisualConfigEditor({ values, disabled = false, onChange }: Visua
             disabled={disabled}
             onChange={(quotaSwitchPreviewModel) => onChange({ quotaSwitchPreviewModel })}
           />
+        </div>
+      </ConfigSection>
+
+      <ConfigSection
+        title={t('config_management.visual.sections.fallback.title')}
+        description={t('config_management.visual.sections.fallback.description')}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.fallback.models_title')}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              {t('config_management.visual.sections.fallback.models_hint')}
+            </div>
+            <FallbackModelsEditor
+              value={values.fallbackModels}
+              disabled={disabled}
+              onChange={(fallbackModels) => onChange({ fallbackModels })}
+            />
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.fallback.chain_title')}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              {t('config_management.visual.sections.fallback.chain_hint')}
+            </div>
+            <StringListEditor
+              value={values.fallbackChain}
+              disabled={disabled}
+              placeholder={t('config_management.visual.sections.fallback.target_placeholder')}
+              onChange={(fallbackChain) => onChange({ fallbackChain })}
+            />
+            {values.fallbackChain.length > 20 && (
+              <div style={{ color: 'var(--error)', fontSize: 13, marginTop: 4 }}>
+                {t('config_management.visual.sections.fallback.chain_max_error')}
+              </div>
+            )}
+          </div>
         </div>
       </ConfigSection>
 

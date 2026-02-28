@@ -12,9 +12,16 @@ export type TypeColorSet = { light: ThemeColors; dark?: ThemeColors };
 export type ResolvedTheme = 'light' | 'dark';
 export type AuthFileModelItem = { id: string; display_name?: string; type?: string; owned_by?: string };
 
-export type QuotaProviderType = 'antigravity' | 'codex' | 'gemini-cli' | 'kimi';
+export type QuotaProviderType = 'antigravity' | 'codex' | 'gemini-cli' | 'kimi' | 'kilo' | 'kilocode';
 
-export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>(['antigravity', 'codex', 'gemini-cli', 'kimi']);
+export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
+  'antigravity',
+  'codex',
+  'gemini-cli',
+  'kimi',
+  'kilo',
+  'kilocode',
+]);
 
 export const MIN_CARD_PAGE_SIZE = 3;
 export const MAX_CARD_PAGE_SIZE = 30;
@@ -61,6 +68,18 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
   iflow: {
     light: { bg: '#f3e5f5', text: '#7b1fa2' },
     dark: { bg: '#4a148c', text: '#ce93d8' }
+  },
+  kiro: {
+    light: { bg: '#fff8e1', text: '#ff6f00' },
+    dark: { bg: '#e65100', text: '#ffcc80' }
+  },
+  kilocode: {
+    light: { bg: '#ede7f6', text: '#5e35b1' },
+    dark: { bg: '#4527a0', text: '#b39ddb' }
+  },
+  kilo: {
+    light: { bg: '#e8eaf6', text: '#303f9f' },
+    dark: { bg: '#1a237e', text: '#9fa8da' }
   },
   empty: {
     light: { bg: '#f5f5f5', text: '#616161' },

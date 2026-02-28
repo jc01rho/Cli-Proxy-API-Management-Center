@@ -358,6 +358,40 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
   if (strategyRaw !== undefined && strategyRaw !== null) {
     config.routingStrategy = String(strategyRaw);
   }
+
+  const modeRaw = isRecord(routing)
+    ? (routing.mode ?? routing['mode'])
+    : (raw['routing-mode'] ?? raw.routingMode);
+  if (modeRaw !== undefined && modeRaw !== null) {
+    config.routingMode = String(modeRaw);
+  }
+
+  const fallbackModelsRaw = isRecord(routing)
+    ? routing['fallback-models']
+    : (raw['fallback-models'] ?? raw.fallbackModels);
+  if (isRecord(fallbackModelsRaw)) {
+    const fallbackModels: Record<string, string> = {};
+    Object.entries(fallbackModelsRaw).forEach(([source, target]) => {
+      const sourceModel = String(source || '').trim();
+      const targetModel = String(target || '').trim();
+      if (sourceModel && targetModel) fallbackModels[sourceModel] = targetModel;
+    });
+    if (Object.keys(fallbackModels).length > 0) {
+      config.fallbackModels = fallbackModels;
+    }
+  }
+
+  const fallbackChainRaw = isRecord(routing)
+    ? routing['fallback-chain']
+    : (raw['fallback-chain'] ?? raw.fallbackChain);
+  if (Array.isArray(fallbackChainRaw)) {
+    const fallbackChain = fallbackChainRaw
+      .map((item) => String(item || '').trim())
+      .filter((item) => item.length > 0);
+    if (fallbackChain.length > 0) {
+      config.fallbackChain = fallbackChain;
+    }
+  }
   const apiKeysRaw = raw['api-keys'] ?? raw.apiKeys;
   if (Array.isArray(apiKeysRaw)) {
     config.apiKeys = apiKeysRaw.map((key) => String(key)).filter((key) => key.trim() !== '');

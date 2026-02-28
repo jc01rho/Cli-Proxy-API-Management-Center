@@ -23,6 +23,10 @@ export interface Config {
   wsAuth?: boolean;
   forceModelPrefix?: boolean;
   routingStrategy?: string;
+  routingMode?: string;
+  fallbackModels?: Record<string, string>;
+  fallbackChain?: string[];
+  fallbackMaxDepth?: number;
   apiKeys?: string[];
   ampcode?: AmpcodeConfig;
   geminiApiKeys?: GeminiKeyConfig[];

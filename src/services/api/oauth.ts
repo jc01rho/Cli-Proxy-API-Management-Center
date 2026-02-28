@@ -12,6 +12,8 @@ export type OAuthProvider =
   | 'kimi'
   | 'qwen'
   | 'kiro'
+  | 'kilo'
+  | 'kilocode'
   | 'cline';
 
 export interface OAuthStartResponse {
@@ -32,7 +34,15 @@ export interface IFlowCookieAuthResponse {
   type?: string;
 }
 
-const WEBUI_SUPPORTED: OAuthProvider[] = ['codex', 'anthropic', 'antigravity', 'gemini-cli', 'cline'];
+const WEBUI_SUPPORTED: OAuthProvider[] = [
+  'codex',
+  'anthropic',
+  'antigravity',
+  'gemini-cli',
+  'kilo',
+  'kilocode',
+  'cline',
+];
 const CALLBACK_PROVIDER_MAP: Partial<Record<OAuthProvider, string>> = {
   'gemini-cli': 'gemini'
 };

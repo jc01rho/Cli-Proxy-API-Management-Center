@@ -333,6 +333,23 @@ export function useVisualConfig() {
 
         routingStrategy:
           routing?.strategy === 'fill-first' ? 'fill-first' : 'round-robin',
+        routingMode:
+          routing?.mode === 'key-based' ? 'key-based' : 'provider-based',
+        fallbackModels: asRecord(routing?.['fallback-models'])
+          ? Object.fromEntries(
+              Object.entries(asRecord(routing?.['fallback-models']) ?? {})
+                .map(([source, target]) => [
+                  String(source ?? '').trim(),
+                  String(target ?? '').trim(),
+                ])
+                .filter(([source, target]) => source && target)
+            )
+          : {},
+        fallbackChain: Array.isArray(routing?.['fallback-chain'])
+          ? routing['fallback-chain']
+              .map((entry) => String(entry ?? '').trim())
+              .filter(Boolean)
+          : [],
 
         payloadDefaultRules: parsePayloadRules(payload?.default),
         payloadOverrideRules: parsePayloadRules(payload?.override),
@@ -441,9 +458,35 @@ export function useVisualConfig() {
           deleteIfMapEmpty(doc, ['quota-exceeded']);
         }
 
-        if (docHas(doc, ['routing']) || values.routingStrategy !== 'round-robin') {
+        if (
+          docHas(doc, ['routing']) ||
+          values.routingStrategy !== 'round-robin' ||
+          values.routingMode !== 'provider-based' ||
+          Object.keys(values.fallbackModels).length > 0 ||
+          values.fallbackChain.length > 0
+        ) {
           ensureMapInDoc(doc, ['routing']);
           doc.setIn(['routing', 'strategy'], values.routingStrategy);
+          doc.setIn(['routing', 'mode'], values.routingMode);
+
+          const fallbackEntries = Object.entries(values.fallbackModels)
+            .map(([source, target]) => [source.trim(), target.trim()] as const)
+            .filter(([source, target]) => source && target);
+          if (fallbackEntries.length > 0) {
+            doc.setIn(['routing', 'fallback-models'], Object.fromEntries(fallbackEntries));
+          } else if (docHas(doc, ['routing', 'fallback-models'])) {
+            doc.deleteIn(['routing', 'fallback-models']);
+          }
+
+          const fallbackChain = (values.fallbackChain || [])
+            .map((entry) => String(entry ?? '').trim())
+            .filter(Boolean);
+          if (fallbackChain.length > 0) {
+            doc.setIn(['routing', 'fallback-chain'], fallbackChain);
+          } else if (docHas(doc, ['routing', 'fallback-chain'])) {
+            doc.deleteIn(['routing', 'fallback-chain']);
+          }
+
           deleteIfMapEmpty(doc, ['routing']);
         }
 

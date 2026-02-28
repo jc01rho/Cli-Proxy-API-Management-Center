@@ -17,6 +17,8 @@ import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconIflow from '@/assets/icons/iflow.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
+import iconClineLight from '@/assets/icons/cline-light.svg';
+import iconClineDark from '@/assets/icons/cline-dark.svg';
 
 interface ProviderState {
   url?: string;
@@ -104,6 +106,13 @@ const PROVIDERS: {
     hintKey: 'auth_login.qwen_oauth_hint',
     urlLabelKey: 'auth_login.qwen_oauth_url_label',
     icon: iconQwen,
+  },
+  {
+    id: 'cline',
+    titleKey: 'auth_login.cline_oauth_title',
+    hintKey: 'auth_login.cline_oauth_hint',
+    urlLabelKey: 'auth_login.cline_oauth_url_label',
+    icon: { light: iconClineLight, dark: iconClineDark },
   },
 ];
 

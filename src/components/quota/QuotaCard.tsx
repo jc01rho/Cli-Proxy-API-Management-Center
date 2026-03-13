@@ -31,7 +31,7 @@ export function QuotaProgressBar({
   const normalized = percent === null ? null : clamp(percent, 0, 100);
   const widthPercent = Math.round(normalized ?? 0);
   const ratio = (normalized ?? 0) / 100;
-  const hue = Math.round(120 * (1 - ratio));
+  const hue = Math.round(120 * ratio);
   const fillStyle = {
     width: `${widthPercent}%`,
     '--quota-bar-fill-start': `hsl(${hue} 72% 52%)`,

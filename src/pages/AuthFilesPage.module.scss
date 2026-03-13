@@ -401,20 +401,12 @@
 
 .quotaBarFill {
   height: 100%;
-  background-color: var(--success-color, #22c55e);
-  transition: width 0.2s ease;
-}
-
-.quotaBarFillHigh {
-  background-color: var(--success-color, #22c55e);
-}
-
-.quotaBarFillMedium {
-  background-color: var(--warning-color);
-}
-
-.quotaBarFillLow {
-  background-color: var(--danger-color);
+  background: linear-gradient(
+    90deg,
+    var(--quota-bar-fill-start, hsl(120 72% 52%)) 0%,
+    var(--quota-bar-fill-end, hsl(120 78% 44%)) 100%
+  );
+  transition: width 0.2s ease, background 0.2s ease;
 }
 
 .quotaMeta {

@@ -13,11 +13,14 @@ export function QuotaProgressBar({ percent }: QuotaProgressBarProps) {
   const normalized = percent === null ? null : clamp(percent, 0, 100);
   const widthPercent = Math.round(normalized ?? 0);
   const ratio = (normalized ?? 0) / 100;
-  const hue = Math.round(120 * ratio);
+  const successWeight = Math.round(ratio * 100);
+  const dangerWeight = 100 - successWeight;
+  const fillBaseColor = `color-mix(in srgb, var(--danger-color) ${dangerWeight}%, var(--success-color) ${successWeight}%)`;
+  const fillEdgeColor = `color-mix(in srgb, ${fillBaseColor} 84%, var(--text-primary) 16%)`;
   const fillStyle = {
     width: `${widthPercent}%`,
-    '--quota-bar-fill-start': `hsl(${hue} 72% 52%)`,
-    '--quota-bar-fill-end': `hsl(${hue} 78% 44%)`
+    '--quota-bar-fill-start': fillBaseColor,
+    '--quota-bar-fill-end': fillEdgeColor
   } as CSSProperties;
 
   return (

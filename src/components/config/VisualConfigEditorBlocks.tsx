@@ -1,4 +1,4 @@
-import { memo, useId, useMemo, useState } from 'react';
+import { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -245,17 +245,118 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
   );
 });
 
-const StringListEditor = memo(function StringListEditor({
+function serializeFallbackModels(value: Record<string, string>): string {
+  return JSON.stringify(Object.entries(value));
+}
+
+function fallbackModelsToRows(value: Record<string, string>) {
+  return Object.entries(value).map(([source, target]) => ({
+    id: makeClientId(),
+    source,
+    target,
+  }));
+}
+
+export const FallbackModelsEditor = memo(function FallbackModelsEditor({
+  value,
+  disabled,
+  sourcePlaceholder,
+  targetPlaceholder,
+  addButtonLabel,
+  onChange,
+}: {
+  value: Record<string, string>;
+  disabled?: boolean;
+  sourcePlaceholder?: string;
+  targetPlaceholder?: string;
+  addButtonLabel?: string;
+  onChange: (next: Record<string, string>) => void;
+}) {
+  const { t } = useTranslation();
+  const [rows, setRows] = useState(() => fallbackModelsToRows(value));
+  const lastCommittedValueRef = useRef(serializeFallbackModels(value));
+
+  useEffect(() => {
+    const serializedValue = serializeFallbackModels(value);
+    if (serializedValue === lastCommittedValueRef.current) return;
+    setRows(fallbackModelsToRows(value));
+    lastCommittedValueRef.current = serializedValue;
+  }, [value]);
+
+  const commitRows = (nextRows: Array<{ id: string; source: string; target: string }>) => {
+    setRows(nextRows);
+    const nextValue = Object.fromEntries(
+      nextRows
+        .map((row) => [row.source.trim(), row.target.trim()] as const)
+        .filter(([source, target]) => source && target)
+    );
+    lastCommittedValueRef.current = serializeFallbackModels(nextValue);
+    onChange(nextValue);
+  };
+
+  const addRow = () => {
+    commitRows([...rows, { id: makeClientId(), source: '', target: '' }]);
+  };
+
+  const updateRow = (rowId: string, patch: Partial<{ source: string; target: string }>) => {
+    commitRows(rows.map((row) => (row.id === rowId ? { ...row, ...patch } : row)));
+  };
+
+  const removeRow = (rowId: string) => {
+    commitRows(rows.filter((row) => row.id !== rowId));
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {rows.map((row) => (
+        <div key={row.id} className={styles.fallbackModelRow}>
+          <input
+            className="input"
+            placeholder={sourcePlaceholder}
+            aria-label={sourcePlaceholder}
+            value={row.source}
+            onChange={(e) => updateRow(row.id, { source: e.target.value })}
+            disabled={disabled}
+          />
+          <input
+            className="input"
+            placeholder={targetPlaceholder}
+            aria-label={targetPlaceholder}
+            value={row.target}
+            onChange={(e) => updateRow(row.id, { target: e.target.value })}
+            disabled={disabled}
+          />
+          <Button variant="ghost" size="sm" onClick={() => removeRow(row.id)} disabled={disabled}>
+            {t('config_management.visual.common.delete')}
+          </Button>
+        </div>
+      ))}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="secondary" size="sm" onClick={addRow} disabled={disabled}>
+          {addButtonLabel ?? t('config_management.visual.common.add')}
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+export const StringListEditor = memo(function StringListEditor({
   value,
   disabled,
   placeholder,
   inputAriaLabel,
+  addButtonLabel,
+  maxItems,
+  maxItemsError,
   onChange,
 }: {
   value: string[];
   disabled?: boolean;
   placeholder?: string;
   inputAriaLabel?: string;
+  addButtonLabel?: string;
+  maxItems?: number;
+  maxItemsError?: string;
   onChange: (next: string[]) => void;
 }) {
   const { t } = useTranslation();
@@ -269,7 +370,9 @@ const StringListEditor = memo(function StringListEditor({
 
   const updateItem = (index: number, nextValue: string) =>
     onChange(items.map((item, i) => (i === index ? nextValue : item)));
+  const reachedMaxItems = typeof maxItems === 'number' && items.length >= maxItems;
   const addItem = () => {
+    if (reachedMaxItems) return;
     setItemIds([...renderItemIds, makeClientId()]);
     onChange([...items, '']);
   };
@@ -296,9 +399,10 @@ const StringListEditor = memo(function StringListEditor({
           </Button>
         </div>
       ))}
+      {reachedMaxItems && maxItemsError ? <div className="error-box">{maxItemsError}</div> : null}
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="secondary" size="sm" onClick={addItem} disabled={disabled}>
-          {t('config_management.visual.common.add')}
+        <Button variant="secondary" size="sm" onClick={addItem} disabled={disabled || reachedMaxItems}>
+          {addButtonLabel ?? t('config_management.visual.common.add')}
         </Button>
       </div>
     </div>

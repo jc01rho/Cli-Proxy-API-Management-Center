@@ -14,8 +14,10 @@ import type {
 } from '@/types/visualConfig';
 import {
   ApiKeysCardEditor,
+  FallbackModelsEditor,
   PayloadFilterRulesEditor,
   PayloadRulesEditor,
+  StringListEditor,
 } from './VisualConfigEditorBlocks';
 
 interface VisualConfigEditorProps {
@@ -108,6 +110,14 @@ export function VisualConfigEditor({ values, validationErrors, disabled = false,
   );
 
   const handleApiKeysTextChange = useCallback((apiKeysText: string) => onChange({ apiKeysText }), [onChange]);
+  const handleFallbackModelsChange = useCallback(
+    (fallbackModels: Record<string, string>) => onChange({ fallbackModels }),
+    [onChange]
+  );
+  const handleFallbackChainChange = useCallback(
+    (fallbackChain: string[]) => onChange({ fallbackChain }),
+    [onChange]
+  );
   const handlePayloadDefaultRulesChange = useCallback(
     (payloadDefaultRules: PayloadRule[]) => onChange({ payloadDefaultRules }),
     [onChange]
@@ -360,6 +370,46 @@ export function VisualConfigEditor({ values, validationErrors, disabled = false,
             onChange={(quotaSwitchPreviewModel) => onChange({ quotaSwitchPreviewModel })}
           />
         </div>
+      </ConfigSection>
+
+      <ConfigSection title={t('config_management.visual.sections.fallback.title')} description={t('config_management.visual.sections.fallback.description')}>
+        <SectionGrid>
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.fallback.models_title')}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              {t('config_management.visual.sections.fallback.models_hint')}
+            </div>
+            <FallbackModelsEditor
+              value={values.fallbackModels}
+              disabled={disabled}
+              sourcePlaceholder={t('config_management.visual.sections.fallback.source_placeholder')}
+              targetPlaceholder={t('config_management.visual.sections.fallback.target_placeholder')}
+              addButtonLabel={t('config_management.visual.sections.fallback.add_model')}
+              onChange={handleFallbackModelsChange}
+            />
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {t('config_management.visual.sections.fallback.chain_title')}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              {t('config_management.visual.sections.fallback.chain_hint')}
+            </div>
+            <StringListEditor
+              value={values.fallbackChain}
+              disabled={disabled}
+              placeholder={t('config_management.visual.sections.fallback.chain_placeholder')}
+              inputAriaLabel={t('config_management.visual.sections.fallback.chain_placeholder')}
+              addButtonLabel={t('config_management.visual.sections.fallback.add_chain')}
+              maxItems={20}
+              maxItemsError={t('config_management.visual.sections.fallback.chain_max_error')}
+              onChange={handleFallbackChainChange}
+            />
+          </div>
+        </SectionGrid>
       </ConfigSection>
 
       <ConfigSection title={t('config_management.visual.sections.streaming.title')} description={t('config_management.visual.sections.streaming.description')}>

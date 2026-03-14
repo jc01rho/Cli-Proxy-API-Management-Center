@@ -1207,6 +1207,20 @@
           "switch_preview_model": "Переключить на preview-модель",
           "switch_preview_model_desc": "Переключаться на preview-версию модели при превышении квоты"
         },
+        "fallback": {
+          "title": "Настройки fallback",
+          "description": "Параметры резервных моделей и цепочки fallback",
+          "models_title": "Fallback-модели",
+          "models_hint": "Если все ключи для модели заблокированы, переключаться на другую модель",
+          "chain_title": "Цепочка fallback",
+          "chain_hint": "Глобальный порядок fallback (максимум 20 моделей)",
+          "chain_placeholder": "Fallback-модель",
+          "source_placeholder": "Исходная модель",
+          "target_placeholder": "Целевая модель",
+          "add_model": "Добавить fallback",
+          "add_chain": "Добавить в цепочку",
+          "chain_max_error": "В цепочке fallback можно указать не более 20 моделей"
+        },
         "streaming": {
           "title": "Настройки стриминга",
           "description": "Параметры keepalive и повторов запуска",

@@ -39,6 +39,13 @@
   align-items: center;
 }
 
+.fallbackModelRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
 .apiKeyModalInputRow {
   display: flex;
   gap: 8px;
@@ -53,7 +60,8 @@
   .payloadRuleModelRow,
   .payloadRuleModelRowProtocolFirst,
   .payloadRuleParamRow,
-  .payloadFilterModelRow {
+  .payloadFilterModelRow,
+  .fallbackModelRow {
     grid-template-columns: minmax(0, 1fr);
   }
 

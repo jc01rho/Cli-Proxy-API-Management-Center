@@ -1250,6 +1250,7 @@
           "models_hint": "When all keys for a model are blocked, fallback to another model",
           "chain_title": "Fallback Chain",
           "chain_hint": "Global fallback order (max 20 models)",
+          "chain_placeholder": "Fallback model",
           "source_placeholder": "Source Model",
           "target_placeholder": "Target Model",
           "add_model": "Add Fallback",

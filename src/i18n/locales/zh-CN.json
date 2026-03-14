@@ -1250,6 +1250,7 @@
           "models_hint": "当模型的所有密钥被阻止时回退到其他模型",
           "chain_title": "回退链",
           "chain_hint": "全局回退顺序（最多 20 个）",
+          "chain_placeholder": "回退模型",
           "source_placeholder": "源模型",
           "target_placeholder": "目标模型",
           "add_model": "添加回退",

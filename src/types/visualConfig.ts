@@ -8,6 +8,7 @@ export type VisualConfigFieldPath =
   | 'port'
   | 'logsMaxTotalSizeMb'
   | 'requestRetry'
+  | 'maxRetryCredentials'
   | 'maxRetryInterval'
   | 'streaming.keepaliveSeconds'
   | 'streaming.bootstrapRetries'
@@ -29,7 +30,7 @@ export type PayloadParamEntry = {
 export type PayloadModelEntry = {
   id: string;
   name: string;
-  protocol?: 'openai' | 'openai-response' | 'gemini' | 'claude' | 'codex' | 'antigravity';
+  protocol?: string;
 };
 
 export type PayloadRule = {
@@ -70,6 +71,7 @@ export type VisualConfigValues = {
   proxyUrl: string;
   forceModelPrefix: boolean;
   requestRetry: string;
+  maxRetryCredentials: string;
   maxRetryInterval: string;
   quotaSwitchProject: boolean;
   quotaSwitchPreviewModel: boolean;
@@ -79,7 +81,9 @@ export type VisualConfigValues = {
   fallbackChain: string[];
   wsAuth: boolean;
   payloadDefaultRules: PayloadRule[];
+  payloadDefaultRawRules: PayloadRule[];
   payloadOverrideRules: PayloadRule[];
+  payloadOverrideRawRules: PayloadRule[];
   payloadFilterRules: PayloadFilterRule[];
   streaming: StreamingConfig;
 };
@@ -109,6 +113,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   proxyUrl: '',
   forceModelPrefix: false,
   requestRetry: '',
+  maxRetryCredentials: '',
   maxRetryInterval: '',
   quotaSwitchProject: true,
   quotaSwitchPreviewModel: true,
@@ -118,7 +123,9 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   fallbackChain: [],
   wsAuth: false,
   payloadDefaultRules: [],
+  payloadDefaultRawRules: [],
   payloadOverrideRules: [],
+  payloadOverrideRawRules: [],
   payloadFilterRules: [],
   streaming: {
     keepaliveSeconds: '',

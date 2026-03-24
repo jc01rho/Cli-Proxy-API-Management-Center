@@ -20,6 +20,8 @@ dist
 dist-ssr
 *.local
 skills
+.tldr/
+.tldrignore
 
 # Editor directories and files
 settings.local.json

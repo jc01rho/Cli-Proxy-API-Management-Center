@@ -305,6 +305,52 @@ function arePayloadFilterRulesEqual(
   return true;
 }
 
+function areTokenThresholdRulesEqual(
+  left: TokenThresholdRule[],
+  right: TokenThresholdRule[]
+): boolean {
+  if (left === right) return true;
+  if (left.length !== right.length) return false;
+  for (let i = 0; i < left.length; i += 1) {
+    const a = left[i];
+    const b = right[i];
+    if (!a || !b) return false;
+    if (
+      a.id !== b.id ||
+      a.modelPattern !== b.modelPattern ||
+      a.maxTokens !== b.maxTokens ||
+      a.billingClass !== b.billingClass ||
+      a.enabled !== b.enabled
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function areStringArraysEqual(left: string[], right: string[]): boolean {
+  if (left === right) return true;
+  if (left.length !== right.length) return false;
+  for (let i = 0; i < left.length; i += 1) {
+    if (left[i] !== right[i]) return false;
+  }
+  return true;
+}
+
+function areStringRecordsEqual(
+  left: Record<string, string>,
+  right: Record<string, string>
+): boolean {
+  if (left === right) return true;
+  const leftKeys = Object.keys(left);
+  const rightKeys = Object.keys(right);
+  if (leftKeys.length !== rightKeys.length) return false;
+  for (const key of leftKeys) {
+    if (left[key] !== right[key]) return false;
+  }
+  return true;
+}
+
 function parsePayloadParamValue(raw: unknown): { valueType: PayloadParamValueType; value: string } {
   if (typeof raw === 'number') {
     return { valueType: 'number', value: String(raw) };
@@ -689,6 +735,27 @@ function getNextDirtyFields(
   }
   if (Object.prototype.hasOwnProperty.call(patch, 'routingStrategy')) {
     updateDirty('routingStrategy', nextValues.routingStrategy === baselineValues.routingStrategy);
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'routingMode')) {
+    updateDirty('routingMode', nextValues.routingMode === baselineValues.routingMode);
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'tokenThresholdRules')) {
+    updateDirty(
+      'tokenThresholdRules',
+      areTokenThresholdRulesEqual(nextValues.tokenThresholdRules, baselineValues.tokenThresholdRules)
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'fallbackModels')) {
+    updateDirty(
+      'fallbackModels',
+      areStringRecordsEqual(nextValues.fallbackModels, baselineValues.fallbackModels)
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'fallbackChain')) {
+    updateDirty(
+      'fallbackChain',
+      areStringArraysEqual(nextValues.fallbackChain, baselineValues.fallbackChain)
+    );
   }
   if (Object.prototype.hasOwnProperty.call(patch, 'payloadDefaultRules')) {
     updateDirty(

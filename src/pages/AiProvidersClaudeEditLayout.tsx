@@ -9,8 +9,10 @@ import type { ProviderKeyConfig } from '@/types';
 import type { ModelInfo } from '@/utils/models';
 import type { ModelEntry, ProviderFormState } from '@/components/providers/types';
 import { buildHeaderObject, headersToEntries, normalizeHeaderEntries } from '@/utils/headers';
+import { areKeyValueEntriesEqual, areModelEntriesEqual, areStringArraysEqual } from '@/utils/compare';
 import { excludedModelsToText, parseExcludedModels } from '@/components/providers/utils';
 import { modelsToEntries } from '@/components/ui/modelInputListUtils';
+import type { ClaudeEditBaseline } from '@/stores/useClaudeEditDraftStore';
 
 type LocationState = { fromAiProviders?: boolean } | null;
 
@@ -90,20 +92,29 @@ const normalizeCloakConfig = (cloak: ProviderFormState['cloak']) => {
   };
 };
 
-const buildClaudeSignature = (form: ProviderFormState) =>
-  JSON.stringify({
-    apiKey: String(form.apiKey ?? '').trim(),
-    priority:
-      form.priority !== undefined && Number.isFinite(form.priority) ? Math.trunc(form.priority) : null,
-    billingClass: form.billingClass ?? null,
-    prefix: String(form.prefix ?? '').trim(),
-    baseUrl: String(form.baseUrl ?? '').trim(),
-    proxyUrl: String(form.proxyUrl ?? '').trim(),
-    headers: normalizeHeaderEntries(form.headers),
-    models: normalizeClaudeModelEntries(form.modelEntries),
-    excludedModels: parseExcludedModels(form.excludedText ?? ''),
-    cloak: normalizeCloakConfig(form.cloak),
-  });
+const buildClaudeBaseline = (form: ProviderFormState): ClaudeEditBaseline => ({
+  apiKey: String(form.apiKey ?? '').trim(),
+  priority:
+    form.priority !== undefined && Number.isFinite(form.priority) ? Math.trunc(form.priority) : null,
+  billingClass: form.billingClass ?? null,
+  prefix: String(form.prefix ?? '').trim(),
+  baseUrl: String(form.baseUrl ?? '').trim(),
+  proxyUrl: String(form.proxyUrl ?? '').trim(),
+  headers: normalizeHeaderEntries(form.headers),
+  models: normalizeClaudeModelEntries(form.modelEntries),
+  excludedModels: parseExcludedModels(form.excludedText ?? ''),
+  cloak: normalizeCloakConfig(form.cloak),
+});
+
+const areCloakConfigsEqual = (left: ClaudeEditBaseline['cloak'], right: ClaudeEditBaseline['cloak']) => {
+  if (left === right) return true;
+  if (!left || !right) return false;
+  if (left.mode !== right.mode || left.strictMode !== right.strictMode) return false;
+  if (left.sensitiveWords === null || right.sensitiveWords === null) {
+    return left.sensitiveWords === right.sensitiveWords;
+  }
+  return areStringArraysEqual(left.sensitiveWords, right.sensitiveWords);
+};
 
 export function AiProvidersClaudeEditLayout() {
   const { t } = useTranslation();
@@ -139,7 +150,7 @@ export function AiProvidersClaudeEditLayout() {
   const acquireDraft = useClaudeEditDraftStore((state) => state.acquireDraft);
   const releaseDraft = useClaudeEditDraftStore((state) => state.releaseDraft);
   const initDraft = useClaudeEditDraftStore((state) => state.initDraft);
-  const setDraftBaselineSignature = useClaudeEditDraftStore((state) => state.setDraftBaselineSignature);
+  const setDraftBaseline = useClaudeEditDraftStore((state) => state.setDraftBaseline);
   const setDraftForm = useClaudeEditDraftStore((state) => state.setDraftForm);
   const setDraftTestModel = useClaudeEditDraftStore((state) => state.setDraftTestModel);
   const setDraftTestStatus = useClaudeEditDraftStore((state) => state.setDraftTestStatus);
@@ -243,9 +254,9 @@ export function AiProvidersClaudeEditLayout() {
         excludedText: excludedModelsToText(initialData.excludedModels),
       };
       const available = seededForm.modelEntries.map((entry) => entry.name.trim()).filter(Boolean);
-      const baselineSignature = buildClaudeSignature(seededForm);
+      const baseline = buildClaudeBaseline(seededForm);
       initDraft(draftKey, {
-        baselineSignature,
+        baseline,
         form: seededForm,
         testModel: available[0] || '',
         testStatus: 'idle',
@@ -256,7 +267,7 @@ export function AiProvidersClaudeEditLayout() {
 
     const emptyForm = buildEmptyForm();
     initDraft(draftKey, {
-      baselineSignature: buildClaudeSignature(emptyForm),
+      baseline: buildClaudeBaseline(emptyForm),
       form: emptyForm,
       testModel: '',
       testStatus: 'idle',
@@ -265,9 +276,51 @@ export function AiProvidersClaudeEditLayout() {
   }, [draft?.initialized, draftKey, initDraft, initialData, loading]);
 
   const resolvedLoading = !draft?.initialized;
-  const currentSignature = useMemo(() => buildClaudeSignature(form), [form]);
-  const baselineSignature = draft?.baselineSignature ?? '';
-  const isDirty = Boolean(draft?.initialized) && baselineSignature !== currentSignature;
+  const baseline = draft?.baseline ?? null;
+  const normalizedHeaders = useMemo(() => normalizeHeaderEntries(form.headers), [form.headers]);
+  const normalizedModels = useMemo(
+    () => normalizeClaudeModelEntries(form.modelEntries),
+    [form.modelEntries]
+  );
+  const normalizedExcludedModels = useMemo(
+    () => parseExcludedModels(form.excludedText ?? ''),
+    [form.excludedText]
+  );
+  const normalizedCloak = useMemo(() => normalizeCloakConfig(form.cloak), [form.cloak]);
+  const normalizedPriority = useMemo(() => {
+    return form.priority !== undefined && Number.isFinite(form.priority)
+      ? Math.trunc(form.priority)
+      : null;
+  }, [form.priority]);
+  const isHeadersDirty = useMemo(() => {
+    if (!baseline) return false;
+    return !areKeyValueEntriesEqual(baseline.headers, normalizedHeaders);
+  }, [baseline, normalizedHeaders]);
+  const isModelsDirty = useMemo(() => {
+    if (!baseline) return false;
+    return !areModelEntriesEqual(baseline.models, normalizedModels);
+  }, [baseline, normalizedModels]);
+  const isExcludedModelsDirty = useMemo(() => {
+    if (!baseline) return false;
+    return !areStringArraysEqual(baseline.excludedModels, normalizedExcludedModels);
+  }, [baseline, normalizedExcludedModels]);
+  const isCloakDirty = useMemo(() => {
+    if (!baseline) return false;
+    return !areCloakConfigsEqual(baseline.cloak, normalizedCloak);
+  }, [baseline, normalizedCloak]);
+  const isDirty =
+    Boolean(draft?.initialized) &&
+    baseline !== null &&
+    (baseline.apiKey !== form.apiKey.trim() ||
+      baseline.priority !== normalizedPriority ||
+      baseline.billingClass !== (form.billingClass ?? null) ||
+      baseline.prefix !== String(form.prefix ?? '').trim() ||
+      baseline.baseUrl !== String(form.baseUrl ?? '').trim() ||
+      baseline.proxyUrl !== String(form.proxyUrl ?? '').trim() ||
+      isHeadersDirty ||
+      isModelsDirty ||
+      isExcludedModelsDirty ||
+      isCloakDirty);
   const editorRootPath = useMemo(() => {
     if (hasIndexParam) {
       return `/ai-providers/claude/${params.index ?? ''}`;
@@ -356,6 +409,7 @@ export function AiProvidersClaudeEditLayout() {
       const payload: ProviderKeyConfig = {
         apiKey: form.apiKey.trim(),
         priority: form.priority !== undefined ? Math.trunc(form.priority) : undefined,
+        billingClass: form.billingClass,
         prefix: form.prefix?.trim() || undefined,
         baseUrl: (form.baseUrl ?? '').trim() || undefined,
         proxyUrl: form.proxyUrl?.trim() || undefined,
@@ -386,7 +440,7 @@ export function AiProvidersClaudeEditLayout() {
         'success'
       );
       allowNextNavigation();
-      setDraftBaselineSignature(draftKey, buildClaudeSignature(form));
+      setDraftBaseline(draftKey, buildClaudeBaseline(form));
       handleBack();
     } catch (err: unknown) {
       showNotification(`${t('notification.update_failed')}: ${getErrorMessage(err)}`, 'error');
@@ -405,7 +459,7 @@ export function AiProvidersClaudeEditLayout() {
     invalidIndex,
     invalidIndexParam,
     resolvedLoading,
-    setDraftBaselineSignature,
+    setDraftBaseline,
     saving,
     showNotification,
     t,

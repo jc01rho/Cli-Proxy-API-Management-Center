@@ -14,9 +14,28 @@ import type { ProviderFormState } from '@/components/providers/types';
 
 export type ClaudeTestStatus = 'idle' | 'loading' | 'success' | 'error';
 
+export type ClaudeCloakBaseline = {
+  mode: string;
+  strictMode: boolean;
+  sensitiveWords: string[] | null;
+} | null;
+
+export type ClaudeEditBaseline = {
+  apiKey: string;
+  priority: number | null;
+  billingClass: 'metered' | 'per-request' | null;
+  prefix: string;
+  baseUrl: string;
+  proxyUrl: string;
+  headers: Array<{ key: string; value: string }>;
+  models: Array<{ name: string; alias: string }>;
+  excludedModels: string[];
+  cloak: ClaudeCloakBaseline;
+};
+
 type ClaudeEditDraft = {
   initialized: boolean;
-  baselineSignature: string;
+  baseline: ClaudeEditBaseline | null;
   form: ProviderFormState;
   testModel: string;
   testStatus: ClaudeTestStatus;
@@ -33,7 +52,7 @@ interface ClaudeEditDraftState {
     key: string,
     draft: Omit<ClaudeEditDraft, 'initialized'>
   ) => void;
-  setDraftBaselineSignature: (key: string, signature: string) => void;
+  setDraftBaseline: (key: string, baseline: ClaudeEditBaseline) => void;
   setDraftForm: (
     key: string,
     action: SetStateAction<ProviderFormState>
@@ -52,6 +71,8 @@ const resolveAction = <T,>(action: SetStateAction<T>, prev: T): T =>
 
 const buildEmptyForm = (): ProviderFormState => ({
   apiKey: '',
+  priority: undefined,
+  billingClass: undefined,
   prefix: '',
   baseUrl: '',
   proxyUrl: '',
@@ -64,7 +85,7 @@ const buildEmptyForm = (): ProviderFormState => ({
 
 const buildEmptyDraft = (): ClaudeEditDraft => ({
   initialized: false,
-  baselineSignature: '',
+  baseline: null,
   form: buildEmptyForm(),
   testModel: '',
   testStatus: 'idle',
@@ -124,14 +145,14 @@ export const useClaudeEditDraftStore = create<ClaudeEditDraftState>((set, get) =
     }));
   },
 
-  setDraftBaselineSignature: (key, signature) => {
+  setDraftBaseline: (key, baseline) => {
     if (!key) return;
     set((state) => {
       const existing = state.drafts[key] ?? buildEmptyDraft();
       return {
         drafts: {
           ...state.drafts,
-          [key]: { ...existing, initialized: true, baselineSignature: signature },
+          [key]: { ...existing, initialized: true, baseline },
         },
       };
     });

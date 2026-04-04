@@ -85,9 +85,11 @@ const buildPrefixProxyUpdatedText = (editor: PrefixProxyEditorState | null): str
 
   const billingClass = editor.billingClass.trim();
   if (billingClass) {
-    next['billing-class'] = billingClass;
+    next.billing_class = billingClass;
+    if ('billing-class' in next) delete next['billing-class'];
     if ('billingClass' in next) delete next.billingClass;
   } else {
+    if ('billing_class' in next) delete next.billing_class;
     if ('billing-class' in next) delete next['billing-class'];
     if ('billingClass' in next) delete next.billingClass;
   }
@@ -221,7 +223,14 @@ export function useAuthFilesPrefixProxyEditor(
       const prefix = typeof json.prefix === 'string' ? json.prefix : '';
       const proxyUrl = typeof json.proxy_url === 'string' ? json.proxy_url : '';
       const priority = parsePriorityValue(json.priority);
-      const billingClass = typeof json['billing-class'] === 'string' ? json['billing-class'] : typeof json.billingClass === 'string' ? json.billingClass : '';
+      const billingClass =
+        typeof json.billing_class === 'string'
+          ? json.billing_class
+          : typeof json['billing-class'] === 'string'
+            ? json['billing-class']
+            : typeof json.billingClass === 'string'
+              ? json.billingClass
+              : '';
       const excludedModels = normalizeExcludedModels(json.excluded_models);
       const disableCoolingValue = parseDisableCoolingValue(json.disable_cooling);
       const websocketsValue = readCodexAuthFileWebsockets(json);

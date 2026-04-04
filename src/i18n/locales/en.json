@@ -250,6 +250,7 @@
     "prefix_hint": "When set, call models as prefix/<model> to target this entry.",
     "priority_label": "Priority (Optional):",
     "priority_hint": "Higher values are tried first. Entries with the same priority use round-robin, and lower priorities are used as fallback. Leave empty for default (0).",
+    "billing_class_label": "Billing Class",
     "config_toggle_label": "Enabled",
     "config_disabled_badge": "Disabled",
     "codex_title": "Codex API Configuration",
@@ -1287,7 +1288,14 @@
           "force_model_prefix": "Force Model Prefix",
           "force_model_prefix_desc": "Unprefixed model requests only use credentials without prefix",
           "ws_auth": "WebSocket Authentication",
-          "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)"
+          "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)",
+          "token_threshold_rules_title": "Token Threshold Rules",
+          "token_threshold_rules_desc": "Route requests to provider billing classes when estimated input tokens are at or below a threshold.",
+          "token_rule_model_pattern": "Model pattern (optional)",
+          "token_rule_max_tokens": "Max input tokens",
+          "billing_class_metered": "metered",
+          "billing_class_per_request": "per-request",
+          "add_token_rule": "Add Rule"
         },
         "quota": {
           "title": "Quota Fallback",

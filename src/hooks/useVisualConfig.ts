@@ -5,6 +5,7 @@ import type {
   PayloadParamEntry,
   PayloadParamValueType,
   PayloadRule,
+  TokenThresholdRule,
   VisualConfigValues,
   VisualConfigValidationErrors,
   PayloadParamValidationErrorCode,
@@ -138,6 +139,45 @@ function getPortError(value: string): 'port_range' | undefined {
   if (!/^\d+$/.test(trimmed)) return 'port_range';
   const parsed = Number(trimmed);
   return parsed >= 1 && parsed <= 65535 ? undefined : 'port_range';
+}
+
+function parseTokenThresholdRules(rules: unknown): TokenThresholdRule[] {
+	if (!Array.isArray(rules)) return [];
+	return rules
+		.map((rule, index) => {
+			const record = asRecord(rule);
+			if (!record) return null;
+			const maxTokens = record['max-tokens'] ?? record.maxTokens;
+			const billingClass = record['billing-class'] ?? record.billingClass;
+			const parsed = Number(maxTokens);
+			if (!Number.isFinite(parsed) || parsed <= 0) return null;
+			const normalizedBillingClass =
+				billingClass === 'per_request' ? 'per-request' : billingClass === 'per-request' ? 'per-request' : billingClass === 'metered' ? 'metered' : null;
+			if (!normalizedBillingClass) return null;
+			return {
+				id: `token-threshold-rule-${index}`,
+				modelPattern: typeof (record['model-pattern'] ?? record.modelPattern) === 'string' ? String(record['model-pattern'] ?? record.modelPattern) : '',
+				maxTokens: String(parsed),
+				billingClass: normalizedBillingClass,
+				enabled: typeof record.enabled === 'boolean' ? record.enabled : true,
+			};
+		})
+		.filter(Boolean) as TokenThresholdRule[];
+}
+
+function serializeTokenThresholdRules(rules: TokenThresholdRule[]): Array<Record<string, unknown>> {
+	return rules
+		.map((rule) => {
+			const maxTokens = Number(rule.maxTokens);
+			if (!Number.isFinite(maxTokens) || maxTokens <= 0) return null;
+			return {
+				...(rule.modelPattern.trim() ? { 'model-pattern': rule.modelPattern.trim() } : {}),
+				'max-tokens': maxTokens,
+				'billing-class': rule.billingClass,
+				enabled: rule.enabled,
+			};
+		})
+		.filter(Boolean) as Array<Record<string, unknown>>;
 }
 
 export function getVisualConfigValidationErrors(
@@ -517,6 +557,7 @@ export function useVisualConfig() {
           routing?.strategy === 'fill-first' ? 'fill-first' : 'round-robin',
         routingMode:
           routing?.mode === 'key-based' ? 'key-based' : 'provider-based',
+        tokenThresholdRules: parseTokenThresholdRules(routing?.['token-threshold-rules']),
         fallbackModels: asRecord(routing?.['fallback-models'])
           ? Object.fromEntries(
               Object.entries(asRecord(routing?.['fallback-models']) ?? {})
@@ -649,12 +690,20 @@ export function useVisualConfig() {
           docHas(doc, ['routing']) ||
           values.routingStrategy !== 'round-robin' ||
           values.routingMode !== 'provider-based' ||
+          values.tokenThresholdRules.length > 0 ||
           Object.keys(values.fallbackModels).length > 0 ||
           values.fallbackChain.length > 0
         ) {
           ensureMapInDoc(doc, ['routing']);
           doc.setIn(['routing', 'strategy'], values.routingStrategy);
           doc.setIn(['routing', 'mode'], values.routingMode);
+
+		  const tokenThresholdRules = serializeTokenThresholdRules(values.tokenThresholdRules);
+		  if (tokenThresholdRules.length > 0) {
+			doc.setIn(['routing', 'token-threshold-rules'], tokenThresholdRules);
+		  } else if (docHas(doc, ['routing', 'token-threshold-rules'])) {
+			doc.deleteIn(['routing', 'token-threshold-rules']);
+		  }
 
           const fallbackEntries = Object.entries(values.fallbackModels)
             .map(([source, target]) => [source.trim(), target.trim()] as const)

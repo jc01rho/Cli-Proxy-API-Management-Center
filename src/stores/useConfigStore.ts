@@ -45,6 +45,7 @@ const SECTION_KEYS: RawConfigSection[] = [
   'ws-auth',
   'force-model-prefix',
   'routing/strategy',
+  'routing/token-threshold-rules',
   'api-keys',
   'ampcode',
   'gemini-api-key',
@@ -80,6 +81,8 @@ const extractSectionValue = (config: Config | null, section?: RawConfigSection) 
       return config.forceModelPrefix;
     case 'routing/strategy':
       return config.routingStrategy;
+    case 'routing/token-threshold-rules':
+      return config.tokenThresholdRules;
     case 'api-keys':
       return config.apiKeys;
     case 'ampcode':
@@ -222,6 +225,9 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
           break;
         case 'routing/strategy':
           nextConfig.routingStrategy = value as Config['routingStrategy'];
+          break;
+        case 'routing/token-threshold-rules':
+          nextConfig.tokenThresholdRules = value as Config['tokenThresholdRules'];
           break;
         case 'api-keys':
           nextConfig.apiKeys = value as Config['apiKeys'];

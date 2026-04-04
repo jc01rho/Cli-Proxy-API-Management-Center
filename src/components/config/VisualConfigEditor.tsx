@@ -43,6 +43,7 @@ import {
   PayloadFilterRulesEditor,
   PayloadRulesEditor,
   StringListEditor,
+  TokenThresholdRulesEditor,
 } from './VisualConfigEditorBlocks';
 import styles from './VisualConfigEditor.module.scss';
 
@@ -818,6 +819,17 @@ export function VisualConfigEditor({
                   error={logsMaxSizeError}
                 />
               </SectionGrid>
+
+			  <SectionSubsection
+				title={t('config_management.visual.sections.network.token_threshold_rules_title')}
+				description={t('config_management.visual.sections.network.token_threshold_rules_desc')}
+			  >
+				<TokenThresholdRulesEditor
+					value={values.tokenThresholdRules}
+					disabled={disabled}
+					onChange={(tokenThresholdRules) => onChange({ tokenThresholdRules })}
+				/>
+			  </SectionSubsection>
             </SectionStack>
           </ConfigSection>
 

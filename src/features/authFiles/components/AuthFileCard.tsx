@@ -116,6 +116,14 @@ export function AuthFileCard(props: AuthFileCardProps) {
 
   const priorityValue = parsePriorityValue(file.priority ?? file['priority']);
   const noteValue = typeof file.note === 'string' ? file.note.trim() : '';
+  const billingClassValue =
+    typeof file.billing_class === 'string'
+      ? file.billing_class.trim()
+      : typeof file.billingClass === 'string'
+        ? file.billingClass.trim()
+        : typeof file['billing-class'] === 'string'
+          ? String(file['billing-class']).trim()
+          : '';
   const stateLabel = isRuntimeOnly
     ? t('auth_files.type_virtual') || '虚拟认证文件'
     : file.disabled
@@ -212,20 +220,10 @@ export function AuthFileCard(props: AuthFileCardProps) {
                 </span>
               </div>
             )}
-            {Boolean(file.billingClass) && (
+            {Boolean(billingClassValue) && (
               <div className={styles.metaItem}>
                 <span className={styles.metaLabel}>{t('config.rules_billing_class_label')}</span>
-                <span className={styles.metaValue}>
-                  {String(file.billingClass)}
-                </span>
-              </div>
-            )}
-            {Boolean(file['billing-class']) && !file.billingClass && (
-              <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>{t('config.rules_billing_class_label')}</span>
-                <span className={styles.metaValue}>
-                  {String(file['billing-class'])}
-                </span>
+                <span className={styles.metaValue}>{billingClassValue}</span>
               </div>
             )}
           </div>

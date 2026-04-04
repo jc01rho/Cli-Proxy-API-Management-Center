@@ -41,6 +41,7 @@ export type ClaudeEditOutletContext = {
 const buildEmptyForm = (): ProviderFormState => ({
   apiKey: '',
   priority: undefined,
+  billingClass: undefined,
   prefix: '',
   baseUrl: '',
   proxyUrl: '',
@@ -94,6 +95,7 @@ const buildClaudeSignature = (form: ProviderFormState) =>
     apiKey: String(form.apiKey ?? '').trim(),
     priority:
       form.priority !== undefined && Number.isFinite(form.priority) ? Math.trunc(form.priority) : null,
+    billingClass: form.billingClass ?? null,
     prefix: String(form.prefix ?? '').trim(),
     baseUrl: String(form.baseUrl ?? '').trim(),
     proxyUrl: String(form.proxyUrl ?? '').trim(),

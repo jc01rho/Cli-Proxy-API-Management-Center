@@ -127,6 +127,10 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
       config.priority = parsed;
     }
   }
+  const billingClass = record?.['billing-class'] ?? record?.billingClass;
+  if (billingClass === 'metered' || billingClass === 'per-request' || billingClass === 'per_request') {
+    config.billingClass = billingClass === 'per_request' ? 'per-request' : billingClass;
+  }
   const prefix = normalizePrefix(record?.prefix ?? record?.['prefix']);
   if (prefix) config.prefix = prefix;
   const baseUrl = record ? record['base-url'] ?? record.baseUrl : undefined;
@@ -192,6 +196,10 @@ const normalizeGeminiKeyConfig = (item: unknown): GeminiKeyConfig | null => {
       config.priority = parsed;
     }
   }
+  const billingClass = record?.['billing-class'] ?? record?.billingClass;
+  if (billingClass === 'metered' || billingClass === 'per-request' || billingClass === 'per_request') {
+    config.billingClass = billingClass === 'per_request' ? 'per-request' : billingClass;
+  }
   const prefix = normalizePrefix(record?.prefix ?? record?.['prefix']);
   if (prefix) config.prefix = prefix;
   const baseUrl = record ? record['base-url'] ?? record.baseUrl ?? record['base_url'] : undefined;
@@ -227,6 +235,7 @@ const normalizeOpenAIProvider = (provider: unknown): OpenAIProviderConfig | null
   const headers = normalizeHeaders(provider.headers);
   const models = normalizeModelAliases(provider.models);
   const priority = provider.priority ?? provider['priority'];
+  const billingClass = provider['billing-class'] ?? provider.billingClass;
   const testModel = provider['test-model'] ?? provider.testModel;
 
   const result: OpenAIProviderConfig = {
@@ -240,6 +249,9 @@ const normalizeOpenAIProvider = (provider: unknown): OpenAIProviderConfig | null
   if (headers) result.headers = headers;
   if (models.length) result.models = models;
   if (priority !== undefined) result.priority = Number(priority);
+  if (billingClass === 'metered' || billingClass === 'per-request' || billingClass === 'per_request') {
+    result.billingClass = billingClass === 'per_request' ? 'per-request' : billingClass;
+  }
   if (testModel) result.testModel = String(testModel);
   return result;
 };
@@ -399,6 +411,30 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
     : (raw['routing-mode'] ?? raw.routingMode);
   if (modeRaw !== undefined && modeRaw !== null) {
     config.routingMode = String(modeRaw);
+  }
+
+  const tokenThresholdRulesRaw = isRecord(routing)
+    ? routing['token-threshold-rules']
+    : (raw['token-threshold-rules'] ?? raw.tokenThresholdRules);
+  if (Array.isArray(tokenThresholdRulesRaw)) {
+    const tokenThresholdRules = tokenThresholdRulesRaw
+      .map((item) => {
+        if (!isRecord(item)) return null;
+        const maxTokens = Number(item['max-tokens'] ?? item.maxTokens);
+        const billingClass = item['billing-class'] ?? item.billingClass;
+        if (!Number.isFinite(maxTokens) || maxTokens <= 0) return null;
+        if (!(billingClass === 'metered' || billingClass === 'per-request' || billingClass === 'per_request')) return null;
+        return {
+          modelPattern: typeof (item['model-pattern'] ?? item.modelPattern) === 'string' ? String(item['model-pattern'] ?? item.modelPattern).trim() : undefined,
+          maxTokens,
+          billingClass: billingClass === 'per_request' ? 'per-request' : 'per-request' === billingClass ? 'per-request' : 'metered',
+          enabled: normalizeBoolean(item.enabled) ?? true,
+        };
+      })
+      .filter(Boolean) as NonNullable<Config['tokenThresholdRules']>;
+    if (tokenThresholdRules.length > 0) {
+      config.tokenThresholdRules = tokenThresholdRules;
+    }
   }
 
   const fallbackModelsRaw = isRecord(routing)

@@ -27,6 +27,7 @@ type LocationState = { fromAiProviders?: boolean } | null;
 const buildEmptyForm = (): GeminiFormState => ({
   apiKey: '',
   priority: undefined,
+  billingClass: undefined,
   prefix: '',
   baseUrl: '',
   proxyUrl: '',
@@ -67,6 +68,7 @@ const buildGeminiSignature = (form: GeminiFormState) =>
       form.priority !== undefined && Number.isFinite(form.priority)
         ? Math.trunc(form.priority)
         : null,
+    billingClass: form.billingClass ?? null,
     prefix: String(form.prefix ?? '').trim(),
     baseUrl: String(form.baseUrl ?? '').trim(),
     proxyUrl: String(form.proxyUrl ?? '').trim(),
@@ -409,6 +411,7 @@ export function AiProvidersGeminiEditPage() {
       const payload: GeminiKeyConfig = {
         apiKey: form.apiKey.trim(),
         priority: form.priority !== undefined ? Math.trunc(form.priority) : undefined,
+        billingClass: form.billingClass,
         prefix: form.prefix?.trim() || undefined,
         baseUrl: form.baseUrl?.trim() || undefined,
         proxyUrl: form.proxyUrl?.trim() || undefined,
@@ -522,6 +525,25 @@ export function AiProvidersGeminiEditPage() {
               }}
               disabled={disableControls || saving}
             />
+            <div className="form-group">
+              <label>{t('ai_providers.billing_class_label')}</label>
+              <select
+                className="input"
+                value={form.billingClass ?? ''}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    billingClass:
+                      e.target.value === '' ? undefined : (e.target.value as GeminiKeyConfig['billingClass']),
+                  }))
+                }
+                disabled={disableControls || saving}
+              >
+                <option value="">{t('common.not_set')}</option>
+                <option value="metered">metered</option>
+                <option value="per-request">per-request</option>
+              </select>
+            </div>
             <Input
               label={t('ai_providers.prefix_label')}
               placeholder={t('ai_providers.prefix_placeholder')}

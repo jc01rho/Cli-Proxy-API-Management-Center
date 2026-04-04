@@ -12,6 +12,7 @@ import { useEdgeSwipeBack } from '@/hooks/useEdgeSwipeBack';
 import { SecondaryScreenShell } from '@/components/common/SecondaryScreenShell';
 import { apiCallApi, getApiCallErrorMessage } from '@/services/api';
 import { useNotificationStore } from '@/stores';
+import type { ProviderKeyConfig } from '@/types';
 import { buildHeaderObject } from '@/utils/headers';
 import { buildClaudeMessagesEndpoint, parseTextList } from '@/components/providers/utils';
 import type { ClaudeEditOutletContext } from './AiProvidersClaudeEditLayout';
@@ -325,6 +326,25 @@ export function AiProvidersClaudeEditPage() {
               }}
               disabled={saving || disableControls || isTesting}
             />
+            <div className="form-group">
+              <label>{t('ai_providers.billing_class_label')}</label>
+              <select
+                className="input"
+                value={form.billingClass ?? ''}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    billingClass:
+                      e.target.value === '' ? undefined : (e.target.value as ProviderKeyConfig['billingClass']),
+                  }))
+                }
+                disabled={saving || disableControls || isTesting}
+              >
+                <option value="">{t('common.not_set')}</option>
+                <option value="metered">metered</option>
+                <option value="per-request">per-request</option>
+              </select>
+            </div>
             <Input
               label={t('ai_providers.prefix_label')}
               placeholder={t('ai_providers.prefix_placeholder')}

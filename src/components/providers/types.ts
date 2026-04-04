@@ -10,6 +10,7 @@ export interface ModelEntry {
 export interface OpenAIFormState {
   name: string;
   priority?: number;
+  billingClass?: 'metered' | 'per-request';
   prefix: string;
   baseUrl: string;
   headers: HeaderEntry[];

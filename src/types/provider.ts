@@ -25,6 +25,7 @@ export interface CloakConfig {
 export interface GeminiKeyConfig {
   apiKey: string;
   priority?: number;
+  billingClass?: 'metered' | 'per-request';
   prefix?: string;
   baseUrl?: string;
   proxyUrl?: string;
@@ -36,6 +37,7 @@ export interface GeminiKeyConfig {
 export interface ProviderKeyConfig {
   apiKey: string;
   priority?: number;
+  billingClass?: 'metered' | 'per-request';
   prefix?: string;
   baseUrl?: string;
   websockets?: boolean;
@@ -48,6 +50,7 @@ export interface ProviderKeyConfig {
 
 export interface OpenAIProviderConfig {
   name: string;
+  billingClass?: 'metered' | 'per-request';
   prefix?: string;
   baseUrl: string;
   apiKeyEntries: ApiKeyEntry[];

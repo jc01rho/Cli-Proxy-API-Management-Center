@@ -592,6 +592,8 @@
     "priority_label": "优先级（priority）",
     "priority_placeholder": "例如: 10 或 -1",
     "priority_hint": "仅支持整数；数值越大越先尝试。同优先级会轮询，较低优先级会作为后备。",
+    "billing_class_placeholder": "metered 或 per-request",
+    "billing_class_hint": "设置用于配额消耗的计费类别",
     "excluded_models_label": "排除模型（excluded_models）",
     "excluded_models_placeholder": "用逗号或换行分隔，例如: model-a, gpt-5-*, *-preview",
     "excluded_models_hint": "保存为数组；会自动 trim、小写、去重并排序。",

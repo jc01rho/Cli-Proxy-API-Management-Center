@@ -126,6 +126,14 @@ export function AuthFilesPrefixProxyEditorModal(props: AuthFilesPrefixProxyEdito
                   disabled={disableControls || editor.saving || !editor.json}
                   onChange={(e) => onChange('priority', e.target.value)}
                 />
+                <Input
+                  label={t('config.rules_billing_class_label')}
+                  value={editor.billingClass}
+                  placeholder={t('auth_files.billing_class_placeholder')}
+                  hint={t('auth_files.billing_class_hint')}
+                  disabled={disableControls || editor.saving || !editor.json}
+                  onChange={(e) => onChange('billingClass', e.target.value)}
+                />
                 <div className="form-group">
                   <label>{t('auth_files.excluded_models_label')}</label>
                   <textarea

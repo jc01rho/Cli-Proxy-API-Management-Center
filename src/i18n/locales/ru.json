@@ -250,6 +250,7 @@
     "prefix_hint": "Если задано, обращайтесь к моделям как prefix/<model>, чтобы выбрать эту запись.",
     "priority_label": "Приоритет (необязательно):",
     "priority_hint": "Чем больше значение, тем раньше запись будет пробоваться. Записи с одинаковым приоритетом идут по round-robin, а более низкие приоритеты используются как fallback. Оставьте пустым для значения по умолчанию (0).",
+    "billing_class_label": "Класс тарификации",
     "config_toggle_label": "Включено",
     "config_disabled_badge": "Отключено",
     "codex_title": "Конфигурация Codex API",
@@ -1251,7 +1252,14 @@
           "force_model_prefix": "Принудительный префикс модели",
           "force_model_prefix_desc": "Запросы к моделям без префикса используют только учётные данные без префикса",
           "ws_auth": "Аутентификация WebSocket",
-          "ws_auth_desc": "Включить аутентификацию WebSocket (/v1/ws)"
+          "ws_auth_desc": "Включить аутентификацию WebSocket (/v1/ws)",
+          "token_threshold_rules_title": "Правила порога токенов",
+          "token_threshold_rules_desc": "Маршрутизируйте запросы в нужный класс тарификации провайдера, если оценка входных токенов не превышает порог.",
+          "token_rule_model_pattern": "Шаблон модели (необязательно)",
+          "token_rule_max_tokens": "Максимум входных токенов",
+          "billing_class_metered": "metered",
+          "billing_class_per_request": "per-request",
+          "add_token_rule": "Добавить правило"
         },
         "quota": {
           "title": "Резерв по квоте",

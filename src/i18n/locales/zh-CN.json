@@ -250,6 +250,7 @@
     "prefix_hint": "设置后可用 prefix/<model> 选择该条目。",
     "priority_label": "优先级 (可选):",
     "priority_hint": "数值越大越先尝试；相同优先级会轮询，较低优先级会作为后备。留空表示默认（0）。",
+    "billing_class_label": "计费类别",
     "config_toggle_label": "启用",
     "config_disabled_badge": "已停用",
     "codex_title": "Codex API 配置",
@@ -1287,7 +1288,14 @@
           "force_model_prefix": "强制模型前缀",
           "force_model_prefix_desc": "未带前缀的模型请求只使用无前缀凭据",
           "ws_auth": "WebSocket 认证",
-          "ws_auth_desc": "启用 WebSocket 连接认证 (/v1/ws)"
+          "ws_auth_desc": "启用 WebSocket 连接认证 (/v1/ws)",
+          "token_threshold_rules_title": "Token 阈值规则",
+          "token_threshold_rules_desc": "当预估输入 token 不高于阈值时，将请求路由到指定计费类别的提供商。",
+          "token_rule_model_pattern": "模型匹配模式（可选）",
+          "token_rule_max_tokens": "最大输入 token",
+          "billing_class_metered": "按量计费",
+          "billing_class_per_request": "按次计费",
+          "add_token_rule": "添加规则"
         },
         "quota": {
           "title": "配额回退",

@@ -15,6 +15,7 @@ import { modelsApi, providersApi } from '@/services/api';
 import { useAuthStore, useConfigStore, useNotificationStore } from '@/stores';
 import type { GeminiKeyConfig } from '@/types';
 import { buildHeaderObject, headersToEntries, normalizeHeaderEntries } from '@/utils/headers';
+import { areKeyValueEntriesEqual, areModelEntriesEqual, areStringArraysEqual } from '@/utils/compare';
 import type { ModelInfo } from '@/utils/models';
 import { entriesToModels, modelsToEntries } from '@/components/ui/modelInputListUtils';
 import { excludedModelsToText, parseExcludedModels } from '@/components/providers/utils';
@@ -61,21 +62,30 @@ const normalizeModelEntries = (entries: Array<{ name: string; alias: string }>) 
     return acc;
   }, []);
 
-const buildGeminiSignature = (form: GeminiFormState) =>
-  JSON.stringify({
-    apiKey: String(form.apiKey ?? '').trim(),
-    priority:
-      form.priority !== undefined && Number.isFinite(form.priority)
-        ? Math.trunc(form.priority)
-        : null,
-    billingClass: form.billingClass ?? null,
-    prefix: String(form.prefix ?? '').trim(),
-    baseUrl: String(form.baseUrl ?? '').trim(),
-    proxyUrl: String(form.proxyUrl ?? '').trim(),
-    headers: normalizeHeaderEntries(form.headers),
-    models: normalizeModelEntries(form.modelEntries),
-    excludedModels: parseExcludedModels(form.excludedText ?? ''),
-  });
+type GeminiFormBaseline = {
+  apiKey: string;
+  priority: number | null;
+  billingClass: 'metered' | 'per-request' | null;
+  prefix: string;
+  baseUrl: string;
+  proxyUrl: string;
+  headers: ReturnType<typeof normalizeHeaderEntries>;
+  models: ReturnType<typeof normalizeModelEntries>;
+  excludedModels: string[];
+};
+
+const buildGeminiBaseline = (form: GeminiFormState): GeminiFormBaseline => ({
+  apiKey: String(form.apiKey ?? '').trim(),
+  priority:
+    form.priority !== undefined && Number.isFinite(form.priority) ? Math.trunc(form.priority) : null,
+  billingClass: form.billingClass ?? null,
+  prefix: String(form.prefix ?? '').trim(),
+  baseUrl: String(form.baseUrl ?? '').trim(),
+  proxyUrl: String(form.proxyUrl ?? '').trim(),
+  headers: normalizeHeaderEntries(form.headers),
+  models: normalizeModelEntries(form.modelEntries),
+  excludedModels: parseExcludedModels(form.excludedText ?? ''),
+});
 
 export function AiProvidersGeminiEditPage() {
   const { t } = useTranslation();
@@ -96,9 +106,7 @@ export function AiProvidersGeminiEditPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState<GeminiFormState>(() => buildEmptyForm());
-  const [baselineSignature, setBaselineSignature] = useState(() =>
-    buildGeminiSignature(buildEmptyForm())
-  );
+  const [baseline, setBaseline] = useState(() => buildGeminiBaseline(buildEmptyForm()));
 
   const [modelDiscoveryOpen, setModelDiscoveryOpen] = useState(false);
   const [modelDiscoveryEndpoint, setModelDiscoveryEndpoint] = useState('');
@@ -187,12 +195,12 @@ export function AiProvidersGeminiEditPage() {
         excludedText: excludedModelsToText(initialData.excludedModels),
       };
       setForm(nextForm);
-      setBaselineSignature(buildGeminiSignature(nextForm));
+      setBaseline(buildGeminiBaseline(nextForm));
       return;
     }
     const nextForm = buildEmptyForm();
     setForm(nextForm);
-    setBaselineSignature(buildGeminiSignature(nextForm));
+    setBaseline(buildGeminiBaseline(nextForm));
   }, [initialData, loading]);
 
   const canSave = !disableControls && !saving && !loading && !invalidIndexParam && !invalidIndex;
@@ -380,8 +388,42 @@ export function AiProvidersGeminiEditPage() {
     setModelDiscoveryOpen(false);
   };
 
-  const currentSignature = useMemo(() => buildGeminiSignature(form), [form]);
-  const isDirty = baselineSignature !== currentSignature;
+  const normalizedHeaders = useMemo(() => normalizeHeaderEntries(form.headers), [form.headers]);
+  const normalizedModels = useMemo(
+    () => normalizeModelEntries(form.modelEntries),
+    [form.modelEntries]
+  );
+  const normalizedExcludedModels = useMemo(
+    () => parseExcludedModels(form.excludedText ?? ''),
+    [form.excludedText]
+  );
+  const normalizedPriority = useMemo(() => {
+    return form.priority !== undefined && Number.isFinite(form.priority)
+      ? Math.trunc(form.priority)
+      : null;
+  }, [form.priority]);
+  const isHeadersDirty = useMemo(
+    () => !areKeyValueEntriesEqual(baseline.headers, normalizedHeaders),
+    [baseline.headers, normalizedHeaders]
+  );
+  const isModelsDirty = useMemo(
+    () => !areModelEntriesEqual(baseline.models, normalizedModels),
+    [baseline.models, normalizedModels]
+  );
+  const isExcludedModelsDirty = useMemo(
+    () => !areStringArraysEqual(baseline.excludedModels, normalizedExcludedModels),
+    [baseline.excludedModels, normalizedExcludedModels]
+  );
+  const isDirty =
+    baseline.apiKey !== form.apiKey.trim() ||
+    baseline.priority !== normalizedPriority ||
+    baseline.billingClass !== (form.billingClass ?? null) ||
+    baseline.prefix !== String(form.prefix ?? '').trim() ||
+    baseline.baseUrl !== String(form.baseUrl ?? '').trim() ||
+    baseline.proxyUrl !== String(form.proxyUrl ?? '').trim() ||
+    isHeadersDirty ||
+    isModelsDirty ||
+    isExcludedModelsDirty;
   const canGuard = !loading && !saving && !invalidIndexParam && !invalidIndex;
 
   const { allowNextNavigation } = useUnsavedChangesGuard({
@@ -435,7 +477,7 @@ export function AiProvidersGeminiEditPage() {
         'success'
       );
       allowNextNavigation();
-      setBaselineSignature(buildGeminiSignature(form));
+      setBaseline(buildGeminiBaseline(form));
       handleBack();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';

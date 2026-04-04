@@ -24,6 +24,12 @@ export interface Config {
   forceModelPrefix?: boolean;
   routingStrategy?: string;
   routingMode?: string;
+  tokenThresholdRules?: Array<{
+    modelPattern?: string;
+    maxTokens: number;
+    billingClass: 'metered' | 'per-request';
+    enabled?: boolean;
+  }>;
   fallbackModels?: Record<string, string>;
   fallbackChain?: string[];
   fallbackMaxDepth?: number;
@@ -50,6 +56,7 @@ export type RawConfigSection =
   | 'ws-auth'
   | 'force-model-prefix'
   | 'routing/strategy'
+  | 'routing/token-threshold-rules'
   | 'api-keys'
   | 'ampcode'
   | 'gemini-api-key'

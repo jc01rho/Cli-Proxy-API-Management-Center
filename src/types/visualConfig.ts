@@ -16,6 +16,16 @@ export type VisualConfigFieldPath =
 
 export type VisualConfigValidationErrorCode = 'port_range' | 'non_negative_integer';
 
+export type BillingClass = 'metered' | 'per-request';
+
+export type TokenThresholdRule = {
+	id: string;
+	modelPattern: string;
+	maxTokens: string;
+	billingClass: BillingClass;
+	enabled: boolean;
+};
+
 export type VisualConfigValidationErrors = Partial<
   Record<VisualConfigFieldPath, VisualConfigValidationErrorCode>
 >;
@@ -77,6 +87,7 @@ export type VisualConfigValues = {
   quotaSwitchPreviewModel: boolean;
   routingStrategy: 'round-robin' | 'fill-first';
   routingMode: 'provider-based' | 'key-based';
+  tokenThresholdRules: TokenThresholdRule[];
   fallbackModels: Record<string, string>;
   fallbackChain: string[];
   wsAuth: boolean;
@@ -119,6 +130,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   quotaSwitchPreviewModel: true,
   routingStrategy: 'round-robin',
   routingMode: 'provider-based',
+  tokenThresholdRules: [],
   fallbackModels: {},
   fallbackChain: [],
   wsAuth: false,

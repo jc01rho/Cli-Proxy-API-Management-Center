@@ -13,6 +13,7 @@ import type {
   PayloadParamValidationErrorCode,
   PayloadParamValueType,
   PayloadRule,
+  TokenThresholdRule,
 } from '@/types/visualConfig';
 import { makeClientId } from '@/types/visualConfig';
 import {
@@ -556,6 +557,68 @@ export const StringListEditor = memo(function StringListEditor({
       </div>
     </div>
   );
+});
+
+export const TokenThresholdRulesEditor = memo(function TokenThresholdRulesEditor({
+	value,
+	disabled,
+	onChange,
+}: {
+	value: TokenThresholdRule[];
+	disabled?: boolean;
+	onChange: (next: TokenThresholdRule[]) => void;
+}) {
+	const { t } = useTranslation();
+	const rows = value.length ? value : [];
+	const updateRule = (ruleId: string, patch: Partial<TokenThresholdRule>) => {
+		onChange(rows.map((rule) => (rule.id === ruleId ? { ...rule, ...patch } : rule)));
+	};
+	const removeRule = (ruleId: string) => onChange(rows.filter((rule) => rule.id !== ruleId));
+	const addRule = () =>
+		onChange([
+			...rows,
+			{ id: makeClientId(), modelPattern: '', maxTokens: '', billingClass: 'metered', enabled: true },
+		]);
+	return (
+		<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+			{rows.map((rule) => (
+				<div key={rule.id} className={styles.fallbackModelRow}>
+					<input
+						className="input"
+						placeholder={t('config_management.visual.sections.network.token_rule_model_pattern')}
+						value={rule.modelPattern}
+						onChange={(e) => updateRule(rule.id, { modelPattern: e.target.value })}
+						disabled={disabled}
+					/>
+					<input
+						className="input"
+						type="number"
+						placeholder={t('config_management.visual.sections.network.token_rule_max_tokens')}
+						value={rule.maxTokens}
+						onChange={(e) => updateRule(rule.id, { maxTokens: e.target.value })}
+						disabled={disabled}
+					/>
+					<Select
+						value={rule.billingClass}
+						options={[
+							{ value: 'metered', label: t('config_management.visual.sections.network.billing_class_metered') },
+							{ value: 'per-request', label: t('config_management.visual.sections.network.billing_class_per_request') },
+						]}
+						onChange={(next) => updateRule(rule.id, { billingClass: next as TokenThresholdRule['billingClass'] })}
+						disabled={disabled}
+					/>
+					<Button variant="ghost" size="sm" onClick={() => removeRule(rule.id)} disabled={disabled}>
+						{t('config_management.visual.common.delete')}
+					</Button>
+				</div>
+			))}
+			<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+				<Button variant="secondary" size="sm" onClick={addRule} disabled={disabled}>
+					{t('config_management.visual.sections.network.add_token_rule')}
+				</Button>
+			</div>
+		</div>
+	);
 });
 
 export const PayloadRulesEditor = memo(function PayloadRulesEditor({

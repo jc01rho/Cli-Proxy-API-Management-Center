@@ -588,6 +588,8 @@
     "priority_label": "Приоритет (priority)",
     "priority_placeholder": "например: 10 или -1",
     "priority_hint": "Только целые числа. Чем больше число, тем раньше файл будет пробоваться; одинаковый приоритет использует round-robin, а более низкий — fallback.",
+    "billing_class_placeholder": "metered или per-request",
+    "billing_class_hint": "Задайте класс тарификации для расхода квоты",
     "excluded_models_label": "Исключённые модели (excluded_models)",
     "excluded_models_placeholder": "Через запятую или с новой строки, например: model-a, gpt-5-*, *-preview",
     "excluded_models_hint": "Сохраняется как массив; значения trim/нижний регистр/без дублей/с сортировкой.",

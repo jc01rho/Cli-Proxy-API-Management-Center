@@ -212,6 +212,22 @@ export function AuthFileCard(props: AuthFileCardProps) {
                 </span>
               </div>
             )}
+            {Boolean(file.billingClass) && (
+              <div className={styles.metaItem}>
+                <span className={styles.metaLabel}>{t('config.rules_billing_class_label')}</span>
+                <span className={styles.metaValue}>
+                  {String(file.billingClass)}
+                </span>
+              </div>
+            )}
+            {Boolean(file['billing-class']) && !file.billingClass && (
+              <div className={styles.metaItem}>
+                <span className={styles.metaLabel}>{t('config.rules_billing_class_label')}</span>
+                <span className={styles.metaValue}>
+                  {String(file['billing-class'])}
+                </span>
+              </div>
+            )}
           </div>
 
           {rawStatusMessage && hasStatusWarning && (

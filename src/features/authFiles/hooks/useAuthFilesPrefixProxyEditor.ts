@@ -18,6 +18,7 @@ export type PrefixProxyEditorField =
   | 'prefix'
   | 'proxyUrl'
   | 'priority'
+  | 'billingClass'
   | 'excludedModelsText'
   | 'disableCooling'
   | 'websockets'
@@ -38,6 +39,7 @@ export type PrefixProxyEditorState = {
   prefix: string;
   proxyUrl: string;
   priority: string;
+  billingClass: string;
   excludedModelsText: string;
   disableCooling: string;
   websockets: boolean;
@@ -79,6 +81,15 @@ const buildPrefixProxyUpdatedText = (editor: PrefixProxyEditorState | null): str
     next.priority = parsedPriority;
   } else if ('priority' in next) {
     delete next.priority;
+  }
+
+  const billingClass = editor.billingClass.trim();
+  if (billingClass) {
+    next['billing-class'] = billingClass;
+    if ('billingClass' in next) delete next.billingClass;
+  } else {
+    if ('billing-class' in next) delete next['billing-class'];
+    if ('billingClass' in next) delete next.billingClass;
   }
 
   const excludedModels = parseExcludedModelsText(editor.excludedModelsText);
@@ -157,6 +168,7 @@ export function useAuthFilesPrefixProxyEditor(
       prefix: '',
       proxyUrl: '',
       priority: '',
+      billingClass: '',
       excludedModelsText: '',
       disableCooling: '',
       websockets: false,
@@ -209,6 +221,7 @@ export function useAuthFilesPrefixProxyEditor(
       const prefix = typeof json.prefix === 'string' ? json.prefix : '';
       const proxyUrl = typeof json.proxy_url === 'string' ? json.proxy_url : '';
       const priority = parsePriorityValue(json.priority);
+      const billingClass = typeof json['billing-class'] === 'string' ? json['billing-class'] : typeof json.billingClass === 'string' ? json.billingClass : '';
       const excludedModels = normalizeExcludedModels(json.excluded_models);
       const disableCoolingValue = parseDisableCoolingValue(json.disable_cooling);
       const websocketsValue = readCodexAuthFileWebsockets(json);
@@ -225,6 +238,7 @@ export function useAuthFilesPrefixProxyEditor(
           prefix,
           proxyUrl,
           priority: priority !== undefined ? String(priority) : '',
+          billingClass,
           excludedModelsText: excludedModels.join('\n'),
           disableCooling:
             disableCoolingValue === undefined ? '' : disableCoolingValue ? 'true' : 'false',
@@ -253,6 +267,7 @@ export function useAuthFilesPrefixProxyEditor(
       if (field === 'prefix') return { ...prev, prefix: String(value) };
       if (field === 'proxyUrl') return { ...prev, proxyUrl: String(value) };
       if (field === 'priority') return { ...prev, priority: String(value) };
+      if (field === 'billingClass') return { ...prev, billingClass: String(value) };
       if (field === 'excludedModelsText') return { ...prev, excludedModelsText: String(value) };
       if (field === 'disableCooling') return { ...prev, disableCooling: String(value) };
       if (field === 'note') return { ...prev, note: String(value), noteTouched: true };

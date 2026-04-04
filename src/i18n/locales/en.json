@@ -592,6 +592,8 @@
     "priority_label": "Priority (priority)",
     "priority_placeholder": "e.g. 10 or -1",
     "priority_hint": "Integers only. Larger values are tried first; same-priority auth files use round-robin, and lower priorities are used as fallback.",
+    "billing_class_placeholder": "metered or per-request",
+    "billing_class_hint": "Set billing class for quota consumption",
     "excluded_models_label": "Excluded models (excluded_models)",
     "excluded_models_placeholder": "Comma or newline separated, e.g. model-a, gpt-5-*, *-preview",
     "excluded_models_hint": "Saved as an array and normalized by trim/lowercase/dedup/sort.",

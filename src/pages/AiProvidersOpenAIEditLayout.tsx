@@ -43,6 +43,7 @@ export type OpenAIEditOutletContext = {
 const buildEmptyForm = (): OpenAIFormState => ({
   name: '',
   priority: undefined,
+  billingClass: undefined,
   prefix: '',
   baseUrl: '',
   headers: [],
@@ -108,6 +109,7 @@ const buildOpenAISignature = (form: OpenAIFormState, testModel: string) =>
     name: String(form.name ?? '').trim(),
     priority:
       form.priority !== undefined && Number.isFinite(form.priority) ? Math.trunc(form.priority) : null,
+    billingClass: form.billingClass ?? null,
     prefix: String(form.prefix ?? '').trim(),
     baseUrl: String(form.baseUrl ?? '').trim(),
     headers: normalizeHeaderEntries(form.headers),
@@ -271,6 +273,7 @@ export function AiProvidersOpenAIEditLayout() {
       const seededForm: OpenAIFormState = {
         name: initialData.name,
         priority: initialData.priority,
+        billingClass: initialData.billingClass,
         prefix: initialData.prefix ?? '',
         baseUrl: initialData.baseUrl,
         headers: headersToEntries(initialData.headers),
@@ -403,6 +406,7 @@ export function AiProvidersOpenAIEditLayout() {
     try {
       const payload: OpenAIProviderConfig = {
         name,
+        billingClass: form.billingClass,
         prefix: form.prefix?.trim() || undefined,
         baseUrl,
         headers: buildHeaderObject(form.headers),

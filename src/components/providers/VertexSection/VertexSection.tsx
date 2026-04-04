@@ -113,6 +113,12 @@ export function VertexSection({
                   <span className={styles.fieldLabel}>{t('common.api_key')}:</span>
                   <span className={styles.fieldValue}>{maskApiKey(item.apiKey)}</span>
                 </div>
+                {item.billingClass && (
+                  <div className={styles.fieldRow}>
+                    <span className={styles.fieldLabel}>{t('ai_providers.billing_class_label')}:</span>
+                    <span className={styles.fieldValue}>{item.billingClass}</span>
+                  </div>
+                )}
                 {item.prefix && (
                   <div className={styles.fieldRow}>
                     <span className={styles.fieldLabel}>{t('common.prefix')}:</span>

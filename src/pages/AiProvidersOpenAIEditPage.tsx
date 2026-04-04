@@ -11,7 +11,7 @@ import { SecondaryScreenShell } from '@/components/common/SecondaryScreenShell';
 import { useEdgeSwipeBack } from '@/hooks/useEdgeSwipeBack';
 import { useNotificationStore } from '@/stores';
 import { apiCallApi, getApiCallErrorMessage } from '@/services/api';
-import type { ApiKeyEntry } from '@/types';
+import type { ApiKeyEntry, OpenAIProviderConfig } from '@/types';
 import { buildHeaderObject, hasHeader } from '@/utils/headers';
 import { buildApiKeyEntry, buildOpenAIChatCompletionsEndpoint } from '@/components/providers/utils';
 import type { OpenAIEditOutletContext } from './AiProvidersOpenAIEditLayout';
@@ -554,6 +554,25 @@ export function AiProvidersOpenAIEditPage() {
               }}
               disabled={saving || disableControls || isTestingKeys}
             />
+            <div className="form-group">
+              <label>{t('ai_providers.billing_class_label')}</label>
+              <select
+                className="input"
+                value={form.billingClass ?? ''}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    billingClass:
+                      e.target.value === '' ? undefined : (e.target.value as OpenAIProviderConfig['billingClass']),
+                  }))
+                }
+                disabled={saving || disableControls || isTestingKeys}
+              >
+                <option value="">{t('common.not_set')}</option>
+                <option value="metered">metered</option>
+                <option value="per-request">per-request</option>
+              </select>
+            </div>
             <Input
               label={t('ai_providers.prefix_label')}
               placeholder={t('ai_providers.prefix_placeholder')}

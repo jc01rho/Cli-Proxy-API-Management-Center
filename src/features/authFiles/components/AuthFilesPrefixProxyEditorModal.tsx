@@ -127,7 +127,7 @@ export function AuthFilesPrefixProxyEditorModal(props: AuthFilesPrefixProxyEdito
                   onChange={(e) => onChange('priority', e.target.value)}
                 />
                 <div className="form-group">
-                  <label>{t('config.rules_billing_class_label')}</label>
+                  <label>{t('auth_files.billing_class_label')}</label>
                   <select
                     className="input"
                     value={editor.billingClass}

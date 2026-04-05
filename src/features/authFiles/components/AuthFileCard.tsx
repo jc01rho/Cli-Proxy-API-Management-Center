@@ -222,7 +222,7 @@ export function AuthFileCard(props: AuthFileCardProps) {
             )}
             {Boolean(billingClassValue) && (
               <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>{t('config.rules_billing_class_label')}</span>
+                <span className={styles.metaLabel}>{t('auth_files.billing_class_label')}</span>
                 <span className={styles.metaValue}>{billingClassValue}</span>
               </div>
             )}

@@ -1292,9 +1292,10 @@
           "ws_auth": "WebSocket Authentication",
           "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)",
           "token_threshold_rules_title": "Token Threshold Rules",
-          "token_threshold_rules_desc": "Route requests to provider billing classes when estimated input tokens are at or below a threshold.",
+          "token_threshold_rules_desc": "Route requests to provider billing classes based on estimated input tokens boundaries.",
           "token_rule_model_pattern": "Model pattern (optional)",
-          "token_rule_max_tokens": "Max input tokens",
+          "token_rule_min_tokens": "Min input tokens (optional)",
+          "token_rule_max_tokens": "Max input tokens (optional)",
           "billing_class_metered": "metered",
           "billing_class_per_request": "per-request",
           "add_token_rule": "Add Rule"

@@ -1292,9 +1292,10 @@
           "ws_auth": "WebSocket 认证",
           "ws_auth_desc": "启用 WebSocket 连接认证 (/v1/ws)",
           "token_threshold_rules_title": "Token 阈值规则",
-          "token_threshold_rules_desc": "当预估输入 token 不高于阈值时，将请求路由到指定计费类别的提供商。",
+          "token_threshold_rules_desc": "根据预估的输入 Token 边界将请求路由到提供商的对应计费类别。",
           "token_rule_model_pattern": "模型匹配模式（可选）",
-          "token_rule_max_tokens": "最大输入 token",
+          "token_rule_min_tokens": "最小输入 token（可选）",
+          "token_rule_max_tokens": "最大输入 token（可选）",
           "billing_class_metered": "按量计费",
           "billing_class_per_request": "按次计费",
           "add_token_rule": "添加规则"

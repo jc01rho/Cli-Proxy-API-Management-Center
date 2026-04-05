@@ -147,17 +147,27 @@ function parseTokenThresholdRules(rules: unknown): TokenThresholdRule[] {
 		.map((rule, index) => {
 			const record = asRecord(rule);
 			if (!record) return null;
+			
+			const minTokens = record['min-tokens'] ?? record.minTokens;
+			const parsedMin = typeof minTokens !== 'undefined' ? Number(minTokens) : undefined;
+			const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin > 0);
+			
 			const maxTokens = record['max-tokens'] ?? record.maxTokens;
+			const parsedMax = typeof maxTokens !== 'undefined' ? Number(maxTokens) : undefined;
+			const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax > 0);
+			
+			if ((parsedMin === undefined && parsedMax === undefined) || !isValidMin || !isValidMax) return null;
+			
 			const billingClass = record['billing-class'] ?? record.billingClass;
-			const parsed = Number(maxTokens);
-			if (!Number.isFinite(parsed) || parsed <= 0) return null;
 			const normalizedBillingClass =
 				billingClass === 'per_request' ? 'per-request' : billingClass === 'per-request' ? 'per-request' : billingClass === 'metered' ? 'metered' : null;
 			if (!normalizedBillingClass) return null;
+			
 			return {
 				id: `token-threshold-rule-${index}`,
 				modelPattern: typeof (record['model-pattern'] ?? record.modelPattern) === 'string' ? String(record['model-pattern'] ?? record.modelPattern) : '',
-				maxTokens: String(parsed),
+				...(parsedMin !== undefined ? { minTokens: String(parsedMin) } : {}),
+				...(parsedMax !== undefined ? { maxTokens: String(parsedMax) } : {}),
 				billingClass: normalizedBillingClass,
 				enabled: typeof record.enabled === 'boolean' ? record.enabled : true,
 			};
@@ -165,21 +175,58 @@ function parseTokenThresholdRules(rules: unknown): TokenThresholdRule[] {
 		.filter(Boolean) as TokenThresholdRule[];
 }
 
+function areTokenThresholdRulesEqual(
+  left: TokenThresholdRule[],
+  right: TokenThresholdRule[]
+): boolean {
+  if (left === right) return true;
+  if (left.length !== right.length) return false;
+  for (let i = 0; i < left.length; i += 1) {
+    const a = left[i];
+    const b = right[i];
+    if (!a || !b) return false;
+    if (
+      a.id !== b.id ||
+      a.modelPattern !== b.modelPattern ||
+      a.minTokens !== b.minTokens ||
+      a.maxTokens !== b.maxTokens ||
+      a.billingClass !== b.billingClass ||
+      a.enabled !== b.enabled
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function serializeTokenThresholdRules(rules: TokenThresholdRule[]): Array<Record<string, unknown>> {
 	return rules
 		.map((rule) => {
-			const maxTokens = Number(rule.maxTokens);
-			if (!Number.isFinite(maxTokens) || maxTokens <= 0) return null;
-			return {
-				...(rule.modelPattern.trim() ? { 'model-pattern': rule.modelPattern.trim() } : {}),
-				'max-tokens': maxTokens,
+			const parsedMin = rule.minTokens !== undefined && rule.minTokens !== '' ? Number(rule.minTokens) : undefined;
+			const parsedMax = rule.maxTokens !== undefined && rule.maxTokens !== '' ? Number(rule.maxTokens) : undefined;
+			
+			const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin > 0);
+			const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax > 0);
+			
+			if ((parsedMin === undefined && parsedMax === undefined) || !isValidMin || !isValidMax) return null;
+			
+			const serialized: Record<string, unknown> = {
 				'billing-class': rule.billingClass,
 				enabled: rule.enabled,
 			};
+			if (rule.modelPattern && rule.modelPattern.trim() !== '') {
+				serialized['model-pattern'] = rule.modelPattern.trim();
+			}
+			if (parsedMin !== undefined) {
+				serialized['min-tokens'] = parsedMin;
+			}
+			if (parsedMax !== undefined) {
+				serialized['max-tokens'] = parsedMax;
+			}
+			return serialized;
 		})
 		.filter(Boolean) as Array<Record<string, unknown>>;
 }
-
 export function getVisualConfigValidationErrors(
   values: VisualConfigValues
 ): VisualConfigValidationErrors {
@@ -300,29 +347,6 @@ function arePayloadFilterRulesEqual(
     if (a.params.length !== b.params.length) return false;
     for (let j = 0; j < a.params.length; j += 1) {
       if (a.params[j] !== b.params[j]) return false;
-    }
-  }
-  return true;
-}
-
-function areTokenThresholdRulesEqual(
-  left: TokenThresholdRule[],
-  right: TokenThresholdRule[]
-): boolean {
-  if (left === right) return true;
-  if (left.length !== right.length) return false;
-  for (let i = 0; i < left.length; i += 1) {
-    const a = left[i];
-    const b = right[i];
-    if (!a || !b) return false;
-    if (
-      a.id !== b.id ||
-      a.modelPattern !== b.modelPattern ||
-      a.maxTokens !== b.maxTokens ||
-      a.billingClass !== b.billingClass ||
-      a.enabled !== b.enabled
-    ) {
-      return false;
     }
   }
   return true;

@@ -1256,9 +1256,10 @@
           "ws_auth": "Аутентификация WebSocket",
           "ws_auth_desc": "Включить аутентификацию WebSocket (/v1/ws)",
           "token_threshold_rules_title": "Правила порога токенов",
-          "token_threshold_rules_desc": "Маршрутизируйте запросы в нужный класс тарификации провайдера, если оценка входных токенов не превышает порог.",
+          "token_threshold_rules_desc": "Маршрутизировать запросы к классам биллинга провайдера на основе оценочных границ входных токенов.",
           "token_rule_model_pattern": "Шаблон модели (необязательно)",
-          "token_rule_max_tokens": "Максимум входных токенов",
+          "token_rule_min_tokens": "Минимум входных токенов (необязательно)",
+          "token_rule_max_tokens": "Максимум входных токенов (необязательно)",
           "billing_class_metered": "metered",
           "billing_class_per_request": "per-request",
           "add_token_rule": "Добавить правило"

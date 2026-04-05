@@ -150,11 +150,11 @@ function parseTokenThresholdRules(rules: unknown): TokenThresholdRule[] {
 			
 			const minTokens = record['min-tokens'] ?? record.minTokens;
 			const parsedMin = typeof minTokens !== 'undefined' ? Number(minTokens) : undefined;
-			const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin > 0);
+			const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin >= 0);
 			
 			const maxTokens = record['max-tokens'] ?? record.maxTokens;
 			const parsedMax = typeof maxTokens !== 'undefined' ? Number(maxTokens) : undefined;
-			const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax > 0);
+			const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax >= 0);
 			
 			if ((parsedMin === undefined && parsedMax === undefined) || !isValidMin || !isValidMax) return null;
 			
@@ -205,8 +205,8 @@ function serializeTokenThresholdRules(rules: TokenThresholdRule[]): Array<Record
 			const parsedMin = rule.minTokens !== undefined && rule.minTokens !== '' ? Number(rule.minTokens) : undefined;
 			const parsedMax = rule.maxTokens !== undefined && rule.maxTokens !== '' ? Number(rule.maxTokens) : undefined;
 			
-			const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin > 0);
-			const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax > 0);
+			const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin >= 0);
+			const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax >= 0);
 			
 			if ((parsedMin === undefined && parsedMax === undefined) || !isValidMin || !isValidMax) return null;
 			

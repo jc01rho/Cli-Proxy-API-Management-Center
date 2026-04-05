@@ -21,7 +21,8 @@ export type BillingClass = 'metered' | 'per-request';
 export type TokenThresholdRule = {
 	id: string;
 	modelPattern: string;
-	maxTokens: string;
+	minTokens?: string;
+	maxTokens?: string;
 	billingClass: BillingClass;
 	enabled: boolean;
 };

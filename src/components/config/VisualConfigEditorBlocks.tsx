@@ -577,7 +577,7 @@ export const TokenThresholdRulesEditor = memo(function TokenThresholdRulesEditor
 	const addRule = () =>
 		onChange([
 			...rows,
-			{ id: makeClientId(), modelPattern: '', maxTokens: '', billingClass: 'metered', enabled: true },
+			{ id: makeClientId(), modelPattern: '', minTokens: '', maxTokens: '', billingClass: 'metered', enabled: true },
 		]);
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -593,8 +593,16 @@ export const TokenThresholdRulesEditor = memo(function TokenThresholdRulesEditor
 					<input
 						className="input"
 						type="number"
+						placeholder={t('config_management.visual.sections.network.token_rule_min_tokens')}
+						value={rule.minTokens ?? ''}
+						onChange={(e) => updateRule(rule.id, { minTokens: e.target.value })}
+						disabled={disabled}
+					/>
+					<input
+						className="input"
+						type="number"
 						placeholder={t('config_management.visual.sections.network.token_rule_max_tokens')}
-						value={rule.maxTokens}
+						value={rule.maxTokens ?? ''}
 						onChange={(e) => updateRule(rule.id, { maxTokens: e.target.value })}
 						disabled={disabled}
 					/>

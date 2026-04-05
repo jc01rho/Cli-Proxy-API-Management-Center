@@ -420,13 +420,28 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
     const tokenThresholdRules = tokenThresholdRulesRaw
       .map((item) => {
         if (!isRecord(item)) return null;
-        const maxTokens = Number(item['max-tokens'] ?? item.maxTokens);
+        
+        const minTokens = typeof item['min-tokens'] !== 'undefined' 
+          ? Number(item['min-tokens']) 
+          : (typeof item.minTokens !== 'undefined' ? Number(item.minTokens) : undefined);
+          
+        const maxTokens = typeof item['max-tokens'] !== 'undefined' 
+          ? Number(item['max-tokens']) 
+          : (typeof item.maxTokens !== 'undefined' ? Number(item.maxTokens) : undefined);
+          
         const billingClass = item['billing-class'] ?? item.billingClass;
-        if (!Number.isFinite(maxTokens) || maxTokens <= 0) return null;
+        
+        const isValidMin = minTokens === undefined || (Number.isFinite(minTokens) && minTokens > 0);
+        const isValidMax = maxTokens === undefined || (Number.isFinite(maxTokens) && maxTokens > 0);
+        
+        // At least one of min or max must be valid
+        if (!isValidMin || !isValidMax || (minTokens === undefined && maxTokens === undefined)) return null;
         if (!(billingClass === 'metered' || billingClass === 'per-request' || billingClass === 'per_request')) return null;
+        
         return {
           modelPattern: typeof (item['model-pattern'] ?? item.modelPattern) === 'string' ? String(item['model-pattern'] ?? item.modelPattern).trim() : undefined,
-          maxTokens,
+          ...(minTokens !== undefined ? { minTokens } : {}),
+          ...(maxTokens !== undefined ? { maxTokens } : {}),
           billingClass: billingClass === 'per_request' ? 'per-request' : 'per-request' === billingClass ? 'per-request' : 'metered',
           enabled: normalizeBoolean(item.enabled) ?? true,
         };

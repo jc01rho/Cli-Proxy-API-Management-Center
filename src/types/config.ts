@@ -26,7 +26,8 @@ export interface Config {
   routingMode?: string;
   tokenThresholdRules?: Array<{
     modelPattern?: string;
-    maxTokens: number;
+    minTokens?: number;
+    maxTokens?: number;
     billingClass: 'metered' | 'per-request';
     enabled?: boolean;
   }>;

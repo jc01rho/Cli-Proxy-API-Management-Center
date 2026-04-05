@@ -431,8 +431,8 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
           
         const billingClass = item['billing-class'] ?? item.billingClass;
         
-        const isValidMin = minTokens === undefined || (Number.isFinite(minTokens) && minTokens > 0);
-        const isValidMax = maxTokens === undefined || (Number.isFinite(maxTokens) && maxTokens > 0);
+		const isValidMin = minTokens === undefined || (Number.isFinite(minTokens) && minTokens >= 0);
+		const isValidMax = maxTokens === undefined || (Number.isFinite(maxTokens) && maxTokens >= 0);
         
         // At least one of min or max must be valid
         if (!isValidMin || !isValidMax || (minTokens === undefined && maxTokens === undefined)) return null;

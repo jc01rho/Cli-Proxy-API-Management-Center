@@ -616,6 +616,30 @@
   flex-shrink: 0;
 }
 
+.primaryBadge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background-color: var(--success-color);
+  color: var(--card-bg);
+  opacity: 0.9;
+}
+
+.standbyBadge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
 .fileName {
   font-size: 14px;
   font-weight: 600;

@@ -163,6 +163,11 @@ export function QuotaSection<TState extends QuotaStatusState, TData>({
 
   const { quota, loadQuota } = useQuotaLoader(config);
 
+  const antigravityPrimaryFile = useMemo(() => {
+    if (config.type !== 'antigravity') return null;
+    return filteredFiles.find((file) => file.primary_info?.is_primary) ?? null;
+  }, [config.type, filteredFiles]);
+
   const pendingQuotaRefreshRef = useRef(false);
   const prevFilesLoadingRef = useRef(loading);
 
@@ -181,10 +186,15 @@ export function QuotaSection<TState extends QuotaStatusState, TData>({
 
     pendingQuotaRefreshRef.current = false;
     const scope = effectiveViewMode === 'all' ? 'all' : 'page';
-    const targets = effectiveViewMode === 'all' ? filteredFiles : pageItems;
+    let targets = effectiveViewMode === 'all' ? filteredFiles : pageItems;
+    
+    if (config.type === 'antigravity' && antigravityPrimaryFile) {
+      targets = [antigravityPrimaryFile];
+    }
+
     if (targets.length === 0) return;
     loadQuota(targets, scope, setLoading);
-  }, [loading, effectiveViewMode, filteredFiles, pageItems, loadQuota, setLoading]);
+  }, [loading, effectiveViewMode, filteredFiles, pageItems, loadQuota, setLoading, config.type, antigravityPrimaryFile]);
 
   useEffect(() => {
     if (loading) return;
@@ -207,6 +217,7 @@ export function QuotaSection<TState extends QuotaStatusState, TData>({
   const refreshQuotaForFile = useCallback(
     async (file: AuthFileItem) => {
       if (disabled || file.disabled) return;
+      if (config.type === 'antigravity' && file.primary_info && !file.primary_info.is_primary) return;
       if (quota[file.name]?.status === 'loading') return;
 
       setQuota((prev) => ({
@@ -317,7 +328,11 @@ export function QuotaSection<TState extends QuotaStatusState, TData>({
                 cardIdleMessageKey={config.cardIdleMessageKey}
                 cardClassName={config.cardClassName}
                 defaultType={config.type}
-                canRefresh={!disabled && !item.disabled}
+                canRefresh={
+                  !disabled &&
+                  !item.disabled &&
+                  (config.type !== 'antigravity' || !item.primary_info || item.primary_info.is_primary)
+                }
                 onRefresh={() => void refreshQuotaForFile(item)}
                 renderQuotaItems={config.renderQuotaItems}
               />

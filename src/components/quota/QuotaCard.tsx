@@ -106,16 +106,30 @@ export function QuotaCard<TState extends QuotaStatusState>({
   return (
     <div className={`${styles.fileCard} ${cardClassName}`}>
       <div className={styles.cardHeader}>
-        <span
-          className={styles.typeBadge}
-          style={{
-            backgroundColor: typeColor.bg,
-            color: typeColor.text,
-            ...(typeColor.border ? { border: typeColor.border } : {})
-          }}
-        >
-          {getTypeLabel(displayType)}
-        </span>
+        <div className={styles.cardBadgeRow} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+          <span
+            className={styles.typeBadge}
+            style={{
+              backgroundColor: typeColor.bg,
+              color: typeColor.text,
+              ...(typeColor.border ? { border: typeColor.border } : {})
+            }}
+          >
+            {getTypeLabel(displayType)}
+          </span>
+          {item.primary_info && (
+            <span 
+              className={item.primary_info.is_primary ? styles.primaryBadge : styles.standbyBadge}
+              style={{
+                opacity: item.disabled ? 0.4 : undefined
+              }}
+            >
+              {item.primary_info.is_primary 
+                ? t('quota_management.primary_credential') 
+                : `${t('quota_management.standby_credential')} (${item.primary_info.order})`}
+            </span>
+          )}
+        </div>
         <span className={styles.fileName}>{item.name}</span>
       </div>
 

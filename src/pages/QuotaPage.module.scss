@@ -583,6 +583,34 @@
   }
 }
 
+.primaryBadge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background-color: var(--success-color);
+  color: var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--success-color);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.standbyBadge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
 .fileCard {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
@@ -617,15 +645,21 @@
 }
 
 .primaryBadge {
-  padding: 4px 10px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 3px 10px;
   border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+  background-color: var(--success-color);
+  color: var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--success-color);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  z-index: 2;
   white-space: nowrap;
   flex-shrink: 0;
-  background-color: var(--success-color);
-  color: var(--card-bg);
-  opacity: 0.9;
 }
 
 .standbyBadge {

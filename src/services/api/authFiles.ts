@@ -226,8 +226,16 @@ const authFilePriorityScore = (entry: AuthFileEntry): number => {
 };
 
 const compareAuthFileEntries = (left: AuthFileEntry, right: AuthFileEntry): number => {
-  const scoreDiff = authFilePriorityScore(right) - authFilePriorityScore(left);
-  if (scoreDiff !== 0) return scoreDiff;
+	const leftIsAntigravityPrimary =
+		readTextField(left, 'type').toLowerCase() === 'antigravity' && left.primary_info?.is_primary === true;
+	const rightIsAntigravityPrimary =
+		readTextField(right, 'type').toLowerCase() === 'antigravity' && right.primary_info?.is_primary === true;
+	if (leftIsAntigravityPrimary !== rightIsAntigravityPrimary) {
+		return rightIsAntigravityPrimary ? 1 : -1;
+	}
+
+	const scoreDiff = authFilePriorityScore(right) - authFilePriorityScore(left);
+	if (scoreDiff !== 0) return scoreDiff;
 
   const dateDiff = readDateField(right) - readDateField(left);
   if (dateDiff !== 0) return dateDiff;
@@ -268,12 +276,19 @@ const dedupeAuthFilesResponse = (payload: AuthFilesResponse): AuthFilesResponse 
     grouped.set(key, [entry]);
   });
 
-  const normalizedFiles = Array.from(grouped.values()).map(mergeAuthFileEntries);
-  normalizedFiles.sort((left, right) =>
-    readTextField(left, 'name').localeCompare(readTextField(right, 'name'), undefined, {
-      sensitivity: 'accent',
-    })
-  );
+	const normalizedFiles = Array.from(grouped.values()).map(mergeAuthFileEntries);
+	normalizedFiles.sort((left, right) => {
+		const leftIsAntigravityPrimary =
+			readTextField(left, 'type').toLowerCase() === 'antigravity' && left.primary_info?.is_primary === true;
+		const rightIsAntigravityPrimary =
+			readTextField(right, 'type').toLowerCase() === 'antigravity' && right.primary_info?.is_primary === true;
+		if (leftIsAntigravityPrimary !== rightIsAntigravityPrimary) {
+			return rightIsAntigravityPrimary ? 1 : -1;
+		}
+		return readTextField(left, 'name').localeCompare(readTextField(right, 'name'), undefined, {
+			sensitivity: 'accent',
+		});
+	});
 
   return {
     ...payload,

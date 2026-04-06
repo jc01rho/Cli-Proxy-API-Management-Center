@@ -121,7 +121,7 @@ export function QuotaCard<TState extends QuotaStatusState>({
             <span 
               className={item.primary_info.is_primary ? styles.primaryBadge : styles.standbyBadge}
               style={{
-                opacity: item.disabled ? 0.4 : undefined
+                opacity: item.disabled ? 0.4 : (item.primary_info.is_primary ? 0.9 : 1)
               }}
             >
               {item.primary_info.is_primary 

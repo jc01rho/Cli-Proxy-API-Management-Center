@@ -187,6 +187,25 @@ export function AuthFileCard(props: AuthFileCardProps) {
                 >
                   {typeLabel}
                 </span>
+                {file.primary_info && (
+                  <span
+                    className={file.primary_info.is_primary ? styles.stateBadgeActive : styles.stateBadgeVirtual}
+                    style={{ 
+                      padding: '2px 8px', 
+                      borderRadius: '12px', 
+                      fontSize: '11px', 
+                      fontWeight: 600,
+                      backgroundColor: file.primary_info.is_primary ? 'var(--success-color)' : 'var(--bg-secondary)',
+                      color: file.primary_info.is_primary ? 'var(--card-bg)' : 'var(--text-secondary)',
+                      border: file.primary_info.is_primary ? 'none' : '1px solid var(--border-color)',
+                      opacity: file.disabled ? 0.4 : (file.primary_info.is_primary ? 0.9 : 1)
+                    }}
+                  >
+                    {file.primary_info.is_primary 
+                      ? (t('quota_management.primary_credential') || 'Primary')
+                      : `${t('quota_management.standby_credential') || 'Standby'} (${file.primary_info.order})`}
+                  </span>
+                )}
                 <span className={`${styles.stateBadge} ${stateBadgeClass}`}>{stateLabel}</span>
               </div>
               <span className={styles.fileName} title={file.name}>

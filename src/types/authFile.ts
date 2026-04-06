@@ -17,6 +17,11 @@ export type AuthFileType =
   | 'empty'
   | 'unknown';
 
+export interface PrimaryInfo {
+  is_primary: boolean;
+  order: number;
+}
+
 export interface AuthFileItem {
   name: string;
   type?: AuthFileType | string;
@@ -30,6 +35,7 @@ export interface AuthFileItem {
   statusMessage?: string;
   lastRefresh?: string | number;
   modified?: number;
+  primary_info?: PrimaryInfo;
   [key: string]: unknown;
 }
 

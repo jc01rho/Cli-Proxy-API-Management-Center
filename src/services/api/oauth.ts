@@ -13,7 +13,6 @@ export type OAuthProvider =
   | 'qwen'
   | 'kiro'
   | 'kilo'
-  | 'kilocode'
   | 'cline';
 
 export interface OAuthStartResponse {
@@ -40,7 +39,6 @@ const WEBUI_SUPPORTED: OAuthProvider[] = [
   'antigravity',
   'gemini-cli',
   'kilo',
-  'kilocode',
   'cline',
 ];
 const CALLBACK_PROVIDER_MAP: Partial<Record<OAuthProvider, string>> = {

@@ -33,8 +33,7 @@ export type QuotaProviderType =
   | 'codex'
   | 'gemini-cli'
   | 'kimi'
-  | 'kilo'
-  | 'kilocode';
+	| 'kilo';
 
 export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
   'antigravity',
@@ -43,7 +42,6 @@ export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
   'gemini-cli',
   'kimi',
   'kilo',
-  'kilocode',
 ]);
 
 export const MIN_CARD_PAGE_SIZE = 3;
@@ -110,10 +108,6 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#fff8e1', text: '#ff6f00' },
     dark: { bg: '#e65100', text: '#ffcc80' }
   },
-  kilocode: {
-    light: { bg: '#ede7f6', text: '#5e35b1' },
-    dark: { bg: '#4527a0', text: '#b39ddb' }
-  },
   kilo: {
     light: { bg: '#e8eaf6', text: '#303f9f' },
     dark: { bg: '#1a237e', text: '#9fa8da' }
@@ -154,7 +148,9 @@ export const resolveQuotaErrorMessage = (
   return fallback;
 };
 
-export const normalizeProviderKey = (value: string) => value.trim().toLowerCase();
+export const normalizeProviderKey = (value: string) => {
+	return value.trim().toLowerCase();
+};
 
 export const getAuthFileStatusMessage = (file: AuthFileItem): string => {
   const raw = file['status_message'] ?? file.statusMessage;
@@ -167,6 +163,7 @@ export const hasAuthFileStatusMessage = (file: AuthFileItem): boolean =>
   getAuthFileStatusMessage(file).length > 0;
 
 export const getTypeLabel = (t: TFunction, type: string): string => {
+	type = normalizeProviderKey(type);
   const key = `auth_files.filter_${type}`;
   const translated = t(key);
   if (translated !== key) return translated;
@@ -175,6 +172,7 @@ export const getTypeLabel = (t: TFunction, type: string): string => {
 };
 
 export const getTypeColor = (type: string, resolvedTheme: ResolvedTheme): ThemeColors => {
+	type = normalizeProviderKey(type);
   const set = TYPE_COLORS[type] || TYPE_COLORS.unknown;
   return resolvedTheme === 'dark' && set.dark ? set.dark : set.light;
 };

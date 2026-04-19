@@ -7,7 +7,7 @@ import { GEMINI_CLI_IGNORED_MODEL_PREFIXES } from './constants';
 
 export function resolveAuthProvider(file: AuthFileItem): string {
   const raw = file.provider ?? file.type ?? '';
-  return String(raw).trim().toLowerCase();
+	return String(raw).trim().toLowerCase();
 }
 
 export function isAntigravityFile(file: AuthFileItem): boolean {

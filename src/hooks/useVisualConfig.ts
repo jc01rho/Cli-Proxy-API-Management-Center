@@ -10,7 +10,7 @@ import type {
   VisualConfigValidationErrors,
   PayloadParamValidationErrorCode,
 } from '@/types/visualConfig';
-import { DEFAULT_VISUAL_VALUES } from '@/types/visualConfig';
+import { DEFAULT_VISUAL_VALUES, type OauthEndpointOverrideEntry, makeClientId } from '@/types/visualConfig';
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -375,6 +375,31 @@ function areStringRecordsEqual(
   return true;
 }
 
+function areOauthEndpointOverridesEqual(
+  left: OauthEndpointOverrideEntry[],
+  right: OauthEndpointOverrideEntry[]
+): boolean {
+  if (left === right) return true;
+  if (left.length !== right.length) return false;
+  for (let i = 0; i < left.length; i += 1) {
+    const a = left[i];
+    const b = right[i];
+    if (!a || !b) return false;
+    if (
+      a.provider !== b.provider ||
+      a.apiBaseUrl !== b.apiBaseUrl ||
+      a.authorizeUrl !== b.authorizeUrl ||
+      a.tokenUrl !== b.tokenUrl ||
+      a.refreshUrl !== b.refreshUrl ||
+      a.userinfoUrl !== b.userinfoUrl ||
+      a.deviceAuthorizeUrl !== b.deviceAuthorizeUrl
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function parsePayloadParamValue(raw: unknown): { valueType: PayloadParamValueType; value: string } {
   if (typeof raw === 'number') {
     return { valueType: 'number', value: String(raw) };
@@ -471,16 +496,16 @@ function parsePayloadFilterRules(rules: unknown): PayloadFilterRule[] {
     const modelsRaw = record.models;
     const models = Array.isArray(modelsRaw)
       ? modelsRaw.map((model, modelIndex) => {
-          const modelRecord = asRecord(model);
-          const nameRaw =
-            typeof model === 'string' ? model : (modelRecord?.name ?? modelRecord?.id ?? '');
-          const name = typeof nameRaw === 'string' ? nameRaw : String(nameRaw ?? '');
-          return {
-            id: `filter-model-${index}-${modelIndex}`,
-            name,
-            protocol: parsePayloadProtocol(modelRecord?.protocol),
-          };
-        })
+        const modelRecord = asRecord(model);
+        const nameRaw =
+          typeof model === 'string' ? model : (modelRecord?.name ?? modelRecord?.id ?? '');
+        const name = typeof nameRaw === 'string' ? nameRaw : String(nameRaw ?? '');
+        return {
+          id: `filter-model-${index}-${modelIndex}`,
+          name,
+          protocol: parsePayloadProtocol(modelRecord?.protocol),
+        };
+      })
       : [];
 
     const paramsRaw = record.params;
@@ -488,6 +513,48 @@ function parsePayloadFilterRules(rules: unknown): PayloadFilterRule[] {
 
     return { id: `payload-filter-rule-${index}`, models, params };
   });
+}
+
+function parseOauthEndpointOverrides(raw: unknown): OauthEndpointOverrideEntry[] {
+  const record = asRecord(raw);
+  if (!record) return [];
+  const entries: OauthEndpointOverrideEntry[] = [];
+  Object.entries(record).forEach(([provider, endpoints]) => {
+    const endpointRecord = asRecord(endpoints);
+    if (!endpointRecord) return;
+
+    const entry: OauthEndpointOverrideEntry = {
+      id: `oauth-override-${provider}-${makeClientId()}`,
+      provider,
+      apiBaseUrl: String(endpointRecord['api-base-url'] ?? endpointRecord.apiBaseUrl ?? ''),
+      authorizeUrl: String(endpointRecord['authorize-url'] ?? endpointRecord.authorizeUrl ?? ''),
+      tokenUrl: String(endpointRecord['token-url'] ?? endpointRecord.tokenUrl ?? ''),
+      refreshUrl: String(endpointRecord['refresh-url'] ?? endpointRecord.refreshUrl ?? ''),
+      userinfoUrl: String(endpointRecord['userinfo-url'] ?? endpointRecord.userinfoUrl ?? ''),
+      deviceAuthorizeUrl: String(endpointRecord['device-authorize-url'] ?? endpointRecord.deviceAuthorizeUrl ?? ''),
+    };
+    entries.push(entry);
+  });
+  return entries;
+}
+
+function serializeOauthEndpointOverrides(entries: OauthEndpointOverrideEntry[]): Record<string, Record<string, string>> {
+  const map: Record<string, Record<string, string>> = {};
+  entries.forEach((entry) => {
+    if (!entry.provider) return;
+    const endpointMap: Record<string, string> = {};
+    if (entry.apiBaseUrl) endpointMap['api-base-url'] = entry.apiBaseUrl;
+    if (entry.authorizeUrl) endpointMap['authorize-url'] = entry.authorizeUrl;
+    if (entry.tokenUrl) endpointMap['token-url'] = entry.tokenUrl;
+    if (entry.refreshUrl) endpointMap['refresh-url'] = entry.refreshUrl;
+    if (entry.userinfoUrl) endpointMap['userinfo-url'] = entry.userinfoUrl;
+    if (entry.deviceAuthorizeUrl) endpointMap['device-authorize-url'] = entry.deviceAuthorizeUrl;
+
+    if (Object.keys(endpointMap).length > 0) {
+      map[entry.provider] = endpointMap;
+    }
+  });
+  return map;
 }
 
 function parseRawPayloadRules(rules: unknown): PayloadRule[] {
@@ -781,6 +848,15 @@ function getNextDirtyFields(
       areStringArraysEqual(nextValues.fallbackChain, baselineValues.fallbackChain)
     );
   }
+  if (Object.prototype.hasOwnProperty.call(patch, 'oauthEndpointOverrides')) {
+    updateDirty(
+      'oauthEndpointOverrides',
+      areOauthEndpointOverridesEqual(
+        nextValues.oauthEndpointOverrides,
+        baselineValues.oauthEndpointOverrides
+      )
+    );
+  }
   if (Object.prototype.hasOwnProperty.call(patch, 'payloadDefaultRules')) {
     updateDirty(
       'payloadDefaultRules',
@@ -983,15 +1059,16 @@ export function useVisualConfig() {
         payloadDefaultRawRules: parseRawPayloadRules(payload?.['default-raw']),
         payloadOverrideRules: parsePayloadRules(payload?.override),
         payloadOverrideRawRules: parseRawPayloadRules(payload?.['override-raw']),
-        payloadFilterRules: parsePayloadFilterRules(payload?.filter),
+payloadFilterRules: parsePayloadFilterRules(payload?.filter),
 
-        streaming: {
-          keepaliveSeconds: String(streaming?.['keepalive-seconds'] ?? ''),
-          bootstrapRetries: String(streaming?.['bootstrap-retries'] ?? ''),
-          nonstreamKeepaliveInterval: String(parsed['nonstream-keepalive-interval'] ?? ''),
-        },
-      };
+  oauthEndpointOverrides: parseOauthEndpointOverrides(parsed['oauth-endpoint-overrides']),
 
+  streaming: {
+    keepaliveSeconds: String(streaming?.['keepalive-seconds'] ?? ''),
+    bootstrapRetries: String(streaming?.['bootstrap-retries'] ?? ''),
+    nonstreamKeepaliveInterval: String(parsed['nonstream-keepalive-interval'] ?? ''),
+  },
+};
       dispatch({ type: 'load_success', values: newValues });
       return { ok: true as const };
     } catch (error: unknown) {
@@ -1124,6 +1201,13 @@ export function useVisualConfig() {
           }
 
           deleteIfMapEmpty(doc, ['routing']);
+        }
+
+        const oauthEndpointOverrides = serializeOauthEndpointOverrides(values.oauthEndpointOverrides);
+        if (Object.keys(oauthEndpointOverrides).length > 0) {
+          doc.setIn(['oauth-endpoint-overrides'], oauthEndpointOverrides);
+        } else if (docHas(doc, ['oauth-endpoint-overrides'])) {
+          doc.deleteIn(['oauth-endpoint-overrides']);
         }
 
         const keepaliveSeconds =

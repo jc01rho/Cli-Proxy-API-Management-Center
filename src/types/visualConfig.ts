@@ -4,6 +4,17 @@ export type PayloadParamValidationErrorCode =
   | 'payload_invalid_boolean'
   | 'payload_invalid_json';
 
+export type OauthEndpointOverrideEntry = {
+  id: string;
+  provider: string;
+  apiBaseUrl: string;
+  authorizeUrl: string;
+  tokenUrl: string;
+  refreshUrl: string;
+  userinfoUrl: string;
+  deviceAuthorizeUrl: string;
+};
+
 export type VisualConfigFieldPath =
   | 'port'
   | 'logsMaxTotalSizeMb'
@@ -98,6 +109,7 @@ export type VisualConfigValues = {
   payloadOverrideRawRules: PayloadRule[];
   payloadFilterRules: PayloadFilterRule[];
   streaming: StreamingConfig;
+  oauthEndpointOverrides: OauthEndpointOverrideEntry[];
 };
 
 export const makeClientId = () => {
@@ -145,4 +157,5 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
     bootstrapRetries: '',
     nonstreamKeepaliveInterval: '',
   },
+  oauthEndpointOverrides: [],
 };

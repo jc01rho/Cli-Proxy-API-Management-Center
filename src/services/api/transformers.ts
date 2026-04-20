@@ -270,6 +270,31 @@ const normalizeOauthExcluded = (payload: unknown): Record<string, string[]> | un
   return map;
 };
 
+const normalizeOauthEndpointOverrides = (payload: unknown): Record<string, Record<string, string>> | undefined => {
+  if (!isRecord(payload)) return undefined;
+  const source = payload['oauth-endpoint-overrides'] ?? payload;
+  if (!isRecord(source)) return undefined;
+  const map: Record<string, Record<string, string>> = {};
+  Object.entries(source).forEach(([provider, endpoints]) => {
+    const key = String(provider || '').trim();
+    if (!key) return;
+    if (!isRecord(endpoints)) return;
+    const endpointMap: Record<string, string> = {};
+    Object.entries(endpoints).forEach(([endpointType, url]) => {
+      const endpointKey = String(endpointType || '').trim();
+      if (!endpointKey) return;
+      const endpointUrl = String(url || '').trim();
+      if (endpointUrl) {
+        endpointMap[endpointKey] = endpointUrl;
+      }
+    });
+    if (Object.keys(endpointMap).length > 0) {
+      map[key] = endpointMap;
+    }
+  });
+  return map;
+};
+
 const normalizeAmpcodeModelMappings = (input: unknown): AmpcodeModelMapping[] => {
   if (!Array.isArray(input)) return [];
   const seen = new Set<string>();
@@ -524,11 +549,16 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
   }
 
   const oauthExcluded = normalizeOauthExcluded(raw['oauth-excluded-models'] ?? raw.oauthExcludedModels);
-  if (oauthExcluded) {
-    config.oauthExcludedModels = oauthExcluded;
-  }
+if (oauthExcluded) {
+  config.oauthExcludedModels = oauthExcluded;
+}
 
-  return config;
+const oauthOverrides = normalizeOauthEndpointOverrides(raw['oauth-endpoint-overrides'] ?? raw.oauthEndpointOverrides);
+if (oauthOverrides) {
+  config.oauthEndpointOverrides = oauthOverrides;
+}
+
+return config;
 };
 
 export {
@@ -541,5 +571,6 @@ export {
   normalizeExcludedModels,
   normalizeAmpcodeConfig,
   normalizeAmpcodeModelMappings,
-  normalizeAmpcodeUpstreamApiKeys
+  normalizeAmpcodeUpstreamApiKeys,
+  normalizeOauthEndpointOverrides
 };

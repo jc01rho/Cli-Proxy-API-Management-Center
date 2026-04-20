@@ -17,6 +17,7 @@ import {
 export type PrefixProxyEditorField =
   | 'prefix'
   | 'proxyUrl'
+  | 'baseUrl'
   | 'priority'
   | 'billingClass'
   | 'excludedModelsText'
@@ -38,6 +39,7 @@ export type PrefixProxyEditorState = {
   json: Record<string, unknown> | null;
   prefix: string;
   proxyUrl: string;
+  baseUrl: string;
   priority: string;
   billingClass: string;
   excludedModelsText: string;
@@ -74,6 +76,14 @@ const buildPrefixProxyUpdatedText = (editor: PrefixProxyEditorState | null): str
   }
   if ('proxy_url' in next || editor.proxyUrl.trim()) {
     next.proxy_url = editor.proxyUrl;
+  }
+  if ('base_url' in next || editor.baseUrl.trim()) {
+    const baseUrl = editor.baseUrl.trim();
+    if (baseUrl) {
+      next.base_url = baseUrl;
+    } else if ('base_url' in next) {
+      delete next.base_url;
+    }
   }
 
   const parsedPriority = parsePriorityValue(editor.priority);
@@ -169,6 +179,7 @@ export function useAuthFilesPrefixProxyEditor(
       json: null,
       prefix: '',
       proxyUrl: '',
+      baseUrl: '',
       priority: '',
       billingClass: '',
       excludedModelsText: '',
@@ -222,6 +233,7 @@ export function useAuthFilesPrefixProxyEditor(
       const originalText = JSON.stringify(json);
       const prefix = typeof json.prefix === 'string' ? json.prefix : '';
       const proxyUrl = typeof json.proxy_url === 'string' ? json.proxy_url : '';
+      const baseUrl = typeof json.base_url === 'string' ? json.base_url : '';
       const priority = parsePriorityValue(json.priority);
       const billingClass =
         typeof json.billing_class === 'string'
@@ -246,6 +258,7 @@ export function useAuthFilesPrefixProxyEditor(
           json,
           prefix,
           proxyUrl,
+          baseUrl,
           priority: priority !== undefined ? String(priority) : '',
           billingClass,
           excludedModelsText: excludedModels.join('\n'),
@@ -275,6 +288,7 @@ export function useAuthFilesPrefixProxyEditor(
       if (!prev) return prev;
       if (field === 'prefix') return { ...prev, prefix: String(value) };
       if (field === 'proxyUrl') return { ...prev, proxyUrl: String(value) };
+      if (field === 'baseUrl') return { ...prev, baseUrl: String(value) };
       if (field === 'priority') return { ...prev, priority: String(value) };
       if (field === 'billingClass') return { ...prev, billingClass: String(value) };
       if (field === 'excludedModelsText') return { ...prev, excludedModelsText: String(value) };

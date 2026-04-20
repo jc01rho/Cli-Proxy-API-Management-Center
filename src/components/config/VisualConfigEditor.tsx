@@ -29,6 +29,7 @@ import {
 import { ConfigSection } from '@/components/config/ConfigSection';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type {
+  OauthEndpointOverrideEntry,
   PayloadFilterRule,
   PayloadParamValidationErrorCode,
   PayloadRule,
@@ -40,6 +41,7 @@ import type {
 import {
   ApiKeysCardEditor,
   FallbackModelsEditor,
+  OauthEndpointOverridesEditor,
   PayloadFilterRulesEditor,
   PayloadRulesEditor,
   StringListEditor,
@@ -235,6 +237,10 @@ export function VisualConfigEditor({
   );
   const handleFallbackChainChange = useCallback(
     (fallbackChain: string[]) => onChange({ fallbackChain }),
+    [onChange]
+  );
+  const handleOauthEndpointOverridesChange = useCallback(
+    (oauthEndpointOverrides: OauthEndpointOverrideEntry[]) => onChange({ oauthEndpointOverrides }),
     [onChange]
   );
   const handlePayloadDefaultRulesChange = useCallback(
@@ -838,7 +844,27 @@ export function VisualConfigEditor({
             title={t('config_management.visual.sections.fallback.title')}
             description={t('config_management.visual.sections.fallback.description')}
           >
-            <SectionGrid>
+            <SectionStack>
+              <SectionSubsection
+                title={t('config_management.visual.oauth_endpoints.title', {
+                  defaultValue: 'OAuth endpoint overrides',
+                })}
+                description={t('config_management.visual.oauth_endpoints.description', {
+                  defaultValue:
+                    'Override authorize, token, refresh, userinfo, device authorization, or API base URLs per OAuth provider.',
+                })}
+              >
+                <OauthEndpointOverridesEditor
+                  value={values.oauthEndpointOverrides}
+                  disabled={disabled}
+                  addButtonLabel={t('config_management.visual.oauth_endpoints.add_override', {
+                    defaultValue: 'Add override',
+                  })}
+                  onChange={handleOauthEndpointOverridesChange}
+                />
+              </SectionSubsection>
+
+              <SectionGrid>
               <div>
                 <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
                   {t('config_management.visual.sections.fallback.models_title')}
@@ -874,7 +900,8 @@ export function VisualConfigEditor({
                   onChange={handleFallbackChainChange}
                 />
               </div>
-            </SectionGrid>
+              </SectionGrid>
+            </SectionStack>
           </ConfigSection>
 
           <ConfigSection

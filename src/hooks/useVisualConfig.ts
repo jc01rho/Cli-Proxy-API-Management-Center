@@ -1059,15 +1059,13 @@ export function useVisualConfig() {
         payloadDefaultRawRules: parseRawPayloadRules(payload?.['default-raw']),
         payloadOverrideRules: parsePayloadRules(payload?.override),
         payloadOverrideRawRules: parseRawPayloadRules(payload?.['override-raw']),
-payloadFilterRules: parsePayloadFilterRules(payload?.filter),
-
-  oauthEndpointOverrides: parseOauthEndpointOverrides(parsed['oauth-endpoint-overrides']),
-
-  streaming: {
-    keepaliveSeconds: String(streaming?.['keepalive-seconds'] ?? ''),
-    bootstrapRetries: String(streaming?.['bootstrap-retries'] ?? ''),
-    nonstreamKeepaliveInterval: String(parsed['nonstream-keepalive-interval'] ?? ''),
-  },
+        payloadFilterRules: parsePayloadFilterRules(payload?.filter),
+        oauthEndpointOverrides: parseOauthEndpointOverrides(parsed['oauth-endpoint-overrides']),
+        streaming: {
+          keepaliveSeconds: String(streaming?.['keepalive-seconds'] ?? ''),
+          bootstrapRetries: String(streaming?.['bootstrap-retries'] ?? ''),
+          nonstreamKeepaliveInterval: String(parsed['nonstream-keepalive-interval'] ?? ''),
+        },
 };
       dispatch({ type: 'load_success', values: newValues });
       return { ok: true as const };

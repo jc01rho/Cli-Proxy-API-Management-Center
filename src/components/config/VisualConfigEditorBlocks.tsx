@@ -7,6 +7,7 @@ import { useNotificationStore } from '@/stores';
 import styles from './VisualConfigEditor.module.scss';
 import { copyToClipboard } from '@/utils/clipboard';
 import type {
+  OauthEndpointOverrideEntry,
   PayloadFilterRule,
   PayloadModelEntry,
   PayloadParamEntry,
@@ -483,6 +484,206 @@ export const FallbackModelsEditor = memo(function FallbackModelsEditor({
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button variant="secondary" size="sm" onClick={addRow} disabled={disabled}>
           {addButtonLabel ?? t('config_management.visual.common.add')}
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+function serializeOauthEndpointOverrideEntries(value: OauthEndpointOverrideEntry[]): string {
+  return JSON.stringify(
+    value.map((entry) => ({
+      provider: entry.provider,
+      apiBaseUrl: entry.apiBaseUrl,
+      authorizeUrl: entry.authorizeUrl,
+      tokenUrl: entry.tokenUrl,
+      refreshUrl: entry.refreshUrl,
+      userinfoUrl: entry.userinfoUrl,
+      deviceAuthorizeUrl: entry.deviceAuthorizeUrl,
+    }))
+  );
+}
+
+function normalizeOauthEndpointOverrideEntry(
+  entry: OauthEndpointOverrideEntry
+): OauthEndpointOverrideEntry {
+  return {
+    ...entry,
+    provider: entry.provider.trim(),
+    apiBaseUrl: entry.apiBaseUrl.trim(),
+    authorizeUrl: entry.authorizeUrl.trim(),
+    tokenUrl: entry.tokenUrl.trim(),
+    refreshUrl: entry.refreshUrl.trim(),
+    userinfoUrl: entry.userinfoUrl.trim(),
+    deviceAuthorizeUrl: entry.deviceAuthorizeUrl.trim(),
+  };
+}
+
+export const OauthEndpointOverridesEditor = memo(function OauthEndpointOverridesEditor({
+  value,
+  disabled,
+  addButtonLabel,
+  onChange,
+}: {
+  value: OauthEndpointOverrideEntry[];
+  disabled?: boolean;
+  addButtonLabel?: string;
+  onChange: (next: OauthEndpointOverrideEntry[]) => void;
+}) {
+  const { t } = useTranslation();
+  const [rows, setRows] = useState(() => value);
+  const lastCommittedValueRef = useRef(serializeOauthEndpointOverrideEntries(value));
+
+  useEffect(() => {
+    const serializedValue = serializeOauthEndpointOverrideEntries(value);
+    if (serializedValue === lastCommittedValueRef.current) return;
+    const frameId = requestAnimationFrame(() => {
+      lastCommittedValueRef.current = serializedValue;
+      setRows(value);
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [value]);
+
+  const commitRows = (nextRows: OauthEndpointOverrideEntry[]) => {
+    const normalizedRows = nextRows.map(normalizeOauthEndpointOverrideEntry);
+    setRows(normalizedRows);
+    lastCommittedValueRef.current = serializeOauthEndpointOverrideEntries(normalizedRows);
+    onChange(normalizedRows);
+  };
+
+  const addRow = () => {
+    commitRows([
+      ...rows,
+      {
+        id: makeClientId(),
+        provider: '',
+        apiBaseUrl: '',
+        authorizeUrl: '',
+        tokenUrl: '',
+        refreshUrl: '',
+        userinfoUrl: '',
+        deviceAuthorizeUrl: '',
+      },
+    ]);
+  };
+
+  const updateRow = (rowId: string, patch: Partial<OauthEndpointOverrideEntry>) => {
+    commitRows(rows.map((row) => (row.id === rowId ? { ...row, ...patch } : row)));
+  };
+
+  const removeRow = (rowId: string) => {
+    commitRows(rows.filter((row) => row.id !== rowId));
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {rows.map((row) => (
+        <div
+          key={row.id}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            padding: 12,
+            border: '1px solid var(--border-primary)',
+            borderRadius: 12,
+            background: 'var(--surface-secondary)',
+          }}
+        >
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              className="input"
+              placeholder={t('config_management.visual.oauth_endpoints.provider_placeholder', {
+                defaultValue: 'Provider key, e.g. claude',
+              })}
+              aria-label={t('config_management.visual.oauth_endpoints.provider_placeholder', {
+                defaultValue: 'Provider key, e.g. claude',
+              })}
+              value={row.provider}
+              onChange={(e) => updateRow(row.id, { provider: e.target.value })}
+              disabled={disabled}
+            />
+            <Button variant="ghost" size="sm" onClick={() => removeRow(row.id)} disabled={disabled}>
+              {t('config_management.visual.common.delete')}
+            </Button>
+          </div>
+
+          <ExpandableInput
+            value={row.apiBaseUrl}
+            placeholder={t('config_management.visual.oauth_endpoints.api_base_url', {
+              defaultValue: 'API base URL',
+            })}
+            ariaLabel={t('config_management.visual.oauth_endpoints.api_base_url', {
+              defaultValue: 'API base URL',
+            })}
+            disabled={disabled}
+            onChange={(apiBaseUrl) => updateRow(row.id, { apiBaseUrl })}
+          />
+          <ExpandableInput
+            value={row.authorizeUrl}
+            placeholder={t('config_management.visual.oauth_endpoints.authorize_url', {
+              defaultValue: 'Authorize URL',
+            })}
+            ariaLabel={t('config_management.visual.oauth_endpoints.authorize_url', {
+              defaultValue: 'Authorize URL',
+            })}
+            disabled={disabled}
+            onChange={(authorizeUrl) => updateRow(row.id, { authorizeUrl })}
+          />
+          <ExpandableInput
+            value={row.tokenUrl}
+            placeholder={t('config_management.visual.oauth_endpoints.token_url', {
+              defaultValue: 'Token URL',
+            })}
+            ariaLabel={t('config_management.visual.oauth_endpoints.token_url', {
+              defaultValue: 'Token URL',
+            })}
+            disabled={disabled}
+            onChange={(tokenUrl) => updateRow(row.id, { tokenUrl })}
+          />
+          <ExpandableInput
+            value={row.refreshUrl}
+            placeholder={t('config_management.visual.oauth_endpoints.refresh_url', {
+              defaultValue: 'Refresh URL (optional)',
+            })}
+            ariaLabel={t('config_management.visual.oauth_endpoints.refresh_url', {
+              defaultValue: 'Refresh URL (optional)',
+            })}
+            disabled={disabled}
+            onChange={(refreshUrl) => updateRow(row.id, { refreshUrl })}
+          />
+          <ExpandableInput
+            value={row.userinfoUrl}
+            placeholder={t('config_management.visual.oauth_endpoints.userinfo_url', {
+              defaultValue: 'Userinfo URL (optional)',
+            })}
+            ariaLabel={t('config_management.visual.oauth_endpoints.userinfo_url', {
+              defaultValue: 'Userinfo URL (optional)',
+            })}
+            disabled={disabled}
+            onChange={(userinfoUrl) => updateRow(row.id, { userinfoUrl })}
+          />
+          <ExpandableInput
+            value={row.deviceAuthorizeUrl}
+            placeholder={t('config_management.visual.oauth_endpoints.device_authorize_url', {
+              defaultValue: 'Device authorize URL (optional)',
+            })}
+            ariaLabel={t('config_management.visual.oauth_endpoints.device_authorize_url', {
+              defaultValue: 'Device authorize URL (optional)',
+            })}
+            disabled={disabled}
+            onChange={(deviceAuthorizeUrl) => updateRow(row.id, { deviceAuthorizeUrl })}
+          />
+        </div>
+      ))}
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="secondary" size="sm" onClick={addRow} disabled={disabled}>
+          {addButtonLabel ??
+            t('config_management.visual.oauth_endpoints.add_override', {
+              defaultValue: 'Add override',
+            })}
         </Button>
       </div>
     </div>

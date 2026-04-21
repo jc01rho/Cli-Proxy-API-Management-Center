@@ -177,6 +177,7 @@
     "logs_max_total_size_update": "Update",
     "request_log_title": "Request Logging",
     "request_log_enable": "Enable request logging",
+    "request_log_success_body_enable": "Also log request/response bodies for successful 2xx responses",
     "request_log_warning": "Keep this off unless you need detailed troubleshooting.",
     "force_model_prefix_enable": "Force model prefix",
     "ws_auth_title": "WebSocket Authentication",

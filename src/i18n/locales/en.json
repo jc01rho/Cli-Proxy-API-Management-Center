@@ -1245,7 +1245,16 @@
           "title": "Authentication Configuration",
           "description": "API keys and authentication directory settings",
           "auth_dir": "Auth Directory (auth-dir)",
-          "auth_dir_hint": "Directory path for authentication files (supports ~)"
+          "auth_dir_hint": "Directory path for authentication files (supports ~)",
+          "ip_blacklist_blocked_title": "Blocked IPs",
+          "ip_blacklist_blocked_desc": "Inspect currently blocked client IPs and unban them manually when needed.",
+          "ip_blacklist_blocked_hint": "Only IPs currently serving a temporary API-key block are listed here.",
+          "ip_blacklist_refresh": "Refresh",
+          "ip_blacklist_empty": "No IPs are currently blocked.",
+          "ip_blacklist_unban": "Unban",
+          "ip_blacklist_until": "Blocked until {{value}}",
+          "ip_blacklist_remaining": "Remaining {{value}}",
+          "ip_blacklist_attempts": "{{count}} failures"
         },
         "system": {
           "title": "System Configuration",
@@ -1287,7 +1296,14 @@
           "token_rule_max_tokens": "Max input tokens (optional)",
           "billing_class_metered": "metered",
           "billing_class_per_request": "per-request",
-          "add_token_rule": "Add Rule"
+          "add_token_rule": "Add Rule",
+          "ip_blacklist_title": "API key IP blacklist",
+          "ip_blacklist_desc": "Automatically block IPs that repeatedly fail inline API key authentication within a rolling time window.",
+          "ip_blacklist_threshold": "Failure threshold",
+          "ip_blacklist_window": "Failure window",
+          "ip_blacklist_window_hint": "Duration such as 10m or 1h. Defaults to 10m when left empty.",
+          "ip_blacklist_duration": "Block duration",
+          "ip_blacklist_duration_hint": "Duration such as 24h or 30m. Defaults to 24h when left empty."
         },
         "quota": {
           "title": "Quota Fallback",
@@ -1521,7 +1537,8 @@
     "claude_api_key": "Claude API key",
     "commercial_mode_restart_required": "Commercial mode setting changed. Please restart the service for it to take effect",
     "copy_failed": "Copy failed",
-    "link_copied": "Link copied to clipboard"
+    "link_copied": "Link copied to clipboard",
+    "api_key_ip_blacklist_unbanned": "Unbanned blocked IP {{ip}}"
   },
   "language": {
     "switch": "Language",

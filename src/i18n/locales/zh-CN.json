@@ -1248,7 +1248,16 @@
           "title": "认证配置",
           "description": "API 密钥与认证文件目录设置",
           "auth_dir": "认证文件目录 (auth-dir)",
-          "auth_dir_hint": "存放认证文件的目录路径（支持 ~）"
+          "auth_dir_hint": "存放认证文件的目录路径（支持 ~）",
+          "ip_blacklist_blocked_title": "已封禁 IP",
+          "ip_blacklist_blocked_desc": "查看当前被暂时封禁的客户端 IP，并在需要时手动解封。",
+          "ip_blacklist_blocked_hint": "这里只显示当前仍处于 API Key 临时封禁状态的 IP。",
+          "ip_blacklist_refresh": "刷新",
+          "ip_blacklist_empty": "当前没有被封禁的 IP。",
+          "ip_blacklist_unban": "解除封禁",
+          "ip_blacklist_until": "封禁至 {{value}}",
+          "ip_blacklist_remaining": "剩余 {{value}}",
+          "ip_blacklist_attempts": "失败 {{count}} 次"
         },
         "system": {
           "title": "系统配置",
@@ -1290,7 +1299,14 @@
           "token_rule_max_tokens": "最大输入 token（可选）",
           "billing_class_metered": "按量计费",
           "billing_class_per_request": "按次计费",
-          "add_token_rule": "添加规则"
+          "add_token_rule": "添加规则",
+          "ip_blacklist_title": "API Key IP 黑名单",
+          "ip_blacklist_desc": "在滚动时间窗口内多次使用错误的内联 API Key 鉴权失败时，自动封禁对应 IP。",
+          "ip_blacklist_threshold": "失败阈值",
+          "ip_blacklist_window": "失败时间窗",
+          "ip_blacklist_window_hint": "填写 10m、1h 这样的时长；留空时默认使用 10m。",
+          "ip_blacklist_duration": "封禁时长",
+          "ip_blacklist_duration_hint": "填写 24h、30m 这样的时长；留空时默认使用 24h。"
         },
         "quota": {
           "title": "配额回退",
@@ -1524,7 +1540,8 @@
     "claude_api_key": "Claude API密钥",
     "commercial_mode_restart_required": "商业模式开关已变更，请重启服务后生效",
     "copy_failed": "复制失败",
-    "link_copied": "已复制"
+    "link_copied": "已复制",
+    "api_key_ip_blacklist_unbanned": "已解除被封禁的 IP {{ip}}"
   },
   "language": {
     "switch": "语言",

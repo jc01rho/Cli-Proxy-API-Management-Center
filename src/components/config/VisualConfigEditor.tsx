@@ -12,6 +12,7 @@ import {
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { usePageTransitionLayer } from '@/components/common/PageTransitionLayer';
+import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
@@ -29,6 +30,7 @@ import {
 import { ConfigSection } from '@/components/config/ConfigSection';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type {
+	APIKeyBlacklistEntry,
   OauthEndpointOverrideEntry,
   PayloadFilterRule,
   PayloadParamValidationErrorCode,
@@ -73,6 +75,11 @@ interface VisualConfigEditorProps {
   validationErrors?: VisualConfigValidationErrors;
   hasPayloadValidationErrors?: boolean;
   disabled?: boolean;
+  blockedIps?: APIKeyBlacklistEntry[];
+  blockedIpsLoading?: boolean;
+  unbanPendingIp?: string | null;
+  onRefreshBlockedIps?: () => void;
+  onUnbanBlockedIp?: (ip: string) => void;
   onChange: (values: Partial<VisualConfigValues>) => void;
 }
 
@@ -180,6 +187,11 @@ export function VisualConfigEditor({
   validationErrors,
   hasPayloadValidationErrors = false,
   disabled = false,
+  blockedIps = [],
+  blockedIpsLoading = false,
+  unbanPendingIp = null,
+  onRefreshBlockedIps,
+  onUnbanBlockedIp,
   onChange,
 }: VisualConfigEditorProps) {
   const { t } = useTranslation();
@@ -263,6 +275,26 @@ export function VisualConfigEditor({
     (payloadFilterRules: PayloadFilterRule[]) => onChange({ payloadFilterRules }),
     [onChange]
   );
+  const formatTimestamp = useCallback((value?: string) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString();
+  }, []);
+  const formatRemaining = useCallback((seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) return '0s';
+    const total = Math.floor(seconds);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const remainingSeconds = total % 60;
+    return [
+      hours > 0 ? `${hours}h` : null,
+      minutes > 0 ? `${minutes}m` : null,
+      remainingSeconds > 0 || (hours === 0 && minutes === 0) ? `${remainingSeconds}s` : null,
+    ]
+      .filter(Boolean)
+      .join(' ');
+  }, []);
 
   const countErrors = useCallback(
     (fields: VisualConfigFieldPath[]) =>
@@ -770,6 +802,68 @@ export function VisualConfigEditor({
                   onChange={handleApiKeysTextChange}
                 />
               </div>
+
+              <SectionSubsection
+                title={t('config_management.visual.sections.auth.ip_blacklist_blocked_title')}
+                description={t('config_management.visual.sections.auth.ip_blacklist_blocked_desc')}
+              >
+                <div className={styles.blockHeaderRow}>
+                  <div className={styles.fieldHint}>
+                    {t('config_management.visual.sections.auth.ip_blacklist_blocked_hint')}
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={onRefreshBlockedIps}
+                    disabled={disabled || blockedIpsLoading || !onRefreshBlockedIps}
+                  >
+                    {t('config_management.visual.sections.auth.ip_blacklist_refresh')}
+                  </Button>
+                </div>
+
+                {blockedIpsLoading ? (
+                  <div className={styles.emptyState}>{t('config_management.status_loading')}</div>
+                ) : blockedIps.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    {t('config_management.visual.sections.auth.ip_blacklist_empty')}
+                  </div>
+                ) : (
+                  <div className="item-list" style={{ marginTop: 4 }}>
+                    {blockedIps.map((entry) => (
+                      <div key={entry.ip} className="item-row">
+                        <div className="item-meta">
+                          <div className="pill">IP</div>
+                          <div className="item-title">{entry.ip}</div>
+                          <div className="item-subtitle">
+                            {t('config_management.visual.sections.auth.ip_blacklist_until', {
+                              value: formatTimestamp(entry.blockedUntil),
+                            })}
+                            {' · '}
+                            {t('config_management.visual.sections.auth.ip_blacklist_remaining', {
+                              value: formatRemaining(entry.remainingBlockSeconds),
+                            })}
+                            {' · '}
+                            {t('config_management.visual.sections.auth.ip_blacklist_attempts', {
+                              count: entry.failureCount,
+                            })}
+                          </div>
+                        </div>
+                        <div className="item-actions">
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => onUnbanBlockedIp?.(entry.ip)}
+                            disabled={disabled || !onUnbanBlockedIp}
+                            loading={unbanPendingIp === entry.ip}
+                          >
+                            {t('config_management.visual.sections.auth.ip_blacklist_unban')}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </SectionSubsection>
             </SectionStack>
           </ConfigSection>
 
@@ -981,6 +1075,38 @@ export function VisualConfigEditor({
                   />
                 </FieldShell>
               </SectionGrid>
+
+              <SectionSubsection
+                title={t('config_management.visual.sections.network.ip_blacklist_title')}
+                description={t('config_management.visual.sections.network.ip_blacklist_desc')}
+              >
+                <SectionGrid>
+                  <Input
+                    label={t('config_management.visual.sections.network.ip_blacklist_threshold')}
+                    type="number"
+                    placeholder="3"
+                    value={values.apiKeyIpBlacklistFailureThreshold}
+                    onChange={(e) => onChange({ apiKeyIpBlacklistFailureThreshold: e.target.value })}
+                    disabled={disabled}
+                  />
+                  <Input
+                    label={t('config_management.visual.sections.network.ip_blacklist_window')}
+                    placeholder="10m"
+                    value={values.apiKeyIpBlacklistFailureWindow}
+                    onChange={(e) => onChange({ apiKeyIpBlacklistFailureWindow: e.target.value })}
+                    disabled={disabled}
+                    hint={t('config_management.visual.sections.network.ip_blacklist_window_hint')}
+                  />
+                  <Input
+                    label={t('config_management.visual.sections.network.ip_blacklist_duration')}
+                    placeholder="24h"
+                    value={values.apiKeyIpBlacklistBlockDuration}
+                    onChange={(e) => onChange({ apiKeyIpBlacklistBlockDuration: e.target.value })}
+                    disabled={disabled}
+                    hint={t('config_management.visual.sections.network.ip_blacklist_duration_hint')}
+                  />
+                </SectionGrid>
+              </SectionSubsection>
 
               <SectionGrid>
                 <ToggleRow

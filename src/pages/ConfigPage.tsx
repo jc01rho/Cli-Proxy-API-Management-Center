@@ -17,8 +17,10 @@ import { VisualConfigEditor } from '@/components/config/VisualConfigEditor';
 import { DiffModal } from '@/components/config/DiffModal';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useVisualConfig } from '@/hooks/useVisualConfig';
+import { apiKeyIpBlacklistApi } from '@/services/api';
 import { useNotificationStore, useAuthStore, useThemeStore, useConfigStore } from '@/stores';
 import { configFileApi } from '@/services/api/configFile';
+import type { APIKeyBlacklistEntry } from '@/types/visualConfig';
 import styles from './ConfigPage.module.scss';
 
 type ConfigEditorTab = 'visual' | 'source';
@@ -70,6 +72,9 @@ export function ConfigPage() {
   const [diffModalOpen, setDiffModalOpen] = useState(false);
   const [serverYaml, setServerYaml] = useState('');
   const [mergedYaml, setMergedYaml] = useState('');
+  const [blockedIps, setBlockedIps] = useState<APIKeyBlacklistEntry[]>([]);
+  const [blockedIpsLoading, setBlockedIpsLoading] = useState(false);
+  const [unbanPendingIp, setUnbanPendingIp] = useState<string | null>(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -108,9 +113,34 @@ export function ConfigPage() {
     }
   }, [loadVisualValuesFromYaml, t]);
 
+  const loadBlockedIps = useCallback(async () => {
+    if (connectionStatus !== 'connected') {
+      setBlockedIps([]);
+      return;
+    }
+    setBlockedIpsLoading(true);
+    try {
+      const nextBlockedIps = await apiKeyIpBlacklistApi.listBlockedIps();
+      setBlockedIps(nextBlockedIps);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t('notification.refresh_failed');
+      showNotification(`${t('notification.refresh_failed')}: ${message}`, 'error');
+    } finally {
+      setBlockedIpsLoading(false);
+    }
+  }, [connectionStatus, showNotification, t]);
+
   useEffect(() => {
     loadConfig();
   }, [loadConfig]);
+
+  useEffect(() => {
+    if (connectionStatus === 'connected') {
+      void loadBlockedIps();
+      return;
+    }
+    setBlockedIps([]);
+  }, [connectionStatus, loadBlockedIps]);
 
   useEffect(() => {
     if (activeTab !== 'visual' || !visualParseError) return;
@@ -138,6 +168,7 @@ export function ConfigPage() {
       setServerYaml(latestContent);
       setMergedYaml(latestContent);
       loadVisualValuesFromYaml(latestContent);
+      await loadBlockedIps();
 
       // Keep the global config store in sync so sidebar / other pages reflect YAML changes immediately.
       try {
@@ -167,6 +198,23 @@ export function ConfigPage() {
       setSaving(false);
     }
   };
+
+  const handleUnbanBlockedIp = useCallback(
+    async (ip: string) => {
+      setUnbanPendingIp(ip);
+      try {
+        await apiKeyIpBlacklistApi.unban(ip);
+        showNotification(t('notification.api_key_ip_blacklist_unbanned', { ip }), 'success');
+        await loadBlockedIps();
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : t('notification.delete_failed');
+        showNotification(`${t('notification.delete_failed')}: ${message}`, 'error');
+      } finally {
+        setUnbanPendingIp(null);
+      }
+    },
+    [loadBlockedIps, showNotification, t]
+  );
 
   const handleSave = async () => {
     if (activeTab === 'visual' && visualParseError) {
@@ -556,6 +604,15 @@ export function ConfigPage() {
               validationErrors={visualValidationErrors}
               hasPayloadValidationErrors={visualHasPayloadValidationErrors}
               disabled={disableControls || loading}
+              blockedIps={blockedIps}
+              blockedIpsLoading={blockedIpsLoading}
+              unbanPendingIp={unbanPendingIp}
+              onRefreshBlockedIps={() => {
+                void loadBlockedIps();
+              }}
+              onUnbanBlockedIp={(ip) => {
+                void handleUnbanBlockedIp(ip);
+              }}
               onChange={setVisualValues}
             />
           ) : (

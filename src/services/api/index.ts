@@ -6,6 +6,7 @@ export * from './apiKeys';
 export * from './ampcode';
 export * from './providers';
 export * from './authFiles';
+export * from './apiKeyIpBlacklist';
 export * from './oauth';
 export * from './usage';
 export * from './logs';

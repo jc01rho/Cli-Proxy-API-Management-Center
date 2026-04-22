@@ -78,7 +78,11 @@ interface VisualConfigEditorProps {
   blockedIps?: APIKeyBlacklistEntry[];
   blockedIpsLoading?: boolean;
   unbanPendingIp?: string | null;
+  manualBanIp?: string;
+  manualBanPending?: boolean;
+  onManualBanIpChange?: (ip: string) => void;
   onRefreshBlockedIps?: () => void;
+  onBanBlockedIp?: (ip: string) => void;
   onUnbanBlockedIp?: (ip: string) => void;
   onChange: (values: Partial<VisualConfigValues>) => void;
 }
@@ -190,7 +194,11 @@ export function VisualConfigEditor({
   blockedIps = [],
   blockedIpsLoading = false,
   unbanPendingIp = null,
+  manualBanIp = '',
+  manualBanPending = false,
+  onManualBanIpChange,
   onRefreshBlockedIps,
+  onBanBlockedIp,
   onUnbanBlockedIp,
   onChange,
 }: VisualConfigEditorProps) {
@@ -818,6 +826,24 @@ export function VisualConfigEditor({
                     disabled={disabled || blockedIpsLoading || !onRefreshBlockedIps}
                   >
                     {t('config_management.visual.sections.auth.ip_blacklist_refresh')}
+                  </Button>
+                </div>
+
+                <div className={styles.manualBanRow} style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                  <Input
+                    placeholder={t('config_management.visual.sections.auth.ip_blacklist_input_placeholder')}
+                    value={manualBanIp}
+                    onChange={(e) => onManualBanIpChange?.(e.target.value)}
+                    disabled={disabled || manualBanPending}
+                    style={{ flex: 1 }}
+                  />
+                  <Button
+                    variant="primary"
+                    onClick={() => onBanBlockedIp?.(manualBanIp)}
+                    disabled={disabled || manualBanPending || !manualBanIp.trim() || !onBanBlockedIp}
+                    loading={manualBanPending}
+                  >
+                    {t('config_management.visual.sections.auth.ip_blacklist_add')}
                   </Button>
                 </div>
 

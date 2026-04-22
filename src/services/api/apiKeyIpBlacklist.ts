@@ -32,6 +32,10 @@ export const apiKeyIpBlacklistApi = {
       .filter(Boolean) as APIKeyBlacklistEntry[];
   },
 
+  async ban(ip: string): Promise<void> {
+    await apiClient.post('/api-key-ip-blacklist', { ip });
+  },
+
   async unban(ip: string): Promise<void> {
     await apiClient.delete(`/api-key-ip-blacklist?ip=${encodeURIComponent(ip)}`);
   },

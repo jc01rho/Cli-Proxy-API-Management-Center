@@ -75,6 +75,8 @@ export function ConfigPage() {
   const [blockedIps, setBlockedIps] = useState<APIKeyBlacklistEntry[]>([]);
   const [blockedIpsLoading, setBlockedIpsLoading] = useState(false);
   const [unbanPendingIp, setUnbanPendingIp] = useState<string | null>(null);
+  const [manualBanIp, setManualBanIp] = useState('');
+  const [manualBanPending, setManualBanPending] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -198,6 +200,24 @@ export function ConfigPage() {
       setSaving(false);
     }
   };
+
+  const handleBanBlockedIp = useCallback(
+    async (ip: string) => {
+      setManualBanPending(true);
+      try {
+        await apiKeyIpBlacklistApi.ban(ip);
+        showNotification(t('notification.api_key_ip_blacklist_banned', { ip }), 'success');
+        setManualBanIp('');
+        await loadBlockedIps();
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : t('notification.create_failed');
+        showNotification(`${t('notification.create_failed')}: ${message}`, 'error');
+      } finally {
+        setManualBanPending(false);
+      }
+    },
+    [loadBlockedIps, showNotification, t]
+  );
 
   const handleUnbanBlockedIp = useCallback(
     async (ip: string) => {
@@ -607,8 +627,14 @@ export function ConfigPage() {
               blockedIps={blockedIps}
               blockedIpsLoading={blockedIpsLoading}
               unbanPendingIp={unbanPendingIp}
+              manualBanIp={manualBanIp}
+              manualBanPending={manualBanPending}
+              onManualBanIpChange={setManualBanIp}
               onRefreshBlockedIps={() => {
                 void loadBlockedIps();
+              }}
+              onBanBlockedIp={(ip) => {
+                void handleBanBlockedIp(ip);
               }}
               onUnbanBlockedIp={(ip) => {
                 void handleUnbanBlockedIp(ip);

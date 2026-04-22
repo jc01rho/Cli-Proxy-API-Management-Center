@@ -1247,9 +1247,11 @@
           "auth_dir": "Auth Directory (auth-dir)",
           "auth_dir_hint": "Directory path for authentication files (supports ~)",
           "ip_blacklist_blocked_title": "Blocked IPs",
+          "ip_blacklist_add": "Add IP",
+          "ip_blacklist_input_placeholder": "Enter IP address...",
           "ip_blacklist_blocked_desc": "Inspect currently blocked client IPs and unban them manually when needed.",
           "ip_blacklist_blocked_hint": "Only IPs currently serving a temporary API-key block are listed here.",
-          "ip_blacklist_refresh": "Refresh",
+          
           "ip_blacklist_empty": "No IPs are currently blocked.",
           "ip_blacklist_unban": "Unban",
           "ip_blacklist_until": "Blocked until {{value}}",
@@ -1537,8 +1539,7 @@
     "claude_api_key": "Claude API key",
     "commercial_mode_restart_required": "Commercial mode setting changed. Please restart the service for it to take effect",
     "copy_failed": "Copy failed",
-    "link_copied": "Link copied to clipboard",
-    "api_key_ip_blacklist_unbanned": "Unbanned blocked IP {{ip}}"
+    "link_copied": "Link copied to clipboard"
   },
   "language": {
     "switch": "Language",

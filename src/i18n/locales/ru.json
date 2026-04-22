@@ -1229,9 +1229,11 @@
           "auth_dir": "Каталог auth-dir",
           "auth_dir_hint": "Путь к каталогу с файлами аутентификации (поддерживает ~)",
           "ip_blacklist_blocked_title": "Заблокированные IP",
+          "ip_blacklist_add": "Добавить IP",
+          "ip_blacklist_input_placeholder": "Введите IP адрес...",
           "ip_blacklist_blocked_desc": "Просматривайте IP, которые сейчас временно заблокированы, и снимайте блокировку вручную при необходимости.",
           "ip_blacklist_blocked_hint": "Здесь показываются только IP, которые сейчас находятся под временной блокировкой из-за неверных API-ключей.",
-          "ip_blacklist_refresh": "Обновить",
+          
           "ip_blacklist_empty": "Сейчас нет заблокированных IP.",
           "ip_blacklist_unban": "Разблокировать",
           "ip_blacklist_until": "Заблокирован до {{value}}",
@@ -1517,8 +1519,7 @@
     "claude_api_key": "API-ключ Claude",
     "commercial_mode_restart_required": "Режим коммерческого использования изменён. Перезапустите сервис, чтобы применить изменения",
     "copy_failed": "Не удалось скопировать",
-    "link_copied": "Ссылка скопирована в буфер обмена",
-    "api_key_ip_blacklist_unbanned": "IP {{ip}} разблокирован"
+    "link_copied": "Ссылка скопирована в буфер обмена"
   },
   "language": {
     "switch": "Язык",

@@ -1250,9 +1250,11 @@
           "auth_dir": "认证文件目录 (auth-dir)",
           "auth_dir_hint": "存放认证文件的目录路径（支持 ~）",
           "ip_blacklist_blocked_title": "已封禁 IP",
+          "ip_blacklist_add": "添加 IP",
+          "ip_blacklist_input_placeholder": "输入 IP地址...",
           "ip_blacklist_blocked_desc": "查看当前被暂时封禁的客户端 IP，并在需要时手动解封。",
           "ip_blacklist_blocked_hint": "这里只显示当前仍处于 API Key 临时封禁状态的 IP。",
-          "ip_blacklist_refresh": "刷新",
+          
           "ip_blacklist_empty": "当前没有被封禁的 IP。",
           "ip_blacklist_unban": "解除封禁",
           "ip_blacklist_until": "封禁至 {{value}}",
@@ -1540,8 +1542,7 @@
     "claude_api_key": "Claude API密钥",
     "commercial_mode_restart_required": "商业模式开关已变更，请重启服务后生效",
     "copy_failed": "复制失败",
-    "link_copied": "已复制",
-    "api_key_ip_blacklist_unbanned": "已解除被封禁的 IP {{ip}}"
+    "link_copied": "已复制"
   },
   "language": {
     "switch": "语言",

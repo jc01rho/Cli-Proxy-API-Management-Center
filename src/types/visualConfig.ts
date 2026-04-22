@@ -67,6 +67,14 @@ export type PayloadFilterRule = {
   params: string[];
 };
 
+export type APIKeyBlacklistEntry = {
+  ip: string;
+  failureCount: number;
+  lastFailureAt?: string;
+  blockedUntil?: string;
+  remainingBlockSeconds: number;
+};
+
 export interface StreamingConfig {
   keepaliveSeconds: string;
   bootstrapRetries: string;
@@ -103,6 +111,9 @@ export type VisualConfigValues = {
   fallbackModels: Record<string, string>;
   fallbackChain: string[];
   wsAuth: boolean;
+  apiKeyIpBlacklistFailureThreshold: string;
+  apiKeyIpBlacklistFailureWindow: string;
+  apiKeyIpBlacklistBlockDuration: string;
   payloadDefaultRules: PayloadRule[];
   payloadDefaultRawRules: PayloadRule[];
   payloadOverrideRules: PayloadRule[];
@@ -147,6 +158,9 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   fallbackModels: {},
   fallbackChain: [],
   wsAuth: false,
+  apiKeyIpBlacklistFailureThreshold: '',
+  apiKeyIpBlacklistFailureWindow: '',
+  apiKeyIpBlacklistBlockDuration: '',
   payloadDefaultRules: [],
   payloadDefaultRawRules: [],
   payloadOverrideRules: [],

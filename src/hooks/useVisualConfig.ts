@@ -1031,6 +1031,17 @@ export function useVisualConfig() {
         maxRetryCredentials: String(parsed['max-retry-credentials'] ?? ''),
         maxRetryInterval: String(parsed['max-retry-interval'] ?? ''),
         wsAuth: Boolean(parsed['ws-auth']),
+        apiKeyIpBlacklistFailureThreshold: String(
+          asRecord(parsed['api-key-ip-blacklist'])?.['failure-threshold'] ?? ''
+        ),
+        apiKeyIpBlacklistFailureWindow:
+          typeof asRecord(parsed['api-key-ip-blacklist'])?.['failure-window'] === 'string'
+            ? String(asRecord(parsed['api-key-ip-blacklist'])?.['failure-window'] ?? '')
+            : '',
+        apiKeyIpBlacklistBlockDuration:
+          typeof asRecord(parsed['api-key-ip-blacklist'])?.['block-duration'] === 'string'
+            ? String(asRecord(parsed['api-key-ip-blacklist'])?.['block-duration'] ?? '')
+            : '',
 
         quotaSwitchProject: Boolean(quotaExceeded?.['switch-project'] ?? true),
         quotaSwitchPreviewModel: Boolean(quotaExceeded?.['switch-preview-model'] ?? true),
@@ -1149,6 +1160,31 @@ export function useVisualConfig() {
         setIntFromStringInDoc(doc, ['max-retry-credentials'], values.maxRetryCredentials);
         setIntFromStringInDoc(doc, ['max-retry-interval'], values.maxRetryInterval);
         setBooleanInDoc(doc, ['ws-auth'], values.wsAuth);
+
+        if (
+          docHas(doc, ['api-key-ip-blacklist']) ||
+          values.apiKeyIpBlacklistFailureThreshold.trim() ||
+          values.apiKeyIpBlacklistFailureWindow.trim() ||
+          values.apiKeyIpBlacklistBlockDuration.trim()
+        ) {
+          ensureMapInDoc(doc, ['api-key-ip-blacklist']);
+          setIntFromStringInDoc(
+            doc,
+            ['api-key-ip-blacklist', 'failure-threshold'],
+            values.apiKeyIpBlacklistFailureThreshold
+          );
+          setStringInDoc(
+            doc,
+            ['api-key-ip-blacklist', 'failure-window'],
+            values.apiKeyIpBlacklistFailureWindow
+          );
+          setStringInDoc(
+            doc,
+            ['api-key-ip-blacklist', 'block-duration'],
+            values.apiKeyIpBlacklistBlockDuration
+          );
+          deleteIfMapEmpty(doc, ['api-key-ip-blacklist']);
+        }
 
         if (
           docHas(doc, ['quota-exceeded']) ||

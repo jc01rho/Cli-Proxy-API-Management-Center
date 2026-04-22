@@ -1227,7 +1227,16 @@
           "title": "Настройки аутентификации",
           "description": "API-ключи и каталог аутентификации",
           "auth_dir": "Каталог auth-dir",
-          "auth_dir_hint": "Путь к каталогу с файлами аутентификации (поддерживает ~)"
+          "auth_dir_hint": "Путь к каталогу с файлами аутентификации (поддерживает ~)",
+          "ip_blacklist_blocked_title": "Заблокированные IP",
+          "ip_blacklist_blocked_desc": "Просматривайте IP, которые сейчас временно заблокированы, и снимайте блокировку вручную при необходимости.",
+          "ip_blacklist_blocked_hint": "Здесь показываются только IP, которые сейчас находятся под временной блокировкой из-за неверных API-ключей.",
+          "ip_blacklist_refresh": "Обновить",
+          "ip_blacklist_empty": "Сейчас нет заблокированных IP.",
+          "ip_blacklist_unban": "Разблокировать",
+          "ip_blacklist_until": "Заблокирован до {{value}}",
+          "ip_blacklist_remaining": "Осталось {{value}}",
+          "ip_blacklist_attempts": "Ошибок: {{count}}"
         },
         "system": {
           "title": "Системные настройки",
@@ -1267,7 +1276,14 @@
           "token_rule_max_tokens": "Максимум входных токенов (необязательно)",
           "billing_class_metered": "metered",
           "billing_class_per_request": "per-request",
-          "add_token_rule": "Добавить правило"
+          "add_token_rule": "Добавить правило",
+          "ip_blacklist_title": "IP-блокировка по API-ключам",
+          "ip_blacklist_desc": "Автоматически блокировать IP, которые многократно не проходят аутентификацию встроенным API-ключом в пределах скользящего окна времени.",
+          "ip_blacklist_threshold": "Порог ошибок",
+          "ip_blacklist_window": "Окно ошибок",
+          "ip_blacklist_window_hint": "Укажите длительность, например 10m или 1h. Если оставить пустым, используется 10m.",
+          "ip_blacklist_duration": "Длительность блокировки",
+          "ip_blacklist_duration_hint": "Укажите длительность, например 24h или 30m. Если оставить пустым, используется 24h."
         },
         "quota": {
           "title": "Резерв по квоте",
@@ -1501,7 +1517,8 @@
     "claude_api_key": "API-ключ Claude",
     "commercial_mode_restart_required": "Режим коммерческого использования изменён. Перезапустите сервис, чтобы применить изменения",
     "copy_failed": "Не удалось скопировать",
-    "link_copied": "Ссылка скопирована в буфер обмена"
+    "link_copied": "Ссылка скопирована в буфер обмена",
+    "api_key_ip_blacklist_unbanned": "IP {{ip}} разблокирован"
   },
   "language": {
     "switch": "Язык",

@@ -829,13 +829,13 @@ export function VisualConfigEditor({
                   </Button>
                 </div>
 
-                <div className={styles.manualBanRow} style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                <div className={styles.manualBanRow}>
                   <Input
                     placeholder={t('config_management.visual.sections.auth.ip_blacklist_input_placeholder')}
                     value={manualBanIp}
                     onChange={(e) => onManualBanIpChange?.(e.target.value)}
                     disabled={disabled || manualBanPending}
-                    style={{ flex: 1 }}
+                    className={styles.manualBanInput}
                   />
                   <Button
                     variant="primary"

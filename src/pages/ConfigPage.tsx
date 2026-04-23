@@ -203,17 +203,22 @@ export function ConfigPage() {
 
   const handleBanBlockedIp = useCallback(
     async (ip: string) => {
+	  const normalizedIp = ip.trim();
+	  if (!normalizedIp) {
+		showNotification(t('notification.please_enter') + ' IP', 'error');
+		return;
+	  }
       setManualBanPending(true);
       try {
-        await apiKeyIpBlacklistApi.ban(ip);
-        showNotification(t('notification.api_key_ip_blacklist_banned', { ip }), 'success');
-        setManualBanIp('');
-        await loadBlockedIps();
+	        await apiKeyIpBlacklistApi.ban(normalizedIp);
+	        showNotification(t('notification.api_key_ip_blacklist_banned', { ip: normalizedIp }), 'success');
+	        setManualBanIp('');
+	        await loadBlockedIps();
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : t('notification.create_failed');
-        showNotification(`${t('notification.create_failed')}: ${message}`, 'error');
+	        const message = err instanceof Error ? err.message : t('notification.add_failed');
+	        showNotification(`${t('notification.add_failed')}: ${message}`, 'error');
       } finally {
-        setManualBanPending(false);
+	        setManualBanPending(false);
       }
     },
     [loadBlockedIps, showNotification, t]

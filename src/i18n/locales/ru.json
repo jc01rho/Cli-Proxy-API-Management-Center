@@ -1507,6 +1507,8 @@
     "update_failed": "Не удалось обновить",
     "add_failed": "Не удалось добавить",
     "delete_failed": "Не удалось удалить",
+    "api_key_ip_blacklist_banned": "IP {{ip}} заблокирован",
+    "api_key_ip_blacklist_unbanned": "IP {{ip}} разблокирован",
     "upload_failed": "Не удалось загрузить",
     "download_failed": "Не удалось скачать",
     "login_failed": "Вход не выполнен",

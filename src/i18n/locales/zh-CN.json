@@ -1530,6 +1530,8 @@
     "update_failed": "更新失败",
     "add_failed": "添加失败",
     "delete_failed": "删除失败",
+    "api_key_ip_blacklist_banned": "已封禁 IP {{ip}}",
+    "api_key_ip_blacklist_unbanned": "已解除封禁 IP {{ip}}",
     "upload_failed": "上传失败",
     "download_failed": "下载失败",
     "login_failed": "登录失败",

@@ -732,6 +732,17 @@
   flex-wrap: wrap;
 }
 
+.manualBanRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-top: 12px;
+}
+
+.manualBanInput {
+  flex: 1;
+}
+
 .blockStack {
   display: flex;
   flex-direction: column;
@@ -903,16 +914,22 @@
   }
 
   .blockHeaderRow,
+  .manualBanRow,
   .ruleCardHeader {
     align-items: stretch;
   }
 
   .blockHeaderRow :global(.btn),
+  .manualBanRow :global(.btn),
   .ruleCardHeader :global(.btn),
   .actionRow :global(.btn),
   .stringListRow :global(.btn) {
     width: 100%;
     justify-content: center;
+  }
+
+  .manualBanRow {
+    flex-direction: column;
   }
 
   .actionRow {

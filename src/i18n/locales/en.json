@@ -1527,6 +1527,8 @@
     "update_failed": "Update failed",
     "add_failed": "Add failed",
     "delete_failed": "Delete failed",
+    "api_key_ip_blacklist_banned": "Blocked IP {{ip}}",
+    "api_key_ip_blacklist_unbanned": "Unblocked IP {{ip}}",
     "upload_failed": "Upload failed",
     "download_failed": "Download failed",
     "login_failed": "Login failed",

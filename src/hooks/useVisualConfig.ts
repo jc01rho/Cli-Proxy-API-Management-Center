@@ -812,6 +812,25 @@ function getNextDirtyFields(
   if (Object.prototype.hasOwnProperty.call(patch, 'wsAuth')) {
     updateDirty('wsAuth', nextValues.wsAuth === baselineValues.wsAuth);
   }
+  if (Object.prototype.hasOwnProperty.call(patch, 'apiKeyIpBlacklistFailureThreshold')) {
+    updateDirty(
+      'apiKeyIpBlacklistFailureThreshold',
+      nextValues.apiKeyIpBlacklistFailureThreshold ===
+        baselineValues.apiKeyIpBlacklistFailureThreshold
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'apiKeyIpBlacklistFailureWindow')) {
+    updateDirty(
+      'apiKeyIpBlacklistFailureWindow',
+      nextValues.apiKeyIpBlacklistFailureWindow === baselineValues.apiKeyIpBlacklistFailureWindow
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'apiKeyIpBlacklistBlockDuration')) {
+    updateDirty(
+      'apiKeyIpBlacklistBlockDuration',
+      nextValues.apiKeyIpBlacklistBlockDuration === baselineValues.apiKeyIpBlacklistBlockDuration
+    );
+  }
   if (Object.prototype.hasOwnProperty.call(patch, 'quotaSwitchProject')) {
     updateDirty(
       'quotaSwitchProject',

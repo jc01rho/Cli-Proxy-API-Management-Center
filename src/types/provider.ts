@@ -14,6 +14,7 @@ export interface ApiKeyEntry {
   apiKey: string;
   proxyUrl?: string;
   headers?: Record<string, string>;
+  authIndex?: string;
 }
 
 export interface CloakConfig {
@@ -32,6 +33,7 @@ export interface GeminiKeyConfig {
   models?: ModelAlias[];
   headers?: Record<string, string>;
   excludedModels?: string[];
+  authIndex?: string;
 }
 
 export interface ProviderKeyConfig {
@@ -46,6 +48,7 @@ export interface ProviderKeyConfig {
   models?: ModelAlias[];
   excludedModels?: string[];
   cloak?: CloakConfig;
+  authIndex?: string;
 }
 
 export interface OpenAIProviderConfig {
@@ -58,5 +61,6 @@ export interface OpenAIProviderConfig {
   models?: ModelAlias[];
   priority?: number;
   testModel?: string;
+  authIndex?: string;
   [key: string]: unknown;
 }

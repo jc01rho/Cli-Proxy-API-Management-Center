@@ -1432,6 +1432,11 @@
   }
 }
 
+.prefixProxyTextareaInvalid {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 3px rgba($error-color, 0.12);
+}
+
 .cardActions {
   display: flex;
   align-items: center;

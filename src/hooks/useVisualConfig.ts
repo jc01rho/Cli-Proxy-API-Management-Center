@@ -843,6 +843,12 @@ function getNextDirtyFields(
       nextValues.quotaSwitchPreviewModel === baselineValues.quotaSwitchPreviewModel
     );
   }
+  if (Object.prototype.hasOwnProperty.call(patch, 'quotaAntigravityCredits')) {
+    updateDirty(
+      'quotaAntigravityCredits',
+      nextValues.quotaAntigravityCredits === baselineValues.quotaAntigravityCredits
+    );
+  }
   if (Object.prototype.hasOwnProperty.call(patch, 'routingStrategy')) {
     updateDirty('routingStrategy', nextValues.routingStrategy === baselineValues.routingStrategy);
   }
@@ -874,6 +880,18 @@ function getNextDirtyFields(
         nextValues.oauthEndpointOverrides,
         baselineValues.oauthEndpointOverrides
       )
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'routingSessionAffinity')) {
+    updateDirty(
+      'routingSessionAffinity',
+      nextValues.routingSessionAffinity === baselineValues.routingSessionAffinity
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'routingSessionAffinityTTL')) {
+    updateDirty(
+      'routingSessionAffinityTTL',
+      nextValues.routingSessionAffinityTTL === baselineValues.routingSessionAffinityTTL
     );
   }
   if (Object.prototype.hasOwnProperty.call(patch, 'payloadDefaultRules')) {
@@ -1064,6 +1082,7 @@ export function useVisualConfig() {
 
         quotaSwitchProject: Boolean(quotaExceeded?.['switch-project'] ?? true),
         quotaSwitchPreviewModel: Boolean(quotaExceeded?.['switch-preview-model'] ?? true),
+        quotaAntigravityCredits: Boolean(quotaExceeded?.['antigravity-credits'] ?? true),
 
         routingStrategy: routing?.strategy === 'fill-first' ? 'fill-first' : 'round-robin',
         routingMode:
@@ -1084,6 +1103,19 @@ export function useVisualConfig() {
               .map((entry) => String(entry ?? '').trim())
               .filter(Boolean)
           : [],
+        routingSessionAffinity: Boolean(
+          routing?.['session-affinity'] ??
+            routing?.sessionAffinity ??
+            routing?.['sessionAffinity']
+        ),
+        routingSessionAffinityTTL:
+          typeof routing?.['session-affinity-ttl'] === 'string'
+            ? routing['session-affinity-ttl']
+            : typeof routing?.sessionAffinityTTL === 'string'
+              ? routing.sessionAffinityTTL
+              : typeof routing?.['sessionAffinityTTL'] === 'string'
+                ? routing['sessionAffinityTTL']
+                : '',
 
         payloadDefaultRules: parsePayloadRules(payload?.default),
         payloadDefaultRawRules: parseRawPayloadRules(payload?.['default-raw']),
@@ -1208,11 +1240,16 @@ export function useVisualConfig() {
         if (
           docHas(doc, ['quota-exceeded']) ||
           !values.quotaSwitchProject ||
-          !values.quotaSwitchPreviewModel
+          !values.quotaSwitchPreviewModel ||
+          !values.quotaAntigravityCredits
         ) {
           ensureMapInDoc(doc, ['quota-exceeded']);
           doc.setIn(['quota-exceeded', 'switch-project'], values.quotaSwitchProject);
           doc.setIn(['quota-exceeded', 'switch-preview-model'], values.quotaSwitchPreviewModel);
+          doc.setIn(
+            ['quota-exceeded', 'antigravity-credits'],
+            values.quotaAntigravityCredits
+          );
           deleteIfMapEmpty(doc, ['quota-exceeded']);
         }
 
@@ -1222,18 +1259,26 @@ export function useVisualConfig() {
           values.routingMode !== 'provider-based' ||
           values.tokenThresholdRules.length > 0 ||
           Object.keys(values.fallbackModels).length > 0 ||
-          values.fallbackChain.length > 0
+          values.fallbackChain.length > 0 ||
+          values.routingSessionAffinity ||
+          values.routingSessionAffinityTTL.trim()
         ) {
           ensureMapInDoc(doc, ['routing']);
           doc.setIn(['routing', 'strategy'], values.routingStrategy);
           doc.setIn(['routing', 'mode'], values.routingMode);
+          setBooleanInDoc(doc, ['routing', 'session-affinity'], values.routingSessionAffinity);
+          setStringInDoc(
+            doc,
+            ['routing', 'session-affinity-ttl'],
+            values.routingSessionAffinityTTL
+          );
 
-		  const tokenThresholdRules = serializeTokenThresholdRules(values.tokenThresholdRules);
-		  if (tokenThresholdRules.length > 0) {
-			doc.setIn(['routing', 'token-threshold-rules'], tokenThresholdRules);
-		  } else if (docHas(doc, ['routing', 'token-threshold-rules'])) {
-			doc.deleteIn(['routing', 'token-threshold-rules']);
-		  }
+			const tokenThresholdRules = serializeTokenThresholdRules(values.tokenThresholdRules);
+			if (tokenThresholdRules.length > 0) {
+				doc.setIn(['routing', 'token-threshold-rules'], tokenThresholdRules);
+			} else if (docHas(doc, ['routing', 'token-threshold-rules'])) {
+				doc.deleteIn(['routing', 'token-threshold-rules']);
+			}
 
           const fallbackEntries = Object.entries(values.fallbackModels)
             .map(([source, target]) => [source.trim(), target.trim()] as const)
@@ -1252,7 +1297,6 @@ export function useVisualConfig() {
           } else if (docHas(doc, ['routing', 'fallback-chain'])) {
             doc.deleteIn(['routing', 'fallback-chain']);
           }
-
           deleteIfMapEmpty(doc, ['routing']);
         }
 

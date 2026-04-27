@@ -105,11 +105,14 @@ export type VisualConfigValues = {
   maxRetryInterval: string;
   quotaSwitchProject: boolean;
   quotaSwitchPreviewModel: boolean;
+  quotaAntigravityCredits: boolean;
   routingStrategy: 'round-robin' | 'fill-first';
   routingMode: 'provider-based' | 'key-based';
   tokenThresholdRules: TokenThresholdRule[];
   fallbackModels: Record<string, string>;
   fallbackChain: string[];
+  routingSessionAffinity: boolean;
+  routingSessionAffinityTTL: string;
   wsAuth: boolean;
   apiKeyIpBlacklistFailureThreshold: string;
   apiKeyIpBlacklistFailureWindow: string;
@@ -152,11 +155,14 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   maxRetryInterval: '',
   quotaSwitchProject: true,
   quotaSwitchPreviewModel: true,
+  quotaAntigravityCredits: true,
   routingStrategy: 'round-robin',
   routingMode: 'provider-based',
   tokenThresholdRules: [],
   fallbackModels: {},
   fallbackChain: [],
+  routingSessionAffinity: false,
+  routingSessionAffinityTTL: '',
   wsAuth: false,
   apiKeyIpBlacklistFailureThreshold: '',
   apiKeyIpBlacklistFailureWindow: '',

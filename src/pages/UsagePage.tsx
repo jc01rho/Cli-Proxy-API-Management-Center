@@ -16,9 +16,12 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Select } from '@/components/ui/Select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
+import { authFilesApi } from '@/services/api/authFiles';
 import { providersApi } from '@/services/api';
 import { useThemeStore, useConfigStore } from '@/stores';
 import type { OpenAIProviderConfig } from '@/types';
+import type { AuthFileItem } from '@/types/authFile';
+import type { CredentialInfo } from '@/types/sourceInfo';
 import {
   StatCards,
   UsageChart,
@@ -40,8 +43,10 @@ import {
   getApiStats,
   getModelStats,
   filterUsageByTimeRange,
+  normalizeAuthIndex,
   type UsageTimeRange
 } from '@/utils/usage';
+import { buildSourceInfoMap, resolveSourceDisplay } from '@/utils/sourceResolver';
 import styles from './UsagePage.module.scss';
 
 // Register Chart.js components
@@ -128,6 +133,7 @@ export function UsagePage() {
     source: OpenAIProviderConfig[] | undefined;
     providers: OpenAIProviderConfig[];
   } | null>(null);
+  const [authFileMap, setAuthFileMap] = useState<Map<string, CredentialInfo>>(new Map());
 
   // Data hook
   const {
@@ -147,6 +153,36 @@ export function UsagePage() {
   } = useUsageData();
 
   useHeaderRefresh(loadUsage);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    authFilesApi
+      .list()
+      .then((res) => {
+        if (cancelled) return;
+
+        const files = Array.isArray(res) ? res : (res as { files?: AuthFileItem[] })?.files;
+        if (!Array.isArray(files)) return;
+
+        const map = new Map<string, CredentialInfo>();
+        files.forEach((file) => {
+          const key = normalizeAuthIndex(file['auth_index'] ?? file.authIndex);
+          if (!key) return;
+
+          map.set(key, {
+            name: file.name || key,
+            type: (file.type || file.provider || '').toString(),
+          });
+        });
+        setAuthFileMap(map);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Chart lines state
   const [chartLines, setChartLines] = useState<string[]>(loadChartLines);
@@ -173,10 +209,32 @@ export function UsagePage() {
   }, [openaiCompatibilityConfig]);
 
   const openaiProviderState = openaiProvidersWithAuthIndex;
-  const openaiProvidersForUsage =
-    openaiProviderState && openaiProviderState.source === openaiCompatibilityConfig
-      ? openaiProviderState.providers
-      : openaiCompatibilityConfig ?? [];
+  const openaiProvidersForUsage = useMemo(
+    () =>
+      openaiProviderState && openaiProviderState.source === openaiCompatibilityConfig
+        ? openaiProviderState.providers
+        : openaiCompatibilityConfig ?? [],
+    [openaiCompatibilityConfig, openaiProviderState]
+  );
+
+  const sourceInfoMap = useMemo(
+    () =>
+      buildSourceInfoMap({
+        geminiApiKeys: config?.geminiApiKeys || [],
+        claudeApiKeys: config?.claudeApiKeys || [],
+        codexApiKeys: config?.codexApiKeys || [],
+        vertexApiKeys: config?.vertexApiKeys || [],
+        openaiCompatibility: openaiProvidersForUsage,
+      }),
+    [config, openaiProvidersForUsage]
+  );
+
+  const resolveModelProviderName = useCallback(
+    (detail: { source?: string; auth_index?: unknown }) =>
+      resolveSourceDisplay(detail.source ?? '', detail.auth_index, sourceInfoMap, authFileMap)
+        .displayName,
+    [authFileMap, sourceInfoMap]
+  );
 
   const timeRangeOptions = useMemo(
     () =>
@@ -250,8 +308,8 @@ export function UsagePage() {
     [filteredUsage, modelPrices]
   );
   const modelStats = useMemo(
-    () => getModelStats(filteredUsage, modelPrices),
-    [filteredUsage, modelPrices]
+    () => getModelStats(filteredUsage, modelPrices, resolveModelProviderName),
+    [filteredUsage, modelPrices, resolveModelProviderName]
   );
   const hasPrices = Object.keys(modelPrices).length > 0;
 

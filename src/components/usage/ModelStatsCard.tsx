@@ -57,7 +57,7 @@ export function ModelStatsCard({ modelStats, loading, hasPrices }: ModelStatsCar
     }));
     const dir = sortDir === 'asc' ? 1 : -1;
     list.sort((a, b) => {
-      if (sortKey === 'model') return dir * a.model.localeCompare(b.model);
+      if (sortKey === 'model') return dir * a.displayModel.localeCompare(b.displayModel);
       const left = a[sortKey];
       const right = b[sortKey];
       const leftValid = typeof left === 'number' && Number.isFinite(left);
@@ -166,8 +166,8 @@ export function ModelStatsCard({ modelStats, loading, hasPrices }: ModelStatsCar
                 </thead>
                 <tbody>
                   {sorted.map((stat) => (
-                    <tr key={stat.model}>
-                      <td className={styles.modelCell}>{stat.model}</td>
+                    <tr key={`${stat.provider}\u0000${stat.model}`}>
+                      <td className={styles.modelCell}>{stat.displayModel}</td>
                       <td>
                         <span className={styles.requestCountCell}>
                           <span>{stat.requests.toLocaleString()}</span>

@@ -93,6 +93,8 @@ export interface ApiStats {
 
 export interface ModelStatsSummary {
   model: string;
+  provider: string;
+  displayModel: string;
   requests: number;
   successCount: number;
   failureCount: number;
@@ -980,7 +982,8 @@ export function getApiStats(
  */
 export function getModelStats(
   usageData: unknown,
-  modelPrices: Record<string, ModelPrice>
+  modelPrices: Record<string, ModelPrice>,
+  resolveProviderName: (detail: UsageDetail) => string = () => '-'
 ): ModelStatsSummary[] {
   const apis = getApisRecord(usageData);
   if (!apis) return [];
@@ -994,6 +997,8 @@ export function getModelStats(
       tokens: number;
       cost: number;
       latency: LatencyAccumulator;
+      model: string;
+      provider: string;
     }
   >();
 
@@ -1005,59 +1010,76 @@ export function getModelStats(
 
     Object.entries(models).forEach(([modelName, modelData]) => {
       if (!isRecord(modelData)) return;
-      const existing = modelMap.get(modelName) || {
-        requests: 0,
-        successCount: 0,
-        failureCount: 0,
-        tokens: 0,
-        cost: 0,
-        latency: createLatencyAccumulator(),
+      const getOrCreateStats = (provider: string) => {
+        const normalizedProvider = provider.trim() || '-';
+        const key = `${normalizedProvider}\u0000${modelName}`;
+        const existing = modelMap.get(key) || {
+          requests: 0,
+          successCount: 0,
+          failureCount: 0,
+          tokens: 0,
+          cost: 0,
+          latency: createLatencyAccumulator(),
+          model: modelName,
+          provider: normalizedProvider,
+        };
+        modelMap.set(key, existing);
+        return existing;
       };
-      existing.requests += Number(modelData.total_requests) || 0;
-      existing.tokens += Number(modelData.total_tokens) || 0;
 
       const details = Array.isArray(modelData.details) ? modelData.details : [];
 
+      if (!details.length) {
+        const existing = getOrCreateStats('-');
+        existing.requests += Number(modelData.total_requests) || 0;
+        existing.tokens += Number(modelData.total_tokens) || 0;
+
+        const hasExplicitCounts =
+          typeof modelData.success_count === 'number' || typeof modelData.failure_count === 'number';
+        if (hasExplicitCounts) {
+          existing.successCount += Number(modelData.success_count) || 0;
+          existing.failureCount += Number(modelData.failure_count) || 0;
+        }
+        return;
+      }
+
       const price = modelPrices[modelName];
 
-      const hasExplicitCounts =
-        typeof modelData.success_count === 'number' || typeof modelData.failure_count === 'number';
-      if (hasExplicitCounts) {
-        existing.successCount += Number(modelData.success_count) || 0;
-        existing.failureCount += Number(modelData.failure_count) || 0;
-      }
+      details.forEach((detail) => {
+        const detailRecord = isRecord(detail) ? detail : null;
+        if (!detailRecord) return;
+        const usageDetail = { ...(detailRecord as unknown as UsageDetail), __modelName: modelName };
+        const provider = resolveProviderName(usageDetail);
+        const stats = getOrCreateStats(provider);
+        const tokens = extractTotalTokens(detailRecord);
+        const latencyMs = extractLatencyMs(detailRecord);
 
-      if (details.length > 0) {
-        details.forEach((detail) => {
-          const detailRecord = isRecord(detail) ? detail : null;
-          const latencyMs = extractLatencyMs(detailRecord);
-          if (!hasExplicitCounts) {
-            if (detailRecord?.failed === true) {
-              existing.failureCount += 1;
-            } else {
-              existing.successCount += 1;
-            }
-          }
+        stats.requests += 1;
+        stats.tokens += tokens;
 
-          addLatencySample(existing.latency, latencyMs);
+        if (detailRecord.failed === true) {
+          stats.failureCount += 1;
+        } else {
+          stats.successCount += 1;
+        }
 
-          if (price && detailRecord) {
-            existing.cost += calculateCost(
-              { ...(detailRecord as unknown as UsageDetail), __modelName: modelName },
-              modelPrices
-            );
-          }
-        });
-      }
-      modelMap.set(modelName, existing);
+        addLatencySample(stats.latency, latencyMs);
+
+        if (price) {
+          stats.cost += calculateCost(usageDetail, modelPrices);
+        }
+      });
     });
   });
 
   return Array.from(modelMap.entries())
-    .map(([model, stats]) => {
+    .map(([, stats]) => {
       const latencyStats = finalizeLatencyStats(stats.latency);
+      const displayModel = stats.provider === '-' ? stats.model : `${stats.provider} ${stats.model}`;
       return {
-        model,
+        model: stats.model,
+        provider: stats.provider,
+        displayModel,
         requests: stats.requests,
         successCount: stats.successCount,
         failureCount: stats.failureCount,

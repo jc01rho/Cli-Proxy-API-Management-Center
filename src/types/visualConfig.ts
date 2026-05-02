@@ -97,7 +97,6 @@ export type VisualConfigValues = {
   commercialMode: boolean;
   loggingToFile: boolean;
   logsMaxTotalSizeMb: string;
-  usageStatisticsEnabled: boolean;
   proxyUrl: string;
   forceModelPrefix: boolean;
   requestRetry: string;
@@ -147,7 +146,6 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   commercialMode: false,
   loggingToFile: false,
   logsMaxTotalSizeMb: '',
-  usageStatisticsEnabled: false,
   proxyUrl: '',
   forceModelPrefix: false,
   requestRetry: '',
@@ -155,7 +153,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   maxRetryInterval: '',
   quotaSwitchProject: true,
   quotaSwitchPreviewModel: true,
-  quotaAntigravityCredits: true,
+  quotaAntigravityCredits: false,
   routingStrategy: 'round-robin',
   routingMode: 'provider-based',
   tokenThresholdRules: [],

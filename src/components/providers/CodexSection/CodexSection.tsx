@@ -21,6 +21,13 @@ import {
 interface CodexSectionProps {
   configs: ProviderKeyConfig[];
   usageByProvider: ProviderRecentUsageMap;
+  providerKey?: string;
+  titleKey?: string;
+  addButtonKey?: string;
+  emptyTitleKey?: string;
+  emptyDescKey?: string;
+  itemTitleKey?: string;
+  modelsCountKey?: string;
   loading: boolean;
   disableControls: boolean;
   isSwitching: boolean;
@@ -33,6 +40,13 @@ interface CodexSectionProps {
 export function CodexSection({
   configs,
   usageByProvider,
+  providerKey = 'codex',
+  titleKey = 'ai_providers.codex_title',
+  addButtonKey = 'ai_providers.codex_add_button',
+  emptyTitleKey = 'ai_providers.codex_empty_title',
+  emptyDescKey = 'ai_providers.codex_empty_desc',
+  itemTitleKey = 'ai_providers.codex_item_title',
+  modelsCountKey = 'ai_providers.codex_models_count',
   loading,
   disableControls,
   isSwitching,
@@ -54,7 +68,7 @@ export function CodexSection({
       cache.set(
         configKey,
         statusBarDataFromRecentRequests(
-          getProviderRecentBuckets(usageByProvider, 'codex', config.apiKey, config.baseUrl)
+          getProviderRecentBuckets(usageByProvider, providerKey, config.apiKey, config.baseUrl)
         )
       );
     });
@@ -68,12 +82,12 @@ export function CodexSection({
         title={
           <span className={styles.cardTitle}>
             <img src={iconCodex} alt="" className={styles.cardTitleIcon} />
-            {t('ai_providers.codex_title')}
+            {t(titleKey)}
           </span>
         }
         extra={
           <Button size="sm" onClick={onAdd} disabled={actionsDisabled}>
-            {t('ai_providers.codex_add_button')}
+            {t(addButtonKey)}
           </Button>
         }
       >
@@ -81,8 +95,8 @@ export function CodexSection({
           items={configs}
           loading={loading}
           keyField={(item, index) => getProviderConfigKey(item, index)}
-          emptyTitle={t('ai_providers.codex_empty_title')}
-          emptyDescription={t('ai_providers.codex_empty_desc')}
+          emptyTitle={t(emptyTitleKey)}
+          emptyDescription={t(emptyDescKey)}
           onEdit={(_, index) => onEdit(index)}
           onDelete={(_, index) => onDelete(index)}
           actionsDisabled={actionsDisabled}
@@ -98,7 +112,7 @@ export function CodexSection({
           renderContent={(item, index) => {
             const stats = getProviderTotalStats(
               usageByProvider,
-              'codex',
+              providerKey,
               item.apiKey,
               item.baseUrl
             );
@@ -111,7 +125,7 @@ export function CodexSection({
 
             return (
               <Fragment>
-                <div className="item-title">{t('ai_providers.codex_item_title')}</div>
+                <div className="item-title">{t(itemTitleKey)}</div>
                 <div className={styles.fieldRow}>
                   <span className={styles.fieldLabel}>{t('common.api_key')}:</span>
                   <span className={styles.fieldValue}>{maskApiKey(item.apiKey)}</span>
@@ -169,7 +183,7 @@ export function CodexSection({
                 {item.models?.length ? (
                   <div className={styles.modelTagList}>
                     <span className={styles.modelCountLabel}>
-                      {t('ai_providers.codex_models_count')}: {item.models.length}
+                      {t(modelsCountKey)}: {item.models.length}
                     </span>
                     {item.models.map((model) => (
                       <span key={model.name} className={styles.modelTag}>

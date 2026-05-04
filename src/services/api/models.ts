@@ -41,6 +41,13 @@ const buildV1ModelsEndpoint = (baseUrl: string): string => {
   return `${trimmed}/v1/models`;
 };
 
+const buildOllamaTagsEndpoint = (baseUrl: string): string => {
+  const normalized = normalizeApiBase(baseUrl) || 'https://ollama.com/api';
+  const trimmed = normalized.replace(/\/+$/g, '');
+  if (/\/tags$/i.test(trimmed)) return trimmed;
+  return `${trimmed}/tags`;
+};
+
 const buildClaudeModelsEndpoint = (baseUrl: string): string => {
   const normalized = normalizeApiBase(baseUrl);
   const fallback = normalized || DEFAULT_CLAUDE_BASE_URL;
@@ -168,6 +175,35 @@ export const modelsApi = {
 
   buildV1ModelsEndpoint(baseUrl: string) {
     return buildV1ModelsEndpoint(baseUrl);
+  },
+
+  buildOllamaTagsEndpoint(baseUrl: string) {
+    return buildOllamaTagsEndpoint(baseUrl);
+  },
+
+  async fetchOllamaTagsViaApiCall(
+    baseUrl: string,
+    apiKey?: string,
+    headers: Record<string, string> = {}
+  ) {
+    const endpoint = buildOllamaTagsEndpoint(baseUrl);
+    const resolvedHeaders = { ...headers };
+    if (apiKey && !hasHeader(resolvedHeaders, 'authorization')) {
+      resolvedHeaders.Authorization = `Bearer ${apiKey}`;
+    }
+
+    const result = await apiCallApi.request({
+      method: 'GET',
+      url: endpoint,
+      header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined
+    });
+
+    if (result.statusCode < 200 || result.statusCode >= 300) {
+      throw new Error(getApiCallErrorMessage(result));
+    }
+
+    const payload = result.body ?? result.bodyText;
+    return normalizeModelList(payload, { dedupe: true });
   },
 
   buildClaudeModelsEndpoint(baseUrl: string) {

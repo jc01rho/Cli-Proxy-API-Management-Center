@@ -38,6 +38,7 @@ export interface Config {
   ampcode?: AmpcodeConfig;
   geminiApiKeys?: GeminiKeyConfig[];
   codexApiKeys?: ProviderKeyConfig[];
+  ollamaApiKeys?: ProviderKeyConfig[];
   claudeApiKeys?: ProviderKeyConfig[];
   vertexApiKeys?: ProviderKeyConfig[];
   openaiCompatibility?: OpenAIProviderConfig[];
@@ -62,6 +63,7 @@ export type RawConfigSection =
   | 'ampcode'
   | 'gemini-api-key'
   | 'codex-api-key'
+  | 'ollama-api-key'
   | 'claude-api-key'
   | 'vertex-api-key'
   | 'openai-compatibility'

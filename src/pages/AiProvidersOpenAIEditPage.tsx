@@ -101,6 +101,8 @@ export function AiProvidersOpenAIEditPage() {
     hasIndexParam,
     invalidIndexParam,
     invalidIndex,
+    routeScope,
+    providerNameLocked,
     disableControls,
     loading,
     saving,
@@ -121,8 +123,16 @@ export function AiProvidersOpenAIEditPage() {
   } = useOutletContext<OpenAIEditOutletContext>();
 
   const title = hasIndexParam
-    ? t('ai_providers.openai_edit_modal_title')
-    : t('ai_providers.openai_add_modal_title');
+    ? routeScope === 'mistral'
+      ? t('ai_providers.mistral_edit_modal_title', { defaultValue: t('ai_providers.openai_edit_modal_title') })
+      : routeScope === 'xiaomi'
+        ? t('ai_providers.xiaomi_edit_modal_title', { defaultValue: t('ai_providers.openai_edit_modal_title') })
+        : t('ai_providers.openai_edit_modal_title')
+    : routeScope === 'mistral'
+      ? t('ai_providers.mistral_add_modal_title', { defaultValue: t('ai_providers.openai_add_modal_title') })
+      : routeScope === 'xiaomi'
+        ? t('ai_providers.xiaomi_add_modal_title', { defaultValue: t('ai_providers.openai_add_modal_title') })
+        : t('ai_providers.openai_add_modal_title');
 
   const swipeRef = useEdgeSwipeBack({ onBack: handleBack });
   const [isTestingKeys, setIsTestingKeys] = useState(false);
@@ -532,13 +542,19 @@ export function AiProvidersOpenAIEditPage() {
           <div className={styles.sectionHint}>{t('common.invalid_provider_index')}</div>
         ) : (
           <div className={styles.openaiEditForm}>
-            <Input
+              <Input
               label={t('ai_providers.openai_add_modal_name_label')}
               value={form.name}
               onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-              disabled={saving || disableControls || isTestingKeys}
-            />
-            <Input
+              disabled={saving || disableControls || isTestingKeys || providerNameLocked}
+              hint={
+                providerNameLocked
+                  ? routeScope === 'mistral'
+                    ? t('ai_providers.mistral_name_locked_hint', { defaultValue: 'Provider name is fixed for mistral.ai routes.' })
+                    : t('ai_providers.xiaomi_name_locked_hint', { defaultValue: 'Provider name is fixed for Xiaomi routes.' })
+                  : undefined
+              }
+            />            <Input
               label={t('ai_providers.priority_label')}
               hint={t('ai_providers.priority_hint')}
               type="number"

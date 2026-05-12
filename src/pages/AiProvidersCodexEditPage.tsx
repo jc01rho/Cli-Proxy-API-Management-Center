@@ -12,7 +12,7 @@ import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import { useEdgeSwipeBack } from '@/hooks/useEdgeSwipeBack';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 import { SecondaryScreenShell } from '@/components/common/SecondaryScreenShell';
-import { modelsApi, providersApi } from '@/services/api';
+import { apiCallApi, getApiCallErrorMessage, modelsApi, providersApi } from '@/services/api';
 import { useAuthStore, useConfigStore, useNotificationStore } from '@/stores';
 import type { ProviderKeyConfig } from '@/types';
 import { buildHeaderObject, headersToEntries, normalizeHeaderEntries } from '@/utils/headers';
@@ -25,6 +25,10 @@ import layoutStyles from './AiProvidersEditLayout.module.scss';
 import styles from './AiProvidersPage.module.scss';
 
 type LocationState = { fromAiProviders?: boolean } | null;
+
+const OLLAMA_TEST_TIMEOUT_MS = 30_000;
+
+type ConnectivityTestStatus = 'idle' | 'loading' | 'success' | 'error';
 
 const buildEmptyForm = (): ProviderFormState => ({
   apiKey: '',
@@ -51,6 +55,11 @@ const getErrorMessage = (err: unknown) => {
   if (err instanceof Error) return err.message;
   if (typeof err === 'string') return err;
   return '';
+};
+
+const hasHeader = (headers: Record<string, string>, name: string) => {
+  const target = name.toLowerCase();
+  return Object.keys(headers).some((key) => key.toLowerCase() === target);
 };
 
 const normalizeModelEntries = (entries: Array<{ name: string; alias: string }>) =>
@@ -125,6 +134,10 @@ export function AiProvidersCodexEditPage() {
   const [modelDiscoverySelected, setModelDiscoverySelected] = useState<Set<string>>(new Set());
   const autoFetchSignatureRef = useRef<string>('');
   const modelDiscoveryRequestIdRef = useRef(0);
+
+  const [testStatus, setTestStatus] = useState<ConnectivityTestStatus>('idle');
+  const [testMessage, setTestMessage] = useState('');
+  const [isTesting, setIsTesting] = useState(false);
 
   const hasIndexParam = typeof params.index === 'string';
   const editIndex = useMemo(() => parseIndexParam(params.index), [params.index]);
@@ -260,7 +273,8 @@ export function AiProvidersCodexEditPage() {
     },
   });
 
-  const canSave = !disableControls && !saving && !loading && !invalidIndexParam && !invalidIndex;
+  const canSave =
+    !disableControls && !saving && !loading && !invalidIndexParam && !invalidIndex && !isTesting;
 
   const discoveredModelsFiltered = useMemo(() => {
     const filter = modelDiscoverySearch.trim().toLowerCase();
@@ -314,12 +328,17 @@ export function AiProvidersCodexEditPage() {
 
       if (addedCount > 0) {
         showNotification(
-          t(isOllama ? 'ai_providers.ollama_models_fetch_added' : 'ai_providers.codex_models_fetch_added', { count: addedCount }),
+          t(
+            isOllama
+              ? 'ai_providers.ollama_models_fetch_added'
+              : 'ai_providers.codex_models_fetch_added',
+            { count: addedCount }
+          ),
           'success'
         );
       }
     },
-    [setForm, showNotification, t]
+    [setForm, showNotification, t, isOllama]
   );
 
   const fetchCodexModelDiscovery = useCallback(async () => {
@@ -350,7 +369,13 @@ export function AiProvidersCodexEditPage() {
       if (modelDiscoveryRequestIdRef.current !== requestId) return;
       setDiscoveredModels([]);
       const message = getErrorMessage(err);
-      setModelDiscoveryError(`${t(isOllama ? 'ai_providers.ollama_models_fetch_error' : 'ai_providers.codex_models_fetch_error')}: ${message}`);
+      setModelDiscoveryError(
+        `${t(
+          isOllama
+            ? 'ai_providers.ollama_models_fetch_error'
+            : 'ai_providers.codex_models_fetch_error'
+        )}: ${message}`
+      );
     } finally {
       if (modelDiscoveryRequestIdRef.current === requestId) {
         setModelDiscoveryFetching(false);
@@ -447,6 +472,100 @@ export function AiProvidersCodexEditPage() {
     setModelDiscoveryOpen(false);
   };
 
+  const connectivityConfigSignature = useMemo(() => {
+    const headersSignature = form.headers
+      .map((entry) => `${entry.key.trim()}:${entry.value.trim()}`)
+      .join('|');
+    return [form.apiKey.trim(), form.baseUrl?.trim() ?? '', headersSignature].join('||');
+  }, [form.apiKey, form.baseUrl, form.headers]);
+
+  const previousConnectivityConfigRef = useRef(connectivityConfigSignature);
+
+  useEffect(() => {
+    if (previousConnectivityConfigRef.current === connectivityConfigSignature) {
+      return;
+    }
+    previousConnectivityConfigRef.current = connectivityConfigSignature;
+    setTestStatus('idle');
+    setTestMessage('');
+  }, [connectivityConfigSignature]);
+
+  const runOllamaConnectivityTest = useCallback(async () => {
+    if (isTesting) return;
+
+    const baseUrl = (form.baseUrl ?? '').trim() || defaultBaseUrl;
+    if (!baseUrl) {
+      const message = t('notification.ollama_test_url_required');
+      setTestStatus('error');
+      setTestMessage(message);
+      showNotification(message, 'error');
+      return;
+    }
+
+    const customHeaders = buildHeaderObject(form.headers);
+    const apiKey = form.apiKey.trim();
+    if (!apiKey && !hasHeader(customHeaders, 'authorization')) {
+      const message = t('ai_providers.ollama_test_key_required');
+      setTestStatus('error');
+      setTestMessage(message);
+      showNotification(message, 'error');
+      return;
+    }
+
+    const endpoint = modelsApi.buildOllamaTagsEndpoint(baseUrl);
+    if (!endpoint) {
+      const message = t('ai_providers.ollama_test_endpoint_invalid');
+      setTestStatus('error');
+      setTestMessage(message);
+      showNotification(message, 'error');
+      return;
+    }
+
+    const headers: Record<string, string> = { ...customHeaders };
+    if (apiKey && !hasHeader(headers, 'authorization')) {
+      headers.Authorization = `Bearer ${apiKey}`;
+    }
+
+    setIsTesting(true);
+    setTestStatus('loading');
+    setTestMessage(t('ai_providers.ollama_test_running'));
+
+    try {
+      const result = await apiCallApi.request(
+        {
+          method: 'GET',
+          url: endpoint,
+          header: Object.keys(headers).length ? headers : undefined,
+        },
+        { timeout: OLLAMA_TEST_TIMEOUT_MS }
+      );
+
+      if (result.statusCode < 200 || result.statusCode >= 300) {
+        throw new Error(getApiCallErrorMessage(result));
+      }
+
+      const message = t('ai_providers.ollama_test_success');
+      setTestStatus('success');
+      setTestMessage(message);
+      showNotification(message, 'success');
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      const errorCode =
+        typeof err === 'object' && err !== null && 'code' in err
+          ? String((err as { code?: string }).code)
+          : '';
+      const isTimeout = errorCode === 'ECONNABORTED' || message.toLowerCase().includes('timeout');
+      const resolvedMessage = isTimeout
+        ? t('ai_providers.ollama_test_timeout', { seconds: OLLAMA_TEST_TIMEOUT_MS / 1000 })
+        : `${t('ai_providers.ollama_test_failed')}: ${message || t('common.unknown_error')}`;
+      setTestStatus('error');
+      setTestMessage(resolvedMessage);
+      showNotification(resolvedMessage, 'error');
+    } finally {
+      setIsTesting(false);
+    }
+  }, [defaultBaseUrl, form.apiKey, form.baseUrl, form.headers, isTesting, showNotification, t]);
+
   const handleSave = useCallback(async () => {
     if (!canSave) return;
 
@@ -514,6 +633,7 @@ export function AiProvidersCodexEditPage() {
     showNotification,
     t,
     updateConfigValue,
+    defaultBaseUrl,
   ]);
 
   const canOpenModelDiscovery =
@@ -567,10 +687,14 @@ export function AiProvidersCodexEditPage() {
         ) : (
           <>
             <Input
-              label={t(isOllama ? 'ai_providers.ollama_add_modal_key_label' : 'ai_providers.codex_add_modal_key_label')}
+              label={t(
+                isOllama
+                  ? 'ai_providers.ollama_add_modal_key_label'
+                  : 'ai_providers.codex_add_modal_key_label'
+              )}
               value={form.apiKey}
               onChange={(e) => setForm((prev) => ({ ...prev, apiKey: e.target.value }))}
-              disabled={disableControls || saving}
+              disabled={disableControls || saving || isTesting}
             />
             <Input
               label={t('ai_providers.priority_label')}
@@ -586,7 +710,7 @@ export function AiProvidersCodexEditPage() {
                   priority: parsed !== undefined && Number.isFinite(parsed) ? parsed : undefined,
                 }));
               }}
-              disabled={disableControls || saving}
+              disabled={disableControls || saving || isTesting}
             />
             <div className="form-group">
               <label>{t('ai_providers.billing_class_label')}</label>
@@ -597,10 +721,12 @@ export function AiProvidersCodexEditPage() {
                   setForm((prev) => ({
                     ...prev,
                     billingClass:
-                      e.target.value === '' ? undefined : (e.target.value as ProviderKeyConfig['billingClass']),
+                      e.target.value === ''
+                        ? undefined
+                        : (e.target.value as ProviderKeyConfig['billingClass']),
                   }))
                 }
-                disabled={disableControls || saving}
+                disabled={disableControls || saving || isTesting}
               >
                 <option value="">{t('common.not_set')}</option>
                 <option value="metered">metered</option>
@@ -613,29 +739,35 @@ export function AiProvidersCodexEditPage() {
               value={form.prefix ?? ''}
               onChange={(e) => setForm((prev) => ({ ...prev, prefix: e.target.value }))}
               hint={t('ai_providers.prefix_hint')}
-              disabled={disableControls || saving}
+              disabled={disableControls || saving || isTesting}
             />
             <Input
-              label={t(isOllama ? 'ai_providers.ollama_add_modal_url_label' : 'ai_providers.codex_add_modal_url_label')}
+              label={t(
+                isOllama
+                  ? 'ai_providers.ollama_add_modal_url_label'
+                  : 'ai_providers.codex_add_modal_url_label'
+              )}
               value={form.baseUrl ?? ''}
               onChange={(e) => setForm((prev) => ({ ...prev, baseUrl: e.target.value }))}
-              disabled={disableControls || saving}
+              disabled={disableControls || saving || isTesting}
             />
-            {!isOllama && <div className="form-group">
-              <label>{t('ai_providers.codex_websockets_label')}</label>
-              <ToggleSwitch
-                checked={Boolean(form.websockets)}
-                onChange={(value) => setForm((prev) => ({ ...prev, websockets: value }))}
-                disabled={disableControls || saving}
-                ariaLabel={t('ai_providers.codex_websockets_label')}
-              />
-              <div className="hint">{t('ai_providers.codex_websockets_hint')}</div>
-            </div>}
+            {!isOllama && (
+              <div className="form-group">
+                <label>{t('ai_providers.codex_websockets_label')}</label>
+                <ToggleSwitch
+                  checked={Boolean(form.websockets)}
+                  onChange={(value) => setForm((prev) => ({ ...prev, websockets: value }))}
+                  disabled={disableControls || saving || isTesting}
+                  ariaLabel={t('ai_providers.codex_websockets_label')}
+                />
+                <div className="hint">{t('ai_providers.codex_websockets_hint')}</div>
+              </div>
+            )}
             <Input
               label={t('ai_providers.codex_add_modal_proxy_label')}
               value={form.proxyUrl ?? ''}
               onChange={(e) => setForm((prev) => ({ ...prev, proxyUrl: e.target.value }))}
-              disabled={disableControls || saving}
+              disabled={disableControls || saving || isTesting}
             />
             <HeaderInputList
               entries={form.headers}
@@ -645,7 +777,7 @@ export function AiProvidersCodexEditPage() {
               valuePlaceholder={t('common.custom_headers_value_placeholder')}
               removeButtonTitle={t('common.delete')}
               removeButtonAriaLabel={t('common.delete')}
-              disabled={disableControls || saving}
+              disabled={disableControls || saving || isTesting}
             />
 
             <div className={styles.modelConfigSection}>
@@ -663,7 +795,7 @@ export function AiProvidersCodexEditPage() {
                         modelEntries: [...prev.modelEntries, { name: '', alias: '' }],
                       }))
                     }
-                    disabled={disableControls || saving}
+                    disabled={disableControls || saving || isTesting}
                   >
                     {t('ai_providers.codex_models_add_btn')}
                   </Button>
@@ -671,20 +803,26 @@ export function AiProvidersCodexEditPage() {
                     variant="secondary"
                     size="sm"
                     onClick={() => setModelDiscoveryOpen(true)}
-                    disabled={!canOpenModelDiscovery}
+                    disabled={!canOpenModelDiscovery || isTesting}
                   >
-                    {t(isOllama ? 'ai_providers.ollama_models_fetch_button' : 'ai_providers.codex_models_fetch_button')}
+                    {t(
+                      isOllama
+                        ? 'ai_providers.ollama_models_fetch_button'
+                        : 'ai_providers.codex_models_fetch_button'
+                    )}
                   </Button>
                 </div>
               </div>
-              <div className={styles.sectionHint}>{t(isOllama ? 'ai_providers.ollama_models_hint' : 'ai_providers.codex_models_hint')}</div>
+              <div className={styles.sectionHint}>
+                {t(isOllama ? 'ai_providers.ollama_models_hint' : 'ai_providers.codex_models_hint')}
+              </div>
 
               <ModelInputList
                 entries={form.modelEntries}
                 onChange={(entries) => setForm((prev) => ({ ...prev, modelEntries: entries }))}
                 namePlaceholder={t('common.model_name_placeholder')}
                 aliasPlaceholder={t('common.model_alias_placeholder')}
-                disabled={disableControls || saving}
+                disabled={disableControls || saving || isTesting}
                 hideAddButton
                 className={styles.modelInputList}
                 rowClassName={styles.modelInputRow}
@@ -693,6 +831,43 @@ export function AiProvidersCodexEditPage() {
                 removeButtonTitle={t('common.delete')}
                 removeButtonAriaLabel={t('common.delete')}
               />
+
+              {isOllama && (
+                <>
+                  <div className={styles.modelTestPanel}>
+                    <div className={styles.modelTestMeta}>
+                      <label className={styles.modelTestLabel}>{t('ai_providers.ollama_test_title')}</label>
+                      <span className={styles.modelTestHint}>{t('ai_providers.ollama_test_hint')}</span>
+                    </div>
+                    <div className={styles.modelTestControls}>
+                      <Button
+                        variant={testStatus === 'error' ? 'danger' : 'secondary'}
+                        size="sm"
+                        onClick={() => void runOllamaConnectivityTest()}
+                        loading={testStatus === 'loading'}
+                        disabled={saving || disableControls || isTesting}
+                        className={styles.modelTestAllButton}
+                      >
+                        {t('ai_providers.ollama_test_action')}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {testMessage && (
+                    <div
+                      className={`status-badge ${
+                        testStatus === 'error'
+                          ? 'error'
+                          : testStatus === 'success'
+                            ? 'success'
+                            : 'muted'
+                      }`}
+                    >
+                      {testMessage}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
             <div className="form-group">
               <label>{t('ai_providers.excluded_models_label')}</label>
@@ -702,14 +877,18 @@ export function AiProvidersCodexEditPage() {
                 value={form.excludedText}
                 onChange={(e) => setForm((prev) => ({ ...prev, excludedText: e.target.value }))}
                 rows={4}
-                disabled={disableControls || saving}
+                disabled={disableControls || saving || isTesting}
               />
               <div className="hint">{t('ai_providers.excluded_models_hint')}</div>
             </div>
 
             <Modal
               open={modelDiscoveryOpen}
-              title={t(isOllama ? 'ai_providers.ollama_models_fetch_title' : 'ai_providers.codex_models_fetch_title')}
+              title={t(
+                isOllama
+                  ? 'ai_providers.ollama_models_fetch_title'
+                  : 'ai_providers.codex_models_fetch_title'
+              )}
               onClose={() => setModelDiscoveryOpen(false)}
               width={720}
               footer={
@@ -727,18 +906,30 @@ export function AiProvidersCodexEditPage() {
                     onClick={handleApplyDiscoveredModels}
                     disabled={!canApplyModelDiscovery}
                   >
-                    {t(isOllama ? 'ai_providers.ollama_models_fetch_apply' : 'ai_providers.codex_models_fetch_apply')}
+                    {t(
+                      isOllama
+                        ? 'ai_providers.ollama_models_fetch_apply'
+                        : 'ai_providers.codex_models_fetch_apply'
+                    )}
                   </Button>
                 </>
               }
             >
               <div className={styles.openaiModelsContent}>
                 <div className={styles.sectionHint}>
-                  {t(isOllama ? 'ai_providers.ollama_models_fetch_hint' : 'ai_providers.codex_models_fetch_hint')}
+                  {t(
+                    isOllama
+                      ? 'ai_providers.ollama_models_fetch_hint'
+                      : 'ai_providers.codex_models_fetch_hint'
+                  )}
                 </div>
                 <div className={styles.openaiModelsEndpointSection}>
                   <label className={styles.openaiModelsEndpointLabel}>
-                    {t(isOllama ? 'ai_providers.ollama_models_fetch_url_label' : 'ai_providers.codex_models_fetch_url_label')}
+                    {t(
+                      isOllama
+                        ? 'ai_providers.ollama_models_fetch_url_label'
+                        : 'ai_providers.codex_models_fetch_url_label'
+                    )}
                   </label>
                   <div className={styles.openaiModelsEndpointControls}>
                     <input
@@ -751,9 +942,13 @@ export function AiProvidersCodexEditPage() {
                       size="sm"
                       onClick={() => void fetchCodexModelDiscovery()}
                       loading={modelDiscoveryFetching}
-                      disabled={disableControls || saving}
+                      disabled={disableControls || saving || isTesting}
                     >
-                      {t(isOllama ? 'ai_providers.ollama_models_fetch_refresh' : 'ai_providers.codex_models_fetch_refresh')}
+                      {t(
+                        isOllama
+                          ? 'ai_providers.ollama_models_fetch_refresh'
+                          : 'ai_providers.codex_models_fetch_refresh'
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -805,11 +1000,19 @@ export function AiProvidersCodexEditPage() {
                 {modelDiscoveryError && <div className="error-box">{modelDiscoveryError}</div>}
                 {modelDiscoveryFetching ? (
                   <div className={styles.sectionHint}>
-                    {t(isOllama ? 'ai_providers.ollama_models_fetch_loading' : 'ai_providers.codex_models_fetch_loading')}
+                    {t(
+                      isOllama
+                        ? 'ai_providers.ollama_models_fetch_loading'
+                        : 'ai_providers.codex_models_fetch_loading'
+                    )}
                   </div>
                 ) : discoveredModels.length === 0 ? (
                   <div className={styles.sectionHint}>
-                    {t(isOllama ? 'ai_providers.ollama_models_fetch_empty' : 'ai_providers.codex_models_fetch_empty')}
+                    {t(
+                      isOllama
+                        ? 'ai_providers.ollama_models_fetch_empty'
+                        : 'ai_providers.codex_models_fetch_empty'
+                    )}
                   </div>
                 ) : discoveredModelsFiltered.length === 0 ? (
                   <div className={styles.sectionHint}>

@@ -12,7 +12,16 @@ import iconVertex from '@/assets/icons/vertex.svg';
 import iconAmp from '@/assets/icons/amp.svg';
 import styles from './ProviderNav.module.scss';
 
-export type ProviderId = 'gemini' | 'codex' | 'ollama' | 'claude' | 'vertex' | 'ampcode' | 'openai';
+export type ProviderId =
+  | 'gemini'
+  | 'codex'
+  | 'ollama'
+  | 'claude'
+  | 'vertex'
+  | 'ampcode'
+  | 'openai'
+  | 'mistral'
+  | 'xiaomi';
 
 interface ProviderNavItem {
   id: ProviderId;
@@ -27,7 +36,13 @@ const PROVIDERS: ProviderNavItem[] = [
   { id: 'claude', label: 'Claude', getIcon: () => iconClaude },
   { id: 'vertex', label: 'Vertex', getIcon: () => iconVertex },
   { id: 'ampcode', label: 'Ampcode', getIcon: () => iconAmp },
-  { id: 'openai', label: 'OpenAI', getIcon: (theme) => (theme === 'dark' ? iconOpenaiDark : iconOpenaiLight) },
+  {
+    id: 'openai',
+    label: 'OpenAI',
+    getIcon: (theme) => (theme === 'dark' ? iconOpenaiDark : iconOpenaiLight),
+  },
+  { id: 'mistral', label: 'Mistral', getIcon: () => iconCodex },
+  { id: 'xiaomi', label: 'Xiaomi', getIcon: () => iconCodex },
 ];
 
 const HEADER_OFFSET = 24;
@@ -50,6 +65,8 @@ export function ProviderNav() {
     vertex: null,
     ampcode: null,
     openai: null,
+    mistral: null,
+    xiaomi: null,
   });
   const [indicatorRect, setIndicatorRect] = useState<{
     x: number;

@@ -159,6 +159,50 @@ const serializeOpenAIProvider = (provider: OpenAIProviderConfig) => {
   return payload;
 };
 
+const OPENAI_SCOPED_PROVIDER_NAMES = ['mistral.ai', 'xiaomi'] as const;
+
+type ScopedOpenAIProviderName = (typeof OPENAI_SCOPED_PROVIDER_NAMES)[number];
+
+const normalizeProviderName = (value: unknown) =>
+  typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+const isScopedOpenAIProvider = (
+  provider: OpenAIProviderConfig,
+  providerName: ScopedOpenAIProviderName
+) => normalizeProviderName(provider.name) === providerName;
+
+const isGenericOpenAIProvider = (provider: OpenAIProviderConfig) =>
+  !OPENAI_SCOPED_PROVIDER_NAMES.includes(
+    normalizeProviderName(provider.name) as ScopedOpenAIProviderName
+  );
+
+const fetchAllOpenAIProviders = async (): Promise<OpenAIProviderConfig[]> => {
+  const data = await apiClient.get('/openai-compatibility');
+  const list = extractArrayPayload(data, 'openai-compatibility');
+  return list.map((item) => normalizeOpenAIProvider(item)).filter(Boolean) as OpenAIProviderConfig[];
+};
+
+const saveScopedOpenAIProviders = async (
+  providers: OpenAIProviderConfig[],
+  scope: ScopedOpenAIProviderName | 'generic'
+) => {
+  const existing = await fetchAllOpenAIProviders();
+  const filteredExisting = existing.filter((provider) => {
+    if (scope === 'generic') {
+      return !isGenericOpenAIProvider(provider);
+    }
+    return !isScopedOpenAIProvider(provider, scope);
+  });
+  const nextProviders =
+    scope === 'generic'
+      ? providers
+      : providers.map((provider) => ({ ...provider, name: scope }));
+  return apiClient.put(
+    '/openai-compatibility',
+    [...filteredExisting, ...nextProviders].map((item) => serializeOpenAIProvider(item))
+  );
+};
+
 export const providersApi = {
   async getGeminiKeys(): Promise<GeminiKeyConfig[]> {
     const data = await apiClient.get('/gemini-api-key');
@@ -235,21 +279,95 @@ export const providersApi = {
   deleteVertexConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/vertex-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 
-  async getOpenAIProviders(): Promise<OpenAIProviderConfig[]> {
-    const data = await apiClient.get('/openai-compatibility');
-    const list = extractArrayPayload(data, 'openai-compatibility');
-    return list.map((item) => normalizeOpenAIProvider(item)).filter(Boolean) as OpenAIProviderConfig[];
+  getOpenAIProviders: fetchAllOpenAIProviders,
+
+  saveOpenAIProviders: (providers: OpenAIProviderConfig[]) => saveScopedOpenAIProviders(providers, 'generic'),
+
+  updateOpenAIProvider: async (index: number, value: OpenAIProviderConfig) => {
+    const providers = await fetchAllOpenAIProviders();
+    const genericProviders = providers.filter(isGenericOpenAIProvider);
+    const current = genericProviders[index];
+    if (!current) throw new Error('Provider not found');
+    genericProviders[index] = value;
+    return saveScopedOpenAIProviders(genericProviders, 'generic');
   },
 
-  saveOpenAIProviders: (providers: OpenAIProviderConfig[]) =>
-    apiClient.put('/openai-compatibility', providers.map((item) => serializeOpenAIProvider(item))),
+  updateOpenAIProviderDisabled: async (index: number, disabled: boolean) => {
+    const providers = await fetchAllOpenAIProviders();
+    const genericProviders = providers.filter(isGenericOpenAIProvider);
+    const current = genericProviders[index];
+    if (!current) throw new Error('Provider not found');
+    genericProviders[index] = { ...current, disabled };
+    return saveScopedOpenAIProviders(genericProviders, 'generic');
+  },
 
-  updateOpenAIProvider: (index: number, value: OpenAIProviderConfig) =>
-    apiClient.patch('/openai-compatibility', { index, value: serializeOpenAIProvider(value) }),
+  deleteOpenAIProvider: async (name: string) => {
+    const providers = await fetchAllOpenAIProviders();
+    const genericProviders = providers.filter(
+      (provider) => isGenericOpenAIProvider(provider) && provider.name !== name
+    );
+    return saveScopedOpenAIProviders(genericProviders, 'generic');
+  },
 
-  updateOpenAIProviderDisabled: (index: number, disabled: boolean) =>
-    apiClient.patch('/openai-compatibility', { index, value: { disabled } }),
+  getMistralProviders: () => fetchAllOpenAIProviders().then((providers) => providers.filter((provider) => isScopedOpenAIProvider(provider, 'mistral.ai'))),
 
-  deleteOpenAIProvider: (name: string) =>
-    apiClient.delete(`/openai-compatibility?name=${encodeURIComponent(name)}`)
+  saveMistralProviders: (providers: OpenAIProviderConfig[]) => saveScopedOpenAIProviders(providers, 'mistral.ai'),
+
+  updateMistralProvider: async (index: number, value: OpenAIProviderConfig) => {
+    const providers = (await fetchAllOpenAIProviders()).filter((provider) =>
+      isScopedOpenAIProvider(provider, 'mistral.ai')
+    );
+    if (!providers[index]) throw new Error('Provider not found');
+    providers[index] = { ...value, name: 'mistral.ai' };
+    return saveScopedOpenAIProviders(providers, 'mistral.ai');
+  },
+
+  updateMistralProviderDisabled: async (index: number, disabled: boolean) => {
+    const providers = (await fetchAllOpenAIProviders()).filter((provider) =>
+      isScopedOpenAIProvider(provider, 'mistral.ai')
+    );
+    if (!providers[index]) throw new Error('Provider not found');
+    providers[index] = { ...providers[index], disabled };
+    return saveScopedOpenAIProviders(providers, 'mistral.ai');
+  },
+
+  deleteMistralProvider: async (index: number) => {
+    const providers = (await fetchAllOpenAIProviders()).filter((provider) =>
+      isScopedOpenAIProvider(provider, 'mistral.ai')
+    );
+    if (index < 0 || index >= providers.length) throw new Error('Provider not found');
+    providers.splice(index, 1);
+    return saveScopedOpenAIProviders(providers, 'mistral.ai');
+  },
+
+  getXiaomiProviders: () => fetchAllOpenAIProviders().then((providers) => providers.filter((provider) => isScopedOpenAIProvider(provider, 'xiaomi'))),
+
+  saveXiaomiProviders: (providers: OpenAIProviderConfig[]) => saveScopedOpenAIProviders(providers, 'xiaomi'),
+
+  updateXiaomiProvider: async (index: number, value: OpenAIProviderConfig) => {
+    const providers = (await fetchAllOpenAIProviders()).filter((provider) =>
+      isScopedOpenAIProvider(provider, 'xiaomi')
+    );
+    if (!providers[index]) throw new Error('Provider not found');
+    providers[index] = { ...value, name: 'xiaomi' };
+    return saveScopedOpenAIProviders(providers, 'xiaomi');
+  },
+
+  updateXiaomiProviderDisabled: async (index: number, disabled: boolean) => {
+    const providers = (await fetchAllOpenAIProviders()).filter((provider) =>
+      isScopedOpenAIProvider(provider, 'xiaomi')
+    );
+    if (!providers[index]) throw new Error('Provider not found');
+    providers[index] = { ...providers[index], disabled };
+    return saveScopedOpenAIProviders(providers, 'xiaomi');
+  },
+
+  deleteXiaomiProvider: async (index: number) => {
+    const providers = (await fetchAllOpenAIProviders()).filter((provider) =>
+      isScopedOpenAIProvider(provider, 'xiaomi')
+    );
+    if (index < 0 || index >= providers.length) throw new Error('Provider not found');
+    providers.splice(index, 1);
+    return saveScopedOpenAIProviders(providers, 'xiaomi');
+  }
 };

@@ -50,6 +50,10 @@ interface OpenAISectionProps {
   disableControls: boolean;
   isSwitching: boolean;
   resolvedTheme: string;
+  titleKey?: string;
+  addButtonKey?: string;
+  emptyTitleKey?: string;
+  emptyDescKey?: string;
   onAdd: () => void;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
@@ -76,6 +80,10 @@ export function OpenAISection({
   disableControls,
   isSwitching,
   resolvedTheme,
+  titleKey = 'ai_providers.openai_title',
+  addButtonKey = 'ai_providers.openai_add_button',
+  emptyTitleKey = 'ai_providers.openai_empty_title',
+  emptyDescKey = 'ai_providers.openai_empty_desc',
   onAdd,
   onEdit,
   onDelete,
@@ -507,7 +515,7 @@ export function OpenAISection({
           disabled={actionsDisabled}
           className={styles.openaiAddButton}
         >
-          {t('ai_providers.openai_add_button')}
+          {t(addButtonKey)}
         </Button>
       </div>
     );
@@ -520,7 +528,7 @@ export function OpenAISection({
         alt=""
         className={styles.cardTitleIcon}
       />
-      {t('ai_providers.openai_title')}
+      {t(titleKey)}
     </span>
   );
 
@@ -710,8 +718,8 @@ export function OpenAISection({
             />
           ) : sortedConfigs.length === 0 ? (
             <EmptyState
-              title={t('ai_providers.openai_empty_title')}
-              description={t('ai_providers.openai_empty_desc')}
+              title={t(emptyTitleKey)}
+              description={t(emptyDescKey)}
             />
           ) : (
             <div className={styles.openaiProviderList}>{sortedConfigs.map(renderProviderCard)}</div>

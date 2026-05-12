@@ -65,6 +65,38 @@ const mainRoutes = [
       { path: 'models', element: <AiProvidersOpenAIModelsPage /> },
     ],
   },
+  {
+    path: '/ai-providers/mistral/new',
+    element: <AiProvidersOpenAIEditLayout />,
+    children: [
+      { index: true, element: <AiProvidersOpenAIEditPage /> },
+      { path: 'models', element: <AiProvidersOpenAIModelsPage /> },
+    ],
+  },
+  {
+    path: '/ai-providers/mistral/:index',
+    element: <AiProvidersOpenAIEditLayout />,
+    children: [
+      { index: true, element: <AiProvidersOpenAIEditPage /> },
+      { path: 'models', element: <AiProvidersOpenAIModelsPage /> },
+    ],
+  },
+  {
+    path: '/ai-providers/xiaomi/new',
+    element: <AiProvidersOpenAIEditLayout />,
+    children: [
+      { index: true, element: <AiProvidersOpenAIEditPage /> },
+      { path: 'models', element: <AiProvidersOpenAIModelsPage /> },
+    ],
+  },
+  {
+    path: '/ai-providers/xiaomi/:index',
+    element: <AiProvidersOpenAIEditLayout />,
+    children: [
+      { index: true, element: <AiProvidersOpenAIEditPage /> },
+      { path: 'models', element: <AiProvidersOpenAIModelsPage /> },
+    ],
+  },
   { path: '/ai-providers/ampcode', element: <AiProvidersAmpcodeEditPage /> },
   { path: '/ai-providers', element: <AiProvidersPage /> },
   { path: '/ai-providers/*', element: <AiProvidersPage /> },

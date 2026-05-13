@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/icons';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useAuthStore, useConfigStore, useNotificationStore } from '@/stores';
+import { useAuthStore, useNotificationStore } from '@/stores';
 import { logsApi } from '@/services/api/logs';
 import { copyToClipboard } from '@/utils/clipboard';
 import { downloadBlob } from '@/utils/download';
@@ -67,8 +67,6 @@ export function LogsPage() {
   const { t } = useTranslation();
   const { showNotification, showConfirmation } = useNotificationStore();
   const connectionStatus = useAuthStore((state) => state.connectionStatus);
-  const config = useConfigStore((state) => state.config);
-  const requestLogEnabled = config?.requestLog ?? false;
 
   const [activeTab, setActiveTab] = useState<TabType>('logs');
   const [logState, setLogState] = useState<LogState>({ buffer: [], visibleFrom: 0 });
@@ -267,7 +265,7 @@ export function LogsPage() {
     if (connectionStatus !== 'connected') return;
     void loadErrorLogs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, connectionStatus, requestLogEnabled]);
+  }, [activeTab, connectionStatus]);
 
   useEffect(() => {
     if (!autoRefresh || connectionStatus !== 'connected') {
@@ -382,7 +380,6 @@ export function LogsPage() {
   };
 
   const startLongPress = (event: ReactPointerEvent<HTMLDivElement>, id?: string) => {
-    if (!requestLogEnabled) return;
     if (!id) return;
     if (requestLogId) return;
     clearLongPressTimer();
@@ -850,12 +847,6 @@ export function LogsPage() {
           >
             <div className="stack">
               <div className="hint">{t('logs.error_logs_description')}</div>
-
-              {requestLogEnabled && (
-                <div>
-                  <div className="status-badge warning">{t('logs.error_logs_request_log_enabled')}</div>
-                </div>
-              )}
 
               {errorLogsError && <div className="error-box">{errorLogsError}</div>}
 

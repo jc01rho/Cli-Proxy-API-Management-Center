@@ -167,6 +167,8 @@
     "request_log_title": "Журналирование запросов",
     "request_log_enable": "Включить журналирование запросов",
     "request_log_success_body_enable": "Также логировать request/response body для успешных ответов 2xx",
+    "detailed_api_error_body_log_limit_label": "Body Log Limit",
+    "detailed_api_error_body_log_limit_hint": "0 = значение по умолчанию (4096), -1 = без лимита (полное body). Положительное значение = лимит символов.",
     "request_log_warning": "Оставьте выключенным, если подробная диагностика не нужна.",
     "force_model_prefix_enable": "Включить принудительный префикс модели",
     "ws_auth_title": "Аутентификация WebSocket",

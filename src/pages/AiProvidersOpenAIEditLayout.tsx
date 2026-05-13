@@ -529,7 +529,15 @@ export function AiProvidersOpenAIEditLayout() {
           ? providers.map((item, idx) => (idx === editIndex ? payload : item))
           : [...providers, payload];
 
-      if (routeScope === 'mistral') {
+      if (editIndex !== null) {
+        if (routeScope === 'mistral') {
+          await providersApi.updateMistralProvider(editIndex, payload);
+        } else if (routeScope === 'xiaomi') {
+          await providersApi.updateXiaomiProvider(editIndex, payload);
+        } else {
+          await providersApi.updateOpenAIProvider(editIndex, payload);
+        }
+      } else if (routeScope === 'mistral') {
         await providersApi.saveMistralProviders(nextList);
       } else if (routeScope === 'xiaomi') {
         await providersApi.saveXiaomiProviders(nextList);

@@ -18,6 +18,8 @@ export interface Config {
   requestRetry?: number;
   quotaExceeded?: QuotaExceededConfig;
   requestLog?: boolean;
+  requestLogSuccessBody?: boolean;
+  detailedAPIErrorBodyLogLimit?: number;
   loggingToFile?: boolean;
   logsMaxTotalSizeMb?: number;
   wsAuth?: boolean;
@@ -53,6 +55,8 @@ export type RawConfigSection =
   | 'request-retry'
   | 'quota-exceeded'
   | 'request-log'
+  | 'request-log-success-body'
+  | 'detailed-api-error-body-log-limit'
   | 'logging-to-file'
   | 'logs-max-total-size-mb'
   | 'ws-auth'

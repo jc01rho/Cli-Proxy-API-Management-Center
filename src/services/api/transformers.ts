@@ -438,6 +438,16 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
   }
 
   config.requestLog = normalizeBoolean(raw['request-log'] ?? raw.requestLog);
+  config.requestLogSuccessBody = normalizeBoolean(raw['request-log-success-body'] ?? raw.requestLogSuccessBody);
+  const detailedAPIErrorBodyLogLimit = raw['detailed-api-error-body-log-limit'] ?? raw.detailedAPIErrorBodyLogLimit;
+  if (typeof detailedAPIErrorBodyLogLimit === 'number' && Number.isFinite(detailedAPIErrorBodyLogLimit)) {
+    config.detailedAPIErrorBodyLogLimit = detailedAPIErrorBodyLogLimit;
+  } else if (typeof detailedAPIErrorBodyLogLimit === 'string' && detailedAPIErrorBodyLogLimit.trim() !== '') {
+    const parsedLimit = Number(detailedAPIErrorBodyLogLimit);
+    if (Number.isFinite(parsedLimit)) {
+      config.detailedAPIErrorBodyLogLimit = parsedLimit;
+    }
+  }
   config.loggingToFile = normalizeBoolean(raw['logging-to-file'] ?? raw.loggingToFile);
   const logsMaxTotalSizeMb = raw['logs-max-total-size-mb'] ?? raw.logsMaxTotalSizeMb;
   if (typeof logsMaxTotalSizeMb === 'number' && Number.isFinite(logsMaxTotalSizeMb)) {

@@ -39,6 +39,8 @@ const SECTION_KEYS: RawConfigSection[] = [
   'request-retry',
   'quota-exceeded',
   'request-log',
+  'request-log-success-body',
+  'detailed-api-error-body-log-limit',
   'logging-to-file',
   'logs-max-total-size-mb',
   'ws-auth',
@@ -69,6 +71,10 @@ const extractSectionValue = (config: Config | null, section?: RawConfigSection) 
       return config.quotaExceeded;
     case 'request-log':
       return config.requestLog;
+    case 'request-log-success-body':
+      return config.requestLogSuccessBody;
+    case 'detailed-api-error-body-log-limit':
+      return config.detailedAPIErrorBodyLogLimit;
     case 'logging-to-file':
       return config.loggingToFile;
     case 'logs-max-total-size-mb':
@@ -207,6 +213,12 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
           break;
         case 'request-log':
           nextConfig.requestLog = value as Config['requestLog'];
+          break;
+        case 'request-log-success-body':
+          nextConfig.requestLogSuccessBody = value as Config['requestLogSuccessBody'];
+          break;
+        case 'detailed-api-error-body-log-limit':
+          nextConfig.detailedAPIErrorBodyLogLimit = value as Config['detailedAPIErrorBodyLogLimit'];
           break;
         case 'logging-to-file':
           nextConfig.loggingToFile = value as Config['loggingToFile'];

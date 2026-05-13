@@ -58,6 +58,28 @@ export const configApi = {
   updateRequestLog: (enabled: boolean) => apiClient.put('/request-log', { value: enabled }),
 
   /**
+   * 成功请求 body 日志开关
+   */
+  updateRequestLogSuccessBody: (enabled: boolean) =>
+    apiClient.put('/request-log-success-body', { value: enabled }),
+
+  /**
+   * 获取详细 API 错误 body 截断限制
+   */
+  async getDetailedAPIErrorBodyLogLimit(): Promise<number> {
+    const data = await apiClient.get<Record<string, unknown>>('/detailed-api-error-body-log-limit');
+    const value = data?.['detailed-api-error-body-log-limit'] ?? data?.detailedAPIErrorBodyLogLimit ?? 0;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  },
+
+  /**
+   * 更新详细 API 错误 body 截断限制
+   */
+  updateDetailedAPIErrorBodyLogLimit: (value: number) =>
+    apiClient.put('/detailed-api-error-body-log-limit', { value }),
+
+  /**
    * 写日志到文件开关
    */
   updateLoggingToFile: (enabled: boolean) => apiClient.put('/logging-to-file', { value: enabled }),

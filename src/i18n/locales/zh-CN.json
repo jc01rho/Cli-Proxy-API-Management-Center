@@ -167,6 +167,8 @@
     "request_log_title": "请求日志",
     "request_log_enable": "启用请求日志",
     "request_log_success_body_enable": "同时记录成功 2xx 响应的请求/响应正文",
+    "detailed_api_error_body_log_limit_label": "Body Log Limit",
+    "detailed_api_error_body_log_limit_hint": "0 = 默认值 (4096)，-1 = 不限制（完整正文），正数 = 字符截断长度。",
     "request_log_warning": "仅在需要排查问题时开启，日常请保持关闭。",
     "force_model_prefix_enable": "强制模型前缀",
     "ws_auth_title": "WebSocket 鉴权",

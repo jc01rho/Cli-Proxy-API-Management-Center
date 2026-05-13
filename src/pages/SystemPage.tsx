@@ -89,6 +89,9 @@ export function SystemPage() {
   }>();
   const [requestLogModalOpen, setRequestLogModalOpen] = useState(false);
   const [requestLogDraft, setRequestLogDraft] = useState(false);
+  const [requestLogSuccessBodyDraft, setRequestLogSuccessBodyDraft] = useState(false);
+  const [detailedAPIErrorBodyLogLimitDraft, setDetailedAPIErrorBodyLogLimitDraft] = useState(0);
+  const [detailedAPIErrorBodyLogLimitInput, setDetailedAPIErrorBodyLogLimitInput] = useState('0');
   const [requestLogTouched, setRequestLogTouched] = useState(false);
   const [requestLogSaving, setRequestLogSaving] = useState(false);
   const [checkingVersion, setCheckingVersion] = useState(false);
@@ -103,7 +106,12 @@ export function SystemPage() {
   );
   const groupedModels = useMemo(() => classifyModels(models, { otherLabel }), [models, otherLabel]);
   const requestLogEnabled = config?.requestLog ?? false;
-  const requestLogDirty = requestLogDraft !== requestLogEnabled;
+  const requestLogSuccessBodyEnabled = config?.requestLogSuccessBody ?? false;
+  const detailedAPIErrorBodyLogLimit = config?.detailedAPIErrorBodyLogLimit ?? 0;
+  const requestLogDirty =
+    requestLogDraft !== requestLogEnabled ||
+    requestLogSuccessBodyDraft !== requestLogSuccessBodyEnabled ||
+    detailedAPIErrorBodyLogLimitDraft !== detailedAPIErrorBodyLogLimit;
   const canEditRequestLog = auth.connectionStatus === 'connected' && Boolean(config);
 
   const appVersion = __APP_VERSION__ || t('system_info.version_unknown');
@@ -225,8 +233,11 @@ export function SystemPage() {
   const openRequestLogModal = useCallback(() => {
     setRequestLogTouched(false);
     setRequestLogDraft(requestLogEnabled);
+    setRequestLogSuccessBodyDraft(requestLogSuccessBodyEnabled);
+    setDetailedAPIErrorBodyLogLimitDraft(detailedAPIErrorBodyLogLimit);
+    setDetailedAPIErrorBodyLogLimitInput(String(detailedAPIErrorBodyLogLimit));
     setRequestLogModalOpen(true);
-  }, [requestLogEnabled]);
+  }, [requestLogEnabled, requestLogSuccessBodyEnabled, detailedAPIErrorBodyLogLimit]);
 
   const handleInfoVersionTap = useCallback(() => {
     versionTapCount.current += 1;
@@ -260,18 +271,40 @@ export function SystemPage() {
     }
 
     const previous = requestLogEnabled;
+    const previousSuccessBody = requestLogSuccessBodyEnabled;
+    const previousBodyLogLimit = detailedAPIErrorBodyLogLimit;
+    const finalLimit = Number.isFinite(parseInt(detailedAPIErrorBodyLogLimitInput, 10))
+      ? parseInt(detailedAPIErrorBodyLogLimitInput, 10)
+      : detailedAPIErrorBodyLogLimitDraft;
+
     setRequestLogSaving(true);
     updateConfigValue('request-log', requestLogDraft);
+    updateConfigValue('request-log-success-body', requestLogSuccessBodyDraft);
+    updateConfigValue('detailed-api-error-body-log-limit', finalLimit);
 
     try {
-      await configApi.updateRequestLog(requestLogDraft);
+      const savePromises: Promise<unknown>[] = [];
+      if (requestLogDraft !== previous) {
+        savePromises.push(configApi.updateRequestLog(requestLogDraft));
+      }
+      if (requestLogSuccessBodyDraft !== previousSuccessBody) {
+        savePromises.push(configApi.updateRequestLogSuccessBody(requestLogSuccessBodyDraft));
+      }
+      if (finalLimit !== previousBodyLogLimit) {
+        savePromises.push(configApi.updateDetailedAPIErrorBodyLogLimit(finalLimit));
+      }
+      await Promise.all(savePromises);
       clearCache('request-log');
+      clearCache('request-log-success-body');
+      clearCache('detailed-api-error-body-log-limit');
       showNotification(t('notification.request_log_updated'), 'success');
       setRequestLogModalOpen(false);
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : typeof error === 'string' ? error : '';
       updateConfigValue('request-log', previous);
+      updateConfigValue('request-log-success-body', previousSuccessBody);
+      updateConfigValue('detailed-api-error-body-log-limit', previousBodyLogLimit);
       showNotification(
         `${t('notification.update_failed')}${message ? `: ${message}` : ''}`,
         'error'
@@ -323,8 +356,17 @@ export function SystemPage() {
   useEffect(() => {
     if (requestLogModalOpen && !requestLogTouched) {
       setRequestLogDraft(requestLogEnabled);
+      setRequestLogSuccessBodyDraft(requestLogSuccessBodyEnabled);
+      setDetailedAPIErrorBodyLogLimitDraft(detailedAPIErrorBodyLogLimit);
+      setDetailedAPIErrorBodyLogLimitInput(String(detailedAPIErrorBodyLogLimit));
     }
-  }, [requestLogModalOpen, requestLogTouched, requestLogEnabled]);
+  }, [
+    requestLogModalOpen,
+    requestLogTouched,
+    requestLogEnabled,
+    requestLogSuccessBodyEnabled,
+    detailedAPIErrorBodyLogLimit,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -549,6 +591,34 @@ export function SystemPage() {
               setRequestLogTouched(true);
             }}
           />
+          <ToggleSwitch
+            label={t('basic_settings.request_log_success_body_enable')}
+            labelPosition="left"
+            checked={requestLogSuccessBodyDraft}
+            disabled={!canEditRequestLog || requestLogSaving}
+            onChange={(value) => {
+              setRequestLogSuccessBodyDraft(value);
+              setRequestLogTouched(true);
+            }}
+          />
+          <div className="form-group">
+            <label>{t('basic_settings.detailed_api_error_body_log_limit_label')}</label>
+            <input
+              type="number"
+              className="input"
+              value={detailedAPIErrorBodyLogLimitInput}
+              disabled={!canEditRequestLog || requestLogSaving}
+              onChange={(e) => {
+                setDetailedAPIErrorBodyLogLimitInput(e.target.value);
+                const parsed = parseInt(e.target.value, 10);
+                if (Number.isFinite(parsed)) {
+                  setDetailedAPIErrorBodyLogLimitDraft(parsed);
+                }
+                setRequestLogTouched(true);
+              }}
+            />
+            <span className="hint">{t('basic_settings.detailed_api_error_body_log_limit_hint')}</span>
+          </div>
         </div>
       </Modal>
     </div>

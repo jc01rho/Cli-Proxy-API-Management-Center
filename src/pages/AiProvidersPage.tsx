@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -60,18 +60,7 @@ export function AiProvidersPage() {
 
   const [configSwitchingKey, setConfigSwitchingKey] = useState<string | null>(null);
 
-  const genericOpenAIProviders = useMemo(
-    () => openaiProviders.filter((p) => p.name !== 'mistral.ai' && p.name !== 'xiaomi'),
-    [openaiProviders]
-  );
-  const mistralProviders = useMemo(
-    () => openaiProviders.filter((p) => p.name === 'mistral.ai'),
-    [openaiProviders]
-  );
-  const xiaomiProviders = useMemo(
-    () => openaiProviders.filter((p) => p.name === 'xiaomi'),
-    [openaiProviders]
-  );
+
 
   const disableControls = connectionStatus !== 'connected';
   const isSwitching = Boolean(configSwitchingKey);
@@ -322,26 +311,16 @@ export function AiProvidersPage() {
     }
   };
 
-  const setScopedOpenAIProviderEnabled = async (
-    scope: 'openai' | 'mistral' | 'xiaomi',
-    index: number,
-    enabled: boolean
-  ) => {
-    const source =
-      scope === 'mistral'
-        ? mistralProviders
-        : scope === 'xiaomi'
-          ? xiaomiProviders
-          : genericOpenAIProviders;
-    const current = source[index];
+  const setOpenAIProviderEnabled = async (index: number, enabled: boolean) => {
+    const current = openaiProviders[index];
     if (!current) return;
 
-    const switchingKey = `${scope}:${current.name}:${index}`;
+    const switchingKey = `openai:${current.name}:${index}`;
     setConfigSwitchingKey(switchingKey);
 
     const previousList = openaiProviders;
-    const nextOpenAIProviders = openaiProviders.map((item) =>
-      item === current ? { ...item, disabled: !enabled } : item
+    const nextOpenAIProviders = openaiProviders.map((item, idx) =>
+      idx === index ? { ...item, disabled: !enabled } : item
     );
 
     setOpenaiProviders(nextOpenAIProviders);
@@ -349,13 +328,7 @@ export function AiProvidersPage() {
     clearCache('openai-compatibility');
 
     try {
-      if (scope === 'mistral') {
-        await providersApi.updateMistralProviderDisabled(index, !enabled);
-      } else if (scope === 'xiaomi') {
-        await providersApi.updateXiaomiProviderDisabled(index, !enabled);
-      } else {
-        await providersApi.updateOpenAIProviderDisabled(index, !enabled);
-      }
+      await providersApi.updateOpenAIProviderDisabled(index, !enabled);
       showNotification(
         enabled ? t('notification.config_enabled') : t('notification.config_disabled'),
         'success'
@@ -436,54 +409,22 @@ export function AiProvidersPage() {
     });
   };
 
-  const deleteScopedOpenAIProvider = async (
-    scope: 'openai' | 'mistral' | 'xiaomi',
-    index: number
-  ) => {
-    const source =
-      scope === 'mistral'
-        ? mistralProviders
-        : scope === 'xiaomi'
-          ? xiaomiProviders
-          : genericOpenAIProviders;
-    const entry = source[index];
+  const deleteOpenAIProvider = async (index: number) => {
+    const entry = openaiProviders[index];
     if (!entry) return;
     showConfirmation({
-      title:
-        scope === 'mistral'
-          ? t('ai_providers.mistral_delete_title', { defaultValue: 'Delete mistral.ai Provider' })
-          : scope === 'xiaomi'
-            ? t('ai_providers.xiaomi_delete_title', { defaultValue: 'Delete Xiaomi Provider' })
-            : t('ai_providers.openai_delete_title', { defaultValue: 'Delete OpenAI Provider' }),
-      message:
-        scope === 'mistral'
-          ? t('ai_providers.mistral_delete_confirm', { defaultValue: t('ai_providers.openai_delete_confirm') })
-          : scope === 'xiaomi'
-            ? t('ai_providers.xiaomi_delete_confirm', { defaultValue: t('ai_providers.openai_delete_confirm') })
-            : t('ai_providers.openai_delete_confirm'),
+      title: t('ai_providers.openai_delete_title', { defaultValue: 'Delete OpenAI Provider' }),
+      message: t('ai_providers.openai_delete_confirm'),
       variant: 'danger',
       confirmText: t('common.confirm'),
       onConfirm: async () => {
         try {
-          if (scope === 'mistral') {
-            await providersApi.deleteMistralProvider(index);
-          } else if (scope === 'xiaomi') {
-            await providersApi.deleteXiaomiProvider(index);
-          } else {
-            await providersApi.deleteOpenAIProvider(entry.name);
-          }
+          await providersApi.deleteOpenAIProvider(entry.name);
           const next = openaiProviders.filter((item) => item !== entry);
           setOpenaiProviders(next);
           updateConfigValue('openai-compatibility', next);
           clearCache('openai-compatibility');
-          showNotification(
-            scope === 'mistral'
-              ? t('notification.mistral_provider_deleted', { defaultValue: t('notification.openai_provider_deleted') })
-              : scope === 'xiaomi'
-                ? t('notification.xiaomi_provider_deleted', { defaultValue: t('notification.openai_provider_deleted') })
-                : t('notification.openai_provider_deleted'),
-            'success'
-          );
+          showNotification(t('notification.openai_provider_deleted'), 'success');
         } catch (err: unknown) {
           const message = getErrorMessage(err);
           showNotification(`${t('notification.delete_failed')}: ${message}`, 'error');
@@ -587,73 +528,16 @@ export function AiProvidersPage() {
 
         <div id="provider-openai">
           <OpenAISection
-            configs={genericOpenAIProviders}
+            configs={openaiProviders}
             usageByProvider={usageByProvider}
             loading={loading}
             disableControls={disableControls}
             isSwitching={isSwitching}
             resolvedTheme={resolvedTheme}
             onAdd={() => openEditor('/ai-providers/openai/new')}
-            onEdit={(index) => {
-              // Find the original index in the unfiltered array
-              openEditor(`/ai-providers/openai/${index}`);
-            }}
-            onDelete={(index) => {
-              void deleteScopedOpenAIProvider('openai', index);
-            }}
-            onToggle={(index, enabled) => {
-              void setScopedOpenAIProviderEnabled('openai', index, enabled);
-            }}
-          />
-        </div>
-
-        <div id="provider-mistral">
-          <OpenAISection
-            configs={mistralProviders}
-            usageByProvider={usageByProvider}
-            titleKey="ai_providers.mistral_title"
-            addButtonKey="ai_providers.mistral_add_button"
-            emptyTitleKey="ai_providers.mistral_empty_title"
-            emptyDescKey="ai_providers.mistral_empty_desc"
-            loading={loading}
-            disableControls={disableControls}
-            isSwitching={isSwitching}
-            resolvedTheme={resolvedTheme}
-            onAdd={() => openEditor('/ai-providers/mistral/new')}
-            onEdit={(index) => {
-              openEditor(`/ai-providers/mistral/${index}`);
-            }}
-            onDelete={(index) => {
-              void deleteScopedOpenAIProvider('mistral', index);
-            }}
-            onToggle={(index, enabled) => {
-              void setScopedOpenAIProviderEnabled('mistral', index, enabled);
-            }}
-          />
-        </div>
-
-        <div id="provider-xiaomi">
-          <OpenAISection
-            configs={xiaomiProviders}
-            usageByProvider={usageByProvider}
-            titleKey="ai_providers.xiaomi_title"
-            addButtonKey="ai_providers.xiaomi_add_button"
-            emptyTitleKey="ai_providers.xiaomi_empty_title"
-            emptyDescKey="ai_providers.xiaomi_empty_desc"
-            loading={loading}
-            disableControls={disableControls}
-            isSwitching={isSwitching}
-            resolvedTheme={resolvedTheme}
-            onAdd={() => openEditor('/ai-providers/xiaomi/new')}
-            onEdit={(index) => {
-              openEditor(`/ai-providers/xiaomi/${index}`);
-            }}
-            onDelete={(index) => {
-              void deleteScopedOpenAIProvider('xiaomi', index);
-            }}
-            onToggle={(index, enabled) => {
-              void setScopedOpenAIProviderEnabled('xiaomi', index, enabled);
-            }}
+            onEdit={(index) => openEditor(`/ai-providers/openai/${index}`)}
+            onDelete={(index) => void deleteOpenAIProvider(index)}
+            onToggle={(index, enabled) => void setOpenAIProviderEnabled(index, enabled)}
           />
         </div>
       </div>

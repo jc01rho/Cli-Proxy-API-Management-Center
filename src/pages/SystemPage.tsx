@@ -550,6 +550,27 @@ export function SystemPage() {
           )}
         </Card>
 
+        <Card
+          title={t('basic_settings.request_log_title')}
+          extra={
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={openRequestLogModal}
+              disabled={!canEditRequestLog}
+            >
+              {t('common.edit')}
+            </Button>
+          }
+        >
+          <p className={styles.sectionDescription}>{t('basic_settings.request_log_warning')}</p>
+          <div className={`status-badge ${requestLogEnabled ? 'success' : 'muted'}`}>
+            {requestLogEnabled
+              ? t('basic_settings.request_log_enable')
+              : t('system_info.request_log_disabled', { defaultValue: 'Request logging disabled' })}
+          </div>
+        </Card>
+
         <Card title={t('system_info.clear_login_title')}>
           <p className={styles.sectionDescription}>{t('system_info.clear_login_desc')}</p>
           <div className={styles.clearLoginActions}>

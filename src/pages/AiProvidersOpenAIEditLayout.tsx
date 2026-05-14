@@ -156,7 +156,7 @@ export function AiProvidersOpenAIEditLayout() {
     if (location.pathname.includes('/ai-providers/xiaomi/')) return 'xiaomi';
     return 'openai';
   }, [location.pathname]);
-  const providerNameLocked = routeScope !== 'openai';
+  const providerNameLocked = routeScope === 'mistral';
 
   const config = useConfigStore((state) => state.config);
   const fetchConfig = useConfigStore((state) => state.fetchConfig);
@@ -169,8 +169,8 @@ export function AiProvidersOpenAIEditLayout() {
 
   const scopedProviders = useMemo(() => {
     if (routeScope === 'mistral') return providers.filter((provider) => provider.name === 'mistral.ai');
-    if (routeScope === 'xiaomi') return providers.filter((provider) => provider.name === 'xiaomi');
-    return providers.filter((provider) => provider.name !== 'mistral.ai' && provider.name !== 'xiaomi');
+    if (routeScope === 'xiaomi') return providers.filter((provider) => provider.name.startsWith('xiaomi'));
+    return providers.filter((provider) => provider.name !== 'mistral.ai' && !provider.name.startsWith('xiaomi'));
   }, [providers, routeScope]);
   const [loading, setLoading] = useState(
     () => !isCacheValid('openai-compatibility')
@@ -299,9 +299,9 @@ export function AiProvidersOpenAIEditLayout() {
             routeScope === 'mistral'
               ? list.filter((provider) => provider.name === 'mistral.ai')
               : routeScope === 'xiaomi'
-                ? list.filter((provider) => provider.name === 'xiaomi')
+                ? list.filter((provider) => provider.name.startsWith('xiaomi'))
                 : list.filter(
-                    (provider) => provider.name !== 'mistral.ai' && provider.name !== 'xiaomi'
+                    (provider) => provider.name !== 'mistral.ai' && !provider.name.startsWith('xiaomi')
                   );
           setProviders(nextProviders);
         } catch {
@@ -487,12 +487,16 @@ export function AiProvidersOpenAIEditLayout() {
   });
 
   const handleSave = useCallback(async () => {
-      const name = providerNameLocked
-        ? routeScope === 'mistral'
-          ? 'mistral.ai'
-          : 'xiaomi'
-        : form.name.trim();
+      const name = routeScope === 'mistral' ? 'mistral.ai' : form.name.trim();
       const baseUrl = form.baseUrl.trim();
+
+    if (routeScope === 'xiaomi' && !name.startsWith('xiaomi')) {
+      showNotification(
+        t('notification.xiaomi_name_prefix_required', { defaultValue: 'Provider name must start with "xiaomi" (e.g. xiaomi, xiaomi-us).' }),
+        'error'
+      );
+      return;
+    }
 
     if (!name || !baseUrl) {
       showNotification(t('notification.openai_provider_required'), 'error');

@@ -549,10 +549,10 @@ export function AiProvidersOpenAIEditPage() {
               disabled={saving || disableControls || isTestingKeys || providerNameLocked}
               hint={
                 providerNameLocked
-                  ? routeScope === 'mistral'
-                    ? t('ai_providers.mistral_name_locked_hint', { defaultValue: 'Provider name is fixed for mistral.ai routes.' })
-                    : t('ai_providers.xiaomi_name_locked_hint', { defaultValue: 'Provider name is fixed for Xiaomi routes.' })
-                  : undefined
+                  ? t('ai_providers.mistral_name_locked_hint', { defaultValue: 'Provider name is fixed for mistral.ai routes.' })
+                  : routeScope === 'xiaomi'
+                    ? t('ai_providers.xiaomi_name_prefix_hint', { defaultValue: 'Name must start with "xiaomi" (e.g. xiaomi, xiaomi-us, xiaomi-secondary).' })
+                    : undefined
               }
             />            <Input
               label={t('ai_providers.priority_label')}

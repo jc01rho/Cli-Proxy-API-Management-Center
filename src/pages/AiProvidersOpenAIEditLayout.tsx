@@ -231,8 +231,8 @@ export function AiProvidersOpenAIEditLayout() {
 
   const initialData = useMemo(() => {
     if (editIndex === null) return undefined;
-    return providers[editIndex];
-  }, [editIndex, providers]);
+    return providers[editIndex] ?? config?.openaiCompatibility?.[editIndex];
+  }, [editIndex, providers, config?.openaiCompatibility]);
 
   const invalidIndex = editIndex !== null && !initialData;
 

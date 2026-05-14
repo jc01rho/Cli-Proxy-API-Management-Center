@@ -19,8 +19,6 @@ type LocationState = { fromAiProviders?: boolean } | null;
 export type OpenAIEditOutletContext = {
   hasIndexParam: boolean;
   editIndex: number | null;
-  routeScope: 'openai' | 'mistral' | 'xiaomi';
-  providerNameLocked: boolean;
   invalidIndexParam: boolean;
   invalidIndex: boolean;
   disableControls: boolean;
@@ -43,14 +41,12 @@ export type OpenAIEditOutletContext = {
   mergeDiscoveredModels: (selectedModels: ModelInfo[]) => void;
 };
 
-const buildEmptyForm = (
-  scope: 'openai' | 'mistral' | 'xiaomi' = 'openai'
-): OpenAIFormState => ({
-  name: scope === 'mistral' ? 'mistral.ai' : scope === 'xiaomi' ? 'xiaomi' : '',
+const buildEmptyForm = (): OpenAIFormState => ({
+  name: '',
   priority: undefined,
   billingClass: undefined,
   prefix: '',
-  baseUrl: scope === 'xiaomi' ? 'https://token-plan-sgp.xiaomimimo.com/v1' : '',
+  baseUrl: '',
   headers: [],
   apiKeyEntries: [buildApiKeyEntry()],
   modelEntries: [{ name: '', alias: '' }],
@@ -151,12 +147,6 @@ export function AiProvidersOpenAIEditLayout() {
 
   const connectionStatus = useAuthStore((state) => state.connectionStatus);
   const disableControls = connectionStatus !== 'connected';
-  const routeScope = useMemo<'openai' | 'mistral' | 'xiaomi'>(() => {
-    if (location.pathname.includes('/ai-providers/mistral/')) return 'mistral';
-    if (location.pathname.includes('/ai-providers/xiaomi/')) return 'xiaomi';
-    return 'openai';
-  }, [location.pathname]);
-  const providerNameLocked = routeScope === 'mistral';
 
   const config = useConfigStore((state) => state.config);
   const fetchConfig = useConfigStore((state) => state.fetchConfig);
@@ -167,21 +157,16 @@ export function AiProvidersOpenAIEditLayout() {
     () => config?.openaiCompatibility ?? []
   );
 
-  const scopedProviders = useMemo(() => {
-    if (routeScope === 'mistral') return providers.filter((provider) => provider.name === 'mistral.ai');
-    if (routeScope === 'xiaomi') return providers.filter((provider) => provider.name.startsWith('xiaomi'));
-    return providers.filter((provider) => provider.name !== 'mistral.ai' && !provider.name.startsWith('xiaomi'));
-  }, [providers, routeScope]);
   const [loading, setLoading] = useState(
     () => !isCacheValid('openai-compatibility')
   );
   const [saving, setSaving] = useState(false);
 
   const draftKey = useMemo(() => {
-    if (invalidIndexParam) return `${routeScope}:invalid:${params.index ?? 'unknown'}`;
-    if (editIndex === null) return `${routeScope}:new`;
-    return `${routeScope}:${editIndex}`;
-  }, [editIndex, invalidIndexParam, params.index, routeScope]);
+    if (invalidIndexParam) return `invalid:${params.index ?? 'unknown'}`;
+    if (editIndex === null) return 'new';
+    return `${editIndex}`;
+  }, [editIndex, invalidIndexParam, params.index]);
 
   const draft = useOpenAIEditDraftStore((state) => state.drafts[draftKey]);
   const acquireDraft = useOpenAIEditDraftStore((state) => state.acquireDraft);
@@ -195,7 +180,7 @@ export function AiProvidersOpenAIEditLayout() {
   const setDraftKeyTestStatus = useOpenAIEditDraftStore((state) => state.setDraftKeyTestStatus);
   const resetDraftKeyTestStatuses = useOpenAIEditDraftStore((state) => state.resetDraftKeyTestStatuses);
 
-  const form = draft?.form ?? buildEmptyForm(routeScope);
+  const form = draft?.form ?? buildEmptyForm();
   const testModel = draft?.testModel ?? '';
   const testStatus = draft?.testStatus ?? 'idle';
   const testMessage = draft?.testMessage ?? '';
@@ -246,8 +231,8 @@ export function AiProvidersOpenAIEditLayout() {
 
   const initialData = useMemo(() => {
     if (editIndex === null) return undefined;
-    return scopedProviders[editIndex];
-  }, [editIndex, scopedProviders]);
+    return providers[editIndex];
+  }, [editIndex, providers]);
 
   const invalidIndex = editIndex !== null && !initialData;
 
@@ -277,17 +262,10 @@ export function AiProvidersOpenAIEditLayout() {
       setLoading(true);
     }
 
-    const getProvidersByScope = () => {
-      if (routeScope === 'mistral') return providersApi.getMistralProviders();
-      if (routeScope === 'xiaomi') return providersApi.getXiaomiProviders();
-      return providersApi.getOpenAIProviders();
-    };
-
-    getProvidersByScope()
+    providersApi.getOpenAIProviders()
       .then((value) => {
         if (cancelled) return;
-        const nextProviders = value || [];
-        setProviders(nextProviders);
+        setProviders(value || []);
       })
       .catch(async (err: unknown) => {
         if (cancelled) return;
@@ -295,15 +273,7 @@ export function AiProvidersOpenAIEditLayout() {
           const fallback = await fetchConfig('openai-compatibility');
           if (cancelled) return;
           const list = Array.isArray(fallback) ? (fallback as OpenAIProviderConfig[]) : [];
-          const nextProviders =
-            routeScope === 'mistral'
-              ? list.filter((provider) => provider.name === 'mistral.ai')
-              : routeScope === 'xiaomi'
-                ? list.filter((provider) => provider.name.startsWith('xiaomi'))
-                : list.filter(
-                    (provider) => provider.name !== 'mistral.ai' && !provider.name.startsWith('xiaomi')
-                  );
-          setProviders(nextProviders);
+          setProviders(list);
         } catch {
           if (cancelled) return;
           const message = getErrorMessage(err) || t('notification.refresh_failed');
@@ -318,7 +288,7 @@ export function AiProvidersOpenAIEditLayout() {
     return () => {
       cancelled = true;
     };
-  }, [fetchConfig, isCacheValid, routeScope, showNotification, t]);
+  }, [fetchConfig, isCacheValid, showNotification, t]);
 
   useEffect(() => {
     if (loading) return;
@@ -355,7 +325,7 @@ export function AiProvidersOpenAIEditLayout() {
         keyTestStatuses: [],
       });
     } else {
-      const emptyForm = buildEmptyForm(routeScope);
+      const emptyForm = buildEmptyForm();
       initDraft(draftKey, {
         baseline: buildOpenAIBaseline(emptyForm, ''),
         form: emptyForm,
@@ -463,10 +433,10 @@ export function AiProvidersOpenAIEditLayout() {
       isModelsDirty);
   const editorRootPath = useMemo(() => {
     if (hasIndexParam) {
-      return `/ai-providers/${routeScope}/${params.index ?? ''}`;
+      return `/ai-providers/openai/${params.index ?? ''}`;
     }
-    return `/ai-providers/${routeScope}/new`;
-  }, [hasIndexParam, params.index, routeScope]);
+    return '/ai-providers/openai/new';
+  }, [hasIndexParam, params.index]);
   const canGuard = !resolvedLoading && !saving && !invalidIndexParam && !invalidIndex;
 
   const { allowNextNavigation } = useUnsavedChangesGuard({
@@ -487,16 +457,8 @@ export function AiProvidersOpenAIEditLayout() {
   });
 
   const handleSave = useCallback(async () => {
-      const name = routeScope === 'mistral' ? 'mistral.ai' : form.name.trim();
-      const baseUrl = form.baseUrl.trim();
-
-    if (routeScope === 'xiaomi' && !name.startsWith('xiaomi')) {
-      showNotification(
-        t('notification.xiaomi_name_prefix_required', { defaultValue: 'Provider name must start with "xiaomi" (e.g. xiaomi, xiaomi-us).' }),
-        'error'
-      );
-      return;
-    }
+    const name = form.name.trim();
+    const baseUrl = form.baseUrl.trim();
 
     if (!name || !baseUrl) {
       showNotification(t('notification.openai_provider_required'), 'error');
@@ -534,31 +496,16 @@ export function AiProvidersOpenAIEditLayout() {
           : [...providers, payload];
 
       if (editIndex !== null) {
-        if (routeScope === 'mistral') {
-          await providersApi.updateMistralProvider(editIndex, payload);
-        } else if (routeScope === 'xiaomi') {
-          await providersApi.updateXiaomiProvider(editIndex, payload);
-        } else {
-          await providersApi.updateOpenAIProvider(editIndex, payload);
-        }
-      } else if (routeScope === 'mistral') {
-        await providersApi.saveMistralProviders(nextList);
-      } else if (routeScope === 'xiaomi') {
-        await providersApi.saveXiaomiProviders(nextList);
+        await providersApi.updateOpenAIProvider(editIndex, payload);
       } else {
         await providersApi.saveOpenAIProviders(nextList);
       }
 
       let syncedProviders = nextList;
       try {
-        syncedProviders =
-          routeScope === 'mistral'
-            ? await providersApi.getMistralProviders()
-            : routeScope === 'xiaomi'
-              ? await providersApi.getXiaomiProviders()
-              : await providersApi.getOpenAIProviders();
+        syncedProviders = await providersApi.getOpenAIProviders();
       } catch {
-        // Save succeeded but scoped refresh failed; keep local state.
+        // Save succeeded but refresh failed; keep local state.
       }
 
       setProviders(syncedProviders);
@@ -570,16 +517,8 @@ export function AiProvidersOpenAIEditLayout() {
       }
       showNotification(
         editIndex !== null
-          ? routeScope === 'mistral'
-            ? t('notification.mistral_provider_updated', { defaultValue: t('notification.openai_provider_updated') })
-            : routeScope === 'xiaomi'
-              ? t('notification.xiaomi_provider_updated', { defaultValue: t('notification.openai_provider_updated') })
-              : t('notification.openai_provider_updated')
-          : routeScope === 'mistral'
-            ? t('notification.mistral_provider_added', { defaultValue: t('notification.openai_provider_added') })
-            : routeScope === 'xiaomi'
-              ? t('notification.xiaomi_provider_added', { defaultValue: t('notification.openai_provider_added') })
-              : t('notification.openai_provider_added'),
+          ? t('notification.openai_provider_updated')
+          : t('notification.openai_provider_added'),
         'success'
       );
       allowNextNavigation();
@@ -602,7 +541,6 @@ export function AiProvidersOpenAIEditLayout() {
     showNotification,
     t,
     testModel,
-    routeScope,
     updateConfigValue,
   ]);
 
@@ -611,8 +549,6 @@ export function AiProvidersOpenAIEditLayout() {
       context={{
         hasIndexParam,
         editIndex,
-        routeScope,
-        providerNameLocked,
         invalidIndexParam,
         invalidIndex,
         disableControls,

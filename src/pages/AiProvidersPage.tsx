@@ -419,7 +419,7 @@ export function AiProvidersPage() {
       confirmText: t('common.confirm'),
       onConfirm: async () => {
         try {
-          await providersApi.deleteOpenAIProvider(entry.name);
+          await providersApi.deleteOpenAIProvider(index);
           const next = openaiProviders.filter((item) => item !== entry);
           setOpenaiProviders(next);
           updateConfigValue('openai-compatibility', next);

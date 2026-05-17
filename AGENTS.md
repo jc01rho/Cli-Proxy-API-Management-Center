@@ -1,12 +1,12 @@
 # MANAGEMENT CENTER KNOWLEDGE BASE
 
-**Generated:** 2026-05-04
-**Commit:** 05e755d
+**Generated:** 2026-05-18
+**Latest Tag:** v1.11.0-2
 **Branch:** main
 
 ## OVERVIEW
 
-React 19 + Vite management UI for `CLIProxyAPIPlus` management endpoints. It builds a single-file bundle that is served as `management.html` by Plus.
+React 19 + Vite management UI for `CLIProxyAPIPlus` management endpoints. Builds single-file bundle served as `management.html` by Plus.
 
 ## STRUCTURE
 
@@ -20,6 +20,7 @@ Cli-Proxy-API-Management-Center/
 ├── src/stores/                   # Zustand state
 ├── src/components/providers/     # provider sections/lists/status
 ├── src/components/ui/            # base UI widgets
+├── src/i18n/locales/             # translations (en, zh-CN, zh-TW, ru)
 └── vite.config.ts                # vite-plugin-singlefile build
 ```
 
@@ -32,7 +33,7 @@ Cli-Proxy-API-Management-Center/
 | Backend calls | `src/services/api/` | No component-level raw management requests. |
 | Global config state | `src/stores/useConfigStore.ts` | Config sections, loading, persistence. |
 | Navigation shell | `src/components/layout/MainLayout.tsx`, `src/components/providers/ProviderNav/` | Provider nav and active item metadata. |
-| Translations | `src/i18n/locales/*.json` | Add keys for every visible string. |
+| Translations | `src/i18n/locales/*.json` | 4 locales: en, zh-CN, zh-TW, ru. Add keys for every visible string. |
 
 ## CONVENTIONS
 
@@ -40,6 +41,11 @@ Cli-Proxy-API-Management-Center/
 - UI state updates go through Zustand actions; do not mutate store objects in components.
 - `services/api/transformers.ts` absorbs backend naming differences before data reaches pages/stores.
 - Provider UI changes usually require `types/config.ts`, `services/api/providers.ts`, `stores/useConfigStore.ts`, route/page, section, nav, and translations.
+
+## RECENT CHANGES
+
+- **v1.11.0-2**: Ollama provider UI support restored with full i18n translations. xAI provider integration added.
+- i18n structure expanded to 4 locales (en, zh-CN, zh-TW, ru) with consistent key naming across all provider sections.
 
 ## ANTI-PATTERNS
 

@@ -328,12 +328,20 @@
 
 .quotaBarFill {
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--quota-bar-fill-start, hsl(120 72% 52%)) 0%,
-    var(--quota-bar-fill-end, hsl(120 78% 44%)) 100%
-  );
-  transition: width 0.2s ease, background 0.2s ease;
+  background-color: var(--success-color, #22c55e);
+  transition: width 0.2s ease;
+}
+
+.quotaBarFillHigh {
+  background-color: var(--success-color, #22c55e);
+}
+
+.quotaBarFillMedium {
+  background-color: var(--quota-medium-color, #e0aa14);
+}
+
+.quotaBarFillLow {
+  background-color: var(--danger-color);
 }
 
 .quotaMeta {
@@ -583,32 +591,41 @@
   }
 }
 
-.primaryBadge {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  font-weight: 700;
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 12px;
-  background-color: var(--success-color);
-  color: var(--bg-primary);
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--success-color);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  z-index: 2;
-}
+@include mobile {
+  .premiumPlanValue {
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at 18% 24%,
+        rgba(255, 255, 255, 0.88) 0%,
+        rgba(255, 255, 255, 0.58) 18%,
+        rgba(255, 255, 255, 0) 42%
+      ),
+      linear-gradient(135deg, #fff9e3 0%, #ffe07f 52%, #e0aa14 100%);
+    box-shadow:
+      0 1px 3px rgba(133, 92, 0, 0.16),
+      0 0 0 1px rgba(255, 255, 255, 0.22) inset,
+      0 0 10px rgba(255, 214, 98, 0.22);
 
-.standbyBadge {
-  display: inline-flex;
-  align-items: center;
-  font-weight: 600;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background-color: var(--bg-secondary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+    &::before {
+      content: none;
+    }
+  }
+
+  :global([data-theme='dark']) .premiumPlanValue {
+    background:
+      radial-gradient(
+        circle at 18% 24%,
+        rgba(255, 229, 138, 0.28) 0%,
+        rgba(255, 214, 98, 0.14) 18%,
+        rgba(255, 214, 98, 0) 44%
+      ),
+      linear-gradient(135deg, #4f3d0b 0%, #6e5510 48%, #8f6d10 100%);
+    box-shadow:
+      0 1px 6px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(255, 220, 120, 0.16) inset,
+      0 0 10px rgba(255, 196, 44, 0.18);
+  }
 }
 
 .fileCard {
@@ -642,36 +659,6 @@
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-.primaryBadge {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  font-weight: 700;
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 12px;
-  background-color: var(--success-color);
-  color: var(--bg-primary);
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--success-color);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  z-index: 2;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.standbyBadge {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  flex-shrink: 0;
-  background-color: var(--bg-secondary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
 }
 
 .fileName {
@@ -728,3 +715,25 @@
     line-height: 1.6;
   }
 }
+
+.primaryBadge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background-color: var(--success-color);
+  color: var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--success-color);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.standbyBadge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 11px;

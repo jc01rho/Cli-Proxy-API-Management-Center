@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import iconCodex from '@/assets/icons/codex.svg';
 import type { ProviderKeyConfig } from '@/types';
+import iconOllama from "@/assets/icons/ollama.png";
 import { maskApiKey } from '@/utils/format';
 import { statusBarDataFromRecentRequests } from '@/utils/recentRequests';
 import styles from '@/pages/AiProvidersPage.module.scss';
@@ -81,7 +82,7 @@ export function CodexSection({
       <Card
         title={
           <span className={styles.cardTitle}>
-            <img src={iconCodex} alt="" className={styles.cardTitleIcon} />
+            <img src={providerKey === "ollama" ? iconOllama : iconCodex} alt="" className={styles.cardTitleIcon} />
             {t(titleKey)}
           </span>
         }

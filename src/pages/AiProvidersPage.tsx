@@ -6,6 +6,7 @@ import {
   ClaudeSection,
   CodexSection,
   GeminiSection,
+  OllamaSection,
   OpenAISection,
   VertexSection,
   ProviderNav,
@@ -468,16 +469,9 @@ export function AiProvidersPage() {
         </div>
 
         <div id="provider-ollama">
-          <CodexSection
+          <OllamaSection
             configs={ollamaConfigs}
             usageByProvider={usageByProvider}
-            providerKey="ollama"
-            titleKey="ai_providers.ollama_title"
-            addButtonKey="ai_providers.ollama_add_button"
-            emptyTitleKey="ai_providers.ollama_empty_title"
-            emptyDescKey="ai_providers.ollama_empty_desc"
-            itemTitleKey="ai_providers.ollama_item_title"
-            modelsCountKey="ai_providers.ollama_models_count"
             loading={loading}
             disableControls={disableControls}
             isSwitching={isSwitching}

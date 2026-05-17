@@ -3,6 +3,7 @@ import iconAntigravity from '@/assets/icons/antigravity.svg';
 import iconClaude from '@/assets/icons/claude.svg';
 import iconCodex from '@/assets/icons/codex.svg';
 import iconGemini from '@/assets/icons/gemini.svg';
+import iconGrok from '@/assets/icons/grok.svg';
 import iconIflow from '@/assets/icons/iflow.svg';
 import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconKimiLight from '@/assets/icons/kimi-light.svg';
@@ -89,6 +90,11 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#e0f7fa', text: '#006064' },
     dark: { bg: '#004d40', text: '#80deea' },
   },
+  // xAI / Grok: neutral graphite, kept distinct from the blue and purple providers
+  xai: {
+    light: { bg: '#eceff3', text: '#15181d' },
+    dark: { bg: '#e5e7eb', text: '#111827' },
+  },
   // iFlow logo: 品红紫渐变 #5C5CFF → #AE5CFF，偏品红以区别于 Qwen 的紫罗兰
   iflow: {
     light: { bg: '#f5e3fc', text: '#9025c8' },
@@ -124,6 +130,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   codex: iconCodex,
   gemini: iconGemini,
   'gemini-cli': iconGemini,
+  xai: iconGrok,
   iflow: iconIflow,
   kiro: 'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg',
   kimi: { light: iconKimiLight, dark: iconKimiDark },

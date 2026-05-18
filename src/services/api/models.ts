@@ -42,10 +42,15 @@ const buildV1ModelsEndpoint = (baseUrl: string): string => {
 };
 
 const buildOllamaTagsEndpoint = (baseUrl: string): string => {
-  const normalized = normalizeApiBase(baseUrl) || 'https://ollama.com/api';
+  const normalized = normalizeApiBase(baseUrl) || 'https://ollama.com';
   const trimmed = normalized.replace(/\/+$/g, '');
-  if (/\/tags$/i.test(trimmed)) return trimmed;
-  return `${trimmed}/tags`;
+  const lower = trimmed.toLowerCase();
+  // Ollama Cloud supports both /v1/tags and /api/tags; self-hosted uses /api/tags or /tags
+  if (/\/v1\/tags$/i.test(trimmed) || /\/api\/tags$/i.test(trimmed) || /\/tags$/i.test(trimmed)) return trimmed;
+  if (lower.includes('ollama.com')) {
+    return `${trimmed}/v1/tags`;
+  }
+  return `${trimmed}/api/tags`;
 };
 
 const buildClaudeModelsEndpoint = (baseUrl: string): string => {

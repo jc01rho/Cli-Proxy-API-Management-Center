@@ -14,6 +14,7 @@ providers/
 ├── ClaudeSection/
 ├── CodexSection/        # also parameterized for Codex-like API-key providers
 ├── GeminiSection/
+├── OllamaSection/       # independent provider section, separate from CodexSection
 ├── OpenAISection/
 ├── VertexSection/
 ├── ProviderNav/
@@ -38,9 +39,11 @@ providers/
 - Section component + export + `AiProvidersPage` wiring are one unit.
 - Reuse `ProviderList` and `ProviderStatusBar` before adding bespoke cards.
 - Provider-visible text must go through i18n locale files.
+- OllamaSection is independent from CodexSection — do not merge or parameterize them together.
 
 ## ANTI-PATTERNS
 
 - Do not copy provider common UI into each Section.
 - Do not reintroduce Trae UI flows.
 - Do not leave timers/intervals without cleanup.
+- Do not make OllamaSection a variant of CodexSection.

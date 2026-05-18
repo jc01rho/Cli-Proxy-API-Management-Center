@@ -1,7 +1,7 @@
 # MANAGEMENT CENTER KNOWLEDGE BASE
 
-**Generated:** 2026-05-18
-**Latest Tag:** v1.11.0-2
+**Generated:** 2026-05-19
+**Latest Tag:** v1.11.1-3
 **Branch:** main
 
 ## OVERVIEW
@@ -44,6 +44,7 @@ Cli-Proxy-API-Management-Center/
 
 ## RECENT CHANGES
 
+- **v1.11.1-3**: OllamaSection implemented as independent provider section (separate from CodexSection); Ollama icon and display added to providers list; dark mode support for Grok icon; provider keys normalized across components.
 - **v1.11.0-2**: Ollama provider UI support restored with full i18n translations. xAI provider integration added.
 - i18n structure expanded to 4 locales (en, zh-CN, zh-TW, ru) with consistent key naming across all provider sections.
 
@@ -53,6 +54,8 @@ Cli-Proxy-API-Management-Center/
 - Do not add private endpoints or real keys to placeholders, translations, fixtures, or the bundle.
 - Do not reintroduce removed Trae provider UX.
 - Do not use `as any` to bypass config/provider type mismatches.
+- Ollama Configuration test request failures must show error logs in the log viewer.
+- Ollama Cloud API must use both `https://ollama.com/v1/tags` and `https://ollama.com/api/tags`.
 
 ## COMMANDS
 

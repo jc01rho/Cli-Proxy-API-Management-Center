@@ -6,6 +6,7 @@ export interface StatusBlockDetail {
   rate: number;
   startTime: number;
   endTime: number;
+  lastFailureReason?: string;
 }
 
 export interface StatusBarData {
@@ -20,6 +21,7 @@ export interface RecentRequestBucket {
   time?: string;
   success: number;
   failed: number;
+  last_failure_reason?: string;
 }
 
 export interface RecentRequestUsageEntry {
@@ -94,6 +96,7 @@ export function normalizeRecentRequestBuckets(input: unknown): RecentRequestBuck
       ...(time ? { time } : {}),
       success: toFiniteNumber(record.success),
       failed: toFiniteNumber(record.failed),
+      ...(typeof record.last_failure_reason === 'string' && record.last_failure_reason ? { last_failure_reason: record.last_failure_reason } : {}),
     };
   });
 }
@@ -168,8 +171,9 @@ export function sumRecentRequests(
 export function statusBarDataFromRecentRequests(buckets: RecentRequestBucket[]): StatusBarData {
   const normalizedBuckets = normalizeRecentRequestBuckets(buckets);
   const emptyBucketCount = Math.max(0, RECENT_REQUEST_BLOCK_COUNT - normalizedBuckets.length);
-  const blockStats = [
-    ...Array.from({ length: emptyBucketCount }, () => ({ success: 0, failed: 0 })),
+  const emptyBuckets: RecentRequestBucket[] = Array.from({ length: emptyBucketCount }, () => ({ success: 0, failed: 0 }));
+  const blockStats: RecentRequestBucket[] = [
+    ...emptyBuckets,
     ...normalizedBuckets.slice(-RECENT_REQUEST_BLOCK_COUNT),
   ];
 
@@ -206,6 +210,7 @@ export function statusBarDataFromRecentRequests(buckets: RecentRequestBucket[]):
       rate: total > 0 ? success / total : -1,
       startTime: blockStartTime,
       endTime: blockStartTime + RECENT_REQUEST_BLOCK_DURATION_MS,
+      ...(bucket.last_failure_reason ? { lastFailureReason: bucket.last_failure_reason } : {}),
     });
   });
 

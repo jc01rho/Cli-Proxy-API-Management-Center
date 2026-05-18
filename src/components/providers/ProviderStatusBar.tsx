@@ -113,6 +113,9 @@ export function ProviderStatusBar({ statusData, styles: stylesProp }: ProviderSt
         ) : (
           <span className={s.tooltipStats}>{t('status_bar.no_requests')}</span>
         )}
+        {detail.lastFailureReason && (
+          <span className={s.tooltipReason}>{detail.lastFailureReason}</span>
+        )}
       </div>
     );
   };

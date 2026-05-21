@@ -2,10 +2,16 @@
 
 A single-file Web UI (React + TypeScript) for operating and troubleshooting the **CLI Proxy API** via its **Management API** (config, credentials, and logs).
 
+> **This is a fork** of [CLI Proxy API Management Center](https://github.com/router-for-me/Cli-Proxy-API-Management-Center) maintained by [jc01rho](https://github.com/jc01rho).
+> 
+> **Key differences from upstream:**
+> - Home control plane configuration and related validation logic removed
+> - Failure reason shown in AiProvidersPage status bar tooltip
+> - Comprehensive AGENTS.md project knowledge base with agent-native workflow support
+
 [中文文档](README_CN.md)
 
-**Main Project**: https://github.com/router-for-me/CLIProxyAPI  
-**Example URL**: https://remote.router-for.me/  
+**Main Project**: https://github.com/jc01rho/CLIProxyAPIPlus  
 **Minimum Required Version**: ≥ 7.1.0 (recommended latest)
 
 Since version 6.0.19, the Web UI ships with the main program; access it via `/management.html` on the API port once the service is running.

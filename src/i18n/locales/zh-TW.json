@@ -474,7 +474,9 @@
         "xiaomi_name_locked_hint": "Xiaomi 路由的提供商名稱已固定。",
         "model_search_placeholder": "按模型名稱過濾...",
         "model_select_all": "全選",
-        "model_filter_empty": "暫無可篩選模型"
+        "model_filter_empty": "暫無可篩選模型",
+        "model_search_clear": "清除",
+        "billing_class_label": "計費類型"
     },
     "auth_files": {
         "title": "驗證檔案管理",
@@ -987,7 +989,9 @@
         "iflow_cookie_result_expired": "到期時間",
         "iflow_cookie_result_path": "儲存路徑",
         "iflow_cookie_result_type": "類型",
-        "remote_access_disabled": "遠端存取不支援此登入方式，請從本地（localhost）存取"
+        "remote_access_disabled": "遠端存取不支援此登入方式，請從本地（localhost）存取",
+        "login_another_account": "登入其他帳號",
+        "view_auth_files": "檢視授權檔案"
     },
     "stats": {
         "success": "成功",
@@ -1061,7 +1065,8 @@
         "lines": "行",
         "removed": "已篩選",
         "upgrade_required_title": "需要升級 CLI Proxy API",
-        "upgrade_required_desc": "目前伺服器版本不支援記錄檢視功能，請升級到最新版本的 CLI Proxy API 以使用此功能。"
+        "upgrade_required_desc": "目前伺服器版本不支援記錄檢視功能，請升級到最新版本的 CLI Proxy API 以使用此功能。",
+        "error_logs_request_log_enabled": "已啟用請求日誌，因此此清單將永遠為空。停用請求日誌並重新整理以檢視錯誤日誌。"
     },
     "config_management": {
         "title": "設定面板",
@@ -1212,7 +1217,23 @@
                     "ws_auth": "WebSocket 驗證",
                     "ws_auth_desc": "啟用 WebSocket 連線驗證（/v1/ws）",
                     "enable_gemini_cli_endpoint": "啟用 Gemini CLI 內部端點",
-                    "enable_gemini_cli_endpoint_desc": "啟用 /v1internal:* 相容端點"
+                    "enable_gemini_cli_endpoint_desc": "啟用 /v1internal:* 相容端點",
+                    "billing_class_metered": "按量計費",
+                    "billing_class_per_request": "按次計費",
+                    "min_tokens_label": "最小 Token 數",
+                    "min_tokens_hint": "為推理/思考保留的最小 Token 數。",
+                    "max_tokens_label": "最大 Token 數",
+                    "max_tokens_hint": "回應的最大 Token 數。",
+                    "no_think_label": "停用思考",
+                    "no_think_hint": "啟用時，強制提供者停用思考/推理。",
+                    "thinking_label": "強制思考等級",
+                    "thinking_hint": "設定後，強制提供者使用此思考等級。請謹慎使用：部分提供者會拒絕或忽略強制設定的等級。",
+                    "zero_think_label": "允許零思考",
+                    "zero_think_hint": "啟用時，允許為思考/推理分配零 Token。",
+                    "dynamic_think_label": "允許動態思考",
+                    "dynamic_think_hint": "啟用時，允許提供者動態選擇思考等級。",
+                    "no_think_disabled_label": "已停用",
+                    "no_think_enabled_label": "已啟用"
                 },
                 "quota": {
                     "title": "配額回退",

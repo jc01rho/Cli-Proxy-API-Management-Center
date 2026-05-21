@@ -15,7 +15,6 @@ import styles from './ProviderNav.module.scss';
 export type ProviderId =
   | 'gemini'
   | 'codex'
-  | 'ollama'
   | 'claude'
   | 'vertex'
   | 'ampcode'
@@ -32,7 +31,6 @@ interface ProviderNavItem {
 const PROVIDERS: ProviderNavItem[] = [
   { id: 'gemini', label: 'Gemini', getIcon: () => iconGemini },
   { id: 'codex', label: 'Codex', getIcon: () => iconCodex },
-  { id: 'ollama', label: 'Ollama', getIcon: () => iconCodex },
   { id: 'claude', label: 'Claude', getIcon: () => iconClaude },
   { id: 'vertex', label: 'Vertex', getIcon: () => iconVertex },
   { id: 'ampcode', label: 'Ampcode', getIcon: () => iconAmp },
@@ -60,7 +58,6 @@ export function ProviderNav() {
   const itemRefs = useRef<Record<ProviderId, HTMLButtonElement | null>>({
     gemini: null,
     codex: null,
-    ollama: null,
     claude: null,
     vertex: null,
     ampcode: null,

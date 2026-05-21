@@ -1,7 +1,7 @@
 # MANAGEMENT CENTER KNOWLEDGE BASE
 
-**Generated:** 2026-05-19
-**Latest Tag:** v1.11.1-3
+**Generated:** 2026-05-21
+**Latest Tag:** v1.11.1-4
 **Branch:** main
 
 ## OVERVIEW

@@ -460,6 +460,8 @@
         "openai_test_all_failed": "Все {{count}} ключей не прошли тест",
         "openai_test_all_partial": "Тестирование завершено: {{success}} успешно, {{failed}} не удалось",
         "model_search_placeholder": "Фильтр моделей...",
+        "model_search_clear": "Очистить",
+        "model_select_all": "Выбрать все",
         "mistral_title": "Провайдеры mistral.ai",
         "mistral_add_button": "Добавить провайдера mistral.ai",
         "mistral_empty_title": "Нет провайдеров mistral.ai",
@@ -638,7 +640,13 @@
         "quota_refresh_single": "Обновить квоту",
         "quota_refresh_hint": "Обновить квоту только для этих учётных данных",
         "quota_refresh_success": "Квота для \"{{name}}\" обновлена",
-        "quota_refresh_failed": "Не удалось обновить квоту для \"{{name}}\": {{message}}"
+        "quota_refresh_failed": "Не удалось обновить квоту для \"{{name}}\": {{message}}",
+        "headers_label": "Пользовательские заголовки (headers)",
+        "headers_placeholder": "{\n  \"Header-Name\": \"value\"\n}",
+        "headers_hint": "Введите пользовательские HTTP-заголовки в формате JSON, например: {\"X-My-Header\": \"value\"}",
+        "headers_invalid_json": "Пользовательские заголовки должны быть в формате JSON.",
+        "headers_invalid_object": "Пользовательские заголовки должны быть объектом JSON.",
+        "headers_invalid_value": "Каждое значение пользовательского заголовка должно быть строкой."
     },
     "antigravity_quota": {
         "title": "Квота Antigravity",
@@ -991,6 +999,7 @@
         "error_logs_description": "Выберите файл журнала ошибок запроса для скачивания. Сохраняются полные тела неудачных запросов/ответов, и хранится только 10 последних файлов.",
         "error_logs_empty": "Файлы журнала ошибок запросов не найдены",
         "error_logs_load_error": "Не удалось загрузить список журналов ошибок",
+        "error_logs_request_log_enabled": "Логирование запросов включено, поэтому этот список всегда будет пустым. Отключите логирование запросов и обновите страницу для просмотра журналов ошибок.",
         "error_logs_size": "Размер",
         "error_logs_modified": "Изменён",
         "error_logs_download": "Скачать",

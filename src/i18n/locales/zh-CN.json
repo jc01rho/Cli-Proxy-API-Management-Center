@@ -458,7 +458,8 @@
         "model_search_placeholder": "按模型筛选...",
         "model_search_clear": "清除",
         "model_select_all": "全选",
-        "model_filter_empty": "暂无可筛选模型"
+        "model_filter_empty": "暂无可筛选模型",
+        "billing_class_label": "计费类型"
     },
     "auth_files": {
         "title": "认证文件管理",
@@ -1171,7 +1172,23 @@
                     "ws_auth": "WebSocket 认证",
                     "ws_auth_desc": "启用 WebSocket 连接认证 (/v1/ws)",
                     "enable_gemini_cli_endpoint": "启用 Gemini CLI 内部端点",
-                    "enable_gemini_cli_endpoint_desc": "启用 /v1internal:* 兼容端点"
+                    "enable_gemini_cli_endpoint_desc": "启用 /v1internal:* 兼容端点",
+                    "billing_class_metered": "按量计费",
+                    "billing_class_per_request": "按次计费",
+                    "min_tokens_label": "最小 Token 数",
+                    "min_tokens_hint": "为推理/思考保留的最小 Token 数。",
+                    "max_tokens_label": "最大 Token 数",
+                    "max_tokens_hint": "响应的最大 Token 数。",
+                    "no_think_label": "禁用思考",
+                    "no_think_hint": "启用时，强制提供商禁用思考/推理。",
+                    "thinking_label": "强制思考等级",
+                    "thinking_hint": "设置后，强制提供商使用此思考等级。请谨慎使用：部分提供商会拒绝或忽略强制设置的等级。",
+                    "zero_think_label": "允许零思考",
+                    "zero_think_hint": "启用时，允许为思考/推理分配零 Token。",
+                    "dynamic_think_label": "允许动态思考",
+                    "dynamic_think_hint": "启用时，允许提供商动态选择思考等级。",
+                    "no_think_disabled_label": "已禁用",
+                    "no_think_enabled_label": "已启用"
                 },
                 "quota": {
                     "title": "配额回退",

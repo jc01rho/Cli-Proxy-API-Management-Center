@@ -29,8 +29,6 @@ const mainRoutes = [
   { path: '/ai-providers/gemini/:index', element: <AiProvidersGeminiEditPage /> },
   { path: '/ai-providers/codex/new', element: <AiProvidersCodexEditPage /> },
   { path: '/ai-providers/codex/:index', element: <AiProvidersCodexEditPage /> },
-  { path: '/ai-providers/ollama/new', element: <AiProvidersCodexEditPage /> },
-  { path: '/ai-providers/ollama/:index', element: <AiProvidersCodexEditPage /> },
   {
     path: '/ai-providers/claude/new',
     element: <AiProvidersClaudeEditLayout />,

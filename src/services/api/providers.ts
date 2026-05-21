@@ -196,21 +196,6 @@ export const providersApi = {
   deleteCodexConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/codex-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 
-  async getOllamaConfigs(): Promise<ProviderKeyConfig[]> {
-    const data = await apiClient.get('/ollama-api-key');
-    const list = extractArrayPayload(data, 'ollama-api-key');
-    return list.map((item) => normalizeProviderKeyConfig(item)).filter(Boolean) as ProviderKeyConfig[];
-  },
-
-  saveOllamaConfigs: (configs: ProviderKeyConfig[]) =>
-    apiClient.put('/ollama-api-key', configs.map((item) => serializeProviderKey(item))),
-
-  updateOllamaConfig: (index: number, value: ProviderKeyConfig) =>
-    apiClient.patch('/ollama-api-key', { index, value: serializeProviderKey(value) }),
-
-  deleteOllamaConfig: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(`/ollama-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
-
   async getClaudeConfigs(): Promise<ProviderKeyConfig[]> {
     const data = await apiClient.get('/claude-api-key');
     const list = extractArrayPayload(data, 'claude-api-key');

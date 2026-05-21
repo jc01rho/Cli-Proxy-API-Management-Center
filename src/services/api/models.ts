@@ -41,18 +41,6 @@ const buildV1ModelsEndpoint = (baseUrl: string): string => {
   return `${trimmed}/v1/models`;
 };
 
-const buildOllamaTagsEndpoint = (baseUrl: string): string => {
-  const normalized = normalizeApiBase(baseUrl) || 'https://ollama.com';
-  const trimmed = normalized.replace(/\/+$/g, '');
-  const lower = trimmed.toLowerCase();
-  // Ollama Cloud supports both /v1/tags and /api/tags; self-hosted uses /api/tags or /tags
-  if (/\/v1\/tags$/i.test(trimmed) || /\/api\/tags$/i.test(trimmed) || /\/tags$/i.test(trimmed)) return trimmed;
-  if (lower.includes('ollama.com')) {
-    return `${trimmed}/v1/tags`;
-  }
-  return `${trimmed}/api/tags`;
-};
-
 const buildClaudeModelsEndpoint = (baseUrl: string): string => {
   const normalized = normalizeApiBase(baseUrl);
   const fallback = normalized || DEFAULT_CLAUDE_BASE_URL;
@@ -180,35 +168,6 @@ export const modelsApi = {
 
   buildV1ModelsEndpoint(baseUrl: string) {
     return buildV1ModelsEndpoint(baseUrl);
-  },
-
-  buildOllamaTagsEndpoint(baseUrl: string) {
-    return buildOllamaTagsEndpoint(baseUrl);
-  },
-
-  async fetchOllamaTagsViaApiCall(
-    baseUrl: string,
-    apiKey?: string,
-    headers: Record<string, string> = {}
-  ) {
-    const endpoint = buildOllamaTagsEndpoint(baseUrl);
-    const resolvedHeaders = { ...headers };
-    if (apiKey && !hasHeader(resolvedHeaders, 'authorization')) {
-      resolvedHeaders.Authorization = `Bearer ${apiKey}`;
-    }
-
-    const result = await apiCallApi.request({
-      method: 'GET',
-      url: endpoint,
-      header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined
-    });
-
-    if (result.statusCode < 200 || result.statusCode >= 300) {
-      throw new Error(getApiCallErrorMessage(result));
-    }
-
-    const payload = result.body ?? result.bodyText;
-    return normalizeModelList(payload, { dedupe: true });
   },
 
   buildClaudeModelsEndpoint(baseUrl: string) {

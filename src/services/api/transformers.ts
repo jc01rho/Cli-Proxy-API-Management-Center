@@ -559,13 +559,6 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
       .filter(Boolean) as ProviderKeyConfig[];
   }
 
-  const ollamaList = raw['ollama-api-key'] ?? raw.ollamaApiKey ?? raw.ollamaApiKeys;
-  if (Array.isArray(ollamaList)) {
-    config.ollamaApiKeys = ollamaList
-      .map((item) => normalizeProviderKeyConfig(item))
-      .filter(Boolean) as ProviderKeyConfig[];
-  }
-
   const claudeList = raw['claude-api-key'] ?? raw.claudeApiKey ?? raw.claudeApiKeys;
   if (Array.isArray(claudeList)) {
     config.claudeApiKeys = claudeList

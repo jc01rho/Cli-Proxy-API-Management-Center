@@ -19,6 +19,7 @@ export type ProviderId =
   | 'vertex'
   | 'ampcode'
   | 'openai'
+  | 'commandcode'
   | 'mistral'
   | 'xiaomi';
 
@@ -39,6 +40,7 @@ const PROVIDERS: ProviderNavItem[] = [
     label: 'OpenAI',
     getIcon: (theme) => (theme === 'dark' ? iconOpenaiDark : iconOpenaiLight),
   },
+  { id: 'commandcode', label: 'CommandCode', getIcon: () => iconCodex },
   { id: 'mistral', label: 'Mistral', getIcon: () => iconCodex },
   { id: 'xiaomi', label: 'Xiaomi', getIcon: () => iconCodex },
 ];
@@ -62,6 +64,7 @@ export function ProviderNav() {
     vertex: null,
     ampcode: null,
     openai: null,
+    commandcode: null,
     mistral: null,
     xiaomi: null,
   });

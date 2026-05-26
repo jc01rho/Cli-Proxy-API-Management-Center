@@ -250,5 +250,20 @@ export const providersApi = {
     if (index < 0 || index >= providers.length) throw new Error('Provider not found');
     providers.splice(index, 1);
     return apiClient.put('/openai-compatibility', providers.map((item) => serializeOpenAIProvider(item)));
-  }
+  },
+
+  async getCommandCodeConfigs(): Promise<ProviderKeyConfig[]> {
+    const data = await apiClient.get('/commandcode-api-key');
+    const list = extractArrayPayload(data, 'commandcode-api-key');
+    return list.map((item) => normalizeProviderKeyConfig(item)).filter(Boolean) as ProviderKeyConfig[];
+  },
+
+  saveCommandCodeConfigs: (configs: ProviderKeyConfig[]) =>
+    apiClient.put('/commandcode-api-key', configs.map((item) => serializeProviderKey(item))),
+
+  updateCommandCodeConfig: (index: number, value: ProviderKeyConfig) =>
+    apiClient.patch('/commandcode-api-key', { index, value: serializeProviderKey(value) }),
+
+  deleteCommandCodeConfig: (apiKey: string, baseUrl?: string) =>
+    apiClient.delete(`/commandcode-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 };

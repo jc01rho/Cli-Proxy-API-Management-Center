@@ -5,6 +5,7 @@ import {
   AmpcodeSection,
   ClaudeSection,
   CodexSection,
+  CommandCodeSection,
   GeminiSection,
   OpenAISection,
   VertexSection,
@@ -54,6 +55,9 @@ export function AiProvidersPage() {
   const [openaiProviders, setOpenaiProviders] = useState<OpenAIProviderConfig[]>(
     () => config?.openaiCompatibility || []
   );
+  const [commandcodeConfigs, setCommandcodeConfigs] = useState<ProviderKeyConfig[]>(
+    () => config?.commandcodeApiKeys || []
+  );
 
   const [configSwitchingKey, setConfigSwitchingKey] = useState<string | null>(null);
 
@@ -97,6 +101,7 @@ export function AiProvidersPage() {
       setClaudeConfigs(data?.claudeApiKeys || []);
       setVertexConfigs(data?.vertexApiKeys || []);
       setOpenaiProviders(data?.openaiCompatibility || []);
+      setCommandcodeConfigs(data?.commandcodeApiKeys || []);
 
       if (vertexResult.status === 'fulfilled') {
         setVertexConfigs(vertexResult.value || []);
@@ -139,12 +144,14 @@ export function AiProvidersPage() {
     if (config?.claudeApiKeys) setClaudeConfigs(config.claudeApiKeys);
     if (config?.vertexApiKeys) setVertexConfigs(config.vertexApiKeys);
     if (config?.openaiCompatibility) setOpenaiProviders(config.openaiCompatibility);
+    if (config?.commandcodeApiKeys) setCommandcodeConfigs(config.commandcodeApiKeys);
   }, [
     config?.geminiApiKeys,
     config?.codexApiKeys,
     config?.claudeApiKeys,
     config?.vertexApiKeys,
     config?.openaiCompatibility,
+    config?.commandcodeApiKeys,
   ]);
 
   const handleRecentRequestsRefresh = useCallback(async () => {
@@ -382,6 +389,65 @@ export function AiProvidersPage() {
     });
   };
 
+  const deleteCommandCode = async (index: number) => {
+    const entry = commandcodeConfigs[index];
+    if (!entry) return;
+    showConfirmation({
+      title: t('ai_providers.commandcode_delete_title', { defaultValue: 'Delete CommandCode Config' }),
+      message: t('ai_providers.commandcode_delete_confirm'),
+      variant: 'danger',
+      confirmText: t('common.confirm'),
+      onConfirm: async () => {
+        try {
+          await providersApi.deleteCommandCodeConfig(entry.apiKey, entry.baseUrl);
+          const next = commandcodeConfigs.filter((_, idx) => idx !== index);
+          setCommandcodeConfigs(next);
+          updateConfigValue('commandcode-api-key', next);
+          clearCache('commandcode-api-key');
+          showNotification(t('notification.commandcode_config_deleted'), 'success');
+        } catch (err: unknown) {
+          const message = getErrorMessage(err);
+          showNotification(`${t('notification.delete_failed')}: ${message}`, 'error');
+        }
+      },
+    });
+  };
+
+  const setCommandCodeEnabled = async (index: number, enabled: boolean) => {
+    const current = commandcodeConfigs[index];
+    if (!current) return;
+
+    const switchingKey = `commandcode:${current.apiKey}`;
+    setConfigSwitchingKey(switchingKey);
+
+    const previousList = commandcodeConfigs;
+    const nextExcluded = enabled
+      ? withoutDisableAllModelsRule(current.excludedModels)
+      : withDisableAllModelsRule(current.excludedModels);
+    const nextItem: ProviderKeyConfig = { ...current, excludedModels: nextExcluded };
+    const nextList = previousList.map((item, idx) => (idx === index ? nextItem : item));
+
+    setCommandcodeConfigs(nextList);
+    updateConfigValue('commandcode-api-key', nextList);
+    clearCache('commandcode-api-key');
+
+    try {
+      await providersApi.saveCommandCodeConfigs(nextList);
+      showNotification(
+        enabled ? t('notification.config_enabled') : t('notification.config_disabled'),
+        'success'
+      );
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      setCommandcodeConfigs(previousList);
+      updateConfigValue('commandcode-api-key', previousList);
+      clearCache('commandcode-api-key');
+      showNotification(`${t('notification.update_failed')}: ${message}`, 'error');
+    } finally {
+      setConfigSwitchingKey(null);
+    }
+  };
+
   const deleteOpenAIProvider = async (index: number) => {
     const entry = openaiProviders[index];
     if (!entry) return;
@@ -490,6 +556,20 @@ export function AiProvidersPage() {
             onEdit={(index) => openEditor(`/ai-providers/openai/${index}`)}
             onDelete={(index) => void deleteOpenAIProvider(index)}
             onToggle={(index, enabled) => void setOpenAIProviderEnabled(index, enabled)}
+          />
+        </div>
+
+        <div id="provider-commandcode">
+          <CommandCodeSection
+            configs={commandcodeConfigs}
+            usageByProvider={usageByProvider}
+            loading={loading}
+            disableControls={disableControls}
+            isSwitching={isSwitching}
+            onAdd={() => openEditor('/ai-providers/commandcode/new')}
+            onEdit={(index) => openEditor(`/ai-providers/commandcode/${index}`)}
+            onDelete={(index) => void deleteCommandCode(index)}
+            onToggle={(index, enabled) => void setCommandCodeEnabled(index, enabled)}
           />
         </div>
       </div>

@@ -43,6 +43,7 @@ export interface Config {
   claudeApiKeys?: ProviderKeyConfig[];
   vertexApiKeys?: ProviderKeyConfig[];
   openaiCompatibility?: OpenAIProviderConfig[];
+  commandcodeApiKeys?: ProviderKeyConfig[];
    oauthExcludedModels?: Record<string, string[]>;
    oauthEndpointOverrides?: Record<string, Record<string, string>>;
    raw?: Record<string, unknown>;
@@ -69,6 +70,7 @@ export type RawConfigSection =
   | 'claude-api-key'
   | 'vertex-api-key'
   | 'openai-compatibility'
+  | 'commandcode-api-key'
   | 'oauth-excluded-models'
   | 'oauth-endpoint-overrides';
 

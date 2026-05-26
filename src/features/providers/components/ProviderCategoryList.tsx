@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import ampcodeLogo from '@/assets/icons/amp.svg';
 import claudeLogo from '@/assets/icons/claude.svg';
 import codexLogo from '@/assets/icons/codex.svg';
+import commandcodeLogo from '@/assets/icons/codex.svg';
 import geminiLogo from '@/assets/icons/gemini.svg';
 import openaiLogo from '@/assets/icons/openai-light.svg';
 import vertexLogo from '@/assets/icons/vertex.svg';
@@ -13,6 +14,7 @@ const PROVIDER_LOGOS: Record<ProviderBrand, { src: string; invertOnDark?: boolea
   gemini: { src: geminiLogo },
   claude: { src: claudeLogo },
   codex: { src: codexLogo },
+  commandcode: { src: commandcodeLogo },
   vertex: { src: vertexLogo },
   openaiCompatibility: { src: openaiLogo, invertOnDark: true },
   ampcode: { src: ampcodeLogo },

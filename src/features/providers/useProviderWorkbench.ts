@@ -18,6 +18,7 @@ import {
   ampcodeToResource,
   claudeToResource,
   codexToResource,
+  commandcodeToResource,
   geminiToResource,
   openaiToResource,
   vertexToResource,
@@ -120,7 +121,7 @@ const buildExcludedModels = (
 };
 
 const buildProviderKeyConfig = (
-  brand: 'gemini' | 'codex' | 'claude' | 'vertex',
+  brand: 'gemini' | 'codex' | 'commandcode' | 'claude' | 'vertex',
   input: ProviderEntryFormInput,
   existing?: ProviderKeyConfig | GeminiKeyConfig | null
 ): ProviderKeyConfig | GeminiKeyConfig => {
@@ -226,11 +227,12 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     setIsFetching(true);
     setErrorMessage(null);
     try {
-      const [configResult, vertexResult, ampcodeResult, openaiResult] = await Promise.allSettled([
+      const [configResult, vertexResult, ampcodeResult, openaiResult, commandcodeResult] = await Promise.allSettled([
         fetchConfig(undefined, true),
         providersApi.getVertexConfigs(),
         ampcodeApi.getAmpcode(),
         providersApi.getOpenAIProviders(),
+        providersApi.getCommandCodeConfigs(),
       ]);
       if (configResult.status !== 'fulfilled') {
         throw configResult.reason;
@@ -246,6 +248,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       if (openaiResult.status === 'fulfilled') {
         updateConfigValue('openai-compatibility', openaiResult.value || []);
         clearCache('openai-compatibility');
+      }
+      if (commandcodeResult.status === 'fulfilled') {
+        updateConfigValue('commandcode-api-key', commandcodeResult.value || []);
+        clearCache('commandcode-api-key');
       }
       setFetchedAt(new Date().toISOString());
     } catch (err) {
@@ -279,6 +285,9 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           break;
         case 'codex':
           resources = (config.codexApiKeys ?? []).map((c, i) => codexToResource(c, i));
+          break;
+        case 'commandcode':
+          resources = (config.commandcodeApiKeys ?? []).map((c, i) => commandcodeToResource(c, i));
           break;
         case 'claude':
           resources = (config.claudeApiKeys ?? []).map((c, i) => claudeToResource(c, i));
@@ -354,6 +363,15 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     [clearCache, updateConfigValue]
   );
 
+  const persistCommandCodeConfigs = useCallback(
+    async (next: ProviderKeyConfig[]) => {
+      await providersApi.saveCommandCodeConfigs(next);
+      updateConfigValue('commandcode-api-key', next);
+      clearCache('commandcode-api-key');
+    },
+    [clearCache, updateConfigValue]
+  );
+
   const createProvider = useCallback(
     async (brand: ProviderBrand, input: ProviderEntryFormInput) => {
       setMutating(true);
@@ -366,6 +384,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = [...(config?.codexApiKeys ?? [])];
           next.push(buildProviderKeyConfig('codex', input) as ProviderKeyConfig);
           await persistCodexConfigs(next);
+        } else if (brand === 'commandcode') {
+          const next = [...(config?.commandcodeApiKeys ?? [])];
+          next.push(buildProviderKeyConfig('commandcode', input) as ProviderKeyConfig);
+          await persistCommandCodeConfigs(next);
         } else if (brand === 'claude') {
           const next = [...(config?.claudeApiKeys ?? [])];
           next.push(buildProviderKeyConfig('claude', input) as ProviderKeyConfig);
@@ -390,6 +412,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       config,
       persistClaudeConfigs,
       persistCodexConfigs,
+      persistCommandCodeConfigs,
       persistGeminiKeys,
       persistOpenAIConfigs,
       persistVertexConfigs,
@@ -413,6 +436,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const existing = list[idx];
           list[idx] = buildProviderKeyConfig('codex', input, existing) as ProviderKeyConfig;
           await persistCodexConfigs(list);
+        } else if (brand === 'commandcode') {
+          const list = [...(config?.commandcodeApiKeys ?? [])];
+          const existing = list[idx];
+          list[idx] = buildProviderKeyConfig('commandcode', input, existing) as ProviderKeyConfig;
+          await persistCommandCodeConfigs(list);
         } else if (brand === 'claude') {
           const list = [...(config?.claudeApiKeys ?? [])];
           const existing = list[idx];
@@ -440,6 +468,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       config,
       persistClaudeConfigs,
       persistCodexConfigs,
+      persistCommandCodeConfigs,
       persistGeminiKeys,
       persistOpenAIConfigs,
       persistVertexConfigs,
@@ -462,6 +491,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = (config?.codexApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('codex-api-key', next);
           clearCache('codex-api-key');
+        } else if (sel.brand === 'commandcode') {
+          await providersApi.deleteCommandCodeConfig(sel.apiKey, sel.baseUrl);
+          const next = (config?.commandcodeApiKeys ?? []).filter((_, i) => i !== sel.index);
+          updateConfigValue('commandcode-api-key', next);
+          clearCache('commandcode-api-key');
         } else if (sel.brand === 'claude') {
           await providersApi.deleteClaudeConfig(sel.apiKey, sel.baseUrl);
           const next = (config?.claudeApiKeys ?? []).filter((_, i) => i !== sel.index);

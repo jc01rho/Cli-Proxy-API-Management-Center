@@ -134,61 +134,26 @@ export function AuthFilesPrefixProxyEditorModal(props: AuthFilesPrefixProxyEdito
                     disabled={disableControls || editor.saving || !editor.json}
                     onChange={(e) => onChange('proxyUrl', e.target.value)}
                   />
-                  <Input
-                    label={t('auth_files.base_url_label')}
-                    value={editor.baseUrl}
-                    placeholder={t('auth_files.base_url_placeholder')}
-                    hint={t('auth_files.base_url_hint')}
-                    disabled={disableControls || editor.saving || !editor.json}
-                    onChange={(e) => onChange('baseUrl', e.target.value)}
-                  />
-                  <Input
-                    label={t('auth_files.priority_label')}
-                    value={editor.priority}
-                    placeholder={t('auth_files.priority_placeholder')}
-                    hint={t('auth_files.priority_hint')}
-                    disabled={disableControls || editor.saving || !editor.json}
-                    onChange={(e) => onChange('priority', e.target.value)}
-                  />
-                  {editor.providerKey === 'codex' && (
-                    <div className="form-group">
-                      <label>{t('auth_files.codex_websockets_label')}</label>
-                      <ToggleSwitch
-                        checked={editor.websockets}
-                        onChange={(value) => onChange('websockets', value)}
-                        disabled={disableControls || editor.saving || !editor.json}
-                        ariaLabel={t('auth_files.codex_websockets_label')}
-                      />
-                      <div className="hint">{t('auth_files.codex_websockets_hint')}</div>
-                    </div>
-                  )}
-                  <div className="form-group">
-                    <label>{t('auth_files.billing_class_label')}</label>
-                    <select
-                      className="input"
-                      value={editor.billingClass}
-                      disabled={disableControls || editor.saving || !editor.json}
-                      onChange={(e) => onChange('billingClass', e.target.value)}
-                    >
-                      <option value="">{t('common.not_set')}</option>
-                      <option value="metered">metered</option>
-                      <option value="per-request">per-request</option>
-                    </select>
-                    <div className="hint">{t('auth_files.billing_class_hint')}</div>
-                  </div>
-                  <div className="form-group">
-                    <label>{t('auth_files.excluded_models_label')}</label>
-                    <textarea
-                      className="input"
-                      value={editor.excludedModelsText}
-                      placeholder={t('auth_files.excluded_models_placeholder')}
-                      rows={4}
-                      disabled={disableControls || editor.saving || !editor.json}
-                      onChange={(e) => onChange('excludedModelsText', e.target.value)}
-                    />
-                    <div className="hint">{t('auth_files.excluded_models_hint')}</div>
-                  </div>
-                  <div className="form-group">
+                   <Input
+                     label={t('auth_files.priority_label')}
+                     value={editor.priority}
+                     placeholder={t('auth_files.priority_placeholder')}
+                     hint={t('auth_files.priority_hint')}
+                     disabled={disableControls || editor.saving || !editor.json}
+                     onChange={(e) => onChange('priority', e.target.value)}
+                   />
+                   {editor.providerKey === 'codex' && (
+                     <div className="form-group">
+                       <label>{t('auth_files.codex_websockets_label')}</label>
+                       <ToggleSwitch
+                         checked={editor.websockets}
+                         onChange={(value) => onChange('websockets', value)}
+                         disabled={disableControls || editor.saving || !editor.json}
+                         ariaLabel={t('auth_files.codex_websockets_label')}
+                       />
+                       <div className="hint">{t('auth_files.codex_websockets_hint')}</div>
+                     </div>
+                   )}                  <div className="form-group">
                     <label>{t('auth_files.headers_label')}</label>
                     <textarea
                       className={`input ${editor.headersError ? styles.prefixProxyTextareaInvalid : ''}`}

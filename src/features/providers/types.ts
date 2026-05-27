@@ -58,6 +58,8 @@ export interface ProviderResource {
   selector: ProviderResourceSelector;
   /** 原始 raw config,Sheet 表单初始化用 */
   raw: unknown;
+  /** 优先级, 从 config.priority 映射 */
+  priority?: number;
 }
 
 export interface ProviderGroupIssue {

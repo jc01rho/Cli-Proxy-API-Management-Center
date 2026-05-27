@@ -71,6 +71,7 @@ function providerKeyToResource(
     flags,
     selector,
     raw: config,
+    priority: (config as ProviderKeyConfig).priority,
   };
 }
 
@@ -121,6 +122,7 @@ export function openaiToResource(
     flags: {},
     selector: { brand: 'openaiCompatibility', name, index },
     raw: config,
+    priority: config.priority,
   };
 }
 

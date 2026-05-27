@@ -41,7 +41,7 @@ interface ProviderResourceTableProps {
   onToggleDisabled?: (resource: ProviderResource, disabled: boolean) => void;
 }
 
-const columnWidths = ['18%', '18%', '6%', '14%', '24%', '20%'];
+const columnWidths = ['16%', '16%', '6%', '6%', '14%', '24%', '18%'];
 
 const resolveStatusBarData = (
   resource: ProviderResource,
@@ -218,6 +218,7 @@ export function ProviderResourceTable({
           <TableHead>{t('providersPage.table.key')}</TableHead>
           <TableHead>{t('providersPage.table.baseUrl')}</TableHead>
           <TableHead>{t('providersPage.table.prefix')}</TableHead>
+          <TableHead>{t('providersPage.table.priority')}</TableHead>
           <TableHead>{t('providersPage.table.models')}</TableHead>
           <TableHead>{t('providersPage.table.status')}</TableHead>
           <TableHead alignRight>{t('providersPage.table.actions')}</TableHead>
@@ -237,6 +238,15 @@ export function ProviderResourceTable({
                   <span className={styles.chip}>{resource.prefix}</span>
                 ) : (
                   <span className={styles.baseUrl}>{t('providersPage.status.none')}</span>
+                )}
+              </TableCell>
+              <TableCell>
+                {resource.brand === 'ampcode' ? (
+                  <span className={styles.baseUrl}>—</span>
+                ) : resource.priority != null ? (
+                  <span className={styles.chip}>{resource.priority}</span>
+                ) : (
+                  <span className={styles.baseUrl}>—</span>
                 )}
               </TableCell>
               <TableCell>{renderModelsSummary(resource)}</TableCell>

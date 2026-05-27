@@ -1,7 +1,7 @@
 # MANAGEMENT CENTER KNOWLEDGE BASE
 
 **Generated:** 2026-05-21
-**Latest Tag:** v1.11.1-4
+**Latest Tag:** v1.14.0-4
 **Branch:** main
 
 ## OVERVIEW
@@ -44,9 +44,9 @@ Cli-Proxy-API-Management-Center/
 
 ## RECENT CHANGES
 
-- **v1.11.1-3**: OllamaSection implemented as independent provider section (separate from CodexSection); Ollama icon and display added to providers list; dark mode support for Grok icon; provider keys normalized across components.
-- **v1.11.0-2**: Ollama provider UI support restored with full i18n translations. xAI provider integration added.
-- i18n structure expanded to 4 locales (en, zh-CN, zh-TW, ru) with consistent key naming across all provider sections.
+- **v1.14.0-4**: AI Providers table에 priority 컬럼 추가. types/adapters/table/번역을 일괄 갱신.
+- **v1.14.0-3**: CommandCode provider name translation 추가.
+- **v1.14.0-2**: CommandCode 프로바이더를 ProvidersWorkbenchPage에 통합 - brand, descriptor, adapter, workbench hook.
 
 ## ANTI-PATTERNS
 

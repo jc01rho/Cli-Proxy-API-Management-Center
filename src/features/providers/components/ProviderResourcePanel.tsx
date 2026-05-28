@@ -4,6 +4,7 @@ import claudeLogo from '@/assets/icons/claude.svg';
 import codexLogo from '@/assets/icons/codex.svg';
 import commandcodeLogo from '@/assets/icons/codex.svg';
 import geminiLogo from '@/assets/icons/gemini.svg';
+import mistralLogo from '@/assets/icons/mistral.svg';
 import openaiLogo from '@/assets/icons/openai-light.svg';
 import vertexLogo from '@/assets/icons/vertex.svg';
 import { IconPlus, IconSearch } from '@/components/ui/icons';
@@ -22,6 +23,7 @@ const LOGOS: Record<ProviderBrand, { src: string; invertOnDark?: boolean }> = {
   claude: { src: claudeLogo },
   codex: { src: codexLogo },
   commandcode: { src: commandcodeLogo },
+  mistral: { src: mistralLogo },
   vertex: { src: vertexLogo },
   openaiCompatibility: { src: openaiLogo, invertOnDark: true },
   ampcode: { src: ampcodeLogo },

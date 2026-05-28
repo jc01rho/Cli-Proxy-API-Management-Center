@@ -55,6 +55,7 @@ const SECTION_KEYS: RawConfigSection[] = [
   'vertex-api-key',
   'openai-compatibility',
   'commandcode-api-key',
+  'mistral-api-key',
   'oauth-excluded-models'
 ];
 
@@ -103,6 +104,8 @@ const extractSectionValue = (config: Config | null, section?: RawConfigSection) 
       return config.openaiCompatibility;
     case 'commandcode-api-key':
       return config.commandcodeApiKeys;
+    case 'mistral-api-key':
+      return config.mistralApiKeys;
     case 'oauth-excluded-models':
       return config.oauthExcludedModels;
     default:
@@ -261,6 +264,9 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
           break;
         case 'commandcode-api-key':
           nextConfig.commandcodeApiKeys = value as Config['commandcodeApiKeys'];
+          break;
+        case 'mistral-api-key':
+          nextConfig.mistralApiKeys = value as Config['mistralApiKeys'];
           break;
         case 'oauth-excluded-models':
           nextConfig.oauthExcludedModels = value as Config['oauthExcludedModels'];

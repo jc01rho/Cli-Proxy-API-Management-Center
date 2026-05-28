@@ -519,4 +519,19 @@ export const providersApi = {
 
   deleteCommandCodeConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/commandcode-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+
+  async getMistralConfigs(): Promise<ProviderKeyConfig[]> {
+    const data = await apiClient.get('/mistral-api-key');
+    const list = extractArrayPayload(data, 'mistral-api-key');
+    return list.map((item) => normalizeProviderKeyConfig(item)).filter(Boolean) as ProviderKeyConfig[];
+  },
+
+  saveMistralConfigs: (configs: ProviderKeyConfig[]) =>
+    apiClient.put('/mistral-api-key', configs.map((item) => serializeProviderKey(item))),
+
+  updateMistralConfig: (index: number, value: ProviderKeyConfig) =>
+    apiClient.patch('/mistral-api-key', { index, value: serializeProviderKey(value) }),
+
+  deleteMistralConfig: (apiKey: string, baseUrl?: string) =>
+    apiClient.delete(`/mistral-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 };

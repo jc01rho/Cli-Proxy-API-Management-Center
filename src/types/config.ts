@@ -44,6 +44,7 @@ export interface Config {
   vertexApiKeys?: ProviderKeyConfig[];
   openaiCompatibility?: OpenAIProviderConfig[];
   commandcodeApiKeys?: ProviderKeyConfig[];
+  mistralApiKeys?: ProviderKeyConfig[];
    oauthExcludedModels?: Record<string, string[]>;
    oauthEndpointOverrides?: Record<string, Record<string, string>>;
    raw?: Record<string, unknown>;
@@ -71,6 +72,7 @@ export type RawConfigSection =
   | 'vertex-api-key'
   | 'openai-compatibility'
   | 'commandcode-api-key'
+  | 'mistral-api-key'
   | 'oauth-excluded-models'
   | 'oauth-endpoint-overrides';
 

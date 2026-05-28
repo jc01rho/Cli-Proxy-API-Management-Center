@@ -1228,6 +1228,7 @@
       "codex": "Codex",
       "claude": "Claude",
       "vertex": "Vertex",
+      "mistral": "Mistral AI",
       "openaiCompatibility": "OpenAI-совместимый",
       "ampcode": "Amp CLI"
     },

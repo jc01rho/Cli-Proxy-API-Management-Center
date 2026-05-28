@@ -20,6 +20,7 @@ import {
   codexToResource,
   commandcodeToResource,
   geminiToResource,
+  mistralToResource,
   openaiToResource,
   vertexToResource,
 } from './adapters';
@@ -104,7 +105,7 @@ const buildExcludedModels = (
 };
 
 const buildProviderKeyConfig = (
-  brand: 'gemini' | 'codex' | 'commandcode' | 'claude' | 'vertex',
+  brand: 'gemini' | 'codex' | 'commandcode' | 'claude' | 'vertex' | 'mistral',
   input: ProviderEntryFormInput,
   existing?: ProviderKeyConfig | GeminiKeyConfig | null
 ): ProviderKeyConfig | GeminiKeyConfig => {
@@ -207,12 +208,13 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     setIsFetching(true);
     setErrorMessage(null);
     try {
-      const [configResult, vertexResult, ampcodeResult, openaiResult, commandcodeResult] = await Promise.allSettled([
+      const [configResult, vertexResult, ampcodeResult, openaiResult, commandcodeResult, mistralResult] = await Promise.allSettled([
         fetchConfig(undefined, true),
         providersApi.getVertexConfigs(),
         ampcodeApi.getAmpcode(),
         providersApi.getOpenAIProviders(),
         providersApi.getCommandCodeConfigs(),
+        providersApi.getMistralConfigs(),
       ]);
       if (configResult.status !== 'fulfilled') {
         throw configResult.reason;
@@ -232,6 +234,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       if (commandcodeResult.status === 'fulfilled') {
         updateConfigValue('commandcode-api-key', commandcodeResult.value || []);
         clearCache('commandcode-api-key');
+      }
+      if (mistralResult.status === 'fulfilled') {
+        updateConfigValue('mistral-api-key', mistralResult.value || []);
+        clearCache('mistral-api-key');
       }
       setFetchedAt(new Date().toISOString());
     } catch (err) {
@@ -274,6 +280,9 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           break;
         case 'vertex':
           resources = (config.vertexApiKeys ?? []).map((c, i) => vertexToResource(c, i));
+          break;
+        case 'mistral':
+          resources = (config.mistralApiKeys ?? []).map((c, i) => mistralToResource(c, i));
           break;
         case 'openaiCompatibility':
           resources = (config.openaiCompatibility ?? []).map((c, i) => openaiToResource(c, i));
@@ -343,6 +352,15 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     [clearCache, updateConfigValue]
   );
 
+  const persistMistralConfigs = useCallback(
+    async (next: ProviderKeyConfig[]) => {
+      await providersApi.saveMistralConfigs(next);
+      updateConfigValue('mistral-api-key', next);
+      clearCache('mistral-api-key');
+    },
+    [clearCache, updateConfigValue]
+  );
+
   const persistCommandCodeConfigs = useCallback(
     async (next: ProviderKeyConfig[]) => {
       await providersApi.saveCommandCodeConfigs(next);
@@ -376,6 +394,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = [...(config?.vertexApiKeys ?? [])];
           next.push(buildProviderKeyConfig('vertex', input) as ProviderKeyConfig);
           await persistVertexConfigs(next);
+        } else if (brand === 'mistral') {
+          const next = [...(config?.mistralApiKeys ?? [])];
+          next.push(buildProviderKeyConfig('mistral', input) as ProviderKeyConfig);
+          await persistMistralConfigs(next);
         } else if (brand === 'openaiCompatibility') {
           const next = [...(config?.openaiCompatibility ?? [])];
           next.push(buildOpenAIConfig(input));
@@ -394,6 +416,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistCodexConfigs,
       persistCommandCodeConfigs,
       persistGeminiKeys,
+      persistMistralConfigs,
       persistOpenAIConfigs,
       persistVertexConfigs,
       refreshSnapshot,
@@ -431,6 +454,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const existing = list[idx];
           list[idx] = buildProviderKeyConfig('vertex', input, existing) as ProviderKeyConfig;
           await persistVertexConfigs(list);
+        } else if (brand === 'mistral') {
+          const list = [...(config?.mistralApiKeys ?? [])];
+          const existing = list[idx];
+          list[idx] = buildProviderKeyConfig('mistral', input, existing) as ProviderKeyConfig;
+          await persistMistralConfigs(list);
         } else if (brand === 'openaiCompatibility') {
           const list = [...(config?.openaiCompatibility ?? [])];
           const existing = list[idx];
@@ -450,6 +478,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistCodexConfigs,
       persistCommandCodeConfigs,
       persistGeminiKeys,
+      persistMistralConfigs,
       persistOpenAIConfigs,
       persistVertexConfigs,
       refreshSnapshot,
@@ -486,6 +515,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = (config?.vertexApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('vertex-api-key', next);
           clearCache('vertex-api-key');
+        } else if (sel.brand === 'mistral') {
+          await providersApi.deleteMistralConfig(sel.apiKey, sel.baseUrl);
+          const next = (config?.mistralApiKeys ?? []).filter((_, i) => i !== sel.index);
+          updateConfigValue('mistral-api-key', next);
+          clearCache('mistral-api-key');
         } else if (sel.brand === 'openaiCompatibility') {
           await providersApi.deleteOpenAIProvider(sel.name);
           const next = (config?.openaiCompatibility ?? []).filter((_, i) => i !== sel.index);
@@ -523,13 +557,15 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             : withoutDisableAllModelsRule(current.excludedModels);
           list[idx] = { ...current, excludedModels: excluded };
           await persistGeminiKeys(list);
-        } else if (brand === 'codex' || brand === 'claude' || brand === 'vertex') {
+        } else if (brand === 'codex' || brand === 'claude' || brand === 'vertex' || brand === 'mistral') {
           const key =
             brand === 'codex'
               ? 'codexApiKeys'
               : brand === 'claude'
                 ? 'claudeApiKeys'
-                : 'vertexApiKeys';
+                : brand === 'mistral'
+                  ? 'mistralApiKeys'
+                  : 'vertexApiKeys';
           const list = [...((config?.[key] as ProviderKeyConfig[] | undefined) ?? [])];
           const current = list[idx];
           if (!current) return;
@@ -539,6 +575,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           list[idx] = { ...current, excludedModels: excluded };
           if (brand === 'codex') await persistCodexConfigs(list);
           else if (brand === 'claude') await persistClaudeConfigs(list);
+          else if (brand === 'mistral') await persistMistralConfigs(list);
           else await persistVertexConfigs(list);
         } else if (brand === 'openaiCompatibility') {
           await providersApi.updateOpenAIProviderDisabled(idx, disabled);
@@ -563,6 +600,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistClaudeConfigs,
       persistCodexConfigs,
       persistGeminiKeys,
+      persistMistralConfigs,
       persistVertexConfigs,
       refreshSnapshot,
       updateConfigValue,

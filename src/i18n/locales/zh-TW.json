@@ -1257,6 +1257,7 @@
       "codex": "Codex",
       "claude": "Claude",
       "vertex": "Vertex",
+      "mistral": "Mistral AI",
       "openaiCompatibility": "OpenAI 相容",
       "ampcode": "Amp CLI"
     },

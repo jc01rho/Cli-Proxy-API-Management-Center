@@ -95,7 +95,6 @@ export interface ModelEntryInput {
 export interface ApiKeyEntryInput {
   apiKey: string;
   proxyUrl: string;
-  headersText: string;
   authIndex?: string;
 }
 

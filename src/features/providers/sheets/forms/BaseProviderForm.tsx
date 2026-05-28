@@ -4,6 +4,8 @@ import {
   IconAlertTriangle,
   IconCheckCircle2,
   IconDownload,
+  IconEye,
+  IconEyeOff,
   IconLoader2,
   IconPlus,
   IconX,
@@ -53,14 +55,7 @@ const emptyModel = (): ModelEntryInput => ({ name: '', alias: '' });
 const emptyApiKeyEntry = (): ApiKeyEntryInput => ({
   apiKey: '',
   proxyUrl: '',
-  headersText: '',
 });
-
-const headersObjectToText = (headers?: Record<string, string>): string =>
-  Object.entries(headers ?? {})
-    .filter(([k]) => k.trim())
-    .map(([k, v]) => `${k}: ${v}`)
-    .join('\n');
 
 const stripDisableAllRule = (list?: string[]): string[] =>
   (list ?? []).filter((s) => s.trim() !== '*');
@@ -122,7 +117,6 @@ function buildInitialForm(
         ? cfg.apiKeyEntries.map((entry) => ({
             apiKey: entry.apiKey,
             proxyUrl: entry.proxyUrl ?? '',
-            headersText: headersObjectToText(entry.headers),
             authIndex: entry.authIndex,
           }))
         : [emptyApiKeyEntry()],
@@ -133,7 +127,8 @@ function buildInitialForm(
   const disabled = hasDisableAllModelsRule(cfg.excludedModels);
   const excludedList = stripDisableAllRule(cfg.excludedModels);
   return {
-    apiKey: '',
+    // Populate apiKey from resource.raw in edit mode so the field is not empty
+    apiKey: cfg.apiKey ?? '',
     name: '',
     baseUrl: cfg.baseUrl ?? '',
     proxyUrl: cfg.proxyUrl ?? '',
@@ -211,6 +206,20 @@ export function BaseProviderForm({
     JSON.stringify(buildInitialForm(brand, resource, mode))
   );
   const [error, setError] = useState<string | null>(null);
+  const [showPasswords, setShowPasswords] = useState<Set<number>>(new Set());
+  const [showSingleApiKey, setShowSingleApiKey] = useState(false);
+
+  const togglePasswordVisibility = (idx: number) => {
+    setShowPasswords((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) {
+        next.delete(idx);
+      } else {
+        next.add(idx);
+      }
+      return next;
+    });
+  };
 
   const isDirty = useMemo(
     () => JSON.stringify(form) !== initialFormSignature,
@@ -430,6 +439,25 @@ export function BaseProviderForm({
     [form.apiKeyEntries]
   );
 
+  const removeApiKeyEntry = (removeIdx: number) => {
+    setShowPasswords((prev) => {
+      if (!prev.size) return prev;
+      const next = new Set<number>();
+      prev.forEach((idx) => {
+        if (idx < removeIdx) {
+          next.add(idx);
+        } else if (idx > removeIdx) {
+          next.add(idx - 1);
+        }
+      });
+      return next;
+    });
+    updateField(
+      'apiKeyEntries',
+      apiKeyEntries.filter((_, i) => i !== removeIdx)
+    );
+  };
+
   return (
     <form id={formId} className={styles.form} onSubmit={handleSubmit} noValidate>
       {/* 基础字段 */}
@@ -454,19 +482,43 @@ export function BaseProviderForm({
             <label className={styles.label} htmlFor={`${fid}-apiKey`}>
               {t('providersPage.form.apiKey')}
             </label>
-            <input
-              id={`${fid}-apiKey`}
-              className={styles.input}
-              type="password"
-              value={form.apiKey}
-              onChange={(e) => updateField('apiKey', e.target.value)}
-              placeholder={
-                mode === 'edit'
-                  ? t('providersPage.form.apiKeyEditPlaceholder')
-                  : t('providersPage.form.apiKeyCreatePlaceholder')
-              }
-              disabled={mutating}
-            />
+            <div className={styles.passwordField}>
+              <input
+                id={`${fid}-apiKey`}
+                className={styles.passwordInput}
+                type={showSingleApiKey ? 'text' : 'password'}
+                value={form.apiKey}
+                onChange={(e) => updateField('apiKey', e.target.value)}
+                placeholder={
+                  mode === 'edit'
+                    ? t('providersPage.form.apiKeyEditPlaceholder')
+                    : t('providersPage.form.apiKeyCreatePlaceholder')
+                }
+                disabled={mutating}
+              />
+              <button
+                type="button"
+                className={styles.passwordToggle}
+                onClick={() => setShowSingleApiKey((v) => !v)}
+                disabled={mutating}
+                aria-label={
+                  showSingleApiKey
+                    ? t('providersPage.form.hideApiKey')
+                    : t('providersPage.form.showApiKey')
+                }
+                title={
+                  showSingleApiKey
+                    ? t('providersPage.form.hideApiKey')
+                    : t('providersPage.form.showApiKey')
+                }
+              >
+                {showSingleApiKey ? (
+                  <IconEyeOff size={16} />
+                ) : (
+                  <IconEye size={16} />
+                )}
+              </button>
+            </div>
           </div>
         ) : null}
 
@@ -635,7 +687,20 @@ export function BaseProviderForm({
           defaultOpen
         >
           <div className={styles.entriesList}>
-            <div className={styles.entriesToolbar}>
+            <div className={`${styles.entriesToolbar} ${styles.entriesToolbarSplit}`}>
+              {/* Add entry button on the left */}
+              <button
+                type="button"
+                className={styles.addBtn}
+                disabled={mutating}
+                onClick={() =>
+                  updateField('apiKeyEntries', [...apiKeyEntries, emptyApiKeyEntry()])
+                }
+              >
+                <IconPlus size={12} />
+                <span>{t('providersPage.form.addApiKeyEntry')}</span>
+              </button>
+              {/* Test all button on the right */}
               <button
                 type="button"
                 className={styles.connectivityBtn}
@@ -650,16 +715,17 @@ export function BaseProviderForm({
                 <span>{t('providersPage.connectivity.testAll')}</span>
               </button>
             </div>
-            {apiKeyEntries.map((entry, idx) => {
-              const status = connectivity.openaiStatuses[idx] ?? {
+            {[...apiKeyEntries].reverse().map((entry, visualIdx) => {
+              const realIdx = apiKeyEntries.length - 1 - visualIdx;
+              const status = connectivity.openaiStatuses[realIdx] ?? {
                 state: 'idle' as ConnectivityState,
                 message: '',
               };
               return (
-                <div key={idx} className={styles.entryCard}>
+                <div key={realIdx} className={styles.entryCard}>
                   <div className={styles.entryCardHeader}>
                     <span>
-                      {t('providersPage.form.apiKeyEntry', { index: idx + 1 })}
+                      {t('providersPage.form.apiKeyEntry', { index: realIdx + 1 })}
                     </span>
                     <div className={styles.entryCardHeaderRight}>
                       <ConnectivityStatusIcon state={status.state} />
@@ -667,7 +733,7 @@ export function BaseProviderForm({
                         type="button"
                         className={styles.connectivityBtnGhost}
                         disabled={mutating || status.state === 'loading'}
-                        onClick={() => void connectivity.runOpenAIKey(idx)}
+                        onClick={() => void connectivity.runOpenAIKey(realIdx)}
                       >
                         {status.state === 'loading' ? (
                           <span className={`${styles.statusIcon} ${styles.statusIconLoading}`}>
@@ -680,12 +746,7 @@ export function BaseProviderForm({
                         type="button"
                         className={styles.removeBtn}
                         disabled={mutating || apiKeyEntries.length <= 1}
-                        onClick={() =>
-                          updateField(
-                            'apiKeyEntries',
-                            apiKeyEntries.filter((_, i) => i !== idx)
-                          )
-                        }
+                        onClick={() => removeApiKeyEntry(realIdx)}
                       >
                         <IconX size={12} />
                       </button>
@@ -695,21 +756,45 @@ export function BaseProviderForm({
                     <label className={styles.label}>
                       {t('providersPage.form.apiKey')}
                     </label>
-                    <input
-                      className={styles.input}
-                      type="password"
-                      value={entry.apiKey}
-                      onChange={(e) =>
-                        updateField(
-                          'apiKeyEntries',
-                          apiKeyEntries.map((it, i) =>
-                            i === idx ? { ...it, apiKey: e.target.value } : it
+                    <div className={styles.passwordField}>
+                      <input
+                        className={styles.passwordInput}
+                        type={showPasswords.has(realIdx) ? 'text' : 'password'}
+                        value={entry.apiKey}
+                        onChange={(e) =>
+                          updateField(
+                            'apiKeyEntries',
+                            apiKeyEntries.map((it, i) =>
+                              i === realIdx ? { ...it, apiKey: e.target.value } : it
+                            )
                           )
-                        )
-                      }
-                      disabled={mutating}
-                      placeholder={t('providersPage.form.apiKeyCreatePlaceholder')}
-                    />
+                        }
+                        disabled={mutating}
+                        placeholder={t('providersPage.form.apiKeyCreatePlaceholder')}
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggle}
+                        onClick={() => togglePasswordVisibility(realIdx)}
+                        disabled={mutating}
+                        aria-label={
+                          showPasswords.has(realIdx)
+                            ? t('providersPage.form.hideApiKey')
+                            : t('providersPage.form.showApiKey')
+                        }
+                        title={
+                          showPasswords.has(realIdx)
+                            ? t('providersPage.form.hideApiKey')
+                            : t('providersPage.form.showApiKey')
+                        }
+                      >
+                        {showPasswords.has(realIdx) ? (
+                          <IconEyeOff size={16} />
+                        ) : (
+                          <IconEye size={16} />
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <div className={styles.field}>
                     <label className={styles.label}>
@@ -722,36 +807,12 @@ export function BaseProviderForm({
                         updateField(
                           'apiKeyEntries',
                           apiKeyEntries.map((it, i) =>
-                            i === idx ? { ...it, proxyUrl: e.target.value } : it
+                            i === realIdx ? { ...it, proxyUrl: e.target.value } : it
                           )
                         )
                       }
                       disabled={mutating}
                       placeholder="http://127.0.0.1:7890"
-                    />
-                  </div>
-                  <div className={styles.field}>
-                    <label className={styles.label}>
-                      {t('providersPage.form.headers')}
-                      <span className={styles.labelHint}>
-                        {' '}
-                        · {t('providersPage.form.headersHint')}
-                      </span>
-                    </label>
-                    <textarea
-                      className={styles.textarea}
-                      value={entry.headersText}
-                      rows={3}
-                      onChange={(e) =>
-                        updateField(
-                          'apiKeyEntries',
-                          apiKeyEntries.map((it, i) =>
-                            i === idx ? { ...it, headersText: e.target.value } : it
-                          )
-                        )
-                      }
-                      disabled={mutating}
-                      placeholder="X-Custom-Header: value"
                     />
                   </div>
                   {status.state === 'error' ? (
@@ -762,17 +823,6 @@ export function BaseProviderForm({
                 </div>
               );
             })}
-            <button
-              type="button"
-              className={styles.addBtn}
-              disabled={mutating}
-              onClick={() =>
-                updateField('apiKeyEntries', [...apiKeyEntries, emptyApiKeyEntry()])
-              }
-            >
-              <IconPlus size={12} />
-              <span>{t('providersPage.form.addApiKeyEntry')}</span>
-            </button>
           </div>
         </Collapsible>
       ) : null}

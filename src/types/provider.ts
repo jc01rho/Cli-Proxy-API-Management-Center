@@ -13,8 +13,8 @@ export interface ModelAlias {
 export interface ApiKeyEntry {
   apiKey: string;
   proxyUrl?: string;
-  headers?: Record<string, string>;
   authIndex?: string;
+  headers?: Record<string, string>;
 }
 
 export interface CloakConfig {

@@ -557,15 +557,17 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             : withoutDisableAllModelsRule(current.excludedModels);
           list[idx] = { ...current, excludedModels: excluded };
           await persistGeminiKeys(list);
-        } else if (brand === 'codex' || brand === 'claude' || brand === 'vertex' || brand === 'mistral') {
+        } else if (brand === 'codex' || brand === 'commandcode' || brand === 'claude' || brand === 'vertex' || brand === 'mistral') {
           const key =
             brand === 'codex'
               ? 'codexApiKeys'
-              : brand === 'claude'
-                ? 'claudeApiKeys'
-                : brand === 'mistral'
-                  ? 'mistralApiKeys'
-                  : 'vertexApiKeys';
+              : brand === 'commandcode'
+                ? 'commandcodeApiKeys'
+                : brand === 'claude'
+                  ? 'claudeApiKeys'
+                  : brand === 'mistral'
+                    ? 'mistralApiKeys'
+                    : 'vertexApiKeys';
           const list = [...((config?.[key] as ProviderKeyConfig[] | undefined) ?? [])];
           const current = list[idx];
           if (!current) return;
@@ -574,6 +576,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             : withoutDisableAllModelsRule(current.excludedModels);
           list[idx] = { ...current, excludedModels: excluded };
           if (brand === 'codex') await persistCodexConfigs(list);
+          else if (brand === 'commandcode') await persistCommandCodeConfigs(list);
           else if (brand === 'claude') await persistClaudeConfigs(list);
           else if (brand === 'mistral') await persistMistralConfigs(list);
           else await persistVertexConfigs(list);
@@ -599,6 +602,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       config,
       persistClaudeConfigs,
       persistCodexConfigs,
+      persistCommandCodeConfigs,
       persistGeminiKeys,
       persistMistralConfigs,
       persistVertexConfigs,

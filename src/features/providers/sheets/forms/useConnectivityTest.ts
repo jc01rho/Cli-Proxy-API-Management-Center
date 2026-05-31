@@ -72,13 +72,21 @@ export interface ConnectivityErrorMessages {
   requestFailed: string;
 }
 
+const buildCommandCodeEndpoint = (baseUrl: string): string | null => {
+  const trimmed = baseUrl.trim().replace(/\/+$/, '');
+  if (!trimmed) return null;
+  return `${trimmed}/alpha/generate`;
+};
+
 export interface UseConnectivityTestResult {
   openaiStatuses: ConnectivityStatus[];
   claudeStatus: ConnectivityStatus;
+  commandcodeStatus: ConnectivityStatus;
   isTestingAny: boolean;
   runOpenAIKey: (idx: number) => Promise<boolean>;
   runOpenAIAllKeys: () => Promise<void>;
   runClaude: () => Promise<void>;
+  runCommandCode: () => Promise<void>;
 }
 
 export function useConnectivityTest(
@@ -103,6 +111,7 @@ export function useConnectivityTest(
     () => Array.from({ length: entriesCount }, () => IDLE)
   );
   const [claudeStatus, setClaudeStatus] = useState<ConnectivityStatus>(IDLE);
+  const [commandcodeStatus, setCommandcodeStatus] = useState<ConnectivityStatus>(IDLE);
   const [inFlight, setInFlight] = useState(0);
 
   const entrySignatures = useMemo(
@@ -368,12 +377,121 @@ export function useConnectivityTest(
     testModel,
   ]);
 
+  const runCommandCode = useCallback(async (): Promise<void> => {
+    if (brand !== 'commandcode') return;
+
+    const endpoint = buildCommandCodeEndpoint(baseUrl ?? '');
+    if (!endpoint) {
+      setCommandcodeStatus({ state: 'error', message: messages.endpointInvalid });
+      return;
+    }
+    const model = pickModel(testModel, models);
+    if (!model) {
+      setCommandcodeStatus({ state: 'error', message: messages.modelRequired });
+      return;
+    }
+
+    const customHeaders = buildHeaderObject(formHeaders);
+    const explicitKey = (apiKey ?? '').trim();
+    const persistedKey = (fallbackApiKey ?? '').trim();
+    const headerKey = resolveBearerToken(customHeaders);
+    const resolvedKey = explicitKey || persistedKey || headerKey;
+    const resolvedAuthIndex = (authIndex ?? '').trim() || undefined;
+
+    if (!resolvedKey && !resolvedAuthIndex) {
+      setCommandcodeStatus({ state: 'error', message: messages.apiKeyRequired });
+      return;
+    }
+
+    const headerObj: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-command-code-version': '0.26.20',
+      'x-cli-environment': 'production',
+      'x-project-slug': 'cli-proxy',
+      ...customHeaders,
+    };
+    if (!hasHeader(headerObj, 'authorization') && resolvedKey) {
+      headerObj.Authorization = `Bearer ${resolvedKey}`;
+    } else if (!hasHeader(headerObj, 'authorization') && resolvedAuthIndex) {
+      headerObj.Authorization = 'Bearer $TOKEN$';
+    }
+
+    setCommandcodeStatus({ state: 'loading', message: '' });
+    setInFlight((n) => n + 1);
+    try {
+      const result = await apiCallApi.request(
+        {
+          authIndex: resolvedAuthIndex,
+          method: 'POST',
+          url: endpoint,
+          header: headerObj,
+          data: JSON.stringify({
+            config: {
+              workingDir: '/tmp',
+              date: new Date().toISOString().slice(0, 10),
+              environment: 'terminal',
+              structure: [],
+              isGitRepo: false,
+              currentBranch: '',
+              mainBranch: '',
+              gitStatus: '',
+              recentCommits: [],
+            },
+            memory: '',
+            taste: '',
+            skills: null,
+            permissionMode: 'standard',
+            params: {
+              model,
+              messages: [{ role: 'user', content: 'Hi' }],
+              max_tokens: 8,
+              stream: false,
+            },
+          }),
+        },
+        { timeout: DEFAULT_TIMEOUT_MS }
+      );
+      if (result.statusCode < 200 || result.statusCode >= 300) {
+        throw new Error(getApiCallErrorMessage(result));
+      }
+      setCommandcodeStatus({ state: 'success', message: '' });
+    } catch (err) {
+      const raw = errorMessage(err);
+      const isTimeout =
+        (typeof err === 'object' &&
+          err !== null &&
+          'code' in err &&
+          String((err as { code?: string }).code) === 'ECONNABORTED') ||
+        raw.toLowerCase().includes('timeout');
+      setCommandcodeStatus({
+        state: 'error',
+        message: isTimeout
+          ? messages.timeout(DEFAULT_TIMEOUT_MS / 1000)
+          : raw || messages.requestFailed,
+      });
+    } finally {
+      setInFlight((n) => n - 1);
+    }
+  }, [
+    apiKey,
+    authIndex,
+    baseUrl,
+    brand,
+    fallbackApiKey,
+    formHeaders,
+    messages,
+    models,
+    testModel,
+  ]);
+
   return {
     openaiStatuses,
     claudeStatus,
+    commandcodeStatus,
     isTestingAny: inFlight > 0,
     runOpenAIKey,
     runOpenAIAllKeys,
     runClaude,
+    runCommandCode,
   };
 }

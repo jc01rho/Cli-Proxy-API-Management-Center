@@ -541,6 +541,34 @@ export function BaseProviderForm({
               placeholder="https://api.example.com"
               disabled={mutating}
             />
+            {brand === 'commandcode' ? (
+              <div className={styles.connectivityRow}>
+                <button
+                  type="button"
+                  className={styles.connectivityBtn}
+                  disabled={mutating || connectivity.isTestingAny}
+                  onClick={() => void connectivity.runCommandCode()}
+                >
+                  {connectivity.commandcodeStatus.state === 'loading' ? (
+                    <span className={`${styles.statusIcon} ${styles.statusIconLoading}`}>
+                      <IconLoader2 size={14} />
+                    </span>
+                  ) : null}
+                  <span>{t('providersPage.connectivity.test')}</span>
+                </button>
+                <ConnectivityStatusIcon state={connectivity.commandcodeStatus.state} />
+                {connectivity.commandcodeStatus.state === 'success' ? (
+                  <span className={styles.connectivityHintSuccess}>
+                    {t('providersPage.connectivity.success')}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+            {brand === 'commandcode' && connectivity.commandcodeStatus.state === 'error' ? (
+              <div className={styles.connectivityError}>
+                {connectivity.commandcodeStatus.message}
+              </div>
+            ) : null}
           </div>
         ) : null}
 

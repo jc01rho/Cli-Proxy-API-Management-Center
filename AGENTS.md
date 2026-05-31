@@ -1,7 +1,7 @@
 # MANAGEMENT CENTER KNOWLEDGE BASE
 
-**Generated:** 2026-05-21
-**Latest Tag:** v1.14.0-4
+**Generated:** 2026-05-29
+**Latest Tag:** v1.14.0-9
 **Branch:** main
 
 ## OVERVIEW
@@ -44,6 +44,7 @@ Cli-Proxy-API-Management-Center/
 
 ## RECENT CHANGES
 
+- **v1.14.0-9**: Latest UI updates.
 - **v1.14.0-4**: AI Providers table에 priority 컬럼 추가. types/adapters/table/번역을 일괄 갱신.
 - **v1.14.0-3**: CommandCode provider name translation 추가.
 - **v1.14.0-2**: CommandCode 프로바이더를 ProvidersWorkbenchPage에 통합 - brand, descriptor, adapter, workbench hook.

@@ -896,7 +896,14 @@
           "title": "驗證設定",
           "description": "API 金鑰與驗證檔案目錄設定",
           "auth_dir": "驗證檔案目錄（auth-dir）",
-          "auth_dir_hint": "存放驗證檔案的目錄路徑（支援 ~）"
+          "auth_dir_hint": "存放驗證檔案的目錄路徑（支援 ~）",
+          "ip_blacklist_blocked_title": "IP 黑名單",
+          "ip_blacklist_blocked_desc": "管理超過失敗閾值而被封禁的 IP 位址",
+          "ip_blacklist_blocked_hint": "在設定時間視窗內超過失敗閾值的 IP",
+          "ip_blacklist_refresh": "重新整理",
+          "ip_blacklist_input_placeholder": "輸入要封禁的 IP 位址",
+          "ip_blacklist_add": "封禁 IP",
+          "ip_blacklist_empty": "暫無封禁 IP"
         },
         "system": {
           "title": "系統設定",
@@ -950,6 +957,10 @@
           "disable_image_generation_chat": "chat（僅停用聊天注入）",
           "routing_strategy": "路由策略",
           "routing_strategy_hint": "選擇憑證選擇策略",
+          "routing_mode": "路由模式",
+          "routing_mode_hint": "選擇按提供商或按 API 金鑰路由",
+          "mode_provider_based": "按提供商",
+          "mode_key_based": "按 API 金鑰",
           "strategy_round_robin": "輪詢（Round Robin）",
           "strategy_fill_first": "填充優先（Fill First）",
           "session_affinity_ttl": "會話黏性 TTL",
@@ -963,7 +974,10 @@
           "ws_auth": "WebSocket 驗證",
           "ws_auth_desc": "啟用 WebSocket 連線驗證（/v1/ws）",
           "enable_gemini_cli_endpoint": "啟用 Gemini CLI 內部端點",
-          "enable_gemini_cli_endpoint_desc": "啟用 /v1internal:* 相容端點"
+          "enable_gemini_cli_endpoint_desc": "啟用 /v1internal:* 相容端點",
+          "token_threshold_rules_title": "Token 閾值規則",
+          "token_threshold_rules_desc": "為每個模型模式定義 Token 限制以進行計費類別路由",
+          "add_token_rule": "新增 Token 規則"
         },
         "quota": {
           "title": "配額回退",

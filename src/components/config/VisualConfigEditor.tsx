@@ -195,6 +195,8 @@ export function VisualConfigEditor({
   const isMobile = useMediaQuery('(max-width: 768px)');
   const routingStrategyLabelId = useId();
   const routingStrategyHintId = `${routingStrategyLabelId}-hint`;
+  const routingModeLabelId = useId();
+  const routingModeHintId = `${routingModeLabelId}-hint`;
   const disableImageGenerationLabelId = useId();
   const disableImageGenerationHintId = `${disableImageGenerationLabelId}-hint`;
   const keepaliveInputId = useId();
@@ -1164,6 +1166,39 @@ export function VisualConfigEditor({
                         onChange={(nextValue) =>
                           onChange({
                             routingStrategy: nextValue as VisualConfigValues['routingStrategy'],
+                          })
+                        }
+                      />
+                    </FieldShell>
+                    <FieldShell
+                      label={t('config_management.visual.sections.network.routing_mode')}
+                      labelId={routingModeLabelId}
+                      hint={t('config_management.visual.sections.network.routing_mode_hint')}
+                      hintId={routingModeHintId}
+                    >
+                      <Select
+                        value={values.routingMode}
+                        options={[
+                          {
+                            value: 'provider-based',
+                            label: t(
+                              'config_management.visual.sections.network.mode_provider_based'
+                            ),
+                          },
+                          {
+                            value: 'key-based',
+                            label: t(
+                              'config_management.visual.sections.network.mode_key_based'
+                            ),
+                          },
+                        ]}
+                        id={`${routingModeLabelId}-select`}
+                        disabled={disabled}
+                        ariaLabelledBy={routingModeLabelId}
+                        ariaDescribedBy={routingModeHintId}
+                        onChange={(nextValue) =>
+                          onChange({
+                            routingMode: nextValue as VisualConfigValues['routingMode'],
                           })
                         }
                       />

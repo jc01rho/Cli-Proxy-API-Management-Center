@@ -16,6 +16,7 @@ codex_usage.json
 style.md
 
 node_modules
+package-lock.json
 dist
 dist-ssr
 *.local

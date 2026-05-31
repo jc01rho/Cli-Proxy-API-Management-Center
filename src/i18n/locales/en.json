@@ -870,7 +870,14 @@
           "title": "Authentication Configuration",
           "description": "API keys and authentication directory settings",
           "auth_dir": "Auth Directory (auth-dir)",
-          "auth_dir_hint": "Directory path for authentication files (supports ~)"
+          "auth_dir_hint": "Directory path for authentication files (supports ~)",
+          "ip_blacklist_blocked_title": "IP Blacklist",
+          "ip_blacklist_blocked_desc": "Manage blocked IP addresses that have exceeded failure thresholds",
+          "ip_blacklist_blocked_hint": "IPs that exceeded the failure threshold within the configured window",
+          "ip_blacklist_refresh": "Refresh",
+          "ip_blacklist_input_placeholder": "Enter IP address to block",
+          "ip_blacklist_add": "Block IP",
+          "ip_blacklist_empty": "No blocked IPs"
         },
         "system": {
           "title": "System Configuration",
@@ -924,6 +931,10 @@
           "disable_image_generation_chat": "chat (disable chat injection only)",
           "routing_strategy": "Routing Strategy",
           "routing_strategy_hint": "Select credential selection strategy",
+          "routing_mode": "Routing Mode",
+          "routing_mode_hint": "Select whether routing is per-provider or per-API-key",
+          "mode_provider_based": "Provider-Based",
+          "mode_key_based": "Key-Based",
           "strategy_round_robin": "Round Robin",
           "strategy_fill_first": "Fill First",
           "session_affinity_ttl": "Session Affinity TTL",
@@ -937,7 +948,10 @@
           "ws_auth": "WebSocket Authentication",
           "ws_auth_desc": "Enable WebSocket authentication (/v1/ws)",
           "enable_gemini_cli_endpoint": "Enable Gemini CLI Internal Endpoint",
-          "enable_gemini_cli_endpoint_desc": "Enable /v1internal:* compatibility endpoints"
+          "enable_gemini_cli_endpoint_desc": "Enable /v1internal:* compatibility endpoints",
+          "token_threshold_rules_title": "Token Threshold Rules",
+          "token_threshold_rules_desc": "Define token limits per model pattern for billing class routing",
+          "add_token_rule": "Add Token Rule"
         },
         "quota": {
           "title": "Quota Fallback",

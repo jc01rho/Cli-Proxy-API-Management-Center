@@ -1158,6 +1158,12 @@ export function VisualConfigEditor({
                               'config_management.visual.sections.network.strategy_fill_first'
                             ),
                           },
+                          {
+                            value: 'weight-robin',
+                            label: t(
+                              'config_management.visual.sections.network.strategy_weight_robin'
+                            ),
+                          },
                         ]}
                         id={`${routingStrategyLabelId}-select`}
                         disabled={disabled}

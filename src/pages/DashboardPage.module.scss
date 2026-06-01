@@ -499,6 +499,12 @@
   background: rgba($success-color, 0.12);
 }
 
+.configBadgeWeightRobin {
+  color: $warning-color;
+  border-color: rgba($warning-color, 0.3);
+  background: rgba($warning-color, 0.12);
+}
+
 .configBadgeUnknown {
   color: var(--text-secondary);
   background: var(--bg-primary);

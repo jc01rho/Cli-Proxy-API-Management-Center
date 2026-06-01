@@ -129,7 +129,7 @@ export type VisualConfigValues = {
   quotaSwitchProject: boolean;
   quotaSwitchPreviewModel: boolean;
   quotaAntigravityCredits: boolean;
-  routingStrategy: 'round-robin' | 'fill-first';
+  routingStrategy: 'round-robin' | 'fill-first' | 'weight-robin';
   routingMode: 'provider-based' | 'key-based';
   tokenThresholdRules: TokenThresholdRule[];
   fallbackModels: Record<string, string>;

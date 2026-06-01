@@ -1312,7 +1312,7 @@ export function useVisualConfig() {
         quotaSwitchPreviewModel: Boolean(quotaExceeded?.['switch-preview-model'] ?? true),
         quotaAntigravityCredits: Boolean(quotaExceeded?.['antigravity-credits'] ?? false),
 
-        routingStrategy: routing?.strategy === 'fill-first' ? 'fill-first' : 'round-robin',
+        routingStrategy: routing?.strategy === 'fill-first' ? 'fill-first' : routing?.strategy === 'weight-robin' ? 'weight-robin' : 'round-robin',
         routingMode:
           routing?.mode === 'key-based' ? 'key-based' : 'provider-based',
         tokenThresholdRules: parseTokenThresholdRules(routing?.['token-threshold-rules']),

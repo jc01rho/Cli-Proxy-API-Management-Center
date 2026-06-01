@@ -13,11 +13,7 @@ import {
 import { Collapsible } from '@/components/ui/Collapsible';
 import { Select } from '@/components/ui/Select';
 import { hasDisableAllModelsRule } from '@/components/providers/utils';
-import type {
-  GeminiKeyConfig,
-  OpenAIProviderConfig,
-  ProviderKeyConfig,
-} from '@/types';
+import type { GeminiKeyConfig, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
 import type { ModelInfo } from '@/utils/models';
 import { PROVIDER_DESCRIPTORS } from '../../descriptors';
 import type {
@@ -79,13 +75,9 @@ function buildInitialForm(
       excludedModelsText: '',
       websockets: brand === 'codex' ? false : undefined,
       cloak:
-        brand === 'claude'
-          ? { mode: '', strictMode: false, sensitiveWordsText: '' }
-          : undefined,
-      testModel:
-        brand === 'openaiCompatibility' || brand === 'claude' ? '' : undefined,
-      apiKeyEntries:
-        brand === 'openaiCompatibility' ? [emptyApiKeyEntry()] : undefined,
+        brand === 'claude' ? { mode: '', strictMode: false, sensitiveWordsText: '' } : undefined,
+      testModel: brand === 'openaiCompatibility' || brand === 'claude' ? '' : undefined,
+      apiKeyEntries: brand === 'openaiCompatibility' ? [emptyApiKeyEntry()] : undefined,
     };
   }
 
@@ -115,7 +107,8 @@ function buildInitialForm(
       testModel: cfg.testModel ?? '',
       apiKeyEntries: cfg.apiKeyEntries?.length
         ? cfg.apiKeyEntries.map((entry) => ({
-            apiKey: entry.apiKey,
+            apiKey: '',
+            existingApiKey: entry.apiKey,
             proxyUrl: entry.proxyUrl ?? '',
             authIndex: entry.authIndex,
           }))
@@ -127,8 +120,11 @@ function buildInitialForm(
   const disabled = hasDisableAllModelsRule(cfg.excludedModels);
   const excludedList = stripDisableAllRule(cfg.excludedModels);
   return {
-    // Populate apiKey from resource.raw in edit mode so the field is not empty
-    apiKey: cfg.apiKey ?? '',
+    // Keep the API key blank in edit mode. Pre-filling the real key makes this
+    // password field a browser-autofill target (the saved management key can
+    // overwrite it) and defeats the "leave empty = keep unchanged" contract; an
+    // empty field is preserved on save via buildProviderKeyConfig's existing fallback.
+    apiKey: '',
     name: '',
     baseUrl: cfg.baseUrl ?? '',
     proxyUrl: cfg.proxyUrl ?? '',
@@ -147,15 +143,13 @@ function buildInitialForm(
       ? Object.entries(cfg.headers).map(([k, v]) => ({ key: k, value: String(v) }))
       : [emptyHeader()],
     excludedModelsText: excludedList.join('\n'),
-    websockets:
-      brand === 'codex' ? (cfg as ProviderKeyConfig).websockets === true : undefined,
+    websockets: brand === 'codex' ? (cfg as ProviderKeyConfig).websockets === true : undefined,
     cloak:
       brand === 'claude'
         ? {
             mode: (cfg as ProviderKeyConfig).cloak?.mode ?? '',
             strictMode: (cfg as ProviderKeyConfig).cloak?.strictMode === true,
-            sensitiveWordsText:
-              (cfg as ProviderKeyConfig).cloak?.sensitiveWords?.join('\n') ?? '',
+            sensitiveWordsText: (cfg as ProviderKeyConfig).cloak?.sensitiveWords?.join('\n') ?? '',
           }
         : undefined,
     testModel: brand === 'claude' ? '' : undefined,
@@ -238,9 +232,7 @@ export function BaseProviderForm({
 
   const fallbackAuthIndex = useMemo(() => {
     if (mode !== 'edit' || !resource) return '';
-    return (
-      (resource.raw as { authIndex?: string } | undefined)?.authIndex ?? ''
-    );
+    return (resource.raw as { authIndex?: string } | undefined)?.authIndex ?? '';
   }, [mode, resource]);
 
   const connectivityMessages = useMemo<ConnectivityErrorMessages>(
@@ -249,8 +241,7 @@ export function BaseProviderForm({
       endpointInvalid: t('providersPage.connectivity.endpointInvalid'),
       apiKeyRequired: t('providersPage.connectivity.apiKeyRequired'),
       modelRequired: t('providersPage.connectivity.modelRequired'),
-      timeout: (seconds: number) =>
-        t('providersPage.connectivity.timeout', { seconds }),
+      timeout: (seconds: number) => t('providersPage.connectivity.timeout', { seconds }),
       requestFailed: t('providersPage.connectivity.requestFailed'),
     }),
     [t]
@@ -304,9 +295,7 @@ export function BaseProviderForm({
     const autoLabel = firstName
       ? t('providersPage.form.testModelAutoWith', { name: firstName })
       : t('providersPage.form.testModelAutoEmpty');
-    const opts: Array<{ value: string; label: string }> = [
-      { value: '', label: autoLabel },
-    ];
+    const opts: Array<{ value: string; label: string }> = [{ value: '', label: autoLabel }];
     names.forEach((n) => opts.push({ value: n, label: n }));
     const tm = (form.testModel ?? '').trim();
     if (tm && !seen.has(tm)) {
@@ -386,11 +375,7 @@ export function BaseProviderForm({
     if (descriptor.supportsName && !form.name.trim()) {
       return t('providersPage.form.validation.nameRequired');
     }
-    if (
-      descriptor.supportsApiKey &&
-      mode === 'create' &&
-      !form.apiKey.trim()
-    ) {
+    if (descriptor.supportsApiKey && mode === 'create' && !form.apiKey.trim()) {
       return t('providersPage.form.validation.apiKeyRequired');
     }
     if (descriptor.baseUrlRequired && !form.baseUrl.trim()) {
@@ -433,9 +418,7 @@ export function BaseProviderForm({
   );
   const apiKeyEntries = useMemo(
     () =>
-      form.apiKeyEntries && form.apiKeyEntries.length
-        ? form.apiKeyEntries
-        : [emptyApiKeyEntry()],
+      form.apiKeyEntries && form.apiKeyEntries.length ? form.apiKeyEntries : [emptyApiKeyEntry()],
     [form.apiKeyEntries]
   );
 
@@ -489,6 +472,10 @@ export function BaseProviderForm({
                 type={showSingleApiKey ? 'text' : 'password'}
                 value={form.apiKey}
                 onChange={(e) => updateField('apiKey', e.target.value)}
+                autoComplete="new-password"
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-bwignore="true"
                 placeholder={
                   mode === 'edit'
                     ? t('providersPage.form.apiKeyEditPlaceholder')
@@ -512,11 +499,7 @@ export function BaseProviderForm({
                     : t('providersPage.form.showApiKey')
                 }
               >
-                {showSingleApiKey ? (
-                  <IconEyeOff size={16} />
-                ) : (
-                  <IconEye size={16} />
-                )}
+                {showSingleApiKey ? <IconEyeOff size={16} /> : <IconEye size={16} />}
               </button>
             </div>
           </div>
@@ -668,9 +651,7 @@ export function BaseProviderForm({
               </div>
             ) : null}
             {brand === 'claude' && connectivity.claudeStatus.state === 'error' ? (
-              <div className={styles.connectivityError}>
-                {connectivity.claudeStatus.message}
-              </div>
+              <div className={styles.connectivityError}>{connectivity.claudeStatus.message}</div>
             ) : null}
           </div>
         ) : null}
@@ -711,7 +692,9 @@ export function BaseProviderForm({
       {descriptor.supportsApiKeyEntries && form.apiKeyEntries ? (
         <Collapsible
           label={t('providersPage.form.apiKeyEntriesSection')}
-          hint={`${apiKeyEntries.filter((e) => e.apiKey.trim()).length}`}
+          hint={`${
+            apiKeyEntries.filter((e) => e.apiKey.trim() || e.existingApiKey?.trim()).length
+          }`}
           defaultOpen
         >
           <div className={styles.entriesList}>
@@ -721,9 +704,7 @@ export function BaseProviderForm({
                 type="button"
                 className={styles.addBtn}
                 disabled={mutating}
-                onClick={() =>
-                  updateField('apiKeyEntries', [...apiKeyEntries, emptyApiKeyEntry()])
-                }
+                onClick={() => updateField('apiKeyEntries', [...apiKeyEntries, emptyApiKeyEntry()])}
               >
                 <IconPlus size={12} />
                 <span>{t('providersPage.form.addApiKeyEntry')}</span>
@@ -752,9 +733,7 @@ export function BaseProviderForm({
               return (
                 <div key={realIdx} className={styles.entryCard}>
                   <div className={styles.entryCardHeader}>
-                    <span>
-                      {t('providersPage.form.apiKeyEntry', { index: realIdx + 1 })}
-                    </span>
+                    <span>{t('providersPage.form.apiKeyEntry', { index: realIdx + 1 })}</span>
                     <div className={styles.entryCardHeaderRight}>
                       <ConnectivityStatusIcon state={status.state} />
                       <button
@@ -781,9 +760,7 @@ export function BaseProviderForm({
                     </div>
                   </div>
                   <div className={styles.field}>
-                    <label className={styles.label}>
-                      {t('providersPage.form.apiKey')}
-                    </label>
+                    <label className={styles.label}>{t('providersPage.form.apiKey')}</label>
                     <div className={styles.passwordField}>
                       <input
                         className={styles.passwordInput}
@@ -797,8 +774,16 @@ export function BaseProviderForm({
                             )
                           )
                         }
+                        autoComplete="new-password"
+                        data-1p-ignore="true"
+                        data-lpignore="true"
+                        data-bwignore="true"
                         disabled={mutating}
-                        placeholder={t('providersPage.form.apiKeyCreatePlaceholder')}
+                        placeholder={
+                          entry.existingApiKey
+                            ? t('providersPage.form.apiKeyEditPlaceholder')
+                            : t('providersPage.form.apiKeyCreatePlaceholder')
+                        }
                       />
                       <button
                         type="button"
@@ -825,9 +810,7 @@ export function BaseProviderForm({
                     </div>
                   </div>
                   <div className={styles.field}>
-                    <label className={styles.label}>
-                      {t('providersPage.form.proxyUrl')}
-                    </label>
+                    <label className={styles.label}>{t('providersPage.form.proxyUrl')}</label>
                     <input
                       className={styles.input}
                       value={entry.proxyUrl}
@@ -844,9 +827,7 @@ export function BaseProviderForm({
                     />
                   </div>
                   {status.state === 'error' ? (
-                    <div className={styles.connectivityError}>
-                      {status.message}
-                    </div>
+                    <div className={styles.connectivityError}>{status.message}</div>
                   ) : null}
                 </div>
               );
@@ -870,9 +851,7 @@ export function BaseProviderForm({
                   onChange={(e) =>
                     updateField(
                       'headers',
-                      headersList.map((it, i) =>
-                        i === idx ? { ...it, key: e.target.value } : it
-                      )
+                      headersList.map((it, i) => (i === idx ? { ...it, key: e.target.value } : it))
                     )
                   }
                   disabled={mutating}
@@ -962,9 +941,7 @@ export function BaseProviderForm({
                   onChange={(e) =>
                     updateField(
                       'models',
-                      modelsList.map((it, i) =>
-                        i === idx ? { ...it, name: e.target.value } : it
-                      )
+                      modelsList.map((it, i) => (i === idx ? { ...it, name: e.target.value } : it))
                     )
                   }
                   disabled={mutating}
@@ -976,9 +953,7 @@ export function BaseProviderForm({
                   onChange={(e) =>
                     updateField(
                       'models',
-                      modelsList.map((it, i) =>
-                        i === idx ? { ...it, alias: e.target.value } : it
-                      )
+                      modelsList.map((it, i) => (i === idx ? { ...it, alias: e.target.value } : it))
                     )
                   }
                   disabled={mutating}
@@ -1014,9 +989,7 @@ export function BaseProviderForm({
       {descriptor.supportsExcludedModels ? (
         <Collapsible label={t('providersPage.form.excludedSection')}>
           <div className={styles.field}>
-            <span className={styles.labelHint}>
-              {t('providersPage.form.excludedHint')}
-            </span>
+            <span className={styles.labelHint}>{t('providersPage.form.excludedHint')}</span>
             <textarea
               className={styles.textarea}
               rows={4}
@@ -1033,9 +1006,7 @@ export function BaseProviderForm({
         <Collapsible label={t('providersPage.form.cloakSection')}>
           <div className={styles.section}>
             <div className={styles.field}>
-              <label className={styles.label}>
-                {t('providersPage.form.cloakMode')}
-              </label>
+              <label className={styles.label}>{t('providersPage.form.cloakMode')}</label>
               <input
                 className={styles.input}
                 value={form.cloak.mode}
@@ -1057,16 +1028,12 @@ export function BaseProviderForm({
               </span>
             </label>
             <div className={styles.field}>
-              <label className={styles.label}>
-                {t('providersPage.form.cloakSensitiveWords')}
-              </label>
+              <label className={styles.label}>{t('providersPage.form.cloakSensitiveWords')}</label>
               <textarea
                 className={styles.textarea}
                 rows={3}
                 value={form.cloak.sensitiveWordsText}
-                onChange={(e) =>
-                  updateCloak('sensitiveWordsText', e.target.value)
-                }
+                onChange={(e) => updateCloak('sensitiveWordsText', e.target.value)}
                 disabled={mutating}
               />
             </div>

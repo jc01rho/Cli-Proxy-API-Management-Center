@@ -47,15 +47,10 @@ interface AliasContributor {
 }
 
 interface AliasGroup {
-  /** The alias or model name this group represents. */
   alias: string;
-  /** Underlying raw model name (if different from alias). */
-  modelName: string;
-  /** All credentials/providers that support this alias. */
+  modelNames: string[];
   contributors: AliasContributor[];
-  /** Sum of contributor weights. */
   totalWeight: number;
-  /** Share of grand total across all alias groups, 0–100. */
   percent: number;
 }
 
@@ -87,27 +82,6 @@ function parsePriorityValue(value: unknown): number | null {
   const n = typeof value === 'number' ? value : Number(value);
   if (!Number.isFinite(n) || n < 0) return null;
   return n;
-}
-
-/**
- * Build a preview of the shuffled cycle: each auth appears `weight` times,
- * then the cycle is Fisher-Yates shuffled. This mirrors the backend
- * `WeightedRobinSelector` algorithm so the UI shows what the server will do.
- */
-function buildShuffledCycle(items: QueueEntry[]): QueueEntry[] {
-  const cycle: QueueEntry[] = [];
-  for (const item of items) {
-    for (let i = 0; i < item.weight; i += 1) {
-      cycle.push(item);
-    }
-  }
-  // Fisher-Yates shuffle (mutates copy)
-  const shuffled = [...cycle];
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
 }
 
 export function WeightRobinQueuePage() {
@@ -214,7 +188,6 @@ export function WeightRobinQueuePage() {
     }));
   }, [files, openAIProviders]);
 
-  const cycle = useMemo(() => buildShuffledCycle(entries.filter((e) => e.weight > 0)), [entries]);
   const totalWeight = useMemo(
     () => entries.reduce((sum, e) => sum + e.weight, 0),
     [entries]
@@ -228,10 +201,15 @@ export function WeightRobinQueuePage() {
     const ensureGroup = (alias: string, modelName: string): AliasGroup => {
       const key = alias || modelName;
       const existing = groupMap.get(key);
-      if (existing) return existing;
+      if (existing) {
+        if (modelName && !existing.modelNames.includes(modelName)) {
+          existing.modelNames.push(modelName);
+        }
+        return existing;
+      }
       const group: AliasGroup = {
         alias: key,
-        modelName,
+        modelNames: modelName ? [modelName] : [],
         contributors: [],
         totalWeight: 0,
         percent: 0,
@@ -269,6 +247,31 @@ export function WeightRobinQueuePage() {
       percent: grandTotal > 0 ? (g.totalWeight / grandTotal) * 100 : 0,
     }));
   }, [entries]);
+
+  const aliasCycles: Map<string, AliasContributor[]> = useMemo(() => {
+    const map = new Map<string, AliasContributor[]>();
+    for (const group of aliasGroups) {
+      const active = group.contributors.filter((c) => !c.inactive && c.weight > 0);
+      const cycle: AliasContributor[] = [];
+      for (const c of active) {
+        for (let i = 0; i < c.weight; i += 1) {
+          cycle.push(c);
+        }
+      }
+      for (let i = cycle.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cycle[i], cycle[j]] = [cycle[j], cycle[i]];
+      }
+      map.set(group.alias, cycle);
+    }
+    return map;
+  }, [aliasGroups]);
+
+  const totalCycleLength = useMemo(() => {
+    let total = 0;
+    for (const cycle of aliasCycles.values()) total += cycle.length;
+    return total;
+  }, [aliasCycles]);
 
   return (
     <div className={styles.page}>
@@ -339,7 +342,7 @@ export function WeightRobinQueuePage() {
           <span className={styles.statLabel}>
             {t('weight_robin_queue.cycle_length', 'Cycle Length')}
           </span>
-          <span className={styles.statValue}>{cycle.length}</span>
+          <span className={styles.statValue}>{totalCycleLength}</span>
         </Card>
         <Card className={styles.statCard}>
           <span className={styles.statLabel}>
@@ -368,14 +371,15 @@ export function WeightRobinQueuePage() {
                   <span className={styles.aliasGroupName} title={group.alias}>
                     {group.alias}
                   </span>
-                  {group.alias !== group.modelName && (
-                    <span
-                      className={styles.aliasGroupModel}
-                      title={group.modelName}
-                    >
-                      → {group.modelName}
-                    </span>
-                  )}
+                  {group.modelNames.length > 0 &&
+                    !group.modelNames.every((m) => m === group.alias) && (
+                      <span
+                        className={styles.aliasGroupModel}
+                        title={group.modelNames.join(', ')}
+                      >
+                        → {group.modelNames.join(', ')}
+                      </span>
+                    )}
                   <span className={styles.aliasGroupTotal}>
                     w:{group.totalWeight}
                   </span>
@@ -528,34 +532,55 @@ export function WeightRobinQueuePage() {
         </Card>
 
         <Card
-          title={t('weight_robin_queue.cycle_title', 'Shuffled Cycle Preview')}
+          title={t('weight_robin_queue.cycle_title', 'Shuffled Cycle Preview (per Alias)')}
           className={styles.cycleCard}
         >
           <p className={styles.cycleHint}>
             {t(
               'weight_robin_queue.cycle_hint',
-              'Each auth appears N times (its weight), then the cycle is shuffled. The backend picks the next entry sequentially from this cycle.'
+              'Each auth appears N times (its weight), then the cycle is shuffled. The backend builds a separate cycle for each alias/model since requests are dispatched independently per model.'
             )}
           </p>
-          {cycle.length === 0 ? (
+          {aliasGroups.length === 0 ? (
             <div className={styles.empty}>—</div>
           ) : (
-            <div className={styles.cycleGrid}>
-              {cycle.map((entry, idx) => (
-                <span
-                  key={`${entry.name}-${idx}`}
-                  className={styles.cycleChip}
-                  style={{
-                    borderColor: entry.color,
-                    color: entry.color,
-                    background: `color-mix(in srgb, ${entry.color} 12%, transparent)`,
-                  }}
-                  title={`${idx + 1}. ${entry.name} (${entry.type}, w:${entry.weight})`}
-                >
-                  <span className={styles.cycleIndex}>{idx + 1}</span>
-                  <span className={styles.cycleName}>{entry.name}</span>
-                </span>
-              ))}
+            <div className={styles.cycleList}>
+              {aliasGroups.map((group) => {
+                const cycle = aliasCycles.get(group.alias) ?? [];
+                return (
+                  <div key={group.alias} className={styles.cycleGroup}>
+                    <div className={styles.cycleGroupHeader}>
+                      <span className={styles.cycleGroupAlias}>{group.alias}</span>
+                      <span className={styles.cycleGroupLength}>
+                        {t('weight_robin_queue.cycle_length_short', 'length')}: {cycle.length}
+                      </span>
+                    </div>
+                    {cycle.length === 0 ? (
+                      <div className={styles.empty}>
+                        {t('weight_robin_queue.cycle_empty', 'No active auths in this cycle')}
+                      </div>
+                    ) : (
+                      <div className={styles.cycleGrid}>
+                        {cycle.map((entry, idx) => (
+                          <span
+                            key={`${entry.name}-${idx}`}
+                            className={styles.cycleChip}
+                            style={{
+                              borderColor: entry.color,
+                              color: entry.color,
+                              background: `color-mix(in srgb, ${entry.color} 12%, transparent)`,
+                            }}
+                            title={`${idx + 1}. ${entry.name} (${entry.type}, w:${entry.weight})`}
+                          >
+                            <span className={styles.cycleIndex}>{idx + 1}</span>
+                            <span className={styles.cycleName}>{entry.name}</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </Card>

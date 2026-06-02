@@ -965,6 +965,9 @@
           "strategy_round_robin": "輪詢（Round Robin）",
           "strategy_fill_first": "填充優先（Fill First）",
           "strategy_weight_robin": "加權分佈（Weight Robin）",
+          "weight_robin_queue_title": "加權佇列",
+          "weight_robin_empty": "沒有活躍的認證條目",
+          "weight_robin_total": "總權重: {{weight}} • {{count}} 個活躍條目",
           "session_affinity_ttl": "會話黏性 TTL",
           "force_model_prefix": "強制模型前綴",
           "force_model_prefix_desc": "未帶前綴的模型請求只使用無前綴憑證",
@@ -979,7 +982,14 @@
           "enable_gemini_cli_endpoint_desc": "啟用 /v1internal:* 相容端點",
           "token_threshold_rules_title": "Token 閾值規則",
           "token_threshold_rules_desc": "為每個模型模式定義 Token 限制以進行計費類別路由",
-          "add_token_rule": "新增 Token 規則"
+          "add_token_rule": "新增 Token 規則",
+          "ip_blacklist_title": "IP 黑名單",
+          "ip_blacklist_desc": "自動封禁超過失敗閾值的 IP",
+          "ip_blacklist_threshold": "失敗閾值",
+          "ip_blacklist_window": "時間視窗",
+          "ip_blacklist_window_hint": "統計失敗的時間視窗（例如 10m、1h）",
+          "ip_blacklist_duration": "封禁時長",
+          "ip_blacklist_duration_hint": "IP 被封禁的持續時間（例如 24h、7d）"
         },
         "quota": {
           "title": "配額回退",

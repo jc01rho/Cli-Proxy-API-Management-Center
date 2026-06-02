@@ -44,6 +44,7 @@ interface AliasContributor {
   weight: number;
   color: string;
   inactive: boolean;
+  modelName?: string;
 }
 
 interface AliasGroup {
@@ -230,7 +231,7 @@ export function WeightRobinQueuePage() {
       if (entry.aliases.length > 0) {
         for (const a of entry.aliases) {
           const group = ensureGroup(a.alias || a.name, a.name);
-          group.contributors.push(contributor);
+          group.contributors.push({ ...contributor, modelName: a.name });
           group.totalWeight += entry.weight;
         }
       }
@@ -369,15 +370,6 @@ export function WeightRobinQueuePage() {
                   <span className={styles.aliasGroupName} title={group.alias}>
                     {group.alias}
                   </span>
-                  {group.modelNames.length > 0 &&
-                    !group.modelNames.every((m) => m === group.alias) && (
-                      <span
-                        className={styles.aliasGroupModel}
-                        title={group.modelNames.join(', ')}
-                      >
-                        → {group.modelNames.join(', ')}
-                      </span>
-                    )}
                   <span className={styles.aliasGroupTotal}>
                     w:{group.totalWeight}
                   </span>
@@ -385,6 +377,16 @@ export function WeightRobinQueuePage() {
                     {group.percent.toFixed(2)}%
                   </span>
                 </div>
+                {group.modelNames.length > 0 &&
+                  !group.modelNames.every((m) => m === group.alias) && (
+                    <div className={styles.aliasGroupModels}>
+                      {group.modelNames.map((m) => (
+                        <span key={m} className={styles.aliasGroupModelTag}>
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 <div className={styles.barTrack}>
                   <div
                     className={styles.barFill}
@@ -399,7 +401,7 @@ export function WeightRobinQueuePage() {
                     <li
                       key={`${c.name}-${idx}`}
                       className={`${styles.contributorChip} ${c.inactive ? styles.contributorInactive : ''}`}
-                      title={`${c.name} (${c.type}, w:${c.weight})`}
+                      title={`${c.name} (${c.type}, w:${c.weight})${c.modelName ? ` [${c.modelName}]` : ''}`}
                     >
                       <span
                         className={styles.providerBadge}
@@ -412,6 +414,9 @@ export function WeightRobinQueuePage() {
                         {c.type}
                       </span>
                       <span className={styles.contributorName}>{c.name}</span>
+                      {c.modelName && c.modelName !== c.name && (
+                        <span className={styles.contributorModel}>{c.modelName}</span>
+                      )}
                       <span className={styles.contributorWeight}>w:{c.weight}</span>
                     </li>
                   ))}

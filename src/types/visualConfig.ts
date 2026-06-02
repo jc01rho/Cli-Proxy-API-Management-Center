@@ -134,6 +134,7 @@ export type VisualConfigValues = {
   tokenThresholdRules: TokenThresholdRule[];
   fallbackModels: Record<string, string>;
   fallbackChain: string[];
+  fallbackMaxDepth: string;
   routingSessionAffinity: boolean;
   routingSessionAffinityTTL: string;
   wsAuth: boolean;
@@ -203,6 +204,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   tokenThresholdRules: [],
   fallbackModels: {},
   fallbackChain: [],
+  fallbackMaxDepth: '',
   routingSessionAffinity: false,
   routingSessionAffinityTTL: '',
   wsAuth: false,

@@ -277,6 +277,40 @@
   max-width: 240px;
 }
 
+.cycleList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cycleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cycleGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cycleGroupAlias {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.cycleGroupLength {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
 .cycleIndex {
   font-size: 10px;
   font-weight: 700;

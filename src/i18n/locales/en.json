@@ -118,6 +118,7 @@
     "quota_management": "Quota Management",
     "config_management": "Config Panel",
     "logs": "Logs Viewer",
+    "weight_robin_queue": "Weight-Robin Queue",
     "system_info": "Management Center Info"
   },
   "nav_groups": {
@@ -134,7 +135,30 @@
     "quota_management": "API keys & limits",
     "logs": "Request tracing",
     "config_management": "Gateway configuration",
+    "weight_robin_queue": "Weighted cycle distribution",
     "system_info": "Runtime & diagnostics"
+  },
+  "weight_robin_queue": {
+    "page_title": "Weight-Robin Queue",
+    "page_subtitle": "Detailed view of the weighted cycle used by weight-robin routing strategy.",
+    "back_to_config": "Back to Config",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "last_updated": "Last updated",
+    "active_entries": "Active Entries",
+    "total_weight": "Total Weight",
+    "avg_weight": "Average Weight",
+    "cycle_length": "Cycle Length",
+    "distribution_title": "Weight Distribution",
+    "table_title": "Auth File Details",
+    "cycle_title": "Shuffled Cycle Preview",
+    "cycle_hint": "Each auth appears N times (its weight), then the cycle is shuffled. The backend picks the next entry sequentially from this cycle.",
+    "no_entries": "No active auth entries. Enable at least one auth file with a non-negative priority to use weight-robin.",
+    "col_provider": "Provider",
+    "col_name": "Name",
+    "col_priority": "Priority",
+    "col_weight": "Weight",
+    "col_share": "Share"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -985,6 +1009,15 @@
           "switch_preview_model": "Switch to Preview Model",
           "switch_preview_model_desc": "Switch to preview model version when quota is exceeded",
           "antigravity_credits": "Use Antigravity Credits"
+        },
+        "fallback": {
+          "title": "Model Fallback Chain",
+          "description": "Configure fallback models and chain for automatic failover when the primary model fails",
+          "models_title": "Fallback Model Mapping",
+          "models_hint": "Define specific model-to-fallback mappings. When a model fails, it will try the mapped fallback model first.",
+          "chain_title": "Fallback Chain",
+          "chain_hint": "Ordered list of fallback models to try when the primary model and model-specific fallbacks fail",
+          "add_model": "Add Fallback Model"
         },
         "streaming": {
           "title": "Streaming Configuration",

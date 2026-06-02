@@ -118,6 +118,7 @@
     "quota_management": "配額管理",
     "config_management": "設定面板",
     "logs": "記錄檢視",
+    "weight_robin_queue": "Weight-Robin 佇列",
     "system_info": "中心資訊"
   },
   "nav_groups": {
@@ -134,7 +135,30 @@
     "quota_management": "API Key 與限額",
     "logs": "請求追蹤與排查",
     "config_management": "閘道基礎設定",
+    "weight_robin_queue": "加權輪詢佇列分佈",
     "system_info": "運行與診斷資訊"
+  },
+  "weight_robin_queue": {
+    "page_title": "Weight-Robin 佇列",
+    "page_subtitle": "詳細檢視 weight-robin 路由策略所使用的加權輪詢佇列。",
+    "back_to_config": "返回設定",
+    "refresh": "重新整理",
+    "refreshing": "重新整理中...",
+    "last_updated": "最近更新",
+    "active_entries": "活躍條目",
+    "total_weight": "總權重",
+    "avg_weight": "平均權重",
+    "cycle_length": "週期長度",
+    "distribution_title": "權重分佈",
+    "table_title": "Auth 檔案詳細資訊",
+    "cycle_title": "亂序週期預覽",
+    "cycle_hint": "每個 auth 依其權重出現 N 次,接著整個週期會被隨機打亂。後端依序從該週期中選取下一項。",
+    "no_entries": "目前沒有可用的 auth 條目。請啟用至少一個具備非負優先級的 auth 檔案以使用 weight-robin。",
+    "col_provider": "提供商",
+    "col_name": "名稱",
+    "col_priority": "優先級",
+    "col_weight": "權重",
+    "col_share": "佔比"
   },
   "dashboard": {
     "title": "儀表板",
@@ -1011,6 +1035,15 @@
           "switch_preview_model": "切換預覽模型",
           "switch_preview_model_desc": "配額耗盡時切換到預覽版本模型",
           "antigravity_credits": "使用Antigravity Credits"
+        },
+        "fallback": {
+          "title": "模型回退鏈",
+          "description": "設定回退模型與回退鏈,在主模型失敗時自動容錯移轉",
+          "models_title": "回退模型對應",
+          "models_hint": "定義特定模型到回退模型的對應。當某個模型失敗時,將優先嘗試對應的回退模型。",
+          "chain_title": "回退鏈",
+          "chain_hint": "有序的回退模型清單,當主模型與特定回退模型皆失敗時依序嘗試",
+          "add_model": "新增回退模型"
         },
         "streaming": {
           "title": "串流傳輸設定",

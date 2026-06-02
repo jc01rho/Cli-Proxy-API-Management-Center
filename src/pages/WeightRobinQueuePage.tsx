@@ -233,11 +233,9 @@ export function WeightRobinQueuePage() {
           group.contributors.push(contributor);
           group.totalWeight += entry.weight;
         }
-      } else {
-        const group = ensureGroup(entry.name, entry.name);
-        group.contributors.push(contributor);
-        group.totalWeight += entry.weight;
       }
+      // OAuth auth files without aliases are skipped — they don't represent
+      // a specific model/alias, so grouping them by file name is misleading.
     }
 
     const groups = [...groupMap.values()].sort((a, b) => b.totalWeight - a.totalWeight);
@@ -424,62 +422,10 @@ export function WeightRobinQueuePage() {
         )}
       </Card>
 
-      <div className={styles.grid}>
-        <Card
-          title={t('weight_robin_queue.distribution_title', 'Weight Distribution')}
-          className={styles.distributionCard}
-        >
-          {entries.length === 0 ? (
-            <div className={styles.empty}>
-              {t(
-                'weight_robin_queue.no_entries',
-                'No active auth entries. Enable at least one auth file with a non-negative priority to use weight-robin.'
-              )}
-            </div>
-          ) : (
-            <ul className={styles.distributionList}>
-              {entries.map((entry) => (
-                <li key={entry.name} className={styles.distributionRow}>
-                  <div className={styles.distributionInfo}>
-                    <span
-                      className={styles.providerBadge}
-                      style={{
-                        borderColor: entry.color,
-                        color: entry.color,
-                        background: `color-mix(in srgb, ${entry.color} 12%, transparent)`,
-                      }}
-                    >
-                      {entry.type}
-                    </span>
-                    <span className={styles.entryName} title={entry.name}>
-                      {entry.name}
-                    </span>
-                    <span className={styles.weightBadge}>
-                      w:{entry.weight}
-                    </span>
-                    <span className={styles.percentBadge}>
-                      {entry.percent.toFixed(2)}%
-                    </span>
-                  </div>
-                  <div className={styles.barTrack}>
-                    <div
-                      className={styles.barFill}
-                      style={{
-                        width: `${entry.percent}%`,
-                        background: `linear-gradient(90deg, ${entry.color}, color-mix(in srgb, ${entry.color} 40%, transparent))`,
-                      }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-
-        <Card
-          title={t('weight_robin_queue.table_title', 'Auth File Details')}
-          className={styles.tableCard}
-        >
+      <Card
+        title={t('weight_robin_queue.table_title', 'Auth File Details')}
+        className={styles.tableCard}
+      >
           {entries.length === 0 ? (
             <div className={styles.empty}>—</div>
           ) : (
@@ -584,7 +530,6 @@ export function WeightRobinQueuePage() {
             </div>
           )}
         </Card>
-      </div>
     </div>
   );
 }

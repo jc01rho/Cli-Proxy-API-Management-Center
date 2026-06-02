@@ -1055,6 +1055,12 @@ function getNextDirtyFields(
       areStringArraysEqual(nextValues.fallbackChain, baselineValues.fallbackChain)
     );
   }
+  if (Object.prototype.hasOwnProperty.call(patch, 'fallbackMaxDepth')) {
+    updateDirty(
+      'fallbackMaxDepth',
+      nextValues.fallbackMaxDepth === baselineValues.fallbackMaxDepth
+    );
+  }
   if (Object.prototype.hasOwnProperty.call(patch, 'oauthEndpointOverrides')) {
     updateDirty(
       'oauthEndpointOverrides',

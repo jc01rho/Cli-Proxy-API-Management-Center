@@ -939,6 +939,9 @@
           "strategy_round_robin": "Round Robin",
           "strategy_fill_first": "Fill First",
           "strategy_weight_robin": "Weight Robin",
+          "weight_robin_queue_title": "Weighted Queue",
+          "weight_robin_empty": "No active auth entries",
+          "weight_robin_total": "Total weight: {{weight}} • {{count}} active entries",
           "session_affinity_ttl": "Session Affinity TTL",
           "force_model_prefix": "Force Model Prefix",
           "force_model_prefix_desc": "Unprefixed model requests only use credentials without prefix",
@@ -953,7 +956,14 @@
           "enable_gemini_cli_endpoint_desc": "Enable /v1internal:* compatibility endpoints",
           "token_threshold_rules_title": "Token Threshold Rules",
           "token_threshold_rules_desc": "Define token limits per model pattern for billing class routing",
-          "add_token_rule": "Add Token Rule"
+          "add_token_rule": "Add Token Rule",
+          "ip_blacklist_title": "IP Blacklist",
+          "ip_blacklist_desc": "Automatically block IPs that exceed failure thresholds",
+          "ip_blacklist_threshold": "Failure Threshold",
+          "ip_blacklist_window": "Window",
+          "ip_blacklist_window_hint": "Time window to count failures (e.g. 10m, 1h)",
+          "ip_blacklist_duration": "Block Duration",
+          "ip_blacklist_duration_hint": "How long an IP stays blocked (e.g. 24h, 7d)"
         },
         "quota": {
           "title": "Quota Fallback",

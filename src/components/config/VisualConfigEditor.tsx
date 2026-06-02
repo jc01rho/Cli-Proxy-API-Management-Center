@@ -14,10 +14,17 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
+import { authFilesApi } from '@/services/api';
+import { parsePriorityValue } from '@/features/authFiles/constants';
+import {
+  WeightRobinQueueView,
+  type WeightRobinEntry,
+} from '@/components/config/WeightRobinQueueView';
 import {
   IconCode,
   IconDiamond,
   IconKey,
+  IconRoute,
   IconSatellite,
   IconSettings,
   IconTimer,
@@ -48,7 +55,7 @@ import {
 } from './VisualConfigEditorBlocks';
 import styles from './VisualConfigEditor.module.scss';
 
-type VisualSectionId = 'server' | 'auth' | 'system' | 'network' | 'quota' | 'streaming' | 'payload';
+type VisualSectionId = 'server' | 'auth' | 'system' | 'network' | 'quota' | 'streaming' | 'payload' | 'fallback';
 
 type VisualSection = {
   id: VisualSectionId;
@@ -212,6 +219,40 @@ export function VisualConfigEditor({
     {}
   );
 
+  const [weightRobinEntries, setWeightRobinEntries] = useState<WeightRobinEntry[]>([]);
+  useEffect(() => {
+    if (values.routingStrategy !== 'weight-robin') {
+      setWeightRobinEntries([]);
+      return;
+    }
+    let cancelled = false;
+    void authFilesApi
+      .list()
+      .then((res) => {
+        if (cancelled) return;
+        const files = res.files ?? res ?? [];
+        const entries: WeightRobinEntry[] = [];
+        for (const file of files) {
+          if (file.disabled || file.unavailable) continue;
+          const priority = parsePriorityValue(file.priority);
+          if (priority == null) continue;
+          entries.push({
+            name: String(file.name ?? file.authIndex ?? ''),
+            type: String(file.type ?? file.provider ?? 'unknown'),
+            priority,
+          });
+        }
+        entries.sort((a, b) => b.priority - a.priority);
+        setWeightRobinEntries(entries);
+      })
+      .catch(() => {
+        /* silent */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [values.routingStrategy]);
+
   const isKeepaliveDisabled =
     values.streaming.keepaliveSeconds === '' || values.streaming.keepaliveSeconds === '0';
   const isNonstreamKeepaliveDisabled =
@@ -344,6 +385,23 @@ export function VisualConfigEditor({
           'errorLogsMaxFiles',
           'logsMaxTotalSizeMb',
           'redisUsageQueueRetentionSeconds',
+          'requestRetry',
+          'maxRetryCredentials',
+          'maxRetryInterval',
+          'authAutoRefreshWorkers',
+        ]),
+      },
+      {
+        id: 'fallback',
+        title: t('config_management.visual.sections.fallback.title'),
+        icon: IconRoute,
+        errorCount: 0,
+      },
+      {
+        id: 'network',
+        title: t('config_management.visual.sections.network.title'),
+        icon: IconTrendingUp,
+        errorCount: countErrors([
           'requestRetry',
           'maxRetryCredentials',
           'maxRetryInterval',
@@ -826,6 +884,12 @@ export function VisualConfigEditor({
           </ConfigSection>
 
           <ConfigSection
+            id="fallback"
+            ref={(node) => {
+              sectionRefs.current.fallback = node;
+            }}
+            indexLabel="04"
+            icon={<IconRoute size={16} />}
             title={t('config_management.visual.sections.fallback.title')}
             description={t('config_management.visual.sections.fallback.description')}
           >
@@ -1209,6 +1273,9 @@ export function VisualConfigEditor({
                         }
                       />
                     </FieldShell>
+                    {values.routingStrategy === 'weight-robin' && (
+                      <WeightRobinQueueView entries={weightRobinEntries} />
+                    )}
                     <FieldShell
                       label={t(
                         'config_management.visual.sections.network.disable_image_generation'

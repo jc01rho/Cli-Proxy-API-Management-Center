@@ -193,7 +193,10 @@
     "routing_strategy_update": "更新",
     "routing_strategy_round_robin": "round-robin (轮询)",
     "routing_strategy_fill_first": "fill-first (优先填充)",
-    "routing_strategy_weight_robin": "weight-robin (加权分布)"
+    "routing_strategy_weight_robin": "weight-robin (加权分布)",
+    "request_log_success_body_enable": "成功时记录响应体",
+    "detailed_api_error_body_log_limit_label": "错误日志体大小限制（字节）：",
+    "detailed_api_error_body_log_limit_hint": "错误时记录请求/响应体的最大字节数。设为 0 则记录完整内容。"
   },
   "api_keys": {
     "title": "API 密钥管理",
@@ -688,6 +691,15 @@
     "xai_callback_hint": "Grok 有时只在页面显示 code。可直接粘贴 code，系统会自动拼接为 http://127.0.0.1:56121/callback?... 后提交。",
     "xai_callback_required": "请先粘贴 Grok 页面显示的 code 或完整回调 URL。",
     "xai_callback_state_missing": "缺少本次 xAI 登录的 state，请重新开始 xAI 登录后再提交 code。",
+    "qoder_oauth_title": "Qoder OAuth",
+    "qoder_oauth_button": "开始 Qoder 登录",
+    "qoder_oauth_hint": "通过设备授权流程登录 Qoder，自动获取并保存认证文件。",
+    "qoder_oauth_url_label": "验证 URL：",
+    "qoder_oauth_status_waiting": "等待认证中...",
+    "qoder_oauth_status_success": "认证成功！",
+    "qoder_oauth_status_error": "认证失败：",
+    "qoder_oauth_start_error": "启动 Qoder OAuth 失败：",
+    "qoder_oauth_polling_error": "检查认证状态失败：",
     "oauth_callback_label": "回调 URL",
     "oauth_callback_placeholder": "http://localhost:1455/auth/callback?code=...&state=...",
     "oauth_callback_hint": "远程浏览器模式：当授权跳转到 http://localhost:... 后，复制完整 URL 并提交到这里。",

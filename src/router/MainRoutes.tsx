@@ -9,6 +9,7 @@ import { QuotaPage } from '@/pages/QuotaPage';
 import { ConfigPage } from '@/pages/ConfigPage';
 import { LogsPage } from '@/pages/LogsPage';
 import { SystemPage } from '@/pages/SystemPage';
+import { WeightRobinQueuePage } from '@/pages/WeightRobinQueuePage';
 
 const mainRoutes = [
   { path: '/', element: <DashboardPage /> },
@@ -23,6 +24,7 @@ const mainRoutes = [
   { path: '/oauth', element: <OAuthPage /> },
   { path: '/quota', element: <QuotaPage /> },
   { path: '/config', element: <ConfigPage /> },
+  { path: '/weight-robin-queue', element: <WeightRobinQueuePage /> },
   { path: '/logs', element: <LogsPage /> },
   { path: '/system', element: <SystemPage /> },
   { path: '*', element: <Navigate to="/" replace /> },

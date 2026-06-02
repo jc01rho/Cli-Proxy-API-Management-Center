@@ -21,6 +21,7 @@ import {
   IconSidebarProviders,
   IconSidebarQuota,
   IconSidebarSystem,
+  IconRoute,
 } from '@/components/ui/icons';
 import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
 import {
@@ -44,6 +45,7 @@ const sidebarIcons: Record<string, ReactNode> = {
   config: <IconSidebarConfig size={18} />,
   logs: <IconSidebarLogs size={18} />,
   system: <IconSidebarSystem size={18} />,
+  weightRobinQueue: <IconRoute size={18} />,
 };
 
 // Header action icons - smaller size for header buttons
@@ -452,6 +454,12 @@ export function MainLayout() {
           labelKey: 'nav.config_management',
           metaKey: 'nav_meta.config_management',
           icon: sidebarIcons.config,
+        },
+        {
+          path: '/weight-robin-queue',
+          labelKey: 'nav.weight_robin_queue',
+          metaKey: 'nav_meta.weight_robin_queue',
+          icon: sidebarIcons.weightRobinQueue,
         },
         {
           path: '/system',

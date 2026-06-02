@@ -8,6 +8,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { usePageTransitionLayer } from '@/components/common/PageTransitionLayer';
 import { Button } from '@/components/ui/Button';
@@ -1274,7 +1275,21 @@ export function VisualConfigEditor({
                       />
                     </FieldShell>
                     {values.routingStrategy === 'weight-robin' && (
-                      <WeightRobinQueueView entries={weightRobinEntries} />
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+                          <Link
+                            to="/weight-robin-queue"
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 500,
+                              textDecoration: 'none',
+                            }}
+                          >
+                            {t('weight_robin_queue.distribution_title')} →
+                          </Link>
+                        </div>
+                        <WeightRobinQueueView entries={weightRobinEntries} />
+                      </>
                     )}
                     <FieldShell
                       label={t(

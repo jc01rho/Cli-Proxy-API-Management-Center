@@ -38,6 +38,27 @@ interface QueueEntry {
   inactiveReason?: string;
 }
 
+interface AliasContributor {
+  name: string;
+  type: string;
+  weight: number;
+  color: string;
+  inactive: boolean;
+}
+
+interface AliasGroup {
+  /** The alias or model name this group represents. */
+  alias: string;
+  /** Underlying raw model name (if different from alias). */
+  modelName: string;
+  /** All credentials/providers that support this alias. */
+  contributors: AliasContributor[];
+  /** Sum of contributor weights. */
+  totalWeight: number;
+  /** Share of grand total across all alias groups, 0–100. */
+  percent: number;
+}
+
 const PROVIDER_COLORS: Record<string, string> = {
   claude: '#e97a2b',
   gemini: '#4285f4',
@@ -131,6 +152,7 @@ export function WeightRobinQueuePage() {
     const mapped: QueueEntry[] = [];
 
     // 1) OAuth auth files — each file with a valid priority becomes one entry.
+    //    Empty/null priority is treated as weight 1 (default).
     for (const file of files) {
       const priority = parsePriorityValue(file.priority);
       const inactive = !!file.disabled || !!file.unavailable;
@@ -138,14 +160,12 @@ export function WeightRobinQueuePage() {
         ? 'disabled'
         : file.unavailable
           ? 'unavailable'
-          : priority == null
-            ? 'no priority'
-            : undefined;
+          : undefined;
       mapped.push({
         name: String(file.name ?? file.authIndex ?? ''),
         type: String(file.type ?? file.provider ?? 'oauth'),
-        priority: priority ?? 0,
-        weight: inactive || priority == null ? 0 : clampWeight(priority),
+        priority: priority ?? 1,
+        weight: inactive ? 0 : clampWeight(priority ?? 1),
         color: getProviderColor(String(file.type ?? file.provider ?? '')),
         percent: 0,
         source: String(file.name ?? file.authIndex ?? ''),
@@ -164,32 +184,13 @@ export function WeightRobinQueuePage() {
     for (const provider of openAIProviders) {
       if (provider.disabled) continue;
       const priority = parsePriorityValue(provider.priority);
-      if (priority == null) {
-        // Still show the entry (greyed out) so the user can see why it
-        // is missing from the active queue.
-        mapped.push({
-          name: provider.name,
-          type: 'openai-compatible',
-          priority: 0,
-          weight: 0,
-          color: getProviderColor('openai-compatible'),
-          percent: 0,
-          source: provider.name,
-          aliases: (provider.models ?? []).map((m) => ({
-            name: String(m.name ?? ''),
-            alias: String(m.alias ?? ''),
-          })),
-          inactive: true,
-          inactiveReason: 'no priority',
-        });
-        continue;
-      }
+      const effectivePriority = priority ?? 1;
       const providerType = 'openai-compatible';
       mapped.push({
         name: provider.name,
         type: providerType,
-        priority,
-        weight: clampWeight(priority),
+        priority: effectivePriority,
+        weight: clampWeight(effectivePriority),
         color: getProviderColor(providerType),
         percent: 0,
         source: provider.name,
@@ -220,6 +221,54 @@ export function WeightRobinQueuePage() {
   );
   const activeCount = entries.filter((e) => !e.inactive).length;
   const avgWeight = activeCount > 0 ? totalWeight / activeCount : 0;
+
+  const aliasGroups: AliasGroup[] = useMemo(() => {
+    const groupMap = new Map<string, AliasGroup>();
+
+    const ensureGroup = (alias: string, modelName: string): AliasGroup => {
+      const key = alias || modelName;
+      const existing = groupMap.get(key);
+      if (existing) return existing;
+      const group: AliasGroup = {
+        alias: key,
+        modelName,
+        contributors: [],
+        totalWeight: 0,
+        percent: 0,
+      };
+      groupMap.set(key, group);
+      return group;
+    };
+
+    for (const entry of entries) {
+      const contributor: AliasContributor = {
+        name: entry.name,
+        type: entry.type,
+        weight: entry.weight,
+        color: entry.color,
+        inactive: entry.inactive,
+      };
+
+      if (entry.aliases.length > 0) {
+        for (const a of entry.aliases) {
+          const group = ensureGroup(a.alias || a.name, a.name);
+          group.contributors.push(contributor);
+          group.totalWeight += entry.weight;
+        }
+      } else {
+        const group = ensureGroup(entry.name, entry.name);
+        group.contributors.push(contributor);
+        group.totalWeight += entry.weight;
+      }
+    }
+
+    const groups = [...groupMap.values()].sort((a, b) => b.totalWeight - a.totalWeight);
+    const grandTotal = groups.reduce((sum, g) => sum + g.totalWeight, 0);
+    return groups.map((g) => ({
+      ...g,
+      percent: grandTotal > 0 ? (g.totalWeight / grandTotal) * 100 : 0,
+    }));
+  }, [entries]);
 
   return (
     <div className={styles.page}>
@@ -292,7 +341,84 @@ export function WeightRobinQueuePage() {
           </span>
           <span className={styles.statValue}>{cycle.length}</span>
         </Card>
+        <Card className={styles.statCard}>
+          <span className={styles.statLabel}>
+            {t('weight_robin_queue.alias_groups', 'Alias / Model Groups')}
+          </span>
+          <span className={styles.statValue}>{aliasGroups.length}</span>
+        </Card>
       </div>
+
+      <Card
+        title={t('weight_robin_queue.alias_queue_title', 'Queue by Alias / Model')}
+        className={styles.aliasQueueCard}
+      >
+        {aliasGroups.length === 0 ? (
+          <div className={styles.empty}>
+            {t(
+              'weight_robin_queue.no_alias_groups',
+              'No alias or model mappings found. Configure aliases in your openai-compatibility providers to see per-alias queues.'
+            )}
+          </div>
+        ) : (
+          <ul className={styles.aliasGroupList}>
+            {aliasGroups.map((group) => (
+              <li key={group.alias} className={styles.aliasGroupRow}>
+                <div className={styles.aliasGroupHeader}>
+                  <span className={styles.aliasGroupName} title={group.alias}>
+                    {group.alias}
+                  </span>
+                  {group.alias !== group.modelName && (
+                    <span
+                      className={styles.aliasGroupModel}
+                      title={group.modelName}
+                    >
+                      → {group.modelName}
+                    </span>
+                  )}
+                  <span className={styles.aliasGroupTotal}>
+                    w:{group.totalWeight}
+                  </span>
+                  <span className={styles.aliasGroupPercent}>
+                    {group.percent.toFixed(2)}%
+                  </span>
+                </div>
+                <div className={styles.barTrack}>
+                  <div
+                    className={styles.barFill}
+                    style={{
+                      width: `${group.percent}%`,
+                      background: `linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 40%, transparent))`,
+                    }}
+                  />
+                </div>
+                <ul className={styles.contributorList}>
+                  {group.contributors.map((c, idx) => (
+                    <li
+                      key={`${c.name}-${idx}`}
+                      className={`${styles.contributorChip} ${c.inactive ? styles.contributorInactive : ''}`}
+                      title={`${c.name} (${c.type}, w:${c.weight})`}
+                    >
+                      <span
+                        className={styles.providerBadge}
+                        style={{
+                          borderColor: c.color,
+                          color: c.color,
+                          background: `color-mix(in srgb, ${c.color} 12%, transparent)`,
+                        }}
+                      >
+                        {c.type}
+                      </span>
+                      <span className={styles.contributorName}>{c.name}</span>
+                      <span className={styles.contributorWeight}>w:{c.weight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       <div className={styles.grid}>
         <Card

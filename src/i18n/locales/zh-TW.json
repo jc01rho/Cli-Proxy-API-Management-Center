@@ -1043,7 +1043,10 @@
           "models_hint": "定義特定模型到回退模型的對應。當某個模型失敗時,將優先嘗試對應的回退模型。",
           "chain_title": "回退鏈",
           "chain_hint": "有序的回退模型清單,當主模型與特定回退模型皆失敗時依序嘗試",
-          "add_model": "新增回退模型"
+          "add_model": "新增回退模型",
+          "max_depth_title": "回退最大深度",
+          "max_depth_hint": "從回退鏈中嘗試的最大模型數量(預設:3)。需要更長的回退鏈時可調高(例如 10)。",
+          "max_depth_placeholder": "3"
         },
         "streaming": {
           "title": "串流傳輸設定",

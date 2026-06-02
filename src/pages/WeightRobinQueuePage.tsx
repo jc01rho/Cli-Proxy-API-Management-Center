@@ -8,19 +8,34 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
-import { authFilesApi } from '@/services/api';
+import { authFilesApi, providersApi } from '@/services/api';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { AuthFileItem } from '@/types';
+import type { OpenAIProviderConfig } from '@/types/provider';
 import styles from './WeightRobinQueuePage.module.scss';
 
 interface QueueEntry {
+  /** Display name. For aliased providers this is the model name. */
   name: string;
+  /** Provider type (e.g. "codex", "github-copilot", "openai-compatible"). */
   type: string;
+  /** Raw priority value from the config. */
   priority: number;
+  /** Clamped weight used by the backend selector. */
   weight: number;
+  /** Provider color. */
   color: string;
+  /** Percent of total weight, 0–100. */
   percent: number;
+  /** Auth file name or provider config name (for tooltips). */
+  source: string;
+  /** Aliased destinations (no pre-allocated weight — tracked dynamically). */
+  aliases: { name: string; alias: string }[];
+  /** Disabled / unavailable flag — such entries are shown with weight 0. */
+  inactive: boolean;
+  /** Inactive reason (e.g. "disabled", "unavailable", "no priority"). */
+  inactiveReason?: string;
 }
 
 const PROVIDER_COLORS: Record<string, string> = {
@@ -78,6 +93,7 @@ export function WeightRobinQueuePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [files, setFiles] = useState<AuthFileItem[]>([]);
+  const [openAIProviders, setOpenAIProviders] = useState<OpenAIProviderConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -86,9 +102,16 @@ export function WeightRobinQueuePage() {
     setLoading(true);
     setError('');
     try {
-      const res = await authFilesApi.list();
-      const list = (res?.files ?? res ?? []) as AuthFileItem[];
+      // Fetch both auth files (OAuth) and openai-compatibility providers (API key)
+      // so the queue reflects the same set of credentials the backend
+      // WeightedRobinSelector will consider.
+      const [authRes, providers] = await Promise.all([
+        authFilesApi.list(),
+        providersApi.getOpenAIProviders().catch(() => [] as OpenAIProviderConfig[]),
+      ]);
+      const list = (authRes?.files ?? authRes ?? []) as AuthFileItem[];
       setFiles(list);
+      setOpenAIProviders(providers);
       setLastUpdated(new Date());
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -106,33 +129,97 @@ export function WeightRobinQueuePage() {
 
   const entries: QueueEntry[] = useMemo(() => {
     const mapped: QueueEntry[] = [];
+
+    // 1) OAuth auth files — each file with a valid priority becomes one entry.
     for (const file of files) {
-      if (file.disabled || file.unavailable) continue;
       const priority = parsePriorityValue(file.priority);
-      if (priority == null) continue;
+      const inactive = !!file.disabled || !!file.unavailable;
+      const reason = file.disabled
+        ? 'disabled'
+        : file.unavailable
+          ? 'unavailable'
+          : priority == null
+            ? 'no priority'
+            : undefined;
       mapped.push({
         name: String(file.name ?? file.authIndex ?? ''),
-        type: String(file.type ?? file.provider ?? 'unknown'),
-        priority,
-        weight: clampWeight(priority),
+        type: String(file.type ?? file.provider ?? 'oauth'),
+        priority: priority ?? 0,
+        weight: inactive || priority == null ? 0 : clampWeight(priority),
         color: getProviderColor(String(file.type ?? file.provider ?? '')),
         percent: 0,
+        source: String(file.name ?? file.authIndex ?? ''),
+        aliases: [],
+        inactive,
+        inactiveReason: reason,
       });
     }
-    mapped.sort((a, b) => b.weight - a.weight);
+
+    // 2) OpenAI-compatibility providers (API key).  Aliases are listed
+    //    underneath the provider entry as informational sub-rows — we do
+    //    NOT pre-allocate the weight across aliases.  The backend's
+    //    WeightedRobinSelector tracks per-alias usage dynamically, so the
+    //    weight is only consumed when an actual request resolves to a
+    //    specific alias.
+    for (const provider of openAIProviders) {
+      if (provider.disabled) continue;
+      const priority = parsePriorityValue(provider.priority);
+      if (priority == null) {
+        // Still show the entry (greyed out) so the user can see why it
+        // is missing from the active queue.
+        mapped.push({
+          name: provider.name,
+          type: 'openai-compatible',
+          priority: 0,
+          weight: 0,
+          color: getProviderColor('openai-compatible'),
+          percent: 0,
+          source: provider.name,
+          aliases: (provider.models ?? []).map((m) => ({
+            name: String(m.name ?? ''),
+            alias: String(m.alias ?? ''),
+          })),
+          inactive: true,
+          inactiveReason: 'no priority',
+        });
+        continue;
+      }
+      const providerType = 'openai-compatible';
+      mapped.push({
+        name: provider.name,
+        type: providerType,
+        priority,
+        weight: clampWeight(priority),
+        color: getProviderColor(providerType),
+        percent: 0,
+        source: provider.name,
+        aliases: (provider.models ?? []).map((m) => ({
+          name: String(m.name ?? ''),
+          alias: String(m.alias ?? ''),
+        })),
+        inactive: false,
+      });
+    }
+
+    // Sort: active entries by weight desc, inactive entries after
+    mapped.sort((a, b) => {
+      if (a.inactive !== b.inactive) return a.inactive ? 1 : -1;
+      return b.weight - a.weight;
+    });
     const total = mapped.reduce((sum, e) => sum + e.weight, 0);
     return mapped.map((e) => ({
       ...e,
       percent: total > 0 ? (e.weight / total) * 100 : 0,
     }));
-  }, [files]);
+  }, [files, openAIProviders]);
 
-  const cycle = useMemo(() => buildShuffledCycle(entries), [entries]);
+  const cycle = useMemo(() => buildShuffledCycle(entries.filter((e) => e.weight > 0)), [entries]);
   const totalWeight = useMemo(
     () => entries.reduce((sum, e) => sum + e.weight, 0),
     [entries]
   );
-  const avgWeight = entries.length > 0 ? totalWeight / entries.length : 0;
+  const activeCount = entries.filter((e) => !e.inactive).length;
+  const avgWeight = activeCount > 0 ? totalWeight / activeCount : 0;
 
   return (
     <div className={styles.page}>

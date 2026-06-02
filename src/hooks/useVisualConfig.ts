@@ -1331,6 +1331,12 @@ export function useVisualConfig() {
               .map((entry) => String(entry ?? '').trim())
               .filter(Boolean)
           : [],
+        fallbackMaxDepth:
+          routing?.['fallback-max-depth'] != null
+            ? String(routing['fallback-max-depth'])
+            : routing?.fallbackMaxDepth != null
+              ? String(routing.fallbackMaxDepth)
+              : '',
         routingSessionAffinity: Boolean(
           routing?.['session-affinity'] ?? routing?.sessionAffinity ?? routing?.['sessionAffinity']
         ),
@@ -1583,6 +1589,7 @@ export function useVisualConfig() {
           values.tokenThresholdRules.length > 0 ||
           Object.keys(values.fallbackModels).length > 0 ||
           values.fallbackChain.length > 0 ||
+          values.fallbackMaxDepth.trim() !== '' ||
           values.routingSessionAffinity ||
           values.routingSessionAffinityTTL.trim()
         ) {
@@ -1620,6 +1627,12 @@ export function useVisualConfig() {
           } else if (docHas(doc, ['routing', 'fallback-chain'])) {
             doc.deleteIn(['routing', 'fallback-chain']);
           }
+
+          setIntFromStringInDoc(
+            doc,
+            ['routing', 'fallback-max-depth'],
+            values.fallbackMaxDepth
+          );
           deleteIfMapEmpty(doc, ['routing']);
         }
 

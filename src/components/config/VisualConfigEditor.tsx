@@ -296,6 +296,10 @@ export function VisualConfigEditor({
     (fallbackChain: string[]) => onChange({ fallbackChain }),
     [onChange]
   );
+  const handleFallbackMaxDepthChange = useCallback(
+    (fallbackMaxDepth: string) => onChange({ fallbackMaxDepth }),
+    [onChange]
+  );
   const handleOauthEndpointOverridesChange = useCallback(
     (oauthEndpointOverrides: OauthEndpointOverrideEntry[]) => onChange({ oauthEndpointOverrides }),
     [onChange]
@@ -948,6 +952,28 @@ export function VisualConfigEditor({
                   maxItems={20}
                   maxItemsError={t('config_management.visual.sections.fallback.chain_max_error')}
                   onChange={handleFallbackChainChange}
+                />
+              </div>
+
+              <div>
+                <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+                  {t('config_management.visual.sections.fallback.max_depth_title')}
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+                  {t('config_management.visual.sections.fallback.max_depth_hint')}
+                </div>
+                <Input
+                  type="number"
+                  min={1}
+                  max={50}
+                  step={1}
+                  value={values.fallbackMaxDepth}
+                  disabled={disabled}
+                  placeholder={t(
+                    'config_management.visual.sections.fallback.max_depth_placeholder',
+                    '3'
+                  )}
+                  onChange={(event) => handleFallbackMaxDepthChange(event.target.value)}
                 />
               </div>
               </SectionGrid>

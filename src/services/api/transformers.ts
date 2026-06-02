@@ -538,6 +538,15 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
       config.fallbackChain = fallbackChain;
     }
   }
+  const fallbackMaxDepthRaw = isRecord(routing)
+    ? routing['fallback-max-depth']
+    : (raw['fallback-max-depth'] ?? raw.fallbackMaxDepth);
+  if (fallbackMaxDepthRaw != null) {
+    const n = Number(fallbackMaxDepthRaw);
+    if (Number.isFinite(n) && n >= 0) {
+      config.fallbackMaxDepth = n;
+    }
+  }
   const apiKeysRaw = raw['api-keys'] ?? raw.apiKeys;
   if (Array.isArray(apiKeysRaw)) {
     config.apiKeys = apiKeysRaw.map((key) => String(key)).filter((key) => key.trim() !== '');

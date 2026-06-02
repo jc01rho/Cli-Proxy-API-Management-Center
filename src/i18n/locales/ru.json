@@ -193,7 +193,10 @@
     "routing_strategy_update": "Обновить",
     "routing_strategy_round_robin": "round-robin (цикл)",
     "routing_strategy_fill_first": "fill-first (приоритет)",
-    "routing_strategy_weight_robin": "weight-robin (взвешенное распределение)"
+    "routing_strategy_weight_robin": "weight-robin (взвешенное распределение)",
+    "request_log_success_body_enable": "Логировать тело ответа при успехе",
+    "detailed_api_error_body_log_limit_label": "Лимит логирования тела ошибки (байт):",
+    "detailed_api_error_body_log_limit_hint": "Макс. байт тела запроса/ответа для логирования при ошибке. 0 — логировать полностью."
   },
   "api_keys": {
     "title": "Управление API-ключами",
@@ -685,6 +688,15 @@
     "xai_callback_hint": "Grok иногда показывает только код на странице. Вставьте этот код напрямую, приложение автоматически отправит его как http://127.0.0.1:56121/callback?...",
     "xai_callback_required": "Сначала вставьте код со страницы Grok или полный callback URL.",
     "xai_callback_state_missing": "Отсутствует state для этого входа xAI. Запустите вход xAI заново и затем отправьте код.",
+    "qoder_oauth_title": "Qoder OAuth",
+    "qoder_oauth_button": "Начать вход в Qoder",
+    "qoder_oauth_hint": "Вход в Qoder через Device Code Flow, автоматическое получение и сохранение файлов аутентификации.",
+    "qoder_oauth_url_label": "URL подтверждения:",
+    "qoder_oauth_status_waiting": "Ожидание аутентификации...",
+    "qoder_oauth_status_success": "Аутентификация успешна!",
+    "qoder_oauth_status_error": "Ошибка аутентификации:",
+    "qoder_oauth_start_error": "Не удалось запустить Qoder OAuth:",
+    "qoder_oauth_polling_error": "Не удалось проверить статус аутентификации:",
     "oauth_callback_label": "Callback URL",
     "oauth_callback_placeholder": "http://localhost:1455/auth/callback?code=...&state=...",
     "oauth_callback_hint": "Режим удалённого браузера: после перенаправления провайдера на http://localhost:... скопируйте полный URL и отправьте его здесь.",

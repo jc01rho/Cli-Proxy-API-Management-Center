@@ -144,6 +144,7 @@ export interface WeightRobinQueueEntry {
   provider: string;
   weight: number;
   position: number;
+  inCycle: boolean;
   available: boolean;
   models?: string[];
 }

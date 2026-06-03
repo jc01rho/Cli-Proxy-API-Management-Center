@@ -367,7 +367,8 @@ function ModelGroupCard({
           return (
             <span
               key={entry.authId}
-              className={`${styles.contributorChip} ${entry.available ? '' : styles.contributorInactive}`}
+              className={`${styles.contributorChip} ${entry.available ? '' : styles.contributorInactive} ${entry.inCycle ? '' : styles.contributorOutOfCycle}`}
+              title={entry.inCycle ? entry.name : `${entry.name} (not in active cycle)`}
             >
               <span
                 className={styles.contributorDot}

@@ -104,6 +104,31 @@ export function WeightRobinQueuePage() {
     return 1;
   }, [entries, totalWeight]);
 
+  const authModelsMap = useMemo<Map<string, string[]>>(() => {
+    const map = new Map<string, string[]>();
+    for (const e of entries) {
+      const key = e.authId;
+      if (!key) continue;
+      const models = e.models && e.models.length > 0 ? e.models : [e.provider || '(unassigned)'];
+      map.set(key, models);
+    }
+    return map;
+  }, [entries]);
+
+  const cycleByAlias = useMemo<Array<{ alias: string; slots: Array<{ authId: string; name: string; provider: string; index: number }> }>>(() => {
+    if (cycle.length === 0) return [];
+    const map = new Map<string, { alias: string; slots: Array<{ authId: string; name: string; provider: string; index: number }> }>();
+    cycle.forEach((slot, idx) => {
+      const models = authModelsMap.get(slot.authId) ?? [slot.provider || '(unassigned)'];
+      for (const alias of models) {
+        const slotData = { authId: slot.authId, name: slot.name, provider: slot.provider, index: idx };
+        if (!map.has(alias)) map.set(alias, { alias, slots: [] });
+        map.get(alias)!.slots.push(slotData);
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => b.slots.length - a.slots.length);
+  }, [cycle, authModelsMap]);
+
   const modelGroups = useMemo<ModelGroup[]>(() => {
     if (entries.length === 0) return [];
     const seenAuths = new Set<string>();
@@ -259,13 +284,13 @@ export function WeightRobinQueuePage() {
       </Card>
 
       <Card
-        title={t('weight_robin_queue.cycle_title', 'Live Cycle')}
+        title={t('weight_robin_queue.cycle_title', 'Shuffled Cycle Preview (per Alias)')}
         className={styles.cycleCard}
       >
         <p className={styles.cycleHint}>
           {t(
             'weight_robin_queue.cycle_hint',
-            'The actual shuffled cycle from the backend. Current position is highlighted.'
+            'The actual shuffled cycle from the backend, grouped by alias/model. Current position is highlighted.'
           )}
           {cycleTruncated && (
             <>
@@ -283,18 +308,32 @@ export function WeightRobinQueuePage() {
             {t('weight_robin_queue.cycle_empty', 'No cycle data available. The selector may not be active yet.')}
           </div>
         ) : (
-          <div className={styles.cycleGrid}>
-            {visibleCycle.map((entry, idx) => {
-              const realIndex = cycleTruncated && idx >= MAX_CYCLE_CHIPS / 2
-                ? cycle.length - (visibleCycle.length - idx)
-                : idx;
+          <div className={styles.cycleList}>
+            {cycleByAlias.map((group) => {
+              const visibleSlots = group.slots.length <= MAX_CYCLE_CHIPS
+                ? group.slots
+                : [...group.slots.slice(0, Math.floor(MAX_CYCLE_CHIPS / 2)), ...group.slots.slice(group.slots.length - Math.floor(MAX_CYCLE_CHIPS / 2))];
               return (
-                <CycleChip
-                  key={`${entry.authId}-${idx}`}
-                  entry={entry}
-                  index={realIndex}
-                  isCurrent={realIndex === currentIdx}
-                />
+                <div key={group.alias} className={styles.cycleGroup}>
+                  <div className={styles.cycleGroupHeader}>
+                    <span className={styles.cycleGroupAlias}>{group.alias}</span>
+                    <span className={styles.cycleGroupLength}>
+                      {group.slots.length} {t('weight_robin_queue.cycle_slots', 'slots')}
+                    </span>
+                  </div>
+                  <div className={styles.cycleGrid}>
+                    {visibleSlots.map((slot, idx) => {
+                      return (
+                        <CycleChip
+                          key={`${group.alias}-${slot.authId}-${idx}`}
+                          entry={{ authId: slot.authId, name: slot.name, provider: slot.provider }}
+                          index={slot.index}
+                          isCurrent={slot.index === currentIdx}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
               );
             })}
           </div>

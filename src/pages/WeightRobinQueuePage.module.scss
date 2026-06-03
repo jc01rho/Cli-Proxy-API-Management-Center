@@ -463,3 +463,22 @@
   padding: 1px 5px;
   border-radius: 3px;
 }
+
+.entryInactive {
+  opacity: 0.45;
+}
+
+.statusAvailable {
+  color: #34a853;
+  font-size: 14px;
+}
+
+.statusUnavailable {
+  color: #e74c3c;
+  font-size: 14px;
+}
+
+.cycleChipCurrent {
+  box-shadow: 0 0 0 2px var(--accent);
+  font-weight: 700;
+}

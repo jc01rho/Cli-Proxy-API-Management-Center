@@ -1034,6 +1034,7 @@
           "chain_title": "回退链",
           "chain_hint": "有序的回退模型列表，当主模型和特定回退模型都失败时依次尝试",
           "add_model": "添加回退模型",
+          "add_chain": "添加链项",
           "max_depth_title": "回退最大深度",
           "max_depth_hint": "从回退链中尝试的最大模型数量（默认：3）。需要更长的回退链时可调高（例如 10）。",
           "max_depth_placeholder": "3"

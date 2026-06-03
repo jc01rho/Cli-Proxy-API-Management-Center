@@ -131,4 +131,33 @@ export const configApi = {
    * 更新路由策略
    */
   updateRoutingStrategy: (strategy: string) => apiClient.put('/routing/strategy', { value: strategy }),
+
+  getWeightRobinQueue: (model?: string) =>
+    apiClient.get<WeightRobinQueueSnapshot>('/weight-robin-queue', {
+      params: model ? { model } : undefined,
+    }),
 };
+
+export interface WeightRobinQueueEntry {
+  authId: string;
+  name: string;
+  provider: string;
+  weight: number;
+  position: number;
+  available: boolean;
+}
+
+export interface WeightRobinCycleEntry {
+  authId: string;
+  name: string;
+  provider: string;
+}
+
+export interface WeightRobinQueueSnapshot {
+  entries: WeightRobinQueueEntry[];
+  cycle: WeightRobinCycleEntry[];
+  currentIdx: number;
+  totalWeight: number;
+  cycleLength: number;
+  lastPicked?: string;
+}

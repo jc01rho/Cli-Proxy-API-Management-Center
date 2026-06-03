@@ -1034,6 +1034,7 @@
           "chain_title": "Fallback Chain",
           "chain_hint": "Ordered list of fallback models to try when the primary model and model-specific fallbacks fail",
           "add_model": "Add Fallback Model",
+          "add_chain": "Add Chain Item",
           "max_depth_title": "Fallback Max Depth",
           "max_depth_hint": "Maximum number of fallback models to try from the chain (default: 3). Set higher (e.g. 10) for long fallback chains.",
           "max_depth_placeholder": "3"

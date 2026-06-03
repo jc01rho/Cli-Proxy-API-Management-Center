@@ -15,13 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
-import { authFilesApi, providersApi } from '@/services/api';
-import { parsePriorityValue } from '@/features/authFiles/constants';
-import type { GeminiKeyConfig, OpenAIProviderConfig, ProviderKeyConfig } from '@/types/provider';
-import {
-  WeightRobinQueueView,
-  type WeightRobinEntry,
-} from '@/components/config/WeightRobinQueueView';
+import { WeightRobinQueueView } from '@/components/config/WeightRobinQueueView';
 import {
   IconCode,
   IconDiamond,
@@ -220,80 +214,6 @@ export function VisualConfigEditor({
   const mobileNavButtonRefs = useRef<Partial<Record<VisualSectionId, HTMLButtonElement | null>>>(
     {}
   );
-
-  const [weightRobinEntries, setWeightRobinEntries] = useState<WeightRobinEntry[]>([]);
-  useEffect(() => {
-    if (values.routingStrategy !== 'weight-robin') {
-      setWeightRobinEntries([]);
-      return;
-    }
-    let cancelled = false;
-    void Promise.all([
-      authFilesApi.list(),
-      providersApi.getOpenAIProviders().catch(() => [] as OpenAIProviderConfig[]),
-      providersApi.getClaudeConfigs().catch(() => [] as ProviderKeyConfig[]),
-      providersApi.getCodexConfigs().catch(() => [] as ProviderKeyConfig[]),
-      providersApi.getGeminiKeys().catch(() => [] as GeminiKeyConfig[]),
-      providersApi.getCommandCodeConfigs().catch(() => [] as ProviderKeyConfig[]),
-      providersApi.getMistralConfigs().catch(() => [] as ProviderKeyConfig[]),
-    ])
-      .then(([authRes, openAIProviders, claudeKeys, codexKeys, geminiKeys, commandCodeKeys, mistralKeys]) => {
-        if (cancelled) return;
-        const files = authRes?.files ?? authRes ?? [];
-        const entries: WeightRobinEntry[] = [];
-
-        for (const file of files) {
-          if (file.disabled || file.unavailable) continue;
-          const priority = parsePriorityValue(file.priority);
-          if (priority == null) continue;
-          entries.push({
-            name: String(file.name ?? file.authIndex ?? ''),
-            type: String(file.type ?? file.provider ?? 'unknown'),
-            priority,
-          });
-        }
-
-        const apiKeyProviders: { keys: { apiKey: string; priority?: number; authIndex?: string }[]; type: string }[] = [
-          { keys: claudeKeys, type: 'claude' },
-          { keys: codexKeys, type: 'codex' },
-          { keys: geminiKeys, type: 'gemini' },
-          { keys: commandCodeKeys, type: 'commandcode' },
-          { keys: mistralKeys, type: 'mistral' },
-        ];
-
-        for (const { keys, type } of apiKeyProviders) {
-          for (const key of keys) {
-            const priority = parsePriorityValue(key.priority);
-            if (priority == null) continue;
-            entries.push({
-              name: key.authIndex || key.apiKey.slice(0, 12) + '...',
-              type,
-              priority,
-            });
-          }
-        }
-
-        for (const provider of openAIProviders) {
-          if (provider.disabled) continue;
-          const priority = parsePriorityValue(provider.priority);
-          if (priority == null) continue;
-          entries.push({
-            name: provider.name,
-            type: 'openai-compatible',
-            priority,
-          });
-        }
-
-        entries.sort((a, b) => b.priority - a.priority);
-        setWeightRobinEntries(entries);
-      })
-      .catch(() => {
-        /* silent */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [values.routingStrategy]);
 
   const isKeepaliveDisabled =
     values.streaming.keepaliveSeconds === '' || values.streaming.keepaliveSeconds === '0';
@@ -1355,7 +1275,7 @@ export function VisualConfigEditor({
                             {t('weight_robin_queue.distribution_title')} →
                           </Link>
                         </div>
-                        <WeightRobinQueueView entries={weightRobinEntries} />
+                        <WeightRobinQueueView />
                       </>
                     )}
                     <FieldShell

@@ -3,7 +3,10 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'
+      # e.g. v1.15.1 (base version)
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      # e.g. v1.15.1-1, v1.15.1-2, v1.15.1-3 (suffixed fork releases)
+      - 'v[0-9]+.[0-9]+.[0-9]+-[0-9]+'
 
 jobs:
   build-and-release:

@@ -12,7 +12,7 @@ import { authFilesApi, providersApi } from '@/services/api';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { AuthFileItem } from '@/types';
-import type { OpenAIProviderConfig } from '@/types/provider';
+import type { GeminiKeyConfig, OpenAIProviderConfig, ProviderKeyConfig } from '@/types/provider';
 import styles from './WeightRobinQueuePage.module.scss';
 
 interface QueueEntry {
@@ -36,6 +36,14 @@ interface QueueEntry {
   inactive: boolean;
   /** Inactive reason (e.g. "disabled", "unavailable", "no priority"). */
   inactiveReason?: string;
+}
+
+/** Provider key config (Claude, Codex, CommandCode, Mistral, Vertex, Gemini). */
+interface ProviderKeyEntry {
+  apiKey: string;
+  priority?: number;
+  models?: { name: string; alias?: string }[];
+  authIndex?: string;
 }
 
 interface AliasContributor {
@@ -66,6 +74,7 @@ const PROVIDER_COLORS: Record<string, string> = {
   antigravity: '#607d8b',
   xai: '#00acc1',
   qoder: '#1890ff',
+  vertex: '#4285f4',
 };
 
 function getProviderColor(type: string): string {
@@ -90,6 +99,11 @@ export function WeightRobinQueuePage() {
   const navigate = useNavigate();
   const [files, setFiles] = useState<AuthFileItem[]>([]);
   const [openAIProviders, setOpenAIProviders] = useState<OpenAIProviderConfig[]>([]);
+  const [claudeKeys, setClaudeKeys] = useState<ProviderKeyConfig[]>([]);
+  const [codexKeys, setCodexKeys] = useState<ProviderKeyConfig[]>([]);
+  const [geminiKeys, setGeminiKeys] = useState<GeminiKeyConfig[]>([]);
+  const [commandCodeKeys, setCommandCodeKeys] = useState<ProviderKeyConfig[]>([]);
+  const [mistralKeys, setMistralKeys] = useState<ProviderKeyConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -98,16 +112,23 @@ export function WeightRobinQueuePage() {
     setLoading(true);
     setError('');
     try {
-      // Fetch both auth files (OAuth) and openai-compatibility providers (API key)
-      // so the queue reflects the same set of credentials the backend
-      // WeightedRobinSelector will consider.
-      const [authRes, providers] = await Promise.all([
+      const [authRes, providers, claude, codex, gemini, commandCode, mistral] = await Promise.all([
         authFilesApi.list(),
         providersApi.getOpenAIProviders().catch(() => [] as OpenAIProviderConfig[]),
+        providersApi.getClaudeConfigs().catch(() => [] as ProviderKeyConfig[]),
+        providersApi.getCodexConfigs().catch(() => [] as ProviderKeyConfig[]),
+        providersApi.getGeminiKeys().catch(() => [] as GeminiKeyConfig[]),
+        providersApi.getCommandCodeConfigs().catch(() => [] as ProviderKeyConfig[]),
+        providersApi.getMistralConfigs().catch(() => [] as ProviderKeyConfig[]),
       ]);
       const list = (authRes?.files ?? authRes ?? []) as AuthFileItem[];
       setFiles(list);
       setOpenAIProviders(providers);
+      setClaudeKeys(claude);
+      setCodexKeys(codex);
+      setGeminiKeys(gemini);
+      setCommandCodeKeys(commandCode);
+      setMistralKeys(mistral);
       setLastUpdated(new Date());
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -127,7 +148,6 @@ export function WeightRobinQueuePage() {
     const mapped: QueueEntry[] = [];
 
     // 1) OAuth auth files — each file with a valid priority becomes one entry.
-    //    Empty/null priority is treated as weight 1 (default).
     for (const file of files) {
       const priority = parsePriorityValue(file.priority);
       const inactive = !!file.disabled || !!file.unavailable;
@@ -150,12 +170,36 @@ export function WeightRobinQueuePage() {
       });
     }
 
-    // 2) OpenAI-compatibility providers (API key).  Aliases are listed
-    //    underneath the provider entry as informational sub-rows — we do
-    //    NOT pre-allocate the weight across aliases.  The backend's
-    //    WeightedRobinSelector tracks per-alias usage dynamically, so the
-    //    weight is only consumed when an actual request resolves to a
-    //    specific alias.
+    const apiKeyProviders: { keys: ProviderKeyEntry[]; type: string }[] = [
+      { keys: claudeKeys, type: 'claude' },
+      { keys: codexKeys, type: 'codex' },
+      { keys: geminiKeys, type: 'gemini' },
+      { keys: commandCodeKeys, type: 'commandcode' },
+      { keys: mistralKeys, type: 'mistral' },
+    ];
+
+    for (const { keys, type } of apiKeyProviders) {
+      for (const key of keys) {
+        const priority = parsePriorityValue(key.priority);
+        const effectivePriority = priority ?? 1;
+        const displayName = key.authIndex || key.apiKey.slice(0, 12) + '...';
+        mapped.push({
+          name: displayName,
+          type,
+          priority: effectivePriority,
+          weight: clampWeight(effectivePriority),
+          color: getProviderColor(type),
+          percent: 0,
+          source: displayName,
+          aliases: (key.models ?? []).map((m) => ({
+            name: String(m.name ?? ''),
+            alias: String(m.alias ?? ''),
+          })),
+          inactive: false,
+        });
+      }
+    }
+
     for (const provider of openAIProviders) {
       if (provider.disabled) continue;
       const priority = parsePriorityValue(provider.priority);
@@ -187,7 +231,7 @@ export function WeightRobinQueuePage() {
       ...e,
       percent: total > 0 ? (e.weight / total) * 100 : 0,
     }));
-  }, [files, openAIProviders]);
+  }, [files, openAIProviders, claudeKeys, codexKeys, geminiKeys, commandCodeKeys, mistralKeys]);
 
   const totalWeight = useMemo(
     () => entries.reduce((sum, e) => sum + e.weight, 0),

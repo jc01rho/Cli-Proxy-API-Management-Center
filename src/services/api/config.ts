@@ -145,6 +145,7 @@ export interface WeightRobinQueueEntry {
   weight: number;
   position: number;
   available: boolean;
+  models?: string[];
 }
 
 export interface WeightRobinCycleEntry {

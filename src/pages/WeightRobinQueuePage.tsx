@@ -266,23 +266,6 @@ export function WeightRobinQueuePage() {
         )}
       </div>
 
-       <Card
-        title={t('weight_robin_queue.alias_queue_title', 'Queue by Alias / Model')}
-        className={styles.aliasQueueCard}
-      >
-        {modelGroups.length === 0 ? (
-          <div className={styles.empty}>
-            {t('weight_robin_queue.no_alias_groups', 'No alias or model mappings found.')}
-          </div>
-        ) : (
-          <ul className={styles.aliasGroupList}>
-            {modelGroups.map((group) => (
-              <ModelGroupCard key={group.model} group={group} />
-            ))}
-          </ul>
-        )}
-      </Card>
-
       <Card
         title={t('weight_robin_queue.cycle_title', 'Shuffled Cycle Preview (per Alias)')}
         className={styles.cycleCard}
@@ -349,6 +332,23 @@ export function WeightRobinQueuePage() {
               </span>
             </span>
           </div>
+        )}
+      </Card>
+
+      <Card
+        title={t('weight_robin_queue.alias_queue_title', 'Queue by Alias / Model')}
+        className={styles.aliasQueueCard}
+      >
+        {modelGroups.length === 0 ? (
+          <div className={styles.empty}>
+            {t('weight_robin_queue.no_alias_groups', 'No alias or model mappings found.')}
+          </div>
+        ) : (
+          <ul className={styles.aliasGroupList}>
+            {modelGroups.map((group) => (
+              <ModelGroupCard key={group.model} group={group} />
+            ))}
+          </ul>
         )}
       </Card>
     </div>

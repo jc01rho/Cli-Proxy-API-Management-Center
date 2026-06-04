@@ -104,7 +104,9 @@ export function WeightRobinQueuePage() {
         map.get(alias)!.slots.push(slotData);
       }
     });
-    return Array.from(map.values()).sort((a, b) => b.slots.length - a.slots.length);
+    return Array.from(map.values())
+      .filter((group) => new Set(group.slots.map((s) => s.provider)).size > 1)
+      .sort((a, b) => b.slots.length - a.slots.length);
   }, [cycle, authModelsMap]);
 
   const modelGroups = useMemo<ModelGroup[]>(() => {
@@ -139,8 +141,9 @@ export function WeightRobinQueuePage() {
         share: totalWeight > 0 ? (roundedTotal / totalWeight) * 100 : 0,
       });
     }
-    groups.sort((a, b) => b.totalWeight - a.totalWeight);
-    return groups;
+    return groups
+      .filter((group) => new Set(group.entries.map((e) => e.provider)).size > 1)
+      .sort((a, b) => b.totalWeight - a.totalWeight);
   }, [entries, totalWeight]);
 
   const visibleCycle = useMemo(() => {

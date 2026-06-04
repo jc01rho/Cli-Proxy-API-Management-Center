@@ -29,23 +29,6 @@ function getProviderColor(provider: string): string {
   return PROVIDER_COLORS[provider.toLowerCase()] || '#888';
 }
 
-function gcd(a: number, b: number): number {
-  let x = Math.abs(Math.round(a));
-  let y = Math.abs(Math.round(b));
-  while (y > 0) {
-    const t = y;
-    y = x % y;
-    x = t;
-  }
-  return x || 1;
-}
-
-function gcdAll(values: number[]): number {
-  const positive = values.filter((v) => v > 0);
-  if (positive.length === 0) return 1;
-  return positive.reduce((acc, v) => gcd(acc, v));
-}
-
 const MAX_CYCLE_CHIPS = 60;
 
 interface ModelGroup {
@@ -98,11 +81,6 @@ export function WeightRobinQueuePage() {
   const lastPicked = snapshot?.lastPicked;
   const activeCount = entries.filter((e) => e.available).length;
   const avgWeight = activeCount > 0 ? totalWeight / activeCount : 0;
-
-  const globalDivisor = useMemo(() => {
-    if (totalWeight > 0) return gcdAll(entries.map((e) => e.weight));
-    return 1;
-  }, [entries, totalWeight]);
 
   const authModelsMap = useMemo<Map<string, string[]>>(() => {
     const map = new Map<string, string[]>();
@@ -164,11 +142,6 @@ export function WeightRobinQueuePage() {
     groups.sort((a, b) => b.totalWeight - a.totalWeight);
     return groups;
   }, [entries, totalWeight]);
-
-  const normalizedCycleLength = useMemo(() => {
-    if (cycleLength <= 0) return 0;
-    return Math.max(1, Math.round(cycleLength / globalDivisor));
-  }, [cycleLength, globalDivisor]);
 
   const visibleCycle = useMemo(() => {
     if (cycle.length === 0) return [];
@@ -319,18 +292,6 @@ export function WeightRobinQueuePage() {
                 </div>
               );
             })}
-          </div>
-        )}
-        {cycleLength > 0 && (
-          <div className={styles.cycleSummary}>
-            <span>
-              {t('weight_robin_queue.normalized_length', 'Normalized length')}:{' '}
-              <strong>{normalizedCycleLength}</strong>
-              <span className={styles.cycleSummaryMeta}>
-                {' '}
-                ({cycleLength} / {globalDivisor})
-              </span>
-            </span>
           </div>
         )}
       </Card>

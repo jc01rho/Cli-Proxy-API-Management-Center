@@ -402,6 +402,13 @@
   white-space: nowrap;
 }
 
+.aliasGroupNormalized {
+  font-weight: 500;
+  color: var(--text-tertiary, var(--text-secondary));
+  margin-left: 2px;
+  font-size: 10px;
+}
+
 .aliasGroupPercent {
   font-size: 11px;
   font-weight: 700;

@@ -34,6 +34,8 @@ const MAX_CYCLE_CHIPS = 60;
 interface ModelGroup {
   model: string;
   entries: WeightRobinQueueEntry[];
+  rawTotalWeight: number;
+  normalizedTotalWeight: number;
   totalWeight: number;
   share: number;
 }
@@ -109,42 +111,46 @@ export function WeightRobinQueuePage() {
       .sort((a, b) => b.slots.length - a.slots.length);
   }, [cycle, authModelsMap]);
 
+  const gcd = snapshot?.gcd ?? 1;
+  const normalizedTotalWeight = gcd > 1 ? Math.round(totalWeight / gcd) : totalWeight;
+
   const modelGroups = useMemo<ModelGroup[]>(() => {
     if (entries.length === 0) return [];
     const seenAuths = new Set<string>();
-    const map = new Map<string, { entries: WeightRobinQueueEntry[]; weight: number }>();
+    const map = new Map<string, { entries: WeightRobinQueueEntry[]; rawWeight: number; normalizedWeight: number }>();
     for (const entry of entries) {
       const models = entry.models && entry.models.length > 0
         ? entry.models
         : ['(unassigned)'];
-      const perModelWeight = entry.models && entry.models.length > 0
-        ? entry.weight / entry.models.length
-        : entry.weight;
       for (const model of models) {
         const key = model.toLowerCase();
-        const slot = map.get(key) ?? { entries: [], weight: 0 };
+        const slot = map.get(key) ?? { entries: [], rawWeight: 0, normalizedWeight: 0 };
         if (!seenAuths.has(`${key}:${entry.authId}`)) {
           slot.entries.push(entry);
           seenAuths.add(`${key}:${entry.authId}`);
         }
-        slot.weight += perModelWeight;
+        slot.rawWeight += entry.weight;
+        slot.normalizedWeight += gcd > 1 ? entry.weight / gcd : entry.weight;
         map.set(key, slot);
       }
     }
     const groups: ModelGroup[] = [];
     for (const [model, slot] of map.entries()) {
-      const roundedTotal = Math.round(slot.weight);
+      const rawTotal = Math.round(slot.rawWeight);
+      const normalizedTotal = Math.round(slot.normalizedWeight);
       groups.push({
         model: model === '(unassigned)' ? '(unassigned)' : model,
         entries: slot.entries,
-        totalWeight: roundedTotal,
-        share: totalWeight > 0 ? (roundedTotal / totalWeight) * 100 : 0,
+        rawTotalWeight: rawTotal,
+        normalizedTotalWeight: normalizedTotal,
+        totalWeight: normalizedTotal,
+        share: normalizedTotalWeight > 0 ? (normalizedTotal / normalizedTotalWeight) * 100 : 0,
       });
     }
     return groups
       .filter((group) => new Set(group.entries.map((e) => e.provider)).size > 1)
-      .sort((a, b) => b.totalWeight - a.totalWeight);
-  }, [entries, totalWeight]);
+      .sort((a, b) => b.normalizedTotalWeight - a.normalizedTotalWeight);
+  }, [entries, normalizedTotalWeight, gcd]);
 
   const visibleCycle = useMemo(() => {
     if (cycle.length === 0) return [];
@@ -310,7 +316,7 @@ export function WeightRobinQueuePage() {
         ) : (
           <ul className={styles.aliasGroupList}>
             {modelGroups.map((group) => (
-              <ModelGroupCard key={group.model} group={group} />
+              <ModelGroupCard key={group.model} group={group} gcd={gcd} />
             ))}
           </ul>
         )}
@@ -321,8 +327,10 @@ export function WeightRobinQueuePage() {
 
 function ModelGroupCard({
   group,
+  gcd,
 }: {
   group: ModelGroup;
+  gcd: number;
 }) {
   const { t } = useTranslation();
   const color = getProviderColor(group.entries[0]?.provider ?? '');
@@ -343,14 +351,24 @@ function ModelGroupCard({
           {t('weight_robin_queue.provider_group', '{{count}} auths', { count: group.entries.length })}
         </span>
         <span className={styles.aliasGroupTotal}>
-          {t('weight_robin_queue.weight_unit', 'w:')} {group.totalWeight}
+          {t('weight_robin_queue.weight_unit', 'w:')} {group.rawTotalWeight}
+          {gcd > 1 && (
+            <span className={styles.aliasGroupNormalized}>
+              {' '}
+              {t('weight_robin_queue.weight_normalized_format', '/ {{normalized}}', {
+                normalized: group.normalizedTotalWeight,
+              })}
+            </span>
+          )}
         </span>
         <span className={styles.aliasGroupPercent}>{group.share.toFixed(1)}%</span>
       </div>
       <div className={styles.distributionBar}>
         {group.entries.map((entry) => {
           const entryColor = getProviderColor(entry.provider);
-          const segmentPct = group.totalWeight > 0 ? (entry.weight / group.totalWeight) * 100 : 0;
+          const entryNormalized = gcd > 1 ? entry.weight / gcd : entry.weight;
+          const segmentPct =
+            group.totalWeight > 0 ? (entryNormalized / group.totalWeight) * 100 : 0;
           return (
             <span
               key={entry.authId}

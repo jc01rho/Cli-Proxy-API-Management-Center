@@ -162,6 +162,7 @@
     "alias_groups": "Alias / Model Groups",
     "provider_group": "{{count}} auths",
     "weight_unit": "w:",
+    "weight_normalized_format": "/ {{normalized}}",
     "cycle_truncated": "Showing head + tail ({{shown}} of {{total}} slots) to keep the view compact.",
     "col_provider": "Provider",
     "col_name": "Name",

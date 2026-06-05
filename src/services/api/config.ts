@@ -160,6 +160,7 @@ export interface WeightRobinQueueSnapshot {
   cycle: WeightRobinCycleEntry[];
   currentIdx: number;
   totalWeight: number;
+  gcd: number;
   cycleLength: number;
   lastPicked?: string;
 }

@@ -48,6 +48,16 @@
   font-variant-numeric: tabular-nums;
 }
 
+.modelSelect {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
 .errorBanner {
   padding: 8px 12px;
   border-radius: 6px;

@@ -146,6 +146,7 @@ export interface WeightRobinQueueEntry {
   position: number;
   inCycle: boolean;
   available: boolean;
+  pickedCount: number;
   models?: string[];
 }
 
@@ -163,4 +164,6 @@ export interface WeightRobinQueueSnapshot {
   gcd: number;
   cycleLength: number;
   lastPicked?: string;
+  lastPickedAt?: string;
+  totalPicks: number;
 }

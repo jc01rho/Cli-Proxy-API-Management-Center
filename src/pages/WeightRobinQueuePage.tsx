@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
+import { useInterval } from '@/hooks/useInterval';
 import { configApi } from '@/services/api';
 import type { WeightRobinQueueSnapshot, WeightRobinQueueEntry, WeightRobinCycleEntry } from '@/services/api/config';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import styles from './WeightRobinQueuePage.module.scss';
+
+const REFRESH_INTERVAL_MS = 2000;
 
 const PROVIDER_COLORS: Record<string, string> = {
   claude: '#e97a2b',
@@ -47,6 +50,9 @@ export function WeightRobinQueuePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const prevTotalPicks = useRef<number>(0);
+  const prevPickedAt = useRef<string>('');
 
   const loadQueue = useCallback(async () => {
     setLoading(true);
@@ -68,6 +74,19 @@ export function WeightRobinQueuePage() {
   }, [loadQueue]);
 
   useHeaderRefresh(loadQueue);
+  useInterval(() => { void loadQueue(); }, autoRefresh ? REFRESH_INTERVAL_MS : null);
+
+  const picksDelta = useMemo(() => {
+    if (!snapshot) return 0;
+    return snapshot.totalPicks - prevTotalPicks.current;
+  }, [snapshot]);
+
+  useEffect(() => {
+    if (snapshot) {
+      prevTotalPicks.current = snapshot.totalPicks;
+      if (snapshot.lastPickedAt) prevPickedAt.current = snapshot.lastPickedAt;
+    }
+  }, [snapshot]);
 
   const entries = useMemo<WeightRobinQueueEntry[]>(
     () => snapshot?.entries ?? [],
@@ -188,10 +207,20 @@ export function WeightRobinQueuePage() {
         <div className={styles.headerRight}>
           {lastUpdated && (
             <span className={styles.updatedAt}>
+              {autoRefresh ? '● ' : ''}
               {t('weight_robin_queue.last_updated', 'Last updated')}:{' '}
               {lastUpdated.toLocaleTimeString()}
             </span>
           )}
+          <Button
+            variant={autoRefresh ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => setAutoRefresh((v) => !v)}
+          >
+            {autoRefresh
+              ? t('weight_robin_queue.auto_refresh_on', 'Auto: ON')
+              : t('weight_robin_queue.auto_refresh_off', 'Auto: OFF')}
+          </Button>
           <Button
             variant="secondary"
             size="sm"
@@ -244,6 +273,33 @@ export function WeightRobinQueuePage() {
               {t('weight_robin_queue.last_picked', 'Last Picked')}
             </span>
             <span className={styles.statValue}>{lastPicked}</span>
+          </Card>
+        )}
+        <Card className={styles.statCard}>
+          <span className={styles.statLabel}>
+            {t('weight_robin_queue.total_picks', 'Total Picks')}
+          </span>
+          <span className={styles.statValue}>{snapshot?.totalPicks ?? 0}</span>
+        </Card>
+        <Card className={styles.statCard}>
+          <span className={styles.statLabel}>
+            {t('weight_robin_queue.picks_delta', 'Picks (last 2s)')}
+          </span>
+          <span
+            className={styles.statValue}
+            style={{ color: picksDelta > 0 ? '#34a853' : '#888' }}
+          >
+            +{picksDelta}
+          </span>
+        </Card>
+        {snapshot?.lastPickedAt && (
+          <Card className={styles.statCard}>
+            <span className={styles.statLabel}>
+              {t('weight_robin_queue.last_picked_at', 'Last Picked At')}
+            </span>
+            <span className={styles.statValue}>
+              {new Date(snapshot.lastPickedAt).toLocaleTimeString()}
+            </span>
           </Card>
         )}
       </div>

@@ -51,6 +51,7 @@ export function WeightRobinQueuePage() {
   const [error, setError] = useState('');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [selectedModel, setSelectedModel] = useState<string>('');
   const prevTotalPicks = useRef<number>(0);
   const prevPickedAt = useRef<string>('');
 
@@ -58,7 +59,7 @@ export function WeightRobinQueuePage() {
     setLoading(true);
     setError('');
     try {
-      const data = await configApi.getWeightRobinQueue();
+      const data = await configApi.getWeightRobinQueue(selectedModel || undefined);
       setSnapshot(data);
       setLastUpdated(new Date());
     } catch (err: unknown) {
@@ -67,7 +68,7 @@ export function WeightRobinQueuePage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedModel]);
 
   useEffect(() => {
     void loadQueue();
@@ -180,6 +181,16 @@ export function WeightRobinQueuePage() {
 
   const cycleTruncated = cycle.length > MAX_CYCLE_CHIPS;
 
+  const availableAliases = useMemo<string[]>(() => {
+    const set = new Set<string>();
+    for (const e of entries) {
+      if (e.models && e.models.length > 0) {
+        for (const m of e.models) set.add(m);
+      }
+    }
+    return Array.from(set).sort();
+  }, [entries]);
+
   return (
     <div className={styles.page}>
       <header className={styles.pageHeader}>
@@ -205,6 +216,26 @@ export function WeightRobinQueuePage() {
           </div>
         </div>
         <div className={styles.headerRight}>
+          {availableAliases.length > 0 && (
+            <select
+              className={styles.modelSelect}
+              value={selectedModel}
+              onChange={(e) => {
+                prevTotalPicks.current = 0;
+                setSelectedModel(e.target.value);
+              }}
+              aria-label={t('weight_robin_queue.select_model', 'Select model/alias')}
+            >
+              <option value="">
+                {t('weight_robin_queue.all_models', 'All models')}
+              </option>
+              {availableAliases.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          )}
           {lastUpdated && (
             <span className={styles.updatedAt}>
               {autoRefresh ? '● ' : ''}

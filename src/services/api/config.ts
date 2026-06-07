@@ -159,6 +159,7 @@ export interface WeightRobinCycleEntry {
 export interface WeightRobinQueueSnapshot {
   entries: WeightRobinQueueEntry[];
   cycle: WeightRobinCycleEntry[];
+  aliasCycles?: Record<string, WeightRobinCycleEntry[]>;
   currentIdx: number;
   totalWeight: number;
   gcd: number;

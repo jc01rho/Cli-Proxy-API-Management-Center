@@ -93,10 +93,6 @@ export function WeightRobinQueuePage() {
     () => snapshot?.entries ?? [],
     [snapshot]
   );
-  const cycle = useMemo<WeightRobinCycleEntry[]>(
-    () => snapshot?.cycle ?? [],
-    [snapshot]
-  );
   const totalWeight = snapshot?.totalWeight ?? 0;
   const currentIdx = snapshot?.currentIdx ?? 0;
   const cycleLength = snapshot?.cycleLength ?? 0;
@@ -143,18 +139,9 @@ export function WeightRobinQueuePage() {
     return groups
       .filter((group) => new Set(group.entries.map((e) => e.provider)).size > 1)
       .sort((a, b) => b.normalizedTotalWeight - a.normalizedTotalWeight);
-  }, [entries, normalizedTotalWeight, gcd]);
+   }, [entries, normalizedTotalWeight, gcd]);
 
-  const visibleCycle = useMemo(() => {
-    if (cycle.length === 0) return [];
-    if (cycle.length <= MAX_CYCLE_CHIPS) return cycle;
-    const half = Math.floor(MAX_CYCLE_CHIPS / 2);
-    return [...cycle.slice(0, half), ...cycle.slice(cycle.length - half)];
-  }, [cycle]);
-
-  const cycleTruncated = cycle.length > MAX_CYCLE_CHIPS;
-
-  const availableAliases = useMemo<string[]>(() => {
+   const availableAliases = useMemo<string[]>(() => {
     const set = new Set<string>();
     for (const e of entries) {
       if (e.models && e.models.length > 0) {
@@ -314,27 +301,47 @@ export function WeightRobinQueuePage() {
       >
         <p className={styles.cycleHint}>
           {t('weight_robin_queue.cycle_hint', 'The actual shuffled cycle from the backend, grouped by alias/model. Current position is highlighted.')}
-          {cycleTruncated && (
-            <>
-              {' '}
-              {t('weight_robin_queue.cycle_truncated', 'Showing {{shown}} of {{total}} slots (head + tail).', { shown: visibleCycle.length, total: cycle.length })}
-            </>
-          )}
         </p>
-        {cycle.length === 0 ? (
+        {(!snapshot?.aliasCycles || Object.keys(snapshot.aliasCycles).length === 0) ? (
           <div className={styles.empty}>
             {t('weight_robin_queue.cycle_empty', 'No cycle data available. The selector may not be active yet.')}
           </div>
         ) : (
-          <div className={styles.cycleGrid}>
-            {visibleCycle.map((entry, idx) => (
-              <CycleChip
-                key={`${entry.authId}-${idx}`}
-                entry={entry}
-                index={idx}
-                isCurrent={idx === currentIdx}
-              />
-            ))}
+          <div className={styles.cycleAliasList}>
+            {Object.entries(snapshot.aliasCycles)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([aliasKey, aliasCycle]) => {
+                const truncated = aliasCycle.length > MAX_CYCLE_CHIPS;
+                const visible = truncated
+                  ? [...aliasCycle.slice(0, Math.floor(MAX_CYCLE_CHIPS / 2)), ...aliasCycle.slice(aliasCycle.length - Math.floor(MAX_CYCLE_CHIPS / 2))]
+                  : aliasCycle;
+                return (
+                  <div key={aliasKey} className={styles.cycleGroup}>
+                    <div className={styles.cycleGroupHeader}>
+                      <span className={styles.cycleGroupAlias}>{aliasKey}</span>
+                      <span className={styles.cycleGroupLength}>
+                        {aliasCycle.length} {t('weight_robin_queue.cycle_slots', 'slots')}
+                        {truncated && (
+                          <>
+                            {' '}
+                            {t('weight_robin_queue.cycle_truncated', '(showing {{shown}})', { shown: visible.length })}
+                          </>
+                        )}
+                      </span>
+                    </div>
+                    <div className={styles.cycleGrid}>
+                      {visible.map((entry, idx) => (
+                        <CycleChip
+                          key={`${aliasKey}-${entry.authId}-${idx}`}
+                          entry={entry}
+                          index={idx}
+                          isCurrent={false}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         )}
       </Card>

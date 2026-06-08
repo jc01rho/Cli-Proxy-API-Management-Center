@@ -32,8 +32,6 @@ function getProviderColor(provider: string): string {
   return PROVIDER_COLORS[provider.toLowerCase()] || '#888';
 }
 
-const MAX_CYCLE_CHIPS = 60;
-
 interface ModelGroup {
   model: string;
   entries: WeightRobinQueueEntry[];
@@ -310,38 +308,26 @@ export function WeightRobinQueuePage() {
           <div className={styles.cycleAliasList}>
             {Object.entries(snapshot.aliasCycles)
               .sort(([a], [b]) => a.localeCompare(b))
-              .map(([aliasKey, aliasCycle]) => {
-                const truncated = aliasCycle.length > MAX_CYCLE_CHIPS;
-                const visible = truncated
-                  ? [...aliasCycle.slice(0, Math.floor(MAX_CYCLE_CHIPS / 2)), ...aliasCycle.slice(aliasCycle.length - Math.floor(MAX_CYCLE_CHIPS / 2))]
-                  : aliasCycle;
-                return (
-                  <div key={aliasKey} className={styles.cycleGroup}>
-                    <div className={styles.cycleGroupHeader}>
-                      <span className={styles.cycleGroupAlias}>{aliasKey}</span>
-                      <span className={styles.cycleGroupLength}>
-                        {aliasCycle.length} {t('weight_robin_queue.cycle_slots', 'slots')}
-                        {truncated && (
-                          <>
-                            {' '}
-                            {t('weight_robin_queue.cycle_truncated', '(showing {{shown}})', { shown: visible.length })}
-                          </>
-                        )}
-                      </span>
-                    </div>
-                    <div className={styles.cycleGrid}>
-                      {visible.map((entry, idx) => (
-                        <CycleChip
-                          key={`${aliasKey}-${entry.authId}-${idx}`}
-                          entry={entry}
-                          index={idx}
-                          isCurrent={false}
-                        />
-                      ))}
-                    </div>
+              .map(([aliasKey, aliasCycle]) => (
+                <div key={aliasKey} className={styles.cycleGroup}>
+                  <div className={styles.cycleGroupHeader}>
+                    <span className={styles.cycleGroupAlias}>{aliasKey}</span>
+                    <span className={styles.cycleGroupLength}>
+                      {aliasCycle.length} {t('weight_robin_queue.cycle_slots', 'slots')}
+                    </span>
                   </div>
-                );
-              })}
+                  <div className={styles.cycleGrid}>
+                    {aliasCycle.map((entry, idx) => (
+                      <CycleChip
+                        key={`${aliasKey}-${entry.authId}-${idx}`}
+                        entry={entry}
+                        index={idx}
+                        isCurrent={idx === 0}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
           </div>
         )}
       </Card>
@@ -427,11 +413,11 @@ function ModelGroupCard({
         {group.entries.map((entry) => {
           const entryColor = getProviderColor(entry.provider);
           return (
-            <span
-              key={entry.authId}
-              className={`${styles.contributorChip} ${entry.available ? '' : styles.contributorInactive} ${entry.inCycle ? '' : styles.contributorOutOfCycle}`}
-              title={entry.inCycle ? entry.name : `${entry.name} (not in active cycle)`}
-            >
+               <span
+                 key={entry.authId}
+                 className={`${styles.contributorChip} ${entry.inCycle ? '' : styles.contributorOutOfCycle}`}
+                 title={entry.inCycle ? entry.name : `${entry.name} (not in active cycle)`}
+               >
               <span
                 className={styles.contributorDot}
                 style={{ background: entryColor }}
@@ -460,6 +446,7 @@ function CycleChip({
   isCurrent: boolean;
 }) {
   const color = getProviderColor(entry.provider);
+  const modelDisplay = entry.model ? `[${entry.model}] ` : '';
   return (
     <span
       className={`${styles.cycleChip} ${isCurrent ? styles.cycleChipCurrent : ''}`}
@@ -468,10 +455,10 @@ function CycleChip({
         color: isCurrent ? '#fff' : color,
         background: isCurrent ? color : `color-mix(in srgb, ${color} 12%, transparent)`,
       }}
-      title={`${index}. ${entry.name} (${entry.provider})`}
+      title={`${index}. ${modelDisplay}${entry.name} (${entry.provider})`}
     >
       <span className={styles.cycleIndex}>{index}</span>
-      <span className={styles.cycleName}>{entry.name}</span>
+      <span className={styles.cycleName}>{modelDisplay}{entry.name}</span>
     </span>
   );
 }

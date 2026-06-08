@@ -154,6 +154,7 @@ export interface WeightRobinCycleEntry {
   authId: string;
   name: string;
   provider: string;
+  model?: string;
 }
 
 export interface WeightRobinQueueSnapshot {

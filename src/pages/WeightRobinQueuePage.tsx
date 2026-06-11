@@ -135,6 +135,7 @@ export function WeightRobinQueuePage() {
       });
     }
     return groups
+      .filter((group) => new Set(group.entries.map((e) => e.provider)).size > 1)
       .sort((a, b) => b.normalizedTotalWeight - a.normalizedTotalWeight);
    }, [entries, normalizedTotalWeight, gcd]);
 

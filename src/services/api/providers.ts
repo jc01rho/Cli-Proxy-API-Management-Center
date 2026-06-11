@@ -514,8 +514,8 @@ export const providersApi = {
     return apiClient.put('/openai-compatibility', providers.map((item) => serializeOpenAIProvider(item)));
   },
 
-  deleteOpenAIProvider: (name: string) =>
-    apiClient.delete(`/openai-compatibility?name=${encodeURIComponent(name)}`),
+  deleteOpenAIProvider: (index: number) =>
+    apiClient.delete(`/openai-compatibility?index=${index}`),
 
   async getCommandCodeConfigs(): Promise<ProviderKeyConfig[]> {
     const data = await apiClient.get('/commandcode-api-key');

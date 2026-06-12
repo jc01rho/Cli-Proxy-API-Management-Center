@@ -470,11 +470,17 @@
 }
 
 .contributorInactive {
-  opacity: 0.45;
+  .contributorDot,
+  .contributorWeight {
+    opacity: 0.45;
+  }
 }
 
 .contributorOutOfCycle {
-  opacity: 0.4;
+  .contributorDot,
+  .contributorWeight {
+    opacity: 0.4;
+  }
 }
 
 .contributorDot {

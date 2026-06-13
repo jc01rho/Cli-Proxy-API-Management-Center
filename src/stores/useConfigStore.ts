@@ -56,6 +56,7 @@ const SECTION_KEYS: RawConfigSection[] = [
   'openai-compatibility',
   'commandcode-api-key',
   'mistral-api-key',
+  'mimo-code-api-key',
   'oauth-excluded-models'
 ];
 
@@ -106,6 +107,8 @@ const extractSectionValue = (config: Config | null, section?: RawConfigSection) 
       return config.commandcodeApiKeys;
     case 'mistral-api-key':
       return config.mistralApiKeys;
+    case 'mimo-code-api-key':
+      return config.mimoCodeApiKeys;
     case 'oauth-excluded-models':
       return config.oauthExcludedModels;
     default:
@@ -267,6 +270,9 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
           break;
         case 'mistral-api-key':
           nextConfig.mistralApiKeys = value as Config['mistralApiKeys'];
+          break;
+        case 'mimo-code-api-key':
+          nextConfig.mimoCodeApiKeys = value as Config['mimoCodeApiKeys'];
           break;
         case 'oauth-excluded-models':
           nextConfig.oauthExcludedModels = value as Config['oauthExcludedModels'];

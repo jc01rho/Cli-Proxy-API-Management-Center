@@ -401,7 +401,12 @@ export function BaseProviderForm({
     if (descriptor.supportsName && !form.name.trim()) {
       return t('providersPage.form.validation.nameRequired');
     }
-    if (descriptor.supportsApiKey && mode === 'create' && !form.apiKey.trim()) {
+    if (
+      descriptor.supportsApiKey &&
+      mode === 'create' &&
+      brand !== 'mimo-code' &&
+      !form.apiKey.trim()
+    ) {
       return t('providersPage.form.validation.apiKeyRequired');
     }
     if (descriptor.baseUrlRequired && !form.baseUrl.trim()) {
@@ -445,6 +450,7 @@ export function BaseProviderForm({
     brand === 'gemini' ||
     brand === 'codex' ||
     brand === 'claude' ||
+    brand === 'mimo-code' ||
     brand === 'openaiCompatibility';
   const supportsOpenAIModelOptions = brand === 'openaiCompatibility';
   const singleConnectivity =
@@ -509,7 +515,7 @@ export function BaseProviderForm({
         {descriptor.supportsApiKey ? (
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${fid}-apiKey`}>
-              {t('providersPage.form.apiKey')}
+              {brand === 'mimo-code' ? t('providersPage.form.clientId') : t('providersPage.form.apiKey')}
             </label>
             <div className={styles.passwordField}>
               <input
@@ -570,7 +576,7 @@ export function BaseProviderForm({
               placeholder="https://api.example.com"
               disabled={mutating}
             />
-            {brand === 'commandcode' ? (
+            {brand === 'commandcode' || brand === 'mimo-code' ? (
               <div className={styles.connectivityRow}>
                 <button
                   type="button"
@@ -593,7 +599,7 @@ export function BaseProviderForm({
                 ) : null}
               </div>
             ) : null}
-            {brand === 'commandcode' && connectivity.commandcodeStatus.state === 'error' ? (
+            {(brand === 'commandcode' || brand === 'mimo-code') && connectivity.commandcodeStatus.state === 'error' ? (
               <div className={styles.connectivityError}>
                 {connectivity.commandcodeStatus.message}
               </div>

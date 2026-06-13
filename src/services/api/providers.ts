@@ -270,6 +270,18 @@ const buildProviderDeleteQuery = (apiKey: string, baseUrl?: string) => {
   return `?${params.toString()}`;
 };
 
+const buildMiMoCodeDeleteQuery = (clientId: string, baseUrl?: string, index?: number) => {
+  const params = new URLSearchParams();
+  const trimmedClientId = clientId.trim();
+  if (trimmedClientId) {
+    params.set('client-id', trimmedClientId);
+    params.set('base-url', (baseUrl ?? '').trim());
+  } else if (index !== undefined) {
+    params.set('index', String(index));
+  }
+  return `?${params.toString()}`;
+};
+
 const serializeModelAliases = (models?: ModelAlias[], includeOpenAIFields = false) =>
   Array.isArray(models)
     ? models
@@ -340,6 +352,28 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
     payload['experimental-cch-signing'] = true;
   }
   return payload;
+};
+
+const serializeMiMoCodeKey = (config: ProviderKeyConfig) => {
+  const payload = serializeProviderKey(config);
+  payload['client-id'] = config.apiKey;
+  delete payload['api-key'];
+  delete payload.websockets;
+  delete payload['excluded-models'];
+  delete payload.cloak;
+  delete payload['experimental-cch-signing'];
+  return payload;
+};
+
+const normalizeMiMoCodeConfig = (item: unknown): ProviderKeyConfig | null => {
+  if (item === undefined || item === null) return null;
+  const record = isRecord(item) ? item : null;
+  if (!record) return null;
+  const clientId = record['client-id'] ?? record.clientId ?? record['api-key'] ?? record.apiKey ?? '';
+  const normalized = normalizeProviderKeyConfig({ ...record, 'api-key': clientId });
+  if (normalized) return normalized;
+  const anonymous = normalizeProviderKeyConfig({ ...record, 'api-key': '__mimo_anonymous__' });
+  return anonymous ? { ...anonymous, apiKey: '' } : { apiKey: '' };
 };
 
 const serializeVertexModelAliases = (models?: ModelAlias[]) =>
@@ -567,4 +601,19 @@ export const providersApi = {
 
   deleteMistralConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/mistral-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+
+  async getMiMoCodeConfigs(): Promise<ProviderKeyConfig[]> {
+    const data = await apiClient.get('/mimo-code-api-key');
+    const list = extractArrayPayload(data, 'mimo-code-api-key');
+    return list.map((item) => normalizeMiMoCodeConfig(item)).filter(Boolean) as ProviderKeyConfig[];
+  },
+
+  saveMiMoCodeConfigs: (configs: ProviderKeyConfig[]) =>
+    apiClient.put('/mimo-code-api-key', configs.map((item) => serializeMiMoCodeKey(item))),
+
+  updateMiMoCodeConfig: (index: number, value: ProviderKeyConfig) =>
+    apiClient.patch('/mimo-code-api-key', { index, value: serializeMiMoCodeKey(value) }),
+
+  deleteMiMoCodeConfig: (apiKey: string, baseUrl?: string, index?: number) =>
+    apiClient.delete(`/mimo-code-api-key${buildMiMoCodeDeleteQuery(apiKey, baseUrl, index)}`),
 };

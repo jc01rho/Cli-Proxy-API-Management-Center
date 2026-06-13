@@ -219,30 +219,6 @@ function parseTokenThresholdRules(rules: unknown): TokenThresholdRule[] {
 		.filter(Boolean) as TokenThresholdRule[];
 }
 
-function areTokenThresholdRulesEqual(
-  left: TokenThresholdRule[],
-  right: TokenThresholdRule[]
-): boolean {
-  if (left === right) return true;
-  if (left.length !== right.length) return false;
-  for (let i = 0; i < left.length; i += 1) {
-    const a = left[i];
-    const b = right[i];
-    if (!a || !b) return false;
-    if (
-      a.id !== b.id ||
-      a.modelPattern !== b.modelPattern ||
-      a.minTokens !== b.minTokens ||
-      a.maxTokens !== b.maxTokens ||
-      a.billingClass !== b.billingClass ||
-      a.enabled !== b.enabled
-    ) {
-      return false;
-    }
-  }
-  return true;
-}
-
 function serializeTokenThresholdRules(rules: TokenThresholdRule[]): Array<Record<string, unknown>> {
 	return rules
 		.map((rule) => {
@@ -442,45 +418,6 @@ function arePayloadFilterRulesEqual(
     if (a.params.length !== b.params.length) return false;
     for (let j = 0; j < a.params.length; j += 1) {
       if (a.params[j] !== b.params[j]) return false;
-    }
-  }
-  return true;
-}
-
-function areStringRecordsEqual(
-  left: Record<string, string>,
-  right: Record<string, string>
-): boolean {
-  if (left === right) return true;
-  const leftKeys = Object.keys(left);
-  const rightKeys = Object.keys(right);
-  if (leftKeys.length !== rightKeys.length) return false;
-  for (const key of leftKeys) {
-    if (left[key] !== right[key]) return false;
-  }
-  return true;
-}
-
-function areOauthEndpointOverridesEqual(
-  left: OauthEndpointOverrideEntry[],
-  right: OauthEndpointOverrideEntry[]
-): boolean {
-  if (left === right) return true;
-  if (left.length !== right.length) return false;
-  for (let i = 0; i < left.length; i += 1) {
-    const a = left[i];
-    const b = right[i];
-    if (!a || !b) return false;
-    if (
-      a.provider !== b.provider ||
-      a.apiBaseUrl !== b.apiBaseUrl ||
-      a.authorizeUrl !== b.authorizeUrl ||
-      a.tokenUrl !== b.tokenUrl ||
-      a.refreshUrl !== b.refreshUrl ||
-      a.userinfoUrl !== b.userinfoUrl ||
-      a.deviceAuthorizeUrl !== b.deviceAuthorizeUrl
-    ) {
-      return false;
     }
   }
   return true;

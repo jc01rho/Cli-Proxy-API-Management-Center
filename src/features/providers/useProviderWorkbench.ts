@@ -194,6 +194,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
   const config = useConfigStore((s) => s.config);
   const fetchConfig = useConfigStore((s) => s.fetchConfig);
   const updateConfigValue = useConfigStore((s) => s.updateConfigValue);
+  const clearCache = useConfigStore((s) => s.clearCache);
   const isCacheValid = useConfigStore((s) => s.isCacheValid);
 
   const [isPending, setIsPending] = useState<boolean>(() => !isCacheValid());

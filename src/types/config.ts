@@ -45,7 +45,6 @@ export interface Config {
   openaiCompatibility?: OpenAIProviderConfig[];
   commandcodeApiKeys?: ProviderKeyConfig[];
   mistralApiKeys?: ProviderKeyConfig[];
-  mimoCodeApiKeys?: ProviderKeyConfig[];
    oauthExcludedModels?: Record<string, string[]>;
    oauthEndpointOverrides?: Record<string, Record<string, string>>;
    raw?: Record<string, unknown>;
@@ -74,7 +73,6 @@ export type RawConfigSection =
   | 'openai-compatibility'
   | 'commandcode-api-key'
   | 'mistral-api-key'
-  | 'mimo-code-api-key'
   | 'oauth-excluded-models'
   | 'oauth-endpoint-overrides';
 

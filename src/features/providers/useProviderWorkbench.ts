@@ -18,7 +18,6 @@ import {
   codexToResource,
   commandcodeToResource,
   geminiToResource,
-  mimoCodeToResource,
   mistralToResource,
   openaiToResource,
   vertexToResource,
@@ -99,7 +98,7 @@ const buildExcludedModels = (
 };
 
 const buildProviderKeyConfig = (
-  brand: 'gemini' | 'codex' | 'commandcode' | 'claude' | 'vertex' | 'mistral' | 'mimo-code',
+  brand: 'gemini' | 'codex' | 'commandcode' | 'claude' | 'vertex' | 'mistral',
   input: ProviderEntryFormInput,
   existing?: ProviderKeyConfig | GeminiKeyConfig | null
 ): ProviderKeyConfig | GeminiKeyConfig => {
@@ -219,7 +218,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         openaiResult,
         commandcodeResult,
         mistralResult,
-        mimoCodeResult,
       ] = await Promise.allSettled([
         fetchConfig(undefined, true),
         providersApi.getVertexConfigs(),
@@ -227,7 +225,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         providersApi.getOpenAIProviders(),
         providersApi.getCommandCodeConfigs(),
         providersApi.getMistralConfigs(),
-        providersApi.getMiMoCodeConfigs(),
       ]);
       if (configResult.status !== 'fulfilled') {
         throw configResult.reason;
@@ -248,10 +245,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       if (mistralResult.status === 'fulfilled') {
         updateConfigValue('mistral-api-key', mistralResult.value || []);
         clearCache('mistral-api-key');
-      }
-      if (mimoCodeResult.status === 'fulfilled') {
-        updateConfigValue('mimo-code-api-key', mimoCodeResult.value || []);
-        clearCache('mimo-code-api-key');
       }
       setFetchedAt(new Date().toISOString());
     } catch (err) {
@@ -297,9 +290,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           break;
         case 'mistral':
           resources = (config.mistralApiKeys ?? []).map((c, i) => mistralToResource(c, i));
-          break;
-        case 'mimo-code':
-          resources = (config.mimoCodeApiKeys ?? []).map((c, i) => mimoCodeToResource(c, i));
           break;
         case 'openaiCompatibility':
           resources = (config.openaiCompatibility ?? []).map((c, i) => openaiToResource(c, i));
@@ -379,15 +369,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     [clearCache, updateConfigValue]
   );
 
-  const persistMiMoCodeConfigs = useCallback(
-    async (next: ProviderKeyConfig[]) => {
-      await providersApi.saveMiMoCodeConfigs(next);
-      updateConfigValue('mimo-code-api-key', next);
-      clearCache('mimo-code-api-key');
-    },
-    [clearCache, updateConfigValue]
-  );
-
   const createProvider = useCallback(
     async (brand: ProviderBrand, input: ProviderEntryFormInput) => {
       setMutating(true);
@@ -416,10 +397,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = [...(config?.mistralApiKeys ?? [])];
           next.push(buildProviderKeyConfig('mistral', input) as ProviderKeyConfig);
           await persistMistralConfigs(next);
-        } else if (brand === 'mimo-code') {
-          const next = [...(config?.mimoCodeApiKeys ?? [])];
-          next.push(buildProviderKeyConfig('mimo-code', input) as ProviderKeyConfig);
-          await persistMiMoCodeConfigs(next);
         } else if (brand === 'openaiCompatibility') {
           const next = [...(config?.openaiCompatibility ?? [])];
           next.push(buildOpenAIConfig(input));
@@ -438,7 +415,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistCodexConfigs,
       persistCommandCodeConfigs,
       persistGeminiKeys,
-      persistMiMoCodeConfigs,
       persistMistralConfigs,
       persistOpenAIConfigs,
       persistVertexConfigs,
@@ -482,11 +458,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const existing = list[idx];
           list[idx] = buildProviderKeyConfig('mistral', input, existing) as ProviderKeyConfig;
           await persistMistralConfigs(list);
-        } else if (brand === 'mimo-code') {
-          const list = [...(config?.mimoCodeApiKeys ?? [])];
-          const existing = list[idx];
-          list[idx] = buildProviderKeyConfig('mimo-code', input, existing) as ProviderKeyConfig;
-          await persistMiMoCodeConfigs(list);
         } else if (brand === 'openaiCompatibility') {
           const list = [...(config?.openaiCompatibility ?? [])];
           const existing = list[idx];
@@ -506,7 +477,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistCodexConfigs,
       persistCommandCodeConfigs,
       persistGeminiKeys,
-      persistMiMoCodeConfigs,
       persistMistralConfigs,
       persistOpenAIConfigs,
       persistVertexConfigs,
@@ -547,11 +517,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = (config?.mistralApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('mistral-api-key', next);
           clearCache('mistral-api-key');
-        } else if (sel.brand === 'mimo-code') {
-          await providersApi.deleteMiMoCodeConfig(sel.apiKey, sel.baseUrl, sel.index);
-          const next = (config?.mimoCodeApiKeys ?? []).filter((_, i) => i !== sel.index);
-          updateConfigValue('mimo-code-api-key', next);
-          clearCache('mimo-code-api-key');
         } else if (sel.brand === 'openaiCompatibility') {
           await providersApi.deleteOpenAIProvider(sel.index);
           const next = (config?.openaiCompatibility ?? []).filter((_, i) => i !== sel.index);
@@ -592,8 +557,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           brand === 'commandcode' ||
           brand === 'claude' ||
           brand === 'vertex' ||
-          brand === 'mistral' ||
-          brand === 'mimo-code'
+          brand === 'mistral'
         ) {
           const key =
             brand === 'codex'
@@ -604,9 +568,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
                   ? 'claudeApiKeys'
                   : brand === 'mistral'
                     ? 'mistralApiKeys'
-                    : brand === 'mimo-code'
-                      ? 'mimoCodeApiKeys'
-                      : 'vertexApiKeys';
+                    : 'vertexApiKeys';
           const list = [...((config?.[key] as ProviderKeyConfig[] | undefined) ?? [])];
           const current = list[idx];
           if (!current) return;
@@ -618,7 +580,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           else if (brand === 'commandcode') await persistCommandCodeConfigs(list);
           else if (brand === 'claude') await persistClaudeConfigs(list);
           else if (brand === 'mistral') await persistMistralConfigs(list);
-          else if (brand === 'mimo-code') await persistMiMoCodeConfigs(list);
           else await persistVertexConfigs(list);
         } else if (brand === 'openaiCompatibility') {
           await providersApi.updateOpenAIProviderDisabled(idx, disabled);
@@ -642,7 +603,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistCodexConfigs,
       persistCommandCodeConfigs,
       persistGeminiKeys,
-      persistMiMoCodeConfigs,
       persistMistralConfigs,
       persistVertexConfigs,
       refreshSnapshot,

@@ -77,14 +77,6 @@ const buildCommandCodeEndpoint = (baseUrl: string): string | null => {
   return `${trimmed}/alpha/generate`;
 };
 
-const MIMO_CODE_DEFAULT_BASE_URL = 'https://api.xiaomimimo.com';
-
-const buildMiMoCodeEndpoint = (baseUrl: string): string => {
-  const trimmed = baseUrl.trim().replace(/\/+$/, '');
-  const base = trimmed || MIMO_CODE_DEFAULT_BASE_URL;
-  return `${base}/api/free-ai/openai/chat`;
-};
-
 export interface UseConnectivityTestResult {
   openaiStatuses: ConnectivityStatus[];
   geminiStatus: ConnectivityStatus;
@@ -436,12 +428,9 @@ export function useConnectivityTest(
   }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, messages, models, testModel]);
 
   const runCommandCode = useCallback(async (): Promise<void> => {
-    if (brand !== 'commandcode' && brand !== 'mimo-code') return;
+    if (brand !== 'commandcode') return;
 
-    const endpoint =
-      brand === 'mimo-code'
-        ? buildMiMoCodeEndpoint(baseUrl ?? '')
-        : buildCommandCodeEndpoint(baseUrl ?? '');
+    const endpoint = buildCommandCodeEndpoint(baseUrl ?? '');
     if (!endpoint) {
       setCommandcodeStatus({ state: 'error', message: messages.endpointInvalid });
       return;
@@ -459,20 +448,16 @@ export function useConnectivityTest(
     const resolvedKey = explicitKey || persistedKey || headerKey;
     const resolvedAuthIndex = (authIndex ?? '').trim() || undefined;
 
-    if (brand !== 'mimo-code' && !resolvedKey && !resolvedAuthIndex) {
+    if (!resolvedKey && !resolvedAuthIndex) {
       setCommandcodeStatus({ state: 'error', message: messages.apiKeyRequired });
       return;
     }
 
     const headerObj: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...(brand === 'mimo-code'
-        ? { 'X-Mimo-Source': 'mimocode-cli-free' }
-        : {
-            'x-command-code-version': '0.26.20',
-            'x-cli-environment': 'production',
-            'x-project-slug': 'cli-proxy',
-          }),
+      'x-command-code-version': '0.26.20',
+      'x-cli-environment': 'production',
+      'x-project-slug': 'cli-proxy',
       ...customHeaders,
     };
     if (!hasHeader(headerObj, 'authorization') && resolvedKey) {

@@ -11,7 +11,7 @@ const PROVIDER_COLORS: Record<string, string> = {
   'openai-compatible': '#9b59b6',
   commandcode: '#e97a2b',
   mistral: '#ff6f00',
-  'mimo-code': '#6c5ce7',
+
   kiro: '#00bcd4',
   antigravity: '#607d8b',
   xai: '#00acc1',

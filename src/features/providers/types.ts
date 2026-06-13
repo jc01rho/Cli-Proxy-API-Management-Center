@@ -9,7 +9,6 @@ export type ProviderBrand =
   | 'claude'
   | 'vertex'
   | 'mistral'
-  | 'mimo-code'
   | 'openaiCompatibility'
   | 'ampcode';
 
@@ -26,7 +25,6 @@ export type ProviderResourceSelector =
   | { brand: 'claude'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'vertex'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'mistral'; apiKey: string; baseUrl?: string; index: number }
-  | { brand: 'mimo-code'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'openaiCompatibility'; name: string; index: number }
   | { brand: 'ampcode' };
 

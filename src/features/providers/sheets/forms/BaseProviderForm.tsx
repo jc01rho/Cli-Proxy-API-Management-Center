@@ -404,7 +404,6 @@ export function BaseProviderForm({
     if (
       descriptor.supportsApiKey &&
       mode === 'create' &&
-      brand !== 'mimo-code' &&
       !form.apiKey.trim()
     ) {
       return t('providersPage.form.validation.apiKeyRequired');
@@ -450,7 +449,6 @@ export function BaseProviderForm({
     brand === 'gemini' ||
     brand === 'codex' ||
     brand === 'claude' ||
-    brand === 'mimo-code' ||
     brand === 'openaiCompatibility';
   const supportsOpenAIModelOptions = brand === 'openaiCompatibility';
   const singleConnectivity =
@@ -515,7 +513,7 @@ export function BaseProviderForm({
         {descriptor.supportsApiKey ? (
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${fid}-apiKey`}>
-              {brand === 'mimo-code' ? t('providersPage.form.clientId') : t('providersPage.form.apiKey')}
+              {t('providersPage.form.apiKey')}
             </label>
             <div className={styles.passwordField}>
               <input
@@ -528,11 +526,11 @@ export function BaseProviderForm({
                 data-1p-ignore="true"
                 data-lpignore="true"
                 data-bwignore="true"
-                placeholder={
-                  mode === 'edit'
-                    ? t('providersPage.form.apiKeyEditPlaceholder')
-                    : t('providersPage.form.apiKeyCreatePlaceholder')
-                }
+              placeholder={
+                mode === 'edit'
+                  ? t('providersPage.form.apiKeyEditPlaceholder')
+                  : t('providersPage.form.apiKeyCreatePlaceholder')
+              }
                 disabled={mutating}
               />
               <button
@@ -576,7 +574,7 @@ export function BaseProviderForm({
               placeholder="https://api.example.com"
               disabled={mutating}
             />
-            {brand === 'commandcode' || brand === 'mimo-code' ? (
+            {brand === 'commandcode' ? (
               <div className={styles.connectivityRow}>
                 <button
                   type="button"
@@ -599,7 +597,7 @@ export function BaseProviderForm({
                 ) : null}
               </div>
             ) : null}
-            {(brand === 'commandcode' || brand === 'mimo-code') && connectivity.commandcodeStatus.state === 'error' ? (
+            {brand === 'commandcode' && connectivity.commandcodeStatus.state === 'error' ? (
               <div className={styles.connectivityError}>
                 {connectivity.commandcodeStatus.message}
               </div>

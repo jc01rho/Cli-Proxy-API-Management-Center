@@ -171,6 +171,7 @@ export function useConnectivityTest(
     setOpenaiStatuses((prev) => prev.map(() => IDLE));
     setGeminiStatus(IDLE);
     setClaudeStatus(IDLE);
+    setCommandcodeStatus(IDLE);
   }, [signature]);
 
   const updateOpenaiStatus = useCallback((idx: number, value: ConnectivityStatus) => {
@@ -427,7 +428,7 @@ export function useConnectivityTest(
   }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, messages, models, testModel]);
 
   const runCommandCode = useCallback(async (): Promise<void> => {
-    if (brand !== 'commandcode') return;
+    if (brand !== 'commandcode' && brand !== 'mimo-code') return;
 
     const endpoint = buildCommandCodeEndpoint(baseUrl ?? '');
     if (!endpoint) {

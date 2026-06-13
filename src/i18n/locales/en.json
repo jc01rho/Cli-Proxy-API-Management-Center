@@ -1475,6 +1475,7 @@
       "claude": "Claude",
       "vertex": "Vertex",
       "mistral": "Mistral AI",
+      "mimo-code": "MiMo Code",
       "openaiCompatibility": "OpenAI Compatible",
       "ampcode": "Amp CLI",
       "commandcode": "CommandCode"
@@ -1529,6 +1530,7 @@
       "editEyebrow": "Edit",
       "name": "Name",
       "apiKey": "API key",
+      "clientId": "Client ID",
       "apiKeyCreatePlaceholder": "Enter API key",
       "apiKeyEditPlaceholder": "Leave empty to keep unchanged",
       "baseUrl": "Base URL",

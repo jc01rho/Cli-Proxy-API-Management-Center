@@ -1474,6 +1474,7 @@
       "claude": "Claude",
       "vertex": "Vertex",
       "mistral": "Mistral AI",
+      "mimo-code": "MiMo Code",
       "openaiCompatibility": "OpenAI 兼容",
       "ampcode": "Amp CLI"
     },
@@ -1527,6 +1528,7 @@
       "editEyebrow": "编辑",
       "name": "名称",
       "apiKey": "API 密钥",
+      "clientId": "Client ID",
       "apiKeyCreatePlaceholder": "输入 API 密钥",
       "apiKeyEditPlaceholder": "留空表示不修改",
       "baseUrl": "服务地址",

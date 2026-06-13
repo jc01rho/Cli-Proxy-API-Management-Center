@@ -67,6 +67,7 @@ interface QuotaCardProps<TState extends QuotaStatusState> {
   defaultType: string;
   canRefresh?: boolean;
   onRefresh?: () => void;
+  resetQuotaAction?: ReactNode;
   renderQuotaItems: (quota: TState, t: TFunction, helpers: QuotaRenderHelpers) => ReactNode;
 }
 
@@ -80,6 +81,7 @@ export function QuotaCard<TState extends QuotaStatusState>({
   defaultType,
   canRefresh = false,
   onRefresh,
+  resetQuotaAction,
   renderQuotaItems
 }: QuotaCardProps<TState>) {
   const { t } = useTranslation();
@@ -165,21 +167,24 @@ export function QuotaCard<TState extends QuotaStatusState>({
         )}
       </div>
 
-      {onRefresh && quotaStatus !== 'idle' && (
+      {(resetQuotaAction || (onRefresh && quotaStatus !== 'idle')) && (
         <div className={styles.quotaCardActions}>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className={styles.quotaRefreshButton}
-            onClick={onRefresh}
-            disabled={!canRefresh || quotaLoading}
-            loading={quotaLoading}
-            title={t('auth_files.quota_refresh_hint')}
-          >
-            {!quotaLoading && <IconRefreshCw size={14} />}
-            {t('auth_files.quota_refresh_single')}
-          </Button>
+          {resetQuotaAction}
+          {onRefresh && quotaStatus !== 'idle' && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className={styles.quotaRefreshButton}
+              onClick={onRefresh}
+              disabled={!canRefresh || quotaLoading}
+              loading={quotaLoading}
+              title={t('auth_files.quota_refresh_hint')}
+            >
+              {!quotaLoading && <IconRefreshCw size={14} />}
+              {t('auth_files.quota_refresh_single')}
+            </Button>
+          )}
         </div>
       )}
     </div>

@@ -11,9 +11,7 @@ import type {
 } from '@/types';
 import type { Config } from '@/types/config';
 import { buildHeaderObject } from '@/utils/headers';
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === 'object' && !Array.isArray(value);
+import { isRecord } from '@/utils/helpers';
 
 const normalizeBoolean = (value: unknown): boolean | undefined => {
   if (value === undefined || value === null) return undefined;
@@ -26,6 +24,9 @@ const normalizeBoolean = (value: unknown): boolean | undefined => {
   }
   return Boolean(value);
 };
+
+const normalizeRecord = (value: unknown): Record<string, unknown> | undefined =>
+  isRecord(value) ? value : undefined;
 
 const normalizeModelAliases = (models: unknown): ModelAlias[] => {
   if (!Array.isArray(models)) return [];
@@ -43,6 +44,8 @@ const normalizeModelAliases = (models: unknown): ModelAlias[] => {
       const alias = item.alias || item.display_name || item.displayName;
       const priority = item.priority ?? item['priority'];
       const testModel = item['test-model'] ?? item.testModel;
+      const image = normalizeBoolean(item.image);
+      const thinking = normalizeRecord(item.thinking);
       const entry: ModelAlias = { name: String(name) };
       if (alias && alias !== name) {
         entry.alias = String(alias);
@@ -55,6 +58,12 @@ const normalizeModelAliases = (models: unknown): ModelAlias[] => {
       }
       if (testModel) {
         entry.testModel = String(testModel);
+      }
+      if (image !== undefined) {
+        entry.image = image;
+      }
+      if (thinking) {
+        entry.thinking = thinking;
       }
       return entry;
     })
@@ -148,6 +157,8 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   const websockets = normalizeBoolean(record?.websockets ?? record?.['websockets']);
   if (websockets !== undefined) config.websockets = websockets;
   if (proxyUrl) config.proxyUrl = String(proxyUrl);
+  const disableCooling = normalizeBoolean(record?.['disable-cooling']);
+  if (disableCooling !== undefined) config.disableCooling = disableCooling;
   const headers = normalizeHeaders(record?.headers);
   if (headers) config.headers = headers;
   const models = normalizeModelAliases(record?.models);
@@ -183,9 +194,17 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
     if (sensitiveWords.length) {
       cloak.sensitiveWords = sensitiveWords;
     }
+    const cacheUserId = normalizeBoolean(cloakRaw['cache-user-id']);
+    if (cacheUserId !== undefined) {
+      cloak.cacheUserId = cacheUserId;
+    }
     if (Object.keys(cloak).length) {
       config.cloak = cloak;
     }
+  }
+  const experimentalCchSigning = normalizeBoolean(record?.['experimental-cch-signing']);
+  if (experimentalCchSigning !== undefined) {
+    config.experimentalCchSigning = experimentalCchSigning;
   }
 
   return config;
@@ -219,6 +238,8 @@ const normalizeGeminiKeyConfig = (item: unknown): GeminiKeyConfig | null => {
   if (baseUrl) config.baseUrl = String(baseUrl);
   const proxyUrl = record ? record['proxy-url'] ?? record.proxyUrl ?? record['proxy_url'] : undefined;
   if (proxyUrl) config.proxyUrl = String(proxyUrl);
+  const disableCooling = normalizeBoolean(record?.['disable-cooling']);
+  if (disableCooling !== undefined) config.disableCooling = disableCooling;
   const models = normalizeModelAliases(record?.models);
   if (models.length) config.models = models;
   const headers = normalizeHeaders(record?.headers);
@@ -263,6 +284,8 @@ const normalizeOpenAIProvider = (provider: unknown): OpenAIProviderConfig | null
 
   const disabled = normalizeBoolean(provider.disabled ?? provider['disabled']);
   if (disabled !== undefined) result.disabled = disabled;
+  const disableCooling = normalizeBoolean(provider['disable-cooling']);
+  if (disableCooling !== undefined) result.disableCooling = disableCooling;
   const prefix = normalizePrefix(provider.prefix ?? provider['prefix']);
   if (prefix) result.prefix = prefix;
   if (headers) result.headers = headers;

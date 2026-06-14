@@ -4,7 +4,6 @@
  */
 
 import type { GeminiKeyConfig, ProviderKeyConfig, OpenAIProviderConfig } from './provider';
-import type { AmpcodeConfig } from './ampcode';
 
 export interface QuotaExceededConfig {
   switchProject?: boolean;
@@ -37,7 +36,6 @@ export interface Config {
   fallbackChain?: string[];
   fallbackMaxDepth?: number;
   apiKeys?: string[];
-  ampcode?: AmpcodeConfig;
   geminiApiKeys?: GeminiKeyConfig[];
   codexApiKeys?: ProviderKeyConfig[];
   claudeApiKeys?: ProviderKeyConfig[];
@@ -65,7 +63,6 @@ export type RawConfigSection =
   | 'routing/strategy'
   | 'routing/token-threshold-rules'
   | 'api-keys'
-  | 'ampcode'
   | 'gemini-api-key'
   | 'codex-api-key'
   | 'claude-api-key'

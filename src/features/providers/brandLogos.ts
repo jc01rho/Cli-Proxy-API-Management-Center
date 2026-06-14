@@ -1,4 +1,3 @@
-import ampcodeLogo from '@/assets/icons/amp.svg';
 import claudeLogo from '@/assets/icons/claude.svg';
 import codexLogo from '@/assets/icons/codex.svg';
 import commandcodeLogo from '@/assets/icons/codex.svg';
@@ -21,5 +20,4 @@ export const PROVIDER_LOGOS: Record<ProviderBrand, ProviderBrandLogo> = {
   mistral: { src: mistralLogo },
   vertex: { src: vertexLogo },
   openaiCompatibility: { src: openaiLogo, invertOnDark: true },
-  ampcode: { src: ampcodeLogo },
 };

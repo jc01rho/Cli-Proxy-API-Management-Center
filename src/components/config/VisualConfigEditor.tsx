@@ -265,6 +265,10 @@ export function VisualConfigEditor({
     (oauthEndpointOverrides: OauthEndpointOverrideEntry[]) => onChange({ oauthEndpointOverrides }),
     [onChange]
   );
+  const handlePluginStoreSourcesChange = useCallback(
+    (pluginStoreSources: string[]) => onChange({ pluginStoreSources }),
+    [onChange]
+  );
   const handlePayloadDefaultRulesChange = useCallback(
     (payloadDefaultRules: PayloadRule[]) => onChange({ payloadDefaultRules }),
     [onChange]
@@ -830,6 +834,33 @@ export function VisualConfigEditor({
                   onChange={(pluginsEnabled) => onChange({ pluginsEnabled })}
                 />
               </SectionGrid>
+
+              <SectionSubsection
+                title={t('config_management.visual.sections.system.plugin_store_sources')}
+                description={t(
+                  'config_management.visual.sections.system.plugin_store_sources_desc'
+                )}
+              >
+                <div className={styles.fieldShell}>
+                  <label className={styles.fieldLabel}>
+                    {t('config_management.visual.sections.system.plugin_store_sources_label')}
+                  </label>
+                  <StringListEditor
+                    value={values.pluginStoreSources}
+                    disabled={disabled}
+                    placeholder={t(
+                      'config_management.visual.sections.system.plugin_store_sources_placeholder'
+                    )}
+                    inputAriaLabel={t(
+                      'config_management.visual.sections.system.plugin_store_sources_label'
+                    )}
+                    onChange={handlePluginStoreSourcesChange}
+                  />
+                  <div className={styles.fieldHint}>
+                    {t('config_management.visual.sections.system.plugin_store_sources_hint')}
+                  </div>
+                </div>
+              </SectionSubsection>
 
               <SectionGrid>
                 <Input

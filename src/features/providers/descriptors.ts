@@ -77,7 +77,6 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
     supportsWebsockets: false,
     supportsCloak: false,
     supportsApiKeyEntries: false,
-    supportsAmpcodeMappings: false,
     sheetSize: 'md',
   },
   claude: {
@@ -135,7 +134,6 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
     supportsWebsockets: false,
     supportsCloak: false,
     supportsApiKeyEntries: false,
-    supportsAmpcodeMappings: false,
     sheetSize: 'md',
   },
   openaiCompatibility: {
@@ -177,5 +175,4 @@ export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
   vertex: '/ai-providers/vertex',
   mistral: '/ai-providers/mistral',
   openaiCompatibility: '/ai-providers/openai',
-  ampcode: '/ai-providers/ampcode',
 };

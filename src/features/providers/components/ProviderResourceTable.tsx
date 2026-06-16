@@ -212,9 +212,7 @@ export function ProviderResourceTable({
                 )}
               </TableCell>
               <TableCell>
-                {resource.brand === 'ampcode' ? (
-                  <span className={styles.baseUrl}>—</span>
-                ) : resource.priority != null ? (
+                {resource.priority != null ? (
                   <span className={styles.chip}>{resource.priority}</span>
                 ) : (
                   <span className={styles.baseUrl}>—</span>

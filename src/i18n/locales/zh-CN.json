@@ -1558,6 +1558,8 @@
       "proxyUrl": "代理 URL",
       "prefix": "前缀",
       "priority": "优先级",
+      "comment": "备注",
+      "commentPlaceholder": "此凭证的可选备注",
       "disabled": "停用此条目",
       "disabledHint": "停用后不会被网关使用",
       "websockets": "启用 WebSockets",

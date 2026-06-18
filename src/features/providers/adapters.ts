@@ -74,6 +74,7 @@ function providerKeyToResource(
     models: collectModelNames(config.models),
     priority: normalizePriority(config.priority),
     headerCount: countHeaders(config.headers),
+    comment: (config as ProviderKeyConfig).comment || undefined,
     excludedModelCount: stripDisableAllModelsRule(config.excludedModels).length,
     apiKeyEntryCount: 0,
     disabled,
@@ -131,6 +132,9 @@ export function openaiToResource(
     priority: normalizePriority(config.priority),
     headerCount: countHeaders(config.headers),
     excludedModelCount: 0,
+    comment: typeof (config as Record<string, unknown>).comment === 'string'
+      ? (config as Record<string, unknown>).comment as string
+      : undefined,
     apiKeyEntryCount: config.apiKeyEntries?.length ?? 0,
     disabled: config.disabled === true,
     flags: {},

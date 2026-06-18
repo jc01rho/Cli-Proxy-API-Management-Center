@@ -121,6 +121,7 @@ const buildProviderKeyConfig = (
     excludedModels: excluded,
     disableCooling: input.disableCooling === true,
     authIndex: existing?.authIndex,
+    comment: input.comment || undefined,
   };
   if (brand === 'codex' && input.websockets !== undefined) {
     next.websockets = input.websockets;

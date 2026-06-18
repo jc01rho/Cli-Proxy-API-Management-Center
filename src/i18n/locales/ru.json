@@ -1533,6 +1533,8 @@
       "proxyUrl": "Proxy URL",
       "prefix": "Префикс",
       "priority": "Приоритет",
+      "comment": "Комментарий",
+      "commentPlaceholder": "Необязательная заметка для этого credentials",
       "disabled": "Отключить эту запись",
       "disabledHint": "Отключённые записи не используются шлюзом",
       "websockets": "Включить WebSockets",

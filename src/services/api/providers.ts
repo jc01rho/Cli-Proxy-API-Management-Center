@@ -313,6 +313,7 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
   if (config.websockets !== undefined) payload.websockets = config.websockets;
   if (config.proxyUrl) payload['proxy-url'] = config.proxyUrl;
   if (config.disableCooling) payload['disable-cooling'] = true;
+  if (config.comment?.trim()) payload.comment = config.comment.trim();
   const headers = serializeHeaders(config.headers);
   if (headers) payload.headers = headers;
   const models = serializeModelAliases(config.models);

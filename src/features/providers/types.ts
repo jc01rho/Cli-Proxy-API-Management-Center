@@ -56,6 +56,7 @@ export interface ProviderResource {
   models: string[];
   /** 排序用优先级,未配置时为 0 */
   priority: number;
+  comment?: string;
   headerCount: number;
   excludedModelCount: number;
   /** 仅 OpenAI 有意义,其它 brand 该字段不展示但保留 */
@@ -118,6 +119,7 @@ export interface ProviderEntryFormInput {
   disabled: boolean;
   disableCooling?: boolean;
   priority?: number;
+  comment: string;
 
   /** 高级折叠区 */
   models: ModelEntryInput[];

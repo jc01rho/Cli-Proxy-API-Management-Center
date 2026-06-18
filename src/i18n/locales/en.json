@@ -1560,6 +1560,8 @@
       "proxyUrl": "Proxy URL",
       "prefix": "Prefix",
       "priority": "Priority",
+      "comment": "Comment",
+      "commentPlaceholder": "Optional note for this credential",
       "disabled": "Disable this entry",
       "disabledHint": "Disabled entries won't be used by the gateway",
       "websockets": "Enable WebSockets",

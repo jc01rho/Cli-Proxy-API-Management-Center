@@ -203,6 +203,7 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   if (experimentalCchSigning !== undefined) {
     config.experimentalCchSigning = experimentalCchSigning;
   }
+  if (record?.comment) config.comment = String(record.comment);
 
   return config;
 };

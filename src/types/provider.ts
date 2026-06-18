@@ -55,6 +55,7 @@ export interface ProviderKeyConfig {
   cloak?: CloakConfig;
   experimentalCchSigning?: boolean;
   authIndex?: string;
+  comment?: string;
 }
 
 export interface OpenAIProviderConfig {

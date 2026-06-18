@@ -76,6 +76,7 @@ function buildInitialForm(
       disabled: false,
       disableCooling: false,
       priority: undefined,
+      comment: '',
       models: [emptyModel()],
       headers: [emptyHeader()],
       excludedModelsText: '',
@@ -123,6 +124,7 @@ function buildInitialForm(
         : [emptyHeader()],
       excludedModelsText: '',
       testModel: cfg.testModel ?? '',
+      comment: (cfg as OpenAIProviderConfig & { comment?: string }).comment ?? '',
       apiKeyEntries: cfg.apiKeyEntries?.length
         ? cfg.apiKeyEntries.map((entry) => ({
             apiKey: '',
@@ -177,6 +179,7 @@ function buildInitialForm(
         ? (cfg as ProviderKeyConfig).experimentalCchSigning === true
         : undefined,
     testModel: brand === 'codex' || brand === 'claude' || brand === 'gemini' ? '' : undefined,
+    comment: cfg.comment ?? '',
   };
 }
 
@@ -659,9 +662,23 @@ export function BaseProviderForm({
                   disabled={mutating}
                 />
               </div>
-            ) : null}
-          </div>
+          ) : null}
+        </div>
         ) : null}
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={`${fid}-comment`}>
+            {t('providersPage.form.comment')}
+          </label>
+          <input
+            id={`${fid}-comment`}
+            className={styles.input}
+            value={form.comment}
+            onChange={(e) => updateField('comment', e.target.value)}
+            placeholder={t('providersPage.form.commentPlaceholder')}
+            disabled={mutating}
+          />
+        </div>
 
         {descriptor.supportsTestModel ? (
           <div className={styles.field}>

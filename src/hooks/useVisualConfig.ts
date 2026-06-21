@@ -861,7 +861,6 @@ function getNextDirtyFields(
       'disableImageGeneration',
       'gptImage2BaseModel',
       'authAutoRefreshWorkers',
-      'enableGeminiCliEndpoint',
       'antigravitySignatureCacheEnabled',
       'antigravitySignatureBypassStrict',
       'claudeHeaderUserAgent',
@@ -1346,7 +1345,6 @@ export function useVisualConfig() {
         }
         setIntFromStringInDoc(doc, ['auth-auto-refresh-workers'], values.authAutoRefreshWorkers);
         setBooleanInDoc(doc, ['ws-auth'], values.wsAuth);
-        setBooleanInDoc(doc, ['enable-gemini-cli-endpoint'], values.enableGeminiCliEndpoint);
         if (
           docHas(doc, ['antigravity-signature-cache-enabled']) ||
           !values.antigravitySignatureCacheEnabled

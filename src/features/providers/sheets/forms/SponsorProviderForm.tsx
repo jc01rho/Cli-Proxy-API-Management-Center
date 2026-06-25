@@ -91,6 +91,7 @@ const emptySponsorForm = (): ProviderEntryFormInput => ({
   baseUrl: '',
   proxyUrl: '',
   prefix: '',
+  comment: '',
   disabled: false,
   disableCooling: false,
   priority: undefined,

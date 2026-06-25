@@ -195,4 +195,5 @@ export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
   vertex: '/ai-providers/vertex',
   mistral: '/ai-providers/mistral',
   openaiCompatibility: '/ai-providers/openai',
+  apikeyFun: '/ai-providers/apikey-fun',
 };

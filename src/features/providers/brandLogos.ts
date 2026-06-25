@@ -3,7 +3,6 @@ import codexLogo from '@/assets/icons/codex.svg';
 import commandcodeLogo from '@/assets/icons/codex.svg';
 import geminiLogo from '@/assets/icons/gemini.svg';
 import mistralLogo from '@/assets/icons/mistral.svg';
-import openaiLogo from '@/assets/icons/openai-light.svg';
 import openaiLightLogo from '@/assets/icons/openai-light.svg';
 import openaiDarkLogo from '@/assets/icons/openai-dark.svg';
 import vertexLogo from '@/assets/icons/vertex.svg';

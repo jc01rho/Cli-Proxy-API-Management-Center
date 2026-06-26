@@ -38,7 +38,8 @@ export const configApi = {
   /**
    * 更新重试次数
    */
-  updateRequestRetry: (retryCount: number) => apiClient.put('/request-retry', { value: retryCount }),
+  updateRequestRetry: (retryCount: number) =>
+    apiClient.put('/request-retry', { value: retryCount }),
 
   /**
    * 配额回退：切换项目
@@ -97,8 +98,7 @@ export const configApi = {
   /**
    * 更新日志总大小上限（MB）
    */
-  updateLogsMaxTotalSizeMb: (value: number) =>
-    apiClient.put('/logs-max-total-size-mb', { value }),
+  updateLogsMaxTotalSizeMb: (value: number) => apiClient.put('/logs-max-total-size-mb', { value }),
 
   /**
    * WebSocket 鉴权开关
@@ -116,7 +116,8 @@ export const configApi = {
   /**
    * 更新强制模型前缀开关
    */
-  updateForceModelPrefix: (enabled: boolean) => apiClient.put('/force-model-prefix', { value: enabled }),
+  updateForceModelPrefix: (enabled: boolean) =>
+    apiClient.put('/force-model-prefix', { value: enabled }),
 
   /**
    * 获取路由策略
@@ -130,7 +131,8 @@ export const configApi = {
   /**
    * 更新路由策略
    */
-  updateRoutingStrategy: (strategy: string) => apiClient.put('/routing/strategy', { value: strategy }),
+  updateRoutingStrategy: (strategy: string) =>
+    apiClient.put('/routing/strategy', { value: strategy }),
 
   getWeightRobinQueue: (model?: string) =>
     apiClient.get<WeightRobinQueueSnapshot>('/weight-robin-queue', {

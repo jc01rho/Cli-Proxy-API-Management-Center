@@ -1,8 +1,5 @@
 import type { GeminiKeyConfig, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
-import {
-  hasDisableAllModelsRule,
-  stripDisableAllModelsRule,
-} from '@/components/providers/utils';
+import { hasDisableAllModelsRule, stripDisableAllModelsRule } from '@/components/providers/utils';
 import { maskApiKey } from '@/utils/format';
 import {
   APIKEY_FUN_DISPLAY_NAME,
@@ -115,10 +112,7 @@ export function mistralToResource(config: ProviderKeyConfig, index: number): Pro
   return providerKeyToResource('mistral', config, index);
 }
 
-export function openaiToResource(
-  config: OpenAIProviderConfig,
-  index: number
-): ProviderResource {
+export function openaiToResource(config: OpenAIProviderConfig, index: number): ProviderResource {
   const name = (config.name ?? '').trim();
   const firstEntry = config.apiKeyEntries?.[0];
   const previewApiKey = firstEntry?.apiKey ? maskApiKey(firstEntry.apiKey) : null;
@@ -198,9 +192,7 @@ export function apiKeyFunToResource(raw: SponsorProviderRaw): ProviderResource |
     ...raw.claude.map((item) => normalizePriority(item.config.priority))
   );
   const baseUrl = resolveApiKeyFunBaseUrl(
-    raw.openai[0]?.config.baseUrl ??
-      raw.codex[0]?.config.baseUrl ??
-      raw.claude[0]?.config.baseUrl
+    raw.openai[0]?.config.baseUrl ?? raw.codex[0]?.config.baseUrl ?? raw.claude[0]?.config.baseUrl
   );
   const protocolUrls = getApiKeyFunProtocolUrls(baseUrl);
 

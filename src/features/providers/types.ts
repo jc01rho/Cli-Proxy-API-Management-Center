@@ -2,17 +2,21 @@
  * AI 提供商 Workbench 视图模型(归一化各 brand 的异构 config)
  */
 
-import type { OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
+import type { GeminiKeyConfig, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
 
 export type ProviderBrand =
   | 'gemini'
   | 'codex'
   | 'commandcode'
   | 'claude'
+  | 'claudeApi'
   | 'vertex'
   | 'mistral'
   | 'openaiCompatibility'
-  | 'apikeyFun';
+  | 'apikeyFun'
+  | 'code0';
+
+export type SponsorProviderBrand = 'apikeyFun' | 'code0';
 
 export const PROVIDER_SORT_BY_VALUES = ['name', 'priority', 'recent-success'] as const;
 export type ProviderSortBy = (typeof PROVIDER_SORT_BY_VALUES)[number];
@@ -25,6 +29,7 @@ export type ProviderResourceSelector =
   | { brand: 'codex'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'commandcode'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'claude'; apiKey: string; baseUrl?: string; index: number }
+  | { brand: 'claudeApi'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'vertex'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'mistral'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'openaiCompatibility'; name: string; index: number }
@@ -33,6 +38,14 @@ export type ProviderResourceSelector =
       openaiIndices: number[];
       claudeIndices: number[];
       codexIndices: number[];
+      geminiIndices: number[];
+    }
+  | {
+      brand: 'code0';
+      openaiIndices: number[];
+      claudeIndices: number[];
+      codexIndices: number[];
+      geminiIndices: number[];
     };
 
 export interface ProviderResourceFlags {
@@ -95,6 +108,7 @@ export interface SponsorProviderRaw {
   openai: Array<{ config: OpenAIProviderConfig; index: number }>;
   claude: Array<{ config: ProviderKeyConfig; index: number }>;
   codex: Array<{ config: ProviderKeyConfig; index: number }>;
+  gemini: Array<{ config: GeminiKeyConfig; index: number }>;
 }
 
 /**
@@ -110,7 +124,7 @@ export interface ModelEntryInput {
   thinkingJson?: string;
 }
 
-export type SponsorProtocol = 'openai' | 'codex' | 'claude';
+export type SponsorProtocol = 'openai' | 'codex' | 'claude' | 'gemini';
 
 export interface SponsorKeyEntryInput {
   protocol: SponsorProtocol;

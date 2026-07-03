@@ -10,7 +10,9 @@ import {
 import type { GeminiKeyConfig, ModelAlias, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
 import {
   apiKeyFunToResource,
+  claudeApiToResource,
   claudeToResource,
+  code0ToResource,
   codexToResource,
   commandcodeToResource,
   geminiToResource,
@@ -26,15 +28,26 @@ import type {
   ProviderResource,
   ProviderSnapshot,
   SponsorKeyEntryInput,
+  SponsorProviderBrand,
 } from './types';
 import {
-  APIKEY_FUN_PROVIDER_NAME,
   buildApiKeyFunRaw,
-  getApiKeyFunProtocolUrls,
   isApiKeyFunClaudeProvider,
   isApiKeyFunCodexProvider,
   isApiKeyFunOpenAIProvider,
 } from './sponsor';
+import { CLAUDE_API_BASE_URL, isClaudeApiProvider } from './claudeApi';
+import {
+  buildCode0Raw,
+  isCode0ClaudeProvider,
+  isCode0CodexProvider,
+  isCode0GeminiProvider,
+  isCode0OpenAIProvider,
+} from './code0';
+import {
+  getSponsorProviderDefinition,
+  type SponsorProtocolUrls,
+} from './sponsorDefinitions';
 
 export interface UseProviderWorkbenchResult {
   connected: boolean;
@@ -160,6 +173,19 @@ const buildProviderKeyConfig = (
   return next;
 };
 
+const buildClaudeApiConfig = (
+  input: ProviderEntryFormInput,
+  existing?: ProviderKeyConfig | null
+): ProviderKeyConfig =>
+  buildProviderKeyConfig(
+    'claude',
+    {
+      ...input,
+      baseUrl: CLAUDE_API_BASE_URL,
+    },
+    existing
+  ) as ProviderKeyConfig;
+
 const buildOpenAIConfig = (
   input: ProviderEntryFormInput,
   existing?: OpenAIProviderConfig | null
@@ -202,11 +228,13 @@ const removeSponsorEntries = <T>(list: T[], indices: number[]): T[] => {
 const sponsorEntryApiKey = (entry: SponsorKeyEntryInput): string =>
   entry.apiKey.trim() || entry.existingApiKey?.trim() || '';
 
-const buildApiKeyFunOpenAIConfig = (
+const buildSponsorOpenAIConfig = (
   entry: SponsorKeyEntryInput,
+  providerName: string,
+  getProtocolUrls: (value: string | undefined | null) => SponsorProtocolUrls,
   existing?: OpenAIProviderConfig
 ): OpenAIProviderConfig => {
-  const urls = getApiKeyFunProtocolUrls(entry.baseUrl);
+  const urls = getProtocolUrls(entry.baseUrl);
   const models = buildModelAliases(entry.models, true);
   const apiKey = sponsorEntryApiKey(entry);
   const firstExistingEntry = existing?.apiKeyEntries?.[0];
@@ -222,7 +250,7 @@ const buildApiKeyFunOpenAIConfig = (
 
   return {
     ...(existing ?? {}),
-    name: APIKEY_FUN_PROVIDER_NAME,
+    name: providerName,
     baseUrl: urls.openai,
     prefix: entry.prefix.trim() || undefined,
     disabled: entry.disabled,
@@ -233,12 +261,13 @@ const buildApiKeyFunOpenAIConfig = (
   };
 };
 
-const buildApiKeyFunProviderKeyConfig = (
+const buildSponsorProviderKeyConfig = (
   entry: SponsorKeyEntryInput,
   protocol: 'claude' | 'codex',
+  getProtocolUrls: (value: string | undefined | null) => SponsorProtocolUrls,
   existing?: ProviderKeyConfig
 ): ProviderKeyConfig => {
-  const urls = getApiKeyFunProtocolUrls(entry.baseUrl);
+  const urls = getProtocolUrls(entry.baseUrl);
   const models = buildModelAliases(entry.models);
   const apiKey = sponsorEntryApiKey(entry);
   const excluded = entry.disabled
@@ -249,6 +278,31 @@ const buildApiKeyFunProviderKeyConfig = (
     ...(existing ?? {}),
     apiKey,
     baseUrl: protocol === 'claude' ? urls.anthropic : urls.codex,
+    proxyUrl: entry.proxyUrl.trim() || undefined,
+    prefix: entry.prefix.trim() || undefined,
+    priority: entry.priority,
+    disableCooling: entry.disableCooling === true,
+    excludedModels: excluded,
+    models: models.length ? models : undefined,
+  };
+};
+
+const buildSponsorGeminiConfig = (
+  entry: SponsorKeyEntryInput,
+  getProtocolUrls: (value: string | undefined | null) => SponsorProtocolUrls,
+  existing?: GeminiKeyConfig
+): GeminiKeyConfig => {
+  const urls = getProtocolUrls(entry.baseUrl);
+  const models = buildModelAliases(entry.models);
+  const apiKey = sponsorEntryApiKey(entry);
+  const excluded = entry.disabled
+    ? withDisableAllModelsRule(stripDisableAllModelsRule(existing?.excludedModels))
+    : withoutDisableAllModelsRule(existing?.excludedModels);
+
+  return {
+    ...(existing ?? {}),
+    apiKey,
+    baseUrl: urls.gemini,
     proxyUrl: entry.proxyUrl.trim() || undefined,
     prefix: entry.prefix.trim() || undefined,
     priority: entry.priority,
@@ -346,11 +400,19 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       let resources: ProviderResource[] = [];
       switch (brand) {
         case 'gemini':
-          resources = (config.geminiApiKeys ?? []).map((c, i) => geminiToResource(c, i));
+          resources = (config.geminiApiKeys ?? []).reduce<ProviderResource[]>(
+            (out, item, index) => {
+              if (!isCode0GeminiProvider(item)) {
+                out.push(geminiToResource(item, index));
+              }
+              return out;
+            },
+            []
+          );
           break;
         case 'codex':
           resources = (config.codexApiKeys ?? []).reduce<ProviderResource[]>((out, item, index) => {
-            if (!isApiKeyFunCodexProvider(item)) {
+            if (!isApiKeyFunCodexProvider(item) && !isCode0CodexProvider(item)) {
               out.push(codexToResource(item, index));
             }
             return out;
@@ -362,8 +424,23 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         case 'claude':
           resources = (config.claudeApiKeys ?? []).reduce<ProviderResource[]>(
             (out, item, index) => {
-              if (!isApiKeyFunClaudeProvider(item)) {
+              if (
+                !isApiKeyFunClaudeProvider(item) &&
+                !isCode0ClaudeProvider(item) &&
+                !isClaudeApiProvider(item)
+              ) {
                 out.push(claudeToResource(item, index));
+              }
+              return out;
+            },
+            []
+          );
+          break;
+        case 'claudeApi':
+          resources = (config.claudeApiKeys ?? []).reduce<ProviderResource[]>(
+            (out, item, index) => {
+              if (isClaudeApiProvider(item)) {
+                out.push(claudeApiToResource(item, index));
               }
               return out;
             },
@@ -379,7 +456,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         case 'openaiCompatibility':
           resources = (config.openaiCompatibility ?? []).reduce<ProviderResource[]>(
             (out, item, index) => {
-              if (!isApiKeyFunOpenAIProvider(item)) {
+              if (!isApiKeyFunOpenAIProvider(item) && !isCode0OpenAIProvider(item)) {
                 out.push(openaiToResource(item, index));
               }
               return out;
@@ -389,6 +466,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           break;
         case 'apikeyFun': {
           const sponsorResource = apiKeyFunToResource(buildApiKeyFunRaw(config));
+          resources = sponsorResource ? [sponsorResource] : [];
+          break;
+        }
+        case 'code0': {
+          const sponsorResource = code0ToResource(buildCode0Raw(config));
           resources = sponsorResource ? [sponsorResource] : [];
           break;
         }
@@ -464,9 +546,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     [clearCache, updateConfigValue]
   );
 
-  const persistApiKeyFunConfig = useCallback(
-    async (input: ProviderEntryFormInput) => {
-      const raw = buildApiKeyFunRaw(config);
+  const persistSponsorConfig = useCallback(
+    async (brand: SponsorProviderBrand, input: ProviderEntryFormInput) => {
+      const definition = getSponsorProviderDefinition(brand);
+      const raw = brand === 'apikeyFun' ? buildApiKeyFunRaw(config) : buildCode0Raw(config);
+      const geminiList = config?.geminiApiKeys ?? [];
       const openaiList = config?.openaiCompatibility ?? [];
       const claudeList = config?.claudeApiKeys ?? [];
       const codexList = config?.codexApiKeys ?? [];
@@ -474,6 +558,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       const openaiEntry = entries.find((entry) => entry.protocol === 'openai');
       const claudeEntry = entries.find((entry) => entry.protocol === 'claude');
       const codexEntry = entries.find((entry) => entry.protocol === 'codex');
+      const geminiEntry = entries.find((entry) => entry.protocol === 'gemini');
+      const nextGeminiList = removeSponsorEntries(
+        geminiList,
+        raw.gemini.map((item) => item.index)
+      );
       const nextOpenAIList = removeSponsorEntries(
         openaiList,
         raw.openai.map((item) => item.index)
@@ -487,11 +576,30 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         raw.codex.map((item) => item.index)
       );
 
+      if (definition.protocols.includes('gemini')) {
+        await persistGeminiKeys(
+          geminiEntry
+            ? [
+                ...nextGeminiList,
+                buildSponsorGeminiConfig(
+                  geminiEntry,
+                  definition.getProtocolUrls,
+                  raw.gemini[0]?.config
+                ),
+              ]
+            : nextGeminiList
+        );
+      }
       await persistCodexConfigs(
         codexEntry
           ? [
               ...nextCodexList,
-              buildApiKeyFunProviderKeyConfig(codexEntry, 'codex', raw.codex[0]?.config),
+              buildSponsorProviderKeyConfig(
+                codexEntry,
+                'codex',
+                definition.getProtocolUrls,
+                raw.codex[0]?.config
+              ),
             ]
           : nextCodexList
       );
@@ -499,17 +607,30 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         claudeEntry
           ? [
               ...nextClaudeList,
-              buildApiKeyFunProviderKeyConfig(claudeEntry, 'claude', raw.claude[0]?.config),
+              buildSponsorProviderKeyConfig(
+                claudeEntry,
+                'claude',
+                definition.getProtocolUrls,
+                raw.claude[0]?.config
+              ),
             ]
           : nextClaudeList
       );
       await persistOpenAIConfigs(
         openaiEntry
-          ? [...nextOpenAIList, buildApiKeyFunOpenAIConfig(openaiEntry, raw.openai[0]?.config)]
+          ? [
+              ...nextOpenAIList,
+              buildSponsorOpenAIConfig(
+                openaiEntry,
+                definition.providerName,
+                definition.getProtocolUrls,
+                raw.openai[0]?.config
+              ),
+            ]
           : nextOpenAIList
       );
     },
-    [config, persistClaudeConfigs, persistCodexConfigs, persistOpenAIConfigs]
+    [config, persistClaudeConfigs, persistCodexConfigs, persistGeminiKeys, persistOpenAIConfigs]
   );
 
   const createProvider = useCallback(
@@ -532,6 +653,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = [...(config?.claudeApiKeys ?? [])];
           next.push(buildProviderKeyConfig('claude', input) as ProviderKeyConfig);
           await persistClaudeConfigs(next);
+        } else if (brand === 'claudeApi') {
+          const next = [...(config?.claudeApiKeys ?? [])];
+          next.push(buildClaudeApiConfig(input));
+          await persistClaudeConfigs(next);
         } else if (brand === 'vertex') {
           const next = [...(config?.vertexApiKeys ?? [])];
           next.push(buildProviderKeyConfig('vertex', input) as ProviderKeyConfig);
@@ -544,8 +669,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = [...(config?.openaiCompatibility ?? [])];
           next.push(buildOpenAIConfig(input));
           await persistOpenAIConfigs(next);
-        } else if (brand === 'apikeyFun') {
-          await persistApiKeyFunConfig(input);
+        } else if (brand === 'apikeyFun' || brand === 'code0') {
+          await persistSponsorConfig(brand, input);
         }
         refreshSnapshot();
       } finally {
@@ -560,7 +685,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistGeminiKeys,
       persistMistralConfigs,
       persistOpenAIConfigs,
-      persistApiKeyFunConfig,
+      persistSponsorConfig,
       persistVertexConfigs,
       refreshSnapshot,
     ]
@@ -592,6 +717,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const existing = list[idx];
           list[idx] = buildProviderKeyConfig('claude', input, existing) as ProviderKeyConfig;
           await persistClaudeConfigs(list);
+        } else if (brand === 'claudeApi') {
+          const list = [...(config?.claudeApiKeys ?? [])];
+          const existing = list[idx];
+          list[idx] = buildClaudeApiConfig(input, existing);
+          await persistClaudeConfigs(list);
         } else if (brand === 'vertex') {
           const list = [...(config?.vertexApiKeys ?? [])];
           const existing = list[idx];
@@ -607,8 +737,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const existing = list[idx];
           list[idx] = buildOpenAIConfig(input, existing);
           await persistOpenAIConfigs(list);
-        } else if (brand === 'apikeyFun') {
-          await persistApiKeyFunConfig(input);
+        } else if (brand === 'apikeyFun' || brand === 'code0') {
+          await persistSponsorConfig(brand, input);
         }
         refreshSnapshot();
       } finally {
@@ -623,7 +753,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistGeminiKeys,
       persistMistralConfigs,
       persistOpenAIConfigs,
-      persistApiKeyFunConfig,
+      persistSponsorConfig,
       persistVertexConfigs,
       refreshSnapshot,
     ]
@@ -652,6 +782,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           await providersApi.deleteClaudeConfig(sel.apiKey, sel.baseUrl);
           const next = (config?.claudeApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('claude-api-key', next);
+        } else if (sel.brand === 'claudeApi') {
+          await providersApi.deleteClaudeConfig(sel.apiKey, sel.baseUrl);
+          const next = (config?.claudeApiKeys ?? []).filter((_, i) => i !== sel.index);
+          updateConfigValue('claude-api-key', next);
         } else if (sel.brand === 'vertex') {
           await providersApi.deleteVertexConfig(sel.apiKey, sel.baseUrl);
           const next = (config?.vertexApiKeys ?? []).filter((_, i) => i !== sel.index);
@@ -666,7 +800,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           await providersApi.deleteOpenAIProvider(sel.index);
           const next = (config?.openaiCompatibility ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('openai-compatibility', next);
-        } else if (sel.brand === 'apikeyFun') {
+        } else if (sel.brand === 'apikeyFun' || sel.brand === 'code0') {
+          const nextGemini = (config?.geminiApiKeys ?? []).filter(
+            (_, index) => !sel.geminiIndices.includes(index)
+          );
           const nextClaude = (config?.claudeApiKeys ?? []).filter(
             (_, index) => !sel.claudeIndices.includes(index)
           );
@@ -676,6 +813,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const nextOpenAI = (config?.openaiCompatibility ?? []).filter(
             (_, index) => !sel.openaiIndices.includes(index)
           );
+          await persistGeminiKeys(nextGemini);
           await persistCodexConfigs(nextCodex);
           await persistClaudeConfigs(nextClaude);
           await persistOpenAIConfigs(nextOpenAI);
@@ -690,6 +828,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       config,
       persistClaudeConfigs,
       persistCodexConfigs,
+      persistGeminiKeys,
       persistOpenAIConfigs,
       refreshSnapshot,
       updateConfigValue,
@@ -715,6 +854,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           brand === 'codex' ||
           brand === 'commandcode' ||
           brand === 'claude' ||
+          brand === 'claudeApi' ||
           brand === 'vertex' ||
           brand === 'mistral'
         ) {
@@ -723,7 +863,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
               ? 'codexApiKeys'
               : brand === 'commandcode'
                 ? 'commandcodeApiKeys'
-                : brand === 'claude'
+                : brand === 'claude' || brand === 'claudeApi'
                   ? 'claudeApiKeys'
                   : brand === 'mistral'
                     ? 'mistralApiKeys'
@@ -737,7 +877,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           list[idx] = { ...current, excludedModels: excluded };
           if (brand === 'codex') await persistCodexConfigs(list);
           else if (brand === 'commandcode') await persistCommandCodeConfigs(list);
-          else if (brand === 'claude') await persistClaudeConfigs(list);
+          else if (brand === 'claude' || brand === 'claudeApi') await persistClaudeConfigs(list);
           else if (brand === 'mistral') await persistMistralConfigs(list);
           else await persistVertexConfigs(list);
         } else if (brand === 'openaiCompatibility') {
@@ -766,6 +906,35 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const openaiList = (config?.openaiCompatibility ?? []).map((item) =>
             isApiKeyFunOpenAIProvider(item) ? { ...item, disabled } : item
           );
+          await persistCodexConfigs(codexList);
+          await persistClaudeConfigs(claudeList);
+          await persistOpenAIConfigs(openaiList);
+        } else if (brand === 'code0') {
+          const geminiList = (config?.geminiApiKeys ?? []).map((item) => {
+            if (!isCode0GeminiProvider(item)) return item;
+            const excluded = disabled
+              ? withDisableAllModelsRule(item.excludedModels)
+              : withoutDisableAllModelsRule(item.excludedModels);
+            return { ...item, excludedModels: excluded };
+          });
+          const claudeList = (config?.claudeApiKeys ?? []).map((item) => {
+            if (!isCode0ClaudeProvider(item)) return item;
+            const excluded = disabled
+              ? withDisableAllModelsRule(item.excludedModels)
+              : withoutDisableAllModelsRule(item.excludedModels);
+            return { ...item, excludedModels: excluded };
+          });
+          const codexList = (config?.codexApiKeys ?? []).map((item) => {
+            if (!isCode0CodexProvider(item)) return item;
+            const excluded = disabled
+              ? withDisableAllModelsRule(item.excludedModels)
+              : withoutDisableAllModelsRule(item.excludedModels);
+            return { ...item, excludedModels: excluded };
+          });
+          const openaiList = (config?.openaiCompatibility ?? []).map((item) =>
+            isCode0OpenAIProvider(item) ? { ...item, disabled } : item
+          );
+          await persistGeminiKeys(geminiList);
           await persistCodexConfigs(codexList);
           await persistClaudeConfigs(claudeList);
           await persistOpenAIConfigs(openaiList);

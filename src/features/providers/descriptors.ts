@@ -98,6 +98,25 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
     supportsApiKeyEntries: false,
     sheetSize: 'md',
   },
+  claudeApi: {
+    id: 'claudeApi',
+    supportsName: false,
+    supportsApiKey: true,
+    supportsDisabled: true,
+    supportsBaseUrl: false,
+    baseUrlRequired: false,
+    supportsProxyUrl: true,
+    supportsPrefix: true,
+    supportsModels: true,
+    supportsHeaders: true,
+    supportsExcludedModels: true,
+    supportsPriority: true,
+    supportsTestModel: true,
+    supportsWebsockets: false,
+    supportsCloak: true,
+    supportsApiKeyEntries: false,
+    sheetSize: 'md',
+  },
   vertex: {
     id: 'vertex',
     supportsName: false,
@@ -174,6 +193,25 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
     supportsApiKeyEntries: false,
     sheetSize: 'md',
   },
+  code0: {
+    id: 'code0',
+    supportsName: false,
+    supportsApiKey: true,
+    supportsDisabled: true,
+    supportsBaseUrl: false,
+    baseUrlRequired: false,
+    supportsProxyUrl: true,
+    supportsPrefix: true,
+    supportsModels: false,
+    supportsHeaders: false,
+    supportsExcludedModels: false,
+    supportsPriority: true,
+    supportsTestModel: false,
+    supportsWebsockets: false,
+    supportsCloak: false,
+    supportsApiKeyEntries: false,
+    sheetSize: 'md',
+  },
 };
 
 export const PROVIDER_BRAND_ORDER: ProviderBrand[] = [
@@ -185,6 +223,8 @@ export const PROVIDER_BRAND_ORDER: ProviderBrand[] = [
   'mistral',
   'openaiCompatibility',
   'apikeyFun',
+  'claudeApi',
+  'code0',
 ];
 
 export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
@@ -196,4 +236,6 @@ export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
   mistral: '/ai-providers/mistral',
   openaiCompatibility: '/ai-providers/openai',
   apikeyFun: '/ai-providers/apikey-fun',
+  claudeApi: '/ai-providers/claude-api',
+  code0: '/ai-providers/code0',
 };

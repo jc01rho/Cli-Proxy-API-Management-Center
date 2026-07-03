@@ -35,6 +35,7 @@ import type {
   PayloadFilterRule,
   PayloadParamValidationErrorCode,
   PayloadRule,
+  PluginStoreAuthRule,
   VisualConfigFieldPath,
   VisualConfigValidationErrorCode,
   VisualConfigValidationErrors,
@@ -46,6 +47,7 @@ import {
   OauthEndpointOverridesEditor,
   PayloadFilterRulesEditor,
   PayloadRulesEditor,
+  PluginStoreAuthEditor,
   StringListEditor,
   TokenThresholdRulesEditor,
 } from './VisualConfigEditorBlocks';
@@ -266,6 +268,10 @@ export function VisualConfigEditor({
   );
   const handlePluginStoreSourcesChange = useCallback(
     (pluginStoreSources: string[]) => onChange({ pluginStoreSources }),
+    [onChange]
+  );
+  const handlePluginStoreAuthChange = useCallback(
+    (pluginStoreAuth: PluginStoreAuthRule[]) => onChange({ pluginStoreAuth }),
     [onChange]
   );
   const handlePayloadDefaultRulesChange = useCallback(
@@ -858,6 +864,24 @@ export function VisualConfigEditor({
                   <div className={styles.fieldHint}>
                     {t('config_management.visual.sections.system.plugin_store_sources_hint')}
                   </div>
+                </div>
+              </SectionSubsection>
+
+              <SectionSubsection
+                title={t('config_management.visual.sections.system.plugin_store_auth')}
+                description={t(
+                  'config_management.visual.sections.system.plugin_store_auth_desc'
+                )}
+              >
+                <div className={styles.fieldShell}>
+                  <div className={styles.fieldHint}>
+                    {t('config_management.visual.sections.system.plugin_store_auth_hint')}
+                  </div>
+                  <PluginStoreAuthEditor
+                    value={values.pluginStoreAuth}
+                    disabled={disabled}
+                    onChange={handlePluginStoreAuthChange}
+                  />
                 </div>
               </SectionSubsection>
 

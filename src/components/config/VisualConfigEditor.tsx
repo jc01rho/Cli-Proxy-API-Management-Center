@@ -18,13 +18,11 @@ import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import { WeightRobinQueueView } from '@/components/config/WeightRobinQueueView';
 import {
   IconCode,
-  IconDiamond,
   IconKey,
   IconRoute,
   IconSatellite,
   IconSettings,
   IconTimer,
-  IconTrendingUp,
   type IconProps,
 } from '@/components/ui/icons';
 import { ConfigSection } from '@/components/config/ConfigSection';
@@ -355,7 +353,7 @@ export function VisualConfigEditor({
       {
         id: 'system',
         title: t('config_management.visual.sections.system.title'),
-        icon: IconDiamond,
+    icon: IconKey,
         errorCount: countErrors([
           'errorLogsMaxFiles',
           'logsMaxTotalSizeMb',
@@ -375,7 +373,7 @@ export function VisualConfigEditor({
       {
         id: 'network',
         title: t('config_management.visual.sections.network.title'),
-        icon: IconTrendingUp,
+    icon: IconTimer,
         errorCount: countErrors([
           'requestRetry',
           'maxRetryCredentials',
@@ -804,7 +802,7 @@ export function VisualConfigEditor({
               sectionRefs.current.system = node;
             }}
             indexLabel="03"
-            icon={<IconDiamond size={16} />}
+          icon={<IconKey size={16} />}
             title={t('config_management.visual.sections.system.title')}
             description={t('config_management.visual.sections.system.description')}
           >
@@ -1008,7 +1006,7 @@ export function VisualConfigEditor({
               sectionRefs.current.network = node;
             }}
             indexLabel="06"
-            icon={<IconTrendingUp size={16} />}
+          icon={<IconTimer size={16} />}
             title={t('config_management.visual.sections.network.title')}
             description={t('config_management.visual.sections.network.description')}
           >

@@ -56,7 +56,7 @@ export function ProviderResourcePanel({
   const { t } = useTranslation();
   const logo = PROVIDER_LOGOS[group.id];
   const providerTitle = t(`providersPage.providerNames.${group.id}`);
-  const hasProviderInfo = group.resources.some((r) => !r.flags.isPlaceholder);
+  const hasProviderInfo = group.resources.length > 0;
   const showSponsorRegistrationLink = group.id === 'apikeyFun' && !hasProviderInfo;
   const showSponsorDashboardLink = group.id === 'apikeyFun' && hasProviderInfo;
   const showClaudeApiSponsorLink = group.id === 'claudeApi';
@@ -78,7 +78,6 @@ export function ProviderResourcePanel({
     .join(' ');
   const darkLogoClassName = [styles.logo, styles.logoThemeDark].filter(Boolean).join(' ');
 
-  const realResources = filteredResources.filter((r) => !r.flags.isPlaceholder);
   const titleContent = (
     <>
       {logo ? (
@@ -169,7 +168,7 @@ export function ProviderResourcePanel({
         ) : null}
       </div>
 
-      {realResources.length === 0 ? (
+      {filteredResources.length === 0 ? (
         <div className={styles.empty}>
           <div>{emptyText}</div>
           <div className={styles.emptyAction}>

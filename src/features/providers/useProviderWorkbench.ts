@@ -349,7 +349,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         commandcodeResult,
         mistralResult,
       ] = await Promise.allSettled([
-        fetchConfig(undefined, true),
+        fetchConfig(true),
         providersApi.getVertexConfigs(),
         providersApi.getOpenAIProviders(),
         providersApi.getCommandCodeConfigs(),

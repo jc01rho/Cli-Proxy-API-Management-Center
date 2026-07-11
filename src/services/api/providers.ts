@@ -511,7 +511,10 @@ export const providersApi = {
   },
 
   deleteOpenAIProvider: (index: number) =>
-    apiClient.delete(`/openai-compatibility?index=${index}`),
+    apiClient.delete(`/openai-compatibility?index=${encodeURIComponent(String(index))}`),
+
+  deleteOpenAIProvidersByName: (name: string) =>
+    apiClient.delete(`/openai-compatibility?name=${encodeURIComponent(name)}`),
 
   async getCommandCodeConfigs(): Promise<ProviderKeyConfig[]> {
     const data = await apiClient.get('/commandcode-api-key');

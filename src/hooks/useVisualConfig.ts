@@ -197,6 +197,14 @@ function getPortError(value: string): 'port_range' | undefined {
   return parsed >= 1 && parsed <= 65535 ? undefined : 'port_range';
 }
 
+function getRedisRetentionError(value: string): 'integer_range_1_3600' | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (!/^\d+$/.test(trimmed)) return 'integer_range_1_3600';
+  const parsed = Number(trimmed);
+  return parsed >= 1 && parsed <= 3600 ? undefined : 'integer_range_1_3600';
+}
+
 function parseTokenThresholdRules(rules: unknown): TokenThresholdRule[] {
 	if (!Array.isArray(rules)) return [];
 	return rules
@@ -266,7 +274,7 @@ export function getVisualConfigValidationErrors(
     port: getPortError(values.port),
     errorLogsMaxFiles: getNonNegativeIntegerError(values.errorLogsMaxFiles),
     logsMaxTotalSizeMb: getNonNegativeIntegerError(values.logsMaxTotalSizeMb),
-    redisUsageQueueRetentionSeconds: getNonNegativeIntegerError(
+    redisUsageQueueRetentionSeconds: getRedisRetentionError(
       values.redisUsageQueueRetentionSeconds
     ),
     requestRetry: getNonNegativeIntegerError(values.requestRetry),
@@ -1443,7 +1451,7 @@ export function useVisualConfig() {
           deleteIfMapEmpty(doc, ['plugins']);
         }
 
-        setBooleanInDoc(doc, ['debug'], values.debug);
+        if (dirtyFields.has('debug')) setBooleanInDoc(doc, ['debug'], values.debug);
 
         setBooleanInDoc(doc, ['commercial-mode'], values.commercialMode);
         setBooleanInDoc(doc, ['logging-to-file'], values.loggingToFile);

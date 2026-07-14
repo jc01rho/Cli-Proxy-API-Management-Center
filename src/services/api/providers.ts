@@ -180,6 +180,38 @@ const getRawSectionList = (rawConfig: unknown, section: string): unknown[] => {
   return Array.isArray(value) ? value : [];
 };
 
+type ProviderRecordMerger = (
+  raw: unknown,
+  payload: Record<string, unknown>
+) => Record<string, unknown>;
+
+// ponytail: pure helpers kept for concurrency tests + future list-mutate path
+export function appendLatestProviderRecord(
+  latestItems: unknown[],
+  payload: Record<string, unknown>,
+  mergePayload: ProviderRecordMerger
+): unknown[] {
+  return [...latestItems, mergePayload(undefined, payload)];
+}
+
+export function replaceLatestProviderRecord(
+  latestItems: unknown[],
+  isTarget: (record: Record<string, unknown>, index: number) => boolean,
+  payload: Record<string, unknown>,
+  mergePayload: ProviderRecordMerger
+): unknown[] {
+  const targetIndex = latestItems.findIndex(
+    (item, index) => isRecord(item) && isTarget(item, index)
+  );
+  if (targetIndex < 0) {
+    throw new Error('Provider configuration changed; refresh and try again.');
+  }
+
+  return latestItems.map((item, index) =>
+    index === targetIndex ? mergePayload(item, payload) : item
+  );
+}
+
 const mergeModelPayloads = (
   raw: unknown,
   models: unknown,

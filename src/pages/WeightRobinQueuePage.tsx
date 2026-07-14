@@ -51,6 +51,7 @@ export function WeightRobinQueuePage() {
   const [selectedModel, setSelectedModel] = useState<string>('');
   const prevTotalPicks = useRef<number>(0);
   const prevPickedAt = useRef<string>('');
+  const [picksDelta, setPicksDelta] = useState(0);
 
   const loadQueue = useCallback(async () => {
     setLoading(true);
@@ -74,13 +75,9 @@ export function WeightRobinQueuePage() {
   useHeaderRefresh(loadQueue);
   useInterval(() => { void loadQueue(); }, autoRefresh ? REFRESH_INTERVAL_MS : null);
 
-  const picksDelta = useMemo(() => {
-    if (!snapshot) return 0;
-    return snapshot.totalPicks - prevTotalPicks.current;
-  }, [snapshot]);
-
   useEffect(() => {
     if (snapshot) {
+      setPicksDelta(snapshot.totalPicks - prevTotalPicks.current);
       prevTotalPicks.current = snapshot.totalPicks;
       if (snapshot.lastPickedAt) prevPickedAt.current = snapshot.lastPickedAt;
     }

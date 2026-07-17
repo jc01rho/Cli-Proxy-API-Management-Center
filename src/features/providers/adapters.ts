@@ -26,6 +26,12 @@ import {
   getQiniuCloudProtocolUrls,
   resolveQiniuCloudBaseUrl,
 } from './qiniuCloud';
+import {
+  KIMI_DISPLAY_NAME,
+  KIMI_PROTOCOL_LABELS,
+  getKimiProtocolUrls,
+  resolveKimiBaseUrl,
+} from './kimi';
 import type {
   ProviderBrand,
   ProviderResource,
@@ -60,14 +66,14 @@ const truncateForId = (value: string | undefined | null): string => {
 };
 
 function providerKeyToResource(
-  brand: 'gemini' | 'codex' | 'commandcode' | 'claude' | 'claudeApi' | 'vertex' | 'mistral',
+  brand: 'gemini' | 'codex' | 'commandcode' | 'xai' | 'claude' | 'claudeApi' | 'vertex' | 'mistral',
   config: GeminiKeyConfig | ProviderKeyConfig,
   index: number
 ): ProviderResource {
   const apiKey = config.apiKey ?? '';
   const disabled = hasDisableAllModelsRule(config.excludedModels);
   const flags: ProviderResource['flags'] = {};
-  if (brand === 'codex') {
+  if (brand === 'codex' || brand === 'xai') {
     flags.websockets = (config as ProviderKeyConfig).websockets === true;
   }
   if (brand === 'claude' || brand === 'claudeApi') {
@@ -120,6 +126,10 @@ export function commandcodeToResource(config: ProviderKeyConfig, index: number):
   return providerKeyToResource('commandcode', config, index);
 }
 
+export function xaiToResource(config: ProviderKeyConfig, index: number): ProviderResource {
+  return providerKeyToResource('xai', config, index);
+}
+
 export function claudeToResource(config: ProviderKeyConfig, index: number): ProviderResource {
   return providerKeyToResource('claude', config, index);
 }
@@ -141,15 +151,16 @@ export function mistralToResource(config: ProviderKeyConfig, index: number): Pro
 }
 
 export function openaiToResource(config: OpenAIProviderConfig, index: number): ProviderResource {
+  const sourceIndex = config.sourceIndex ?? index;
   const name = (config.name ?? '').trim();
   const firstEntry = config.apiKeyEntries?.[0];
   const previewApiKey = firstEntry?.apiKey ? maskApiKey(firstEntry.apiKey) : null;
   return {
-    id: buildId('openaiCompatibility', index, truncateForId(name) || `#${index}`),
+    id: buildId('openaiCompatibility', sourceIndex, truncateForId(name) || `#${sourceIndex}`),
     brand: 'openaiCompatibility',
-    originalIndex: index,
+    originalIndex: sourceIndex,
     name: name || null,
-    identifier: name || `#${index + 1}`,
+    identifier: name || `#${sourceIndex + 1}`,
     apiKeyPreview: previewApiKey,
     apiKey: null,
     authIndex: config.authIndex ?? null,
@@ -167,7 +178,7 @@ export function openaiToResource(config: OpenAIProviderConfig, index: number): P
     apiKeyEntryCount: config.apiKeyEntries?.length ?? 0,
     disabled: config.disabled === true,
     flags: {},
-    selector: { brand: 'openaiCompatibility', name, index },
+    selector: { brand: 'openaiCompatibility', name, index: sourceIndex },
     raw: config,
   };
 }
@@ -232,10 +243,7 @@ function sponsorRawToResource(
     (raw.claude.length > 0 && !claudeDisabled ? 1 : 0) +
     (raw.gemini.length > 0 && !geminiDisabled ? 1 : 0);
   const allResourcesConfigured =
-    raw.openai.length > 0 ||
-    raw.codex.length > 0 ||
-    raw.claude.length > 0 ||
-    raw.gemini.length > 0;
+    raw.openai.length > 0 || raw.codex.length > 0 || raw.claude.length > 0 || raw.gemini.length > 0;
   const disabled = allResourcesConfigured && enabledCount === 0;
   const models = [
     ...raw.openai.flatMap((item) => collectModelNames(item.config.models)),
@@ -354,5 +362,14 @@ export function qiniuCloudToResource(raw: SponsorProviderRaw): ProviderResource 
     protocolLabels: QINIU_CLOUD_PROTOCOL_LABELS,
     resolveBaseUrl: resolveQiniuCloudBaseUrl,
     getProtocolUrls: getQiniuCloudProtocolUrls,
+  });
+}
+
+export function kimiToResource(raw: SponsorProviderRaw): ProviderResource | null {
+  return sponsorRawToResource('kimi', raw, {
+    displayName: KIMI_DISPLAY_NAME,
+    protocolLabels: KIMI_PROTOCOL_LABELS,
+    resolveBaseUrl: resolveKimiBaseUrl,
+    getProtocolUrls: getKimiProtocolUrls,
   });
 }

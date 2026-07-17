@@ -32,6 +32,7 @@ const PROVIDER_COMMON_KEY_FIELDS = [
 
 const GEMINI_KEY_FIELDS = PROVIDER_COMMON_KEY_FIELDS;
 const CODEX_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'websockets'] as const;
+const XAI_KEY_FIELDS = CODEX_KEY_FIELDS;
 const CLAUDE_KEY_FIELDS = [
   ...PROVIDER_COMMON_KEY_FIELDS,
   'cloak',
@@ -211,6 +212,19 @@ export function replaceLatestProviderRecord(
     index === targetIndex ? mergePayload(item, payload) : item
   );
 }
+
+const mutateLatestProviderList = async (
+  section: string,
+  mutate: (latestItems: unknown[]) => unknown[]
+) => {
+  const rawConfig = await apiClient.get('/config');
+  const latestItems = getRawSectionList(rawConfig, section);
+  await apiClient.put(`/${section}`, mutate(latestItems));
+};
+
+const matchesProviderKey = (record: Record<string, unknown>, apiKey: string, baseUrl?: string) =>
+  getStringField(record, ['api-key']) === apiKey.trim() &&
+  getStringField(record, ['base-url']) === (baseUrl ?? '').trim();
 
 const mergeModelPayloads = (
   raw: unknown,
@@ -475,6 +489,43 @@ export const providersApi = {
 
   deleteCodexConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/codex-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+
+  createXAIConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('xai-api-key', (latestItems) =>
+      appendLatestProviderRecord(latestItems, serializeProviderKey(config), (raw, payload) =>
+        mergeProviderKeyPayload(raw, payload, XAI_KEY_FIELDS)
+      )
+    ),
+
+  updateXAIConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+    mutateLatestProviderList('xai-api-key', (latestItems) =>
+      replaceLatestProviderRecord(
+        latestItems,
+        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        serializeProviderKey(config),
+        (raw, payload) => mergeProviderKeyPayload(raw, payload, XAI_KEY_FIELDS)
+      )
+    ),
+
+  deleteXAIConfig: (apiKey: string, baseUrl?: string) =>
+    apiClient.delete(`/xai-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+
+  createClaudeConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('claude-api-key', (latestItems) =>
+      appendLatestProviderRecord(latestItems, serializeProviderKey(config), (raw, payload) =>
+        mergeProviderKeyPayload(raw, payload, CLAUDE_KEY_FIELDS)
+      )
+    ),
+
+  updateClaudeConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+    mutateLatestProviderList('claude-api-key', (latestItems) =>
+      replaceLatestProviderRecord(
+        latestItems,
+        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        serializeProviderKey(config),
+        (raw, payload) => mergeProviderKeyPayload(raw, payload, CLAUDE_KEY_FIELDS)
+      )
+    ),
 
   saveClaudeConfigs: async (configs: ProviderKeyConfig[]) =>
     apiClient.put(

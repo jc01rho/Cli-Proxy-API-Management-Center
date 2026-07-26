@@ -15,7 +15,11 @@ import type {
   VisualConfigValidationErrors,
   PayloadParamValidationErrorCode,
 } from '@/types/visualConfig';
-import { DEFAULT_VISUAL_VALUES, type OauthEndpointOverrideEntry, makeClientId } from '@/types/visualConfig';
+import {
+  DEFAULT_VISUAL_VALUES,
+  type OauthEndpointOverrideEntry,
+  makeClientId,
+} from '@/types/visualConfig';
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -206,66 +210,79 @@ function getRedisRetentionError(value: string): 'integer_range_1_3600' | undefin
 }
 
 function parseTokenThresholdRules(rules: unknown): TokenThresholdRule[] {
-	if (!Array.isArray(rules)) return [];
-	return rules
-		.map((rule, index) => {
-			const record = asRecord(rule);
-			if (!record) return null;
-			
-			const minTokens = record['min-tokens'] ?? record.minTokens;
-			const parsedMin = typeof minTokens !== 'undefined' ? Number(minTokens) : undefined;
-			const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin >= 0);
-			
-			const maxTokens = record['max-tokens'] ?? record.maxTokens;
-			const parsedMax = typeof maxTokens !== 'undefined' ? Number(maxTokens) : undefined;
-			const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax >= 0);
-			
-			if ((parsedMin === undefined && parsedMax === undefined) || !isValidMin || !isValidMax) return null;
-			
-			const billingClass = record['billing-class'] ?? record.billingClass;
-			const normalizedBillingClass =
-				billingClass === 'per_request' ? 'per-request' : billingClass === 'per-request' ? 'per-request' : billingClass === 'metered' ? 'metered' : null;
-			if (!normalizedBillingClass) return null;
-			
-			return {
-				id: `token-threshold-rule-${index}`,
-				modelPattern: typeof (record['model-pattern'] ?? record.modelPattern) === 'string' ? String(record['model-pattern'] ?? record.modelPattern) : '',
-				...(parsedMin !== undefined ? { minTokens: String(parsedMin) } : {}),
-				...(parsedMax !== undefined ? { maxTokens: String(parsedMax) } : {}),
-				billingClass: normalizedBillingClass,
-				enabled: typeof record.enabled === 'boolean' ? record.enabled : true,
-			};
-		})
-		.filter(Boolean) as TokenThresholdRule[];
+  if (!Array.isArray(rules)) return [];
+  return rules
+    .map((rule, index) => {
+      const record = asRecord(rule);
+      if (!record) return null;
+
+      const minTokens = record['min-tokens'] ?? record.minTokens;
+      const parsedMin = typeof minTokens !== 'undefined' ? Number(minTokens) : undefined;
+      const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin >= 0);
+
+      const maxTokens = record['max-tokens'] ?? record.maxTokens;
+      const parsedMax = typeof maxTokens !== 'undefined' ? Number(maxTokens) : undefined;
+      const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax >= 0);
+
+      if ((parsedMin === undefined && parsedMax === undefined) || !isValidMin || !isValidMax)
+        return null;
+
+      const billingClass = record['billing-class'] ?? record.billingClass;
+      const normalizedBillingClass =
+        billingClass === 'per_request'
+          ? 'per-request'
+          : billingClass === 'per-request'
+            ? 'per-request'
+            : billingClass === 'metered'
+              ? 'metered'
+              : null;
+      if (!normalizedBillingClass) return null;
+
+      return {
+        id: `token-threshold-rule-${index}`,
+        modelPattern:
+          typeof (record['model-pattern'] ?? record.modelPattern) === 'string'
+            ? String(record['model-pattern'] ?? record.modelPattern)
+            : '',
+        ...(parsedMin !== undefined ? { minTokens: String(parsedMin) } : {}),
+        ...(parsedMax !== undefined ? { maxTokens: String(parsedMax) } : {}),
+        billingClass: normalizedBillingClass,
+        enabled: typeof record.enabled === 'boolean' ? record.enabled : true,
+      };
+    })
+    .filter(Boolean) as TokenThresholdRule[];
 }
 
 function serializeTokenThresholdRules(rules: TokenThresholdRule[]): Array<Record<string, unknown>> {
-	return rules
-		.map((rule) => {
-			const parsedMin = rule.minTokens !== undefined && rule.minTokens !== '' ? Number(rule.minTokens) : undefined;
-			const parsedMax = rule.maxTokens !== undefined && rule.maxTokens !== '' ? Number(rule.maxTokens) : undefined;
-			
-			const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin >= 0);
-			const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax >= 0);
-			
-			if ((parsedMin === undefined && parsedMax === undefined) || !isValidMin || !isValidMax) return null;
-			
-			const serialized: Record<string, unknown> = {
-				'billing-class': rule.billingClass,
-				enabled: rule.enabled,
-			};
-			if (rule.modelPattern && rule.modelPattern.trim() !== '') {
-				serialized['model-pattern'] = rule.modelPattern.trim();
-			}
-			if (parsedMin !== undefined) {
-				serialized['min-tokens'] = parsedMin;
-			}
-			if (parsedMax !== undefined) {
-				serialized['max-tokens'] = parsedMax;
-			}
-			return serialized;
-		})
-		.filter(Boolean) as Array<Record<string, unknown>>;
+  return rules
+    .map((rule) => {
+      const parsedMin =
+        rule.minTokens !== undefined && rule.minTokens !== '' ? Number(rule.minTokens) : undefined;
+      const parsedMax =
+        rule.maxTokens !== undefined && rule.maxTokens !== '' ? Number(rule.maxTokens) : undefined;
+
+      const isValidMin = parsedMin === undefined || (Number.isFinite(parsedMin) && parsedMin >= 0);
+      const isValidMax = parsedMax === undefined || (Number.isFinite(parsedMax) && parsedMax >= 0);
+
+      if ((parsedMin === undefined && parsedMax === undefined) || !isValidMin || !isValidMax)
+        return null;
+
+      const serialized: Record<string, unknown> = {
+        'billing-class': rule.billingClass,
+        enabled: rule.enabled,
+      };
+      if (rule.modelPattern && rule.modelPattern.trim() !== '') {
+        serialized['model-pattern'] = rule.modelPattern.trim();
+      }
+      if (parsedMin !== undefined) {
+        serialized['min-tokens'] = parsedMin;
+      }
+      if (parsedMax !== undefined) {
+        serialized['max-tokens'] = parsedMax;
+      }
+      return serialized;
+    })
+    .filter(Boolean) as Array<Record<string, unknown>>;
 }
 export function getVisualConfigValidationErrors(
   values: VisualConfigValues
@@ -274,9 +291,7 @@ export function getVisualConfigValidationErrors(
     port: getPortError(values.port),
     errorLogsMaxFiles: getNonNegativeIntegerError(values.errorLogsMaxFiles),
     logsMaxTotalSizeMb: getNonNegativeIntegerError(values.logsMaxTotalSizeMb),
-    redisUsageQueueRetentionSeconds: getRedisRetentionError(
-      values.redisUsageQueueRetentionSeconds
-    ),
+    redisUsageQueueRetentionSeconds: getRedisRetentionError(values.redisUsageQueueRetentionSeconds),
     requestRetry: getNonNegativeIntegerError(values.requestRetry),
     maxRetryCredentials: getNonNegativeIntegerError(values.maxRetryCredentials),
     maxRetryInterval: getNonNegativeIntegerError(values.maxRetryInterval),
@@ -720,14 +735,18 @@ function parseOauthEndpointOverrides(raw: unknown): OauthEndpointOverrideEntry[]
       tokenUrl: String(endpointRecord['token-url'] ?? endpointRecord.tokenUrl ?? ''),
       refreshUrl: String(endpointRecord['refresh-url'] ?? endpointRecord.refreshUrl ?? ''),
       userinfoUrl: String(endpointRecord['userinfo-url'] ?? endpointRecord.userinfoUrl ?? ''),
-      deviceAuthorizeUrl: String(endpointRecord['device-authorize-url'] ?? endpointRecord.deviceAuthorizeUrl ?? ''),
+      deviceAuthorizeUrl: String(
+        endpointRecord['device-authorize-url'] ?? endpointRecord.deviceAuthorizeUrl ?? ''
+      ),
     };
     entries.push(entry);
   });
   return entries;
 }
 
-function serializeOauthEndpointOverrides(entries: OauthEndpointOverrideEntry[]): Record<string, Record<string, string>> {
+function serializeOauthEndpointOverrides(
+  entries: OauthEndpointOverrideEntry[]
+): Record<string, Record<string, string>> {
   const map: Record<string, Record<string, string>> = {};
   entries.forEach((entry) => {
     if (!entry.provider) return;
@@ -998,7 +1017,6 @@ function getNextDirtyFields(
       'claudeHeaderStabilizeDeviceProfile',
       'codexHeaderUserAgent',
       'codexHeaderBetaFeatures',
-      'codexIdentityConfuse',
       'host',
       'port',
       'tlsEnable',
@@ -1180,7 +1198,6 @@ export function useVisualConfig() {
       const payload = asRecord(parsed.payload);
       const streaming = asRecord(parsed.streaming);
       const plugins = asRecord(parsed.plugins);
-      const codex = asRecord(parsed.codex);
       const claudeHeaderDefaults = asRecord(parsed['claude-header-defaults']);
       const codexHeaderDefaults = asRecord(parsed['codex-header-defaults']);
 
@@ -1282,15 +1299,18 @@ export function useVisualConfig() {
           typeof codexHeaderDefaults?.['beta-features'] === 'string'
             ? codexHeaderDefaults['beta-features']
             : '',
-        codexIdentityConfuse: Boolean(codex?.['identity-confuse']),
 
         quotaSwitchProject: Boolean(quotaExceeded?.['switch-project'] ?? true),
         quotaSwitchPreviewModel: Boolean(quotaExceeded?.['switch-preview-model'] ?? true),
         quotaAntigravityCredits: Boolean(quotaExceeded?.['antigravity-credits'] ?? false),
 
-        routingStrategy: routing?.strategy === 'fill-first' ? 'fill-first' : routing?.strategy === 'weight-robin' ? 'weight-robin' : 'round-robin',
-        routingMode:
-          routing?.mode === 'key-based' ? 'key-based' : 'provider-based',
+        routingStrategy:
+          routing?.strategy === 'fill-first'
+            ? 'fill-first'
+            : routing?.strategy === 'weight-robin'
+              ? 'weight-robin'
+              : 'round-robin',
+        routingMode: routing?.mode === 'key-based' ? 'key-based' : 'provider-based',
         tokenThresholdRules: parseTokenThresholdRules(routing?.['token-threshold-rules']),
         fallbackModels: asRecord(routing?.['fallback-models'])
           ? Object.fromEntries(
@@ -1303,9 +1323,7 @@ export function useVisualConfig() {
             )
           : {},
         fallbackChain: Array.isArray(routing?.['fallback-chain'])
-          ? routing['fallback-chain']
-              .map((entry) => String(entry ?? '').trim())
-              .filter(Boolean)
+          ? routing['fallback-chain'].map((entry) => String(entry ?? '').trim()).filter(Boolean)
           : [],
         fallbackMaxDepth:
           routing?.['fallback-max-depth'] != null
@@ -1336,7 +1354,7 @@ export function useVisualConfig() {
           bootstrapRetries: String(streaming?.['bootstrap-retries'] ?? ''),
           nonstreamKeepaliveInterval: String(parsed['nonstream-keepalive-interval'] ?? ''),
         },
-};
+      };
       dispatch({ type: 'load_success', values: newValues });
       return { ok: true as const };
     } catch (error: unknown) {
@@ -1581,32 +1599,11 @@ export function useVisualConfig() {
           deleteIfMapEmpty(doc, ['api-key-ip-blacklist']);
         }
 
-        if (
-          docHas(doc, ['codex']) ||
-          values.codexIdentityConfuse ||
-          shouldWriteManagedField(
-            doc,
-            ['codex', 'identity-confuse'],
-            dirtyFields,
-            'codexIdentityConfuse'
-          )
-        ) {
-          ensureMapInDoc(doc, ['codex']);
-          setBooleanInDoc(doc, ['codex', 'identity-confuse'], values.codexIdentityConfuse);
-          deleteIfMapEmpty(doc, ['codex']);
-        }
-
-        if (
-          docHas(doc, ['quota-exceeded']) ||
-          !values.quotaSwitchProject ||
-          !values.quotaSwitchPreviewModel ||
-          shouldWriteManagedField(
-            doc,
-            ['quota-exceeded', 'antigravity-credits'],
-            dirtyFields,
-            'quotaAntigravityCredits'
-          )
-        ) {
+        const quotaDirty =
+          dirtyFields.has('quotaSwitchProject') ||
+          dirtyFields.has('quotaSwitchPreviewModel') ||
+          dirtyFields.has('quotaAntigravityCredits');
+        if (quotaDirty) {
           ensureMapInDoc(doc, ['quota-exceeded']);
           const writeQuotaAntigravityCredits = shouldWriteManagedField(
             doc,
@@ -1643,12 +1640,12 @@ export function useVisualConfig() {
             values.routingSessionAffinityTTL
           );
 
-			const tokenThresholdRules = serializeTokenThresholdRules(values.tokenThresholdRules);
-			if (tokenThresholdRules.length > 0) {
-				doc.setIn(['routing', 'token-threshold-rules'], tokenThresholdRules);
-			} else if (docHas(doc, ['routing', 'token-threshold-rules'])) {
-				doc.deleteIn(['routing', 'token-threshold-rules']);
-			}
+          const tokenThresholdRules = serializeTokenThresholdRules(values.tokenThresholdRules);
+          if (tokenThresholdRules.length > 0) {
+            doc.setIn(['routing', 'token-threshold-rules'], tokenThresholdRules);
+          } else if (docHas(doc, ['routing', 'token-threshold-rules'])) {
+            doc.deleteIn(['routing', 'token-threshold-rules']);
+          }
 
           const fallbackEntries = Object.entries(values.fallbackModels)
             .map(([source, target]) => [source.trim(), target.trim()] as const)
@@ -1668,15 +1665,13 @@ export function useVisualConfig() {
             doc.deleteIn(['routing', 'fallback-chain']);
           }
 
-          setIntFromStringInDoc(
-            doc,
-            ['routing', 'fallback-max-depth'],
-            values.fallbackMaxDepth
-          );
+          setIntFromStringInDoc(doc, ['routing', 'fallback-max-depth'], values.fallbackMaxDepth);
           deleteIfMapEmpty(doc, ['routing']);
         }
 
-        const oauthEndpointOverrides = serializeOauthEndpointOverrides(values.oauthEndpointOverrides);
+        const oauthEndpointOverrides = serializeOauthEndpointOverrides(
+          values.oauthEndpointOverrides
+        );
         if (Object.keys(oauthEndpointOverrides).length > 0) {
           doc.setIn(['oauth-endpoint-overrides'], oauthEndpointOverrides);
         } else if (docHas(doc, ['oauth-endpoint-overrides'])) {

@@ -38,8 +38,13 @@ export interface AuthFileItem {
   lastRefresh?: string | number;
   modified?: number;
   primary_info?: PrimaryInfo;
+  priority?: number;
+  note?: string;
   success?: unknown;
   failed?: unknown;
+  /** 归一化后的累计成功/失败计数（由 API 边界从 success/failed 生字段填充）。 */
+  successCount?: number;
+  failureCount?: number;
   recent_requests?: RecentRequestBucket[];
   recentRequests?: RecentRequestBucket[];
   [key: string]: unknown;

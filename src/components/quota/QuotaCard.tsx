@@ -3,12 +3,13 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import type { TFunction } from 'i18next';
 import { Button } from '@/components/ui/Button';
 import { IconRefreshCw } from '@/components/ui/icons';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
-import { TYPE_COLORS } from '@/utils/quota';
+import { TYPE_COLORS, resolveQuotaErrorMessage } from '@/utils/quota';
+import { QuotaProgressBar, type QuotaProgressBarProps } from './QuotaProgressBar';
 import styles from '@/pages/QuotaPage.module.scss';
 
 type QuotaStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -19,35 +20,12 @@ export interface QuotaStatusState {
   errorStatus?: number;
 }
 
-export interface QuotaProgressBarProps {
-  percent: number | null;
-  highThreshold: number;
-  mediumThreshold: number;
-}
+export type { QuotaProgressBarProps } from './QuotaProgressBar';
 
-export function QuotaProgressBar({ percent }: QuotaProgressBarProps) {
-  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-  const normalized = percent === null ? null : clamp(percent, 0, 100);
-  const widthPercent = Math.round(normalized ?? 0);
-  const colorPercent = percent ?? 0;
-  const clampedColorPercent = clamp(colorPercent, 5, 100);
-  const colorRatio = (clampedColorPercent - 5) / 95;
-  const successWeight = Math.round(colorRatio * 100);
-  const dangerWeight = 100 - successWeight;
-  const fillBaseColor = `color-mix(in srgb, var(--danger-color) ${dangerWeight}%, var(--success-color) ${successWeight}%)`;
-  const fillEdgeColor = `color-mix(in srgb, ${fillBaseColor} 84%, var(--text-primary) 16%)`;
-  const fillStyle = {
-    width: `${widthPercent}%`,
-    '--quota-bar-fill-start': fillBaseColor,
-    '--quota-bar-fill-end': fillEdgeColor
-  } as CSSProperties;
-
-  return (
-    <div className={styles.quotaBar}>
-      <div className={styles.quotaBarFill} style={fillStyle} />
-    </div>
-  );
-}
+/** 配额页外衣的进度条：绑定 QuotaPage 模块样式，满足 QuotaRenderHelpers 契约。 */
+const BoundQuotaProgressBar = (props: QuotaProgressBarProps) => (
+  <QuotaProgressBar {...props} styles={styles} />
+);
 
 export interface QuotaRenderHelpers {
   styles: typeof styles;
@@ -106,30 +84,16 @@ export function QuotaCard<TState extends QuotaStatusState>({
   return (
     <div className={`${styles.fileCard} ${cardClassName}`}>
       <div className={styles.cardHeader}>
-        <div className={styles.cardBadgeRow} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
-          <span
-            className={styles.typeBadge}
-            style={{
-              backgroundColor: typeColor.bg,
-              color: typeColor.text,
-              ...(typeColor.border ? { border: typeColor.border } : {})
-            }}
-          >
-            {getTypeLabel(displayType)}
-          </span>
-          {item.primary_info && (
-            <span 
-              className={item.primary_info.is_primary ? styles.primaryBadge : styles.standbyBadge}
-              style={{
-                opacity: item.disabled ? 0.4 : (item.primary_info.is_primary ? 0.9 : 1)
-              }}
-            >
-              {item.primary_info.is_primary 
-                ? t('quota_management.primary_credential') 
-                : `${t('quota_management.standby_credential')} (${item.primary_info.order})`}
-            </span>
-          )}
-        </div>
+        <span
+          className={styles.typeBadge}
+          style={{
+            backgroundColor: typeColor.bg,
+            color: typeColor.text,
+            ...(typeColor.border ? { border: typeColor.border } : {}),
+          }}
+        >
+          {getTypeLabel(displayType)}
+        </span>
         <span className={styles.fileName}>{item.name}</span>
       </div>
 
@@ -156,7 +120,7 @@ export function QuotaCard<TState extends QuotaStatusState>({
             })}
           </div>
         ) : quota ? (
-          renderQuotaItems(quota, t, { styles, QuotaProgressBar })
+          renderQuotaItems(quota, t, { styles, QuotaProgressBar: BoundQuotaProgressBar })
         ) : (
           <div className={styles.quotaMessage}>{t(idleMessageKey)}</div>
         )}
@@ -185,13 +149,3 @@ export function QuotaCard<TState extends QuotaStatusState>({
     </div>
   );
 }
-
-const resolveQuotaErrorMessage = (
-  t: TFunction,
-  status: number | undefined,
-  fallback: string
-): string => {
-  if (status === 404) return t('common.quota_update_required');
-  if (status === 403) return t('common.quota_check_credential');
-  return fallback;
-};

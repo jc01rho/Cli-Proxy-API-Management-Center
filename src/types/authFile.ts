@@ -39,6 +39,7 @@ export interface AuthFileItem {
   modified?: number;
   primary_info?: PrimaryInfo;
   priority?: number;
+  weight?: number;
   note?: string;
   success?: unknown;
   failed?: unknown;

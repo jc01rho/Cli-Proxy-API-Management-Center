@@ -37,6 +37,7 @@ export interface Config {
   fallbackMaxDepth?: number;
   apiKeys?: string[];
   geminiApiKeys?: GeminiKeyConfig[];
+  interactionsApiKeys?: GeminiKeyConfig[];
   codexApiKeys?: ProviderKeyConfig[];
   xaiApiKeys?: ProviderKeyConfig[];
   claudeApiKeys?: ProviderKeyConfig[];
@@ -65,6 +66,7 @@ export type RawConfigSection =
   | 'routing/token-threshold-rules'
   | 'api-keys'
   | 'gemini-api-key'
+  | 'interactions-api-key'
   | 'codex-api-key'
   | 'xai-api-key'
   | 'claude-api-key'

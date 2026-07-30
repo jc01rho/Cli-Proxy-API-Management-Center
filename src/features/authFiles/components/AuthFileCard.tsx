@@ -136,6 +136,7 @@ export function AuthFileCard(props: AuthFileCardProps) {
     Boolean(rawStatusMessage) && !HEALTHY_STATUS_MESSAGES.has(rawStatusMessage.toLowerCase());
 
   const priorityValue = parsePriorityValue(file.priority ?? file['priority']);
+  const weightValue = Number.isSafeInteger(file.weight) ? file.weight : undefined;
   const noteValue = typeof file.note === 'string' ? file.note.trim() : '';
   const billingClassValue =
     typeof file.billing_class === 'string'
@@ -257,6 +258,14 @@ export function AuthFileCard(props: AuthFileCardProps) {
                 <span className={styles.metaLabel}>{t('auth_files.priority_display')}</span>
                 <span className={`${styles.metaValue} ${styles.priorityValue}`}>
                   {priorityValue}
+                </span>
+              </div>
+            )}
+            {weightValue !== undefined && (
+              <div className={`${styles.metaItem} ${styles.priorityBadge}`}>
+                <span className={styles.metaLabel}>{t('auth_files.weight_display')}</span>
+                <span className={`${styles.metaValue} ${styles.priorityValue}`}>
+                  {weightValue}
                 </span>
               </div>
             )}

@@ -15,6 +15,7 @@ export interface ModelAlias {
 export interface ApiKeyEntry {
   apiKey: string;
   proxyUrl?: string;
+  weight?: number;
   authIndex?: string;
   headers?: Record<string, string>;
 }
@@ -29,6 +30,7 @@ export interface CloakConfig {
 export interface GeminiKeyConfig {
   apiKey: string;
   priority?: number;
+  weight?: number;
   billingClass?: 'metered' | 'per-request';
   prefix?: string;
   baseUrl?: string;
@@ -43,6 +45,7 @@ export interface GeminiKeyConfig {
 export interface ProviderKeyConfig {
   apiKey: string;
   priority?: number;
+  weight?: number;
   billingClass?: 'metered' | 'per-request';
   prefix?: string;
   baseUrl?: string;

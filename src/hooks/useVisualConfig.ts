@@ -10,6 +10,7 @@ import type {
   PayloadParamEntry,
   PayloadParamValueType,
   PayloadRule,
+  RoutingStrategy,
   TokenThresholdRule,
   VisualConfigValues,
   VisualConfigValidationErrors,
@@ -522,6 +523,18 @@ function parseRawPayloadParamValue(raw: unknown): string {
 function parsePayloadProtocol(raw: unknown): string | undefined {
   if (typeof raw !== 'string') return undefined;
   return raw.trim() ? raw : undefined;
+}
+
+export function parseRoutingStrategy(raw: unknown): RoutingStrategy {
+  const normalized = String(raw ?? '')
+    .trim()
+    .toLowerCase();
+  if (['weighted-round-robin', 'weightedroundrobin', 'wrr'].includes(normalized)) {
+    return 'weighted-round-robin';
+  }
+  if (['weight-robin', 'weightrobin'].includes(normalized)) return 'weight-robin';
+  if (['fill-first', 'fillfirst', 'ff'].includes(normalized)) return 'fill-first';
+  return 'round-robin';
 }
 
 export function parseDisableImageGenerationMode(raw: unknown): DisableImageGenerationMode {
@@ -1304,12 +1317,7 @@ export function useVisualConfig() {
         quotaSwitchPreviewModel: Boolean(quotaExceeded?.['switch-preview-model'] ?? true),
         quotaAntigravityCredits: Boolean(quotaExceeded?.['antigravity-credits'] ?? false),
 
-        routingStrategy:
-          routing?.strategy === 'fill-first'
-            ? 'fill-first'
-            : routing?.strategy === 'weight-robin'
-              ? 'weight-robin'
-              : 'round-robin',
+        routingStrategy: parseRoutingStrategy(routing?.strategy),
         routingMode: routing?.mode === 'key-based' ? 'key-based' : 'provider-based',
         tokenThresholdRules: parseTokenThresholdRules(routing?.['token-threshold-rules']),
         fallbackModels: asRecord(routing?.['fallback-models'])

@@ -29,6 +29,7 @@ import { ApiKeyEntriesEditor } from './ApiKeyEntriesEditor';
 import { ModelEntriesEditor } from './ModelEntriesEditor';
 import styles from './sharedForm.module.scss';
 import { CLAUDE_API_BASE_URL } from '../../claudeApi';
+import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 
 interface BaseProviderFormProps {
   brand: ProviderBrand;
@@ -45,6 +46,7 @@ const emptyModel = (): ModelEntryInput => ({ name: '', alias: '' });
 const emptyApiKeyEntry = (): ApiKeyEntryInput => ({
   apiKey: '',
   proxyUrl: '',
+  weight: undefined,
 });
 const XAI_API_BASE_URL = 'https://api.x.ai/v1';
 
@@ -75,6 +77,7 @@ function buildInitialForm(
       disabled: false,
       disableCooling: false,
       priority: undefined,
+      weight: undefined,
       comment: '',
       models: [emptyModel()],
       headers: [emptyHeader()],
@@ -89,7 +92,8 @@ function buildInitialForm(
         brand === 'codex' ||
         brand === 'xai' ||
         isClaudeLikeBrand(brand) ||
-        brand === 'gemini'
+        brand === 'gemini' ||
+        brand === 'interactions'
           ? ''
           : undefined,
       apiKeyEntries: brand === 'openaiCompatibility' ? [emptyApiKeyEntry()] : undefined,
@@ -129,6 +133,7 @@ function buildInitialForm(
             apiKey: '',
             existingApiKey: entry.apiKey,
             proxyUrl: entry.proxyUrl ?? '',
+            weight: entry.weight,
             authIndex: entry.authIndex,
           }))
         : [emptyApiKeyEntry()],
@@ -151,6 +156,7 @@ function buildInitialForm(
     disabled,
     disableCooling: cfg.disableCooling === true,
     priority: cfg.priority,
+    weight: cfg.weight,
     models: cfg.models?.length
       ? cfg.models.map((m) => ({
           name: m.name,
@@ -179,7 +185,11 @@ function buildInitialForm(
       ? (cfg as ProviderKeyConfig).experimentalCchSigning === true
       : undefined,
     testModel:
-      brand === 'codex' || brand === 'xai' || isClaudeLikeBrand(brand) || brand === 'gemini'
+      brand === 'codex' ||
+      brand === 'xai' ||
+      isClaudeLikeBrand(brand) ||
+      brand === 'gemini' ||
+      brand === 'interactions'
         ? ''
         : undefined,
     comment: cfg.comment ?? '',
@@ -382,6 +392,18 @@ export function BaseProviderForm({
     if (descriptor.baseUrlRequired && !form.baseUrl.trim()) {
       return t('providersPage.form.validation.baseUrlRequired');
     }
+    const weights = [
+      ...(brand === 'openaiCompatibility'
+        ? (form.apiKeyEntries ?? []).map((entry) => entry.weight)
+        : []),
+      ...(brand !== 'openaiCompatibility' ? [form.weight] : []),
+    ];
+    if (weights.some((weight) => weight !== undefined && !Number.isSafeInteger(weight))) {
+      return t('providersPage.form.validation.weightInteger');
+    }
+    if (weights.some((weight) => weight !== undefined && weight > MAX_CREDENTIAL_WEIGHT)) {
+      return t('providersPage.form.validation.weightMax', { max: MAX_CREDENTIAL_WEIGHT });
+    }
     return null;
   };
 
@@ -418,6 +440,7 @@ export function BaseProviderForm({
   const actualApiKeyEntries = form.apiKeyEntries ?? [];
   const supportsDisableCooling =
     brand === 'gemini' ||
+    brand === 'interactions' ||
     brand === 'codex' ||
     brand === 'xai' ||
     isClaudeLikeBrand(brand) ||
@@ -426,7 +449,7 @@ export function BaseProviderForm({
   const singleConnectivity =
     brand === 'codex' || brand === 'xai'
       ? { status: connectivity.codexStatus, run: connectivity.runCodex }
-      : brand === 'gemini'
+      : brand === 'gemini' || brand === 'interactions'
         ? { status: connectivity.geminiStatus, run: connectivity.runGemini }
         : isClaudeLikeBrand(brand)
           ? { status: connectivity.claudeStatus, run: connectivity.runClaude }
@@ -613,6 +636,28 @@ export function BaseProviderForm({
         </div>
         ) : null}
 
+        {brand !== 'openaiCompatibility' ? (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor={`${fid}-weight`}>
+              {t('providersPage.form.weight')}
+            </label>
+            <input
+              id={`${fid}-weight`}
+              type="number"
+              step="1"
+              max={MAX_CREDENTIAL_WEIGHT}
+              className={styles.input}
+              value={form.weight ?? ''}
+              placeholder="1"
+              onChange={(e) =>
+                updateField('weight', e.target.value === '' ? undefined : Number(e.target.value))
+              }
+              disabled={mutating}
+            />
+            <span className={styles.labelHint}>{t('providersPage.form.weightHint')}</span>
+          </div>
+        ) : null}
+
         <div className={styles.field}>
           <label className={styles.label} htmlFor={`${fid}-comment`}>
             {t('providersPage.form.comment')}
@@ -634,7 +679,8 @@ export function BaseProviderForm({
               {brand === 'codex' ||
               brand === 'xai' ||
               isClaudeLikeBrand(brand) ||
-              brand === 'gemini' ? (
+              brand === 'gemini' ||
+              brand === 'interactions' ? (
                 <span className={styles.labelHint}>
                   {' '}
                   · {t('providersPage.form.testModelClaudeHint')}

@@ -255,7 +255,8 @@
     "routing_strategy_weight_robin": "weight-robin (weighted distribution)",
     "request_log_success_body_enable": "Log response body on success",
     "detailed_api_error_body_log_limit_label": "Error body log limit (bytes):",
-    "detailed_api_error_body_log_limit_hint": "Max bytes of request/response body to log on error. Set to 0 to log the full body."
+    "detailed_api_error_body_log_limit_hint": "Max bytes of request/response body to log on error. Set to 0 to log the full body.",
+    "routing_strategy_weighted_round_robin": "weighted-round-robin (weighted cycle)"
   },
   "auth_files": {
     "title": "Auth Files Management",
@@ -402,7 +403,12 @@
     "quota_refresh_single": "Refresh quota",
     "quota_refresh_hint": "Refresh quota only for this credential",
     "quota_refresh_success": "Quota refreshed for \"{{name}}\"",
-    "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}"
+    "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}",
+    "weight_display": "WRR weight",
+    "weight_label": "Scheduling weight (weight)",
+    "weight_hint": "Defaults to 1. Values at or below 0 exclude this credential from weighted scheduling; maximum 1,000,000.",
+    "weight_invalid_integer": "Weight must be an integer.",
+    "weight_invalid_max": "Weight cannot exceed 1,000,000."
   },
   "antigravity_subscription": {
     "plan_unknown": "Unknown",
@@ -743,7 +749,6 @@
     "xai_callback_hint": "Grok may only show a code on the page. Paste that code directly and the app will submit it as http://127.0.0.1:56121/callback?... automatically.",
     "xai_callback_required": "Please paste the code shown by Grok or the full callback URL first.",
     "xai_callback_state_missing": "Missing the state for this xAI login. Start xAI login again, then submit the code.",
-    
     "oauth_callback_label": "Callback URL",
     "oauth_callback_placeholder": "http://localhost:1455/auth/callback?code=...&state=...",
     "oauth_callback_hint": "Remote browser mode: after the provider redirects to http://localhost:..., copy the full URL and submit it here.",
@@ -1076,7 +1081,8 @@
           "ip_blacklist_window": "Window",
           "ip_blacklist_window_hint": "Time window to count failures (e.g. 10m, 1h)",
           "ip_blacklist_duration": "Block Duration",
-          "ip_blacklist_duration_hint": "How long an IP stays blocked (e.g. 24h, 7d)"
+          "ip_blacklist_duration_hint": "How long an IP stays blocked (e.g. 24h, 7d)",
+          "strategy_weighted_round_robin": "Weighted Round Robin"
         },
         "quota": {
           "title": "Quota Fallback",
@@ -1269,7 +1275,13 @@
     "invalid_json": "Enter valid JSON",
     "expected_array": "Enter a JSON array",
     "expected_object": "Enter a JSON object",
-    "invalid_enum": "Choose one of the declared enum values"
+    "invalid_enum": "Choose one of the declared enum values",
+    "delete_plugin": "Delete",
+    "delete_confirm_title": "Delete plugin",
+    "delete_confirm_message": "Delete {{name}} ({{id}})? This removes the local plugin file and saved config.",
+    "delete_success": "Plugin deleted",
+    "delete_failed": "Failed to delete plugin",
+    "delete_restart_required": "The loaded plugin cannot be removed until the backend restarts."
   },
   "plugin_store": {
     "title": "Plugin Store",
@@ -1524,7 +1536,8 @@
       "code0": "Code0",
       "fennoAI": "FennoAI",
       "qiniuCloud": "Qiniu Cloud",
-      "kimi": "Kimi"
+      "kimi": "Kimi",
+      "interactions": "Interactions API"
     },
     "table": {
       "key": "Key",
@@ -1693,8 +1706,12 @@
       "validation": {
         "nameRequired": "Name is required",
         "apiKeyRequired": "At least one API key is required",
-        "baseUrlRequired": "Base URL is required"
-      }
+        "baseUrlRequired": "Base URL is required",
+        "weightInteger": "Scheduling weight must be an integer",
+        "weightMax": "Scheduling weight cannot exceed {{max}}"
+      },
+      "weight": "Scheduling weight",
+      "weightHint": "Default 1 · ≤ 0 is excluded · maximum 1,000,000"
     },
     "ampcode": {
       "upstreamUrl": "Upstream URL",

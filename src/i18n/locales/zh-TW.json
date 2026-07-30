@@ -254,7 +254,8 @@
     "routing_strategy_weight_robin": "weight-robin（加權分佈）",
     "request_log_success_body_enable": "成功時記錄回應體",
     "detailed_api_error_body_log_limit_label": "錯誤日誌體大小限制（位元組）：",
-    "detailed_api_error_body_log_limit_hint": "錯誤時記錄請求/回應體的最大位元組數。設為 0 則記錄完整內容。"
+    "detailed_api_error_body_log_limit_hint": "錯誤時記錄請求/回應體的最大位元組數。設為 0 則記錄完整內容。",
+    "routing_strategy_weighted_round_robin": "weighted-round-robin（加權輪詢）"
   },
   "auth_files": {
     "title": "驗證檔案管理",
@@ -401,7 +402,12 @@
     "quota_refresh_single": "重新整理配額",
     "quota_refresh_hint": "僅重新整理該驗證檔案的配額",
     "quota_refresh_success": "已重新整理「{{name}}」的配額",
-    "quota_refresh_failed": "重新整理「{{name}}」的配額失敗：{{message}}"
+    "quota_refresh_failed": "重新整理「{{name}}」的配額失敗：{{message}}",
+    "weight_display": "WRR 權重",
+    "weight_label": "調度權重（weight）",
+    "weight_hint": "預設值為 1；小於或等於 0 時不參與加權調度；最大值為 1,000,000。",
+    "weight_invalid_integer": "權重必須是整數。",
+    "weight_invalid_max": "權重不能超過 1,000,000。"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -742,7 +748,6 @@
     "xai_callback_hint": "Grok 有時只在頁面顯示 code。可直接貼上 code，系統會自動拼接為 http://127.0.0.1:56121/callback?... 後提交。",
     "xai_callback_required": "請先貼上 Grok 頁面顯示的 code 或完整回調 URL。",
     "xai_callback_state_missing": "缺少本次 xAI 登入的 state，請重新開始 xAI 登入後再提交 code。",
-    
     "qwen_oauth_title": "Qwen OAuth",
     "qwen_oauth_button": "開始 Qwen 登入",
     "qwen_oauth_hint": "透過裝置授權流程登入 Qwen 服務，自動取得並儲存驗證檔案。",
@@ -1101,7 +1106,8 @@
           "ip_blacklist_window": "時間視窗",
           "ip_blacklist_window_hint": "統計失敗的時間視窗（例如 10m、1h）",
           "ip_blacklist_duration": "封禁時長",
-          "ip_blacklist_duration_hint": "IP 被封禁的持續時間（例如 24h、7d）"
+          "ip_blacklist_duration_hint": "IP 被封禁的持續時間（例如 24h、7d）",
+          "strategy_weighted_round_robin": "加權輪詢（Weighted Round Robin）"
         },
         "quota": {
           "title": "配額回退",
@@ -1294,7 +1300,13 @@
     "invalid_json": "請輸入有效 JSON",
     "expected_array": "請輸入 JSON 陣列",
     "expected_object": "請輸入 JSON 物件",
-    "invalid_enum": "請選擇宣告的枚舉值"
+    "invalid_enum": "請選擇宣告的枚舉值",
+    "delete_plugin": "刪除",
+    "delete_confirm_title": "刪除插件",
+    "delete_confirm_message": "確定刪除 {{name}}（{{id}}）嗎？這會移除本機插件檔案和已儲存設定。",
+    "delete_success": "插件已刪除",
+    "delete_failed": "插件刪除失敗",
+    "delete_restart_required": "已載入的插件需要重新啟動後端後才能移除。"
   },
   "plugin_store": {
     "title": "插件商店",
@@ -1548,7 +1560,8 @@
       "code0": "Code0",
       "fennoAI": "FennoAI",
       "qiniuCloud": "七牛雲",
-      "kimi": "Kimi"
+      "kimi": "Kimi",
+      "interactions": "Interactions API"
     },
     "table": {
       "key": "金鑰",
@@ -1717,8 +1730,12 @@
       "validation": {
         "nameRequired": "名稱必填",
         "apiKeyRequired": "至少填寫一個 API 金鑰",
-        "baseUrlRequired": "服務位址必填"
-      }
+        "baseUrlRequired": "服務位址必填",
+        "weightInteger": "調度權重必須是整數",
+        "weightMax": "調度權重不能超過 {{max}}"
+      },
+      "weight": "調度權重",
+      "weightHint": "預設 1 · ≤ 0 時不參與 · 最大 1,000,000"
     },
     "ampcode": {
       "upstreamUrl": "上游 URL",

@@ -41,6 +41,25 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
     supportsApiKeyEntries: false,
     sheetSize: 'md',
   },
+  interactions: {
+    id: 'interactions',
+    supportsName: false,
+    supportsApiKey: true,
+    supportsDisabled: true,
+    supportsBaseUrl: true,
+    baseUrlRequired: false,
+    supportsProxyUrl: true,
+    supportsPrefix: true,
+    supportsModels: true,
+    supportsHeaders: true,
+    supportsExcludedModels: true,
+    supportsPriority: true,
+    supportsTestModel: true,
+    supportsWebsockets: false,
+    supportsCloak: false,
+    supportsApiKeyEntries: false,
+    sheetSize: 'md',
+  },
   codex: {
     id: 'codex',
     supportsName: false,
@@ -293,6 +312,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
 export const PROVIDER_BRAND_ORDER: ProviderBrand[] = [
   'kimi',
   'gemini',
+  'interactions',
   'codex',
   'commandcode',
   'xai',
@@ -309,6 +329,7 @@ export const PROVIDER_BRAND_ORDER: ProviderBrand[] = [
 
 export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
   gemini: '/ai-providers/gemini',
+  interactions: '/ai-providers/interactions',
   codex: '/ai-providers/codex',
   commandcode: '/ai-providers/commandcode',
   xai: '/ai-providers/xai',

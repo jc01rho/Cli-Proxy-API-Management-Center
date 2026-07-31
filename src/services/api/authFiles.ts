@@ -29,6 +29,7 @@ export type AuthFileFieldsPatch = {
   websockets?: boolean;
   using_api?: boolean;
   note?: string;
+  'excluded-models'?: string[];
   expired?: string;
 };
 type AuthFileBatchFailure = { name: string; error: string };

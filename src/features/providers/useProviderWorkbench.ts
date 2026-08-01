@@ -21,6 +21,7 @@ import {
   mistralToResource,
   openaiToResource,
   qiniuCloudToResource,
+  lmuAIToResource,
   kimiToResource,
   vertexToResource,
   xaiToResource,
@@ -58,6 +59,13 @@ import {
   isQiniuCloudGeminiProvider,
   isQiniuCloudOpenAIProvider,
 } from './qiniuCloud';
+import {
+  buildLmuAIRaw,
+  isLmuAIClaudeProvider,
+  isLmuAICodexProvider,
+  isLmuAIGeminiProvider,
+  isLmuAIOpenAIProvider,
+} from './lmuAI';
 import { buildKimiRaw, isKimiClaudeProvider, isKimiOpenAIProvider } from './kimi';
 import {
   getSponsorProviderDefinition,
@@ -438,7 +446,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         case 'gemini':
           resources = (config.geminiApiKeys ?? []).reduce<ProviderResource[]>(
             (out, item, index) => {
-              if (!isCode0GeminiProvider(item) && !isQiniuCloudGeminiProvider(item)) {
+              if (
+                !isCode0GeminiProvider(item) &&
+                !isQiniuCloudGeminiProvider(item) &&
+                !isLmuAIGeminiProvider(item)
+              ) {
                 out.push(geminiToResource(item, index));
               }
               return out;
@@ -457,7 +469,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
               !isApiKeyFunCodexProvider(item) &&
               !isCode0CodexProvider(item) &&
               !isFennoAICodexProvider(item) &&
-              !isQiniuCloudCodexProvider(item)
+              !isQiniuCloudCodexProvider(item) &&
+              !isLmuAICodexProvider(item)
             ) {
               out.push(codexToResource(item, index));
             }
@@ -478,6 +491,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
                 !isCode0ClaudeProvider(item) &&
                 !isFennoAIClaudeProvider(item) &&
                 !isQiniuCloudClaudeProvider(item) &&
+                !isLmuAIClaudeProvider(item) &&
                 !isKimiClaudeProvider(item) &&
                 !isClaudeApiProvider(item)
               ) {
@@ -512,6 +526,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
                 !isApiKeyFunOpenAIProvider(item) &&
                 !isCode0OpenAIProvider(item) &&
                 !isQiniuCloudOpenAIProvider(item) &&
+                !isLmuAIOpenAIProvider(item) &&
                 !isKimiOpenAIProvider(item)
               ) {
                 out.push(openaiToResource(item, index));
@@ -538,6 +553,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         }
         case 'qiniuCloud': {
           const sponsorResource = qiniuCloudToResource(buildQiniuCloudRaw(config));
+          resources = sponsorResource ? [sponsorResource] : [];
+          break;
+        }
+        case 'lmuAI': {
+          const sponsorResource = lmuAIToResource(buildLmuAIRaw(config));
           resources = sponsorResource ? [sponsorResource] : [];
           break;
         }
@@ -638,7 +658,9 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
               ? buildFennoAIRaw(config)
               : brand === 'qiniuCloud'
                 ? buildQiniuCloudRaw(config)
-                : buildKimiRaw(config);
+                : brand === 'lmuAI'
+                  ? buildLmuAIRaw(config)
+                  : buildKimiRaw(config);
       const geminiList = config?.geminiApiKeys ?? [];
       const openaiList = config?.openaiCompatibility ?? [];
       const claudeList = config?.claudeApiKeys ?? [];
@@ -771,6 +793,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           brand === 'code0' ||
           brand === 'fennoAI' ||
           brand === 'qiniuCloud' ||
+          brand === 'lmuAI' ||
           brand === 'kimi'
         ) {
           await persistSponsorConfig(brand, input);
@@ -868,6 +891,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           brand === 'code0' ||
           brand === 'fennoAI' ||
           brand === 'qiniuCloud' ||
+          brand === 'lmuAI' ||
           brand === 'kimi'
         ) {
           await persistSponsorConfig(brand, input);
@@ -949,6 +973,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           sel.brand === 'code0' ||
           sel.brand === 'fennoAI' ||
           sel.brand === 'qiniuCloud' ||
+          sel.brand === 'lmuAI' ||
           sel.brand === 'kimi'
         ) {
           const nextGemini = (config?.geminiApiKeys ?? []).filter(
@@ -1153,6 +1178,48 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           );
           await persistGeminiKeys(geminiList);
           await persistCodexConfigs(codexList);
+          await persistClaudeConfigs(claudeList);
+          await persistOpenAIConfigs(openaiList);
+        } else if (brand === 'lmuAI') {
+          const geminiList = (config?.geminiApiKeys ?? []).map((item) => {
+            if (!isLmuAIGeminiProvider(item)) return item;
+            const excluded = disabled
+              ? withDisableAllModelsRule(item.excludedModels)
+              : withoutDisableAllModelsRule(item.excludedModels);
+            return { ...item, excludedModels: excluded };
+          });
+          const claudeList = (config?.claudeApiKeys ?? []).map((item) => {
+            if (!isLmuAIClaudeProvider(item)) return item;
+            const excluded = disabled
+              ? withDisableAllModelsRule(item.excludedModels)
+              : withoutDisableAllModelsRule(item.excludedModels);
+            return { ...item, excludedModels: excluded };
+          });
+          const codexList = (config?.codexApiKeys ?? []).map((item) => {
+            if (!isLmuAICodexProvider(item)) return item;
+            const excluded = disabled
+              ? withDisableAllModelsRule(item.excludedModels)
+              : withoutDisableAllModelsRule(item.excludedModels);
+            return { ...item, excludedModels: excluded };
+          });
+          const openaiList = (config?.openaiCompatibility ?? []).map((item) =>
+            isLmuAIOpenAIProvider(item) ? { ...item, disabled } : item
+          );
+          await persistGeminiKeys(geminiList);
+          await persistCodexConfigs(codexList);
+          await persistClaudeConfigs(claudeList);
+          await persistOpenAIConfigs(openaiList);
+        } else if (brand === 'kimi') {
+          const claudeList = (config?.claudeApiKeys ?? []).map((item) => {
+            if (!isKimiClaudeProvider(item)) return item;
+            const excluded = disabled
+              ? withDisableAllModelsRule(item.excludedModels)
+              : withoutDisableAllModelsRule(item.excludedModels);
+            return { ...item, excludedModels: excluded };
+          });
+          const openaiList = (config?.openaiCompatibility ?? []).map((item) =>
+            isKimiOpenAIProvider(item) ? { ...item, disabled } : item
+          );
           await persistClaudeConfigs(claudeList);
           await persistOpenAIConfigs(openaiList);
         }

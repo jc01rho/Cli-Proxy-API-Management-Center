@@ -469,6 +469,23 @@ const fetchAllOpenAIProviders = async (): Promise<OpenAIProviderConfig[]> => {
 };
 
 export const providersApi = {
+  createGeminiKey: (config: GeminiKeyConfig) =>
+    mutateLatestProviderList('gemini-api-key', (latestItems) =>
+      appendLatestProviderRecord(latestItems, serializeGeminiKey(config), (raw, payload) =>
+        mergeProviderKeyPayload(raw, payload, GEMINI_KEY_FIELDS)
+      )
+    ),
+
+  updateGeminiKey: (apiKey: string, baseUrl: string | undefined, config: GeminiKeyConfig) =>
+    mutateLatestProviderList('gemini-api-key', (latestItems) =>
+      replaceLatestProviderRecord(
+        latestItems,
+        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        serializeGeminiKey(config),
+        (raw, payload) => mergeProviderKeyPayload(raw, payload, GEMINI_KEY_FIELDS)
+      )
+    ),
+
   saveGeminiKeys: async (configs: GeminiKeyConfig[]) =>
     apiClient.put(
       '/gemini-api-key',
@@ -484,6 +501,27 @@ export const providersApi = {
   deleteGeminiKey: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/gemini-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 
+  createInteractionsKey: (config: GeminiKeyConfig) =>
+    mutateLatestProviderList('interactions-api-key', (latestItems) =>
+      appendLatestProviderRecord(latestItems, serializeGeminiKey(config), (raw, payload) =>
+        mergeProviderKeyPayload(raw, payload, INTERACTIONS_KEY_FIELDS)
+      )
+    ),
+
+  updateInteractionsKey: (
+    apiKey: string,
+    baseUrl: string | undefined,
+    config: GeminiKeyConfig
+  ) =>
+    mutateLatestProviderList('interactions-api-key', (latestItems) =>
+      replaceLatestProviderRecord(
+        latestItems,
+        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        serializeGeminiKey(config),
+        (raw, payload) => mergeProviderKeyPayload(raw, payload, INTERACTIONS_KEY_FIELDS)
+      )
+    ),
+
   saveInteractionsKeys: async (configs: GeminiKeyConfig[]) =>
     apiClient.put(
       '/interactions-api-key',
@@ -498,6 +536,23 @@ export const providersApi = {
 
   deleteInteractionsKey: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/interactions-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+
+  createCodexConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('codex-api-key', (latestItems) =>
+      appendLatestProviderRecord(latestItems, serializeProviderKey(config), (raw, payload) =>
+        mergeProviderKeyPayload(raw, payload, CODEX_KEY_FIELDS)
+      )
+    ),
+
+  updateCodexConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+    mutateLatestProviderList('codex-api-key', (latestItems) =>
+      replaceLatestProviderRecord(
+        latestItems,
+        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        serializeProviderKey(config),
+        (raw, payload) => mergeProviderKeyPayload(raw, payload, CODEX_KEY_FIELDS)
+      )
+    ),
 
   saveCodexConfigs: async (configs: ProviderKeyConfig[]) =>
     apiClient.put(
@@ -574,6 +629,23 @@ export const providersApi = {
       .filter(Boolean) as ProviderKeyConfig[];
   },
 
+  createVertexConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('vertex-api-key', (latestItems) =>
+      appendLatestProviderRecord(latestItems, serializeVertexKey(config), (raw, payload) =>
+        mergeProviderKeyPayload(raw, payload, VERTEX_KEY_FIELDS)
+      )
+    ),
+
+  updateVertexConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+    mutateLatestProviderList('vertex-api-key', (latestItems) =>
+      replaceLatestProviderRecord(
+        latestItems,
+        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        serializeVertexKey(config),
+        (raw, payload) => mergeProviderKeyPayload(raw, payload, VERTEX_KEY_FIELDS)
+      )
+    ),
+
   saveVertexConfigs: async (configs: ProviderKeyConfig[]) =>
     apiClient.put(
       '/vertex-api-key',
@@ -590,6 +662,15 @@ export const providersApi = {
     apiClient.delete(`/vertex-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 
   getOpenAIProviders: fetchAllOpenAIProviders,
+
+  createOpenAIProvider: (provider: OpenAIProviderConfig) =>
+    mutateLatestProviderList('openai-compatibility', (latestItems) =>
+      appendLatestProviderRecord(
+        latestItems,
+        serializeOpenAIProvider(provider),
+        mergeOpenAIProviderPayload
+      )
+    ),
 
   saveOpenAIProviders: async (providers: OpenAIProviderConfig[]) =>
     apiClient.put(

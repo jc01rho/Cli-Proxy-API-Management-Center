@@ -288,6 +288,25 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
     supportsApiKeyEntries: false,
     sheetSize: 'md',
   },
+  lmuAI: {
+    id: 'lmuAI',
+    supportsName: false,
+    supportsApiKey: true,
+    supportsDisabled: true,
+    supportsBaseUrl: false,
+    baseUrlRequired: false,
+    supportsProxyUrl: true,
+    supportsPrefix: true,
+    supportsModels: false,
+    supportsHeaders: false,
+    supportsExcludedModels: false,
+    supportsPriority: true,
+    supportsTestModel: false,
+    supportsWebsockets: false,
+    supportsCloak: false,
+    supportsApiKeyEntries: false,
+    sheetSize: 'md',
+  },
   kimi: {
     id: 'kimi',
     supportsName: false,
@@ -325,6 +344,7 @@ export const PROVIDER_BRAND_ORDER: ProviderBrand[] = [
   'code0',
   'fennoAI',
   'qiniuCloud',
+  'lmuAI',
 ];
 
 export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
@@ -343,4 +363,5 @@ export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
   code0: '/ai-providers/code0',
   fennoAI: '/ai-providers/fenno-ai',
   qiniuCloud: '/ai-providers/qiniu-cloud',
+  lmuAI: '/ai-providers/lmu-ai',
 };

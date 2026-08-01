@@ -26,6 +26,7 @@ export type AuthFileFieldsPatch = {
   billing_class?: string;
   excluded_models?: string[];
   disable_cooling?: boolean;
+  'disable-cooling'?: boolean;
   websockets?: boolean;
   using_api?: boolean;
   note?: string;

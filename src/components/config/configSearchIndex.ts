@@ -6,7 +6,7 @@
 // JSX in <FieldAnchor fieldId="..."> using the same `fieldId`).
 
 export type VisualSectionId =
-  'connectivity' | 'network' | 'logging' | 'quota' | 'streaming' | 'advanced' | 'payload';
+  'connectivity' | 'network' | 'logging' | 'quota' | 'streaming' | 'advanced' | 'payload' | 'keeperExport';
 
 export interface ConfigFieldSearchEntry {
   /** Stable anchor id; matches FieldAnchor's `fieldId` and the rendered DOM id. */
@@ -23,6 +23,8 @@ export interface ConfigFieldSearchEntry {
   yamlKeys?: string[];
   /** Extra synonyms to match against (language-agnostic, lowercase). */
   keywords?: string[];
+  /** Stable order for exact domain queries whose translated labels vary by locale. */
+  searchOrder?: number;
 }
 
 /** DOM id for a field anchor — kept in one place so the index and the anchors agree. */
@@ -413,6 +415,68 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['codex-header-defaults', 'beta-features'],
     keywords: ['codex'],
   },
+  // ── Keeper Export ──────────────────────────────────────────────────────────
+  {
+    fieldId: 'keeperExportEnabled',
+    sectionId: 'keeperExport',
+    labelKey: L('sections.keeper_export.title'),
+    yamlKeys: ['usage-export', 'enabled'],
+    keywords: ['keeper', 'export', 'usage', 'push'],
+    searchOrder: 0,
+  },
+  {
+    fieldId: 'keeperUrl',
+    sectionId: 'keeperExport',
+    labelKey: L('sections.keeper_export.fields.keeper_url'),
+    yamlKeys: ['usage-export', 'keeper', 'url'],
+    keywords: ['keeper', 'https', 'endpoint'],
+    searchOrder: 1,
+  },
+  {
+    fieldId: 'keeperTokenEnv',
+    sectionId: 'keeperExport',
+    labelKey: L('sections.keeper_export.fields.token_env'),
+    yamlKeys: ['usage-export', 'keeper', 'token-env'],
+    keywords: ['secret', 'environment', 'credential'],
+    searchOrder: 2,
+  },
+  {
+    fieldId: 'keeperOutbox',
+    sectionId: 'keeperExport',
+    labelKey: L('sections.keeper_export.fields.outbox_path'),
+    yamlKeys: ['usage-export', 'outbox', 'path'],
+    keywords: ['keeper', 'durable', 'backlog', 'disk'],
+    searchOrder: 3,
+  },
+  {
+    fieldId: 'keeperDelivery',
+    sectionId: 'keeperExport',
+    labelKey: L('sections.keeper_export.fields.delivery'),
+    yamlKeys: ['usage-export', 'delivery'],
+    keywords: ['batch', 'flush', 'retry', 'timeout'],
+  },
+  {
+    fieldId: 'keeperMetadata',
+    sectionId: 'keeperExport',
+    labelKey: L('sections.keeper_export.fields.metadata'),
+    yamlKeys: ['usage-export', 'metadata'],
+    keywords: ['snapshot', 'revision'],
+  },
+  {
+    fieldId: 'keeperPrivacy',
+    sectionId: 'keeperExport',
+    labelKey: L('sections.keeper_export.fields.privacy'),
+    yamlKeys: ['usage-export', 'privacy'],
+    keywords: ['ip', 'user agent', 'privacy'],
+  },
+  {
+    fieldId: 'keeperBacklog',
+    sectionId: 'keeperExport',
+    labelKey: L('sections.keeper_export.status.backlog'),
+    yamlKeys: ['usage-export', 'status', 'backlog'],
+    keywords: ['ack', 'sequence', 'status', 'errors'],
+  },
+
   // ── payload (coarse: one entry per rule group) ──────────────────────────────
   {
     fieldId: 'payloadDefaultRules',
@@ -453,6 +517,20 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
 
 const MAX_RESULTS = 8;
 
+export type VisualSearchDirection = 'next' | 'prev';
+
+export function getVisualSearchTargetIndex(
+  currentIndex: number,
+  matchCount: number,
+  direction: VisualSearchDirection
+): number {
+  if (matchCount <= 0) return -1;
+  if (currentIndex < 0 || currentIndex >= matchCount) return direction === 'prev' ? matchCount - 1 : 0;
+  return direction === 'prev'
+    ? (currentIndex - 1 + matchCount) % matchCount
+    : (currentIndex + 1) % matchCount;
+}
+
 /**
  * Lowercase substring search over label + qualifier + hint + YAML keys + keywords.
  * Returns the best ~8 matches, label/qualifier hits ranked above alias-only hits.
@@ -471,7 +549,8 @@ export function searchConfigFields(query: string, t: Translate): ConfigFieldSear
     const keywords = (entry.keywords ?? []).join(' ').toLowerCase();
 
     let score = Number.POSITIVE_INFINITY;
-    if (label.startsWith(q)) score = 0;
+    if (q === 'keeper' && entry.sectionId === 'keeperExport' && entry.searchOrder !== undefined) score = 0;
+    else if (label.startsWith(q)) score = 0;
     else if (label.includes(q)) score = 1;
     else if (qualifier.includes(q) || keywords.includes(q)) score = 2;
     else if (yaml.includes(q)) score = 3;
@@ -480,6 +559,6 @@ export function searchConfigFields(query: string, t: Translate): ConfigFieldSear
     if (Number.isFinite(score)) scored.push({ entry, score });
   }
 
-  scored.sort((a, b) => a.score - b.score);
+  scored.sort((a, b) => a.score - b.score || (a.entry.searchOrder ?? Number.MAX_SAFE_INTEGER) - (b.entry.searchOrder ?? Number.MAX_SAFE_INTEGER));
   return scored.slice(0, MAX_RESULTS).map((item) => item.entry);
 }

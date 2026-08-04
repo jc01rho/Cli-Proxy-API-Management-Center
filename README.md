@@ -14,6 +14,8 @@ A single-file Web UI (React + TypeScript) for operating and troubleshooting the 
 **Main Project**: https://github.com/jc01rho/CLIProxyAPIPlus  
 **Minimum Required Version**: ≥ 7.1.0 (recommended latest)
 
+**Keeper Export operator guide**: [deployment, Visual Config Editor, status/ACK/backlog, troubleshooting, rollback, and release verification](docs/keeper-export.md)
+
 Since version 6.0.19, the Web UI ships with the main program; access it via `/management.html` on the API port once the service is running.
 
 ## What this is (and isn’t)

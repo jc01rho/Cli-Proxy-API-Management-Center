@@ -408,11 +408,7 @@
     "quota_refresh_hint": "Refresh quota only for this credential",
     "quota_refresh_success": "Quota refreshed for \"{{name}}\"",
     "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}",
-    "weight_display": "WRR weight",
-    "weight_label": "Scheduling weight (weight)",
-    "weight_hint": "Defaults to 1. Values at or below 0 exclude this credential from weighted scheduling; maximum 1,000,000.",
-    "weight_invalid_integer": "Weight must be an integer.",
-    "weight_invalid_max": "Weight cannot exceed 1,000,000."
+    "weight_display": "WRR weight"
   },
   "antigravity_subscription": {
     "plan_unknown": "Unknown",
@@ -928,6 +924,9 @@
       },
       "search": {
         "placeholder": "Search settings (label or YAML key)",
+        "label": "Search visual configuration fields",
+        "previous": "Previous matching field",
+        "next": "Next matching field",
         "no_results": "No matching settings"
       },
       "sections": {
@@ -1156,6 +1155,66 @@
           "override_raw_rules_desc": "Always overwrite parameter values as raw JSON fragments, useful for response_format, schemas, and other complex fields",
           "filter_rules": "Filter Rules",
           "filter_rules_desc": "Pre-filter upstream request body via JSON Path, automatically remove non-compliant/redundant parameters (Request Sanitization)"
+        },
+        "keeper_export": {
+          "title": "Keeper Export",
+          "description": "Durably push redacted usage and metadata to a Keeper instance without storing tokens in the browser.",
+          "fields": {
+            "enabled": "Enable Keeper Export",
+            "keeper_url": "Keeper URL",
+            "token_env": "Token environment variable",
+            "token_env_hint": "Enter the environment variable name only. The token value never enters this form or browser storage.",
+            "outbox_path": "Durable outbox path",
+            "outbox_quota": "Outbox quota (bytes)",
+            "delivery": "Delivery",
+            "max_batch_events": "Maximum batch events",
+            "max_batch_bytes": "Maximum batch bytes",
+            "flush_interval": "Flush interval (ms)",
+            "request_timeout": "Request timeout (ms)",
+            "initial_backoff": "Initial backoff (ms)",
+            "max_backoff": "Maximum backoff (ms)",
+            "metadata": "Metadata snapshots",
+            "metadata_enabled": "Send complete metadata snapshots",
+            "metadata_interval": "Metadata interval (ms)",
+            "metadata_categories": "Metadata category",
+            "auth_files": "Authentication files",
+            "api_keys": "API keys",
+            "provider_identities": "Provider identities",
+            "privacy": "Privacy controls",
+            "include_client_ip": "Include client IP",
+            "include_forwarded_for": "Include forwarded-for",
+            "include_user_agent": "Include user agent",
+            "tls": "TLS and client certificates",
+            "ca_file": "CA bundle path",
+            "client_cert_file": "Client certificate path",
+            "client_key_file": "Client key path"
+          },
+          "test_success": "Connection verified",
+          "token_configured": "Token configured",
+          "token_not_configured": "Token not configured",
+          "token_status_unknown": "Token status unavailable",
+          "actions": {
+            "refresh_status": "Refresh status",
+            "test_connection": "Test connection"
+          },
+          "status": {
+            "disabled": "Disabled",
+            "starting": "Starting",
+            "connected": "Connected",
+            "retrying": "Retrying",
+            "degraded": "Degraded",
+            "blocked": "Blocked",
+            "backlog": "backlog events",
+            "acknowledged": "ACK through",
+            "next": "next expected",
+            "revisions": "revisions"
+          },
+          "eyebrow": "KEEPER EXPORT / V1",
+          "search_placeholder": "Search visual fields",
+          "search_label": "Search visual fields",
+          "search_previous": "Previous visual field",
+          "search_next": "Next visual field",
+          "test_failed": "Connection test failed"
         }
       },
       "api_keys": {
@@ -1229,7 +1288,21 @@
         "integer_range_1_3600": "Enter a whole number between 1 and 3600",
         "payload_invalid_number": "Enter a valid number",
         "payload_invalid_boolean": "Choose true or false",
-        "payload_invalid_json": "Enter valid JSON"
+        "payload_invalid_json": "Enter valid JSON",
+        "usage_statistics_required": "Enable usage statistics before enabling Keeper Export",
+        "keeper_url_required": "Enter a Keeper URL",
+        "keeper_url_https": "Use an HTTPS Keeper URL without query or fragment",
+        "keeper_token_env": "Use an uppercase environment variable name",
+        "keeper_outbox_path": "Use an absolute outbox path",
+        "keeper_outbox_bytes": "Outbox quota must be 16 MiB to 1 TiB",
+        "keeper_batch_events": "Batch events must be between 1 and 500",
+        "keeper_batch_bytes": "Batch bytes must be between 64 KiB and 1 MiB",
+        "keeper_flush_interval": "Flush interval must be between 100 ms and 60 s",
+        "keeper_request_timeout": "Request timeout must be between 1 s and 120 s",
+        "keeper_initial_backoff": "Initial backoff must be between 100 ms and 60 s",
+        "keeper_max_backoff": "Maximum backoff must be at least the initial backoff",
+        "keeper_metadata_interval": "Metadata interval must be between 1 minute and 24 hours",
+        "keeper_metadata_categories": "Select at least one metadata category"
       },
       "common": {
         "edit": "Edit",

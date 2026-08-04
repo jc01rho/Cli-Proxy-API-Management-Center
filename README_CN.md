@@ -8,6 +8,8 @@
 **示例地址**: https://remote.router-for.me/  
 **最低版本要求**: ≥ 7.1.0（推荐最新）
 
+**Keeper Export 运维指南**：[部署、可视化配置编辑器、状态/ACK/积压、故障排查、回滚与发布验证](docs/keeper-export.md)
+
 从6.0.19版本开始，Web UI 随主程序一起提供；服务运行后，通过 API 端口上的"/management.html"访问它。
 
 ## 这是什么（以及不是什么）

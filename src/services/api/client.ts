@@ -14,7 +14,7 @@ import {
   VERSION_HEADER_KEYS,
 } from '@/utils/constants';
 import { computeApiUrl } from '@/utils/connection';
-import { parseApiErrorResponse } from './apiError';
+import { parseApiErrorResponse, shouldDispatchUnauthorizedLogout } from './apiError';
 
 class ApiClient {
   private instance: AxiosInstance;
@@ -164,8 +164,9 @@ class ApiClient {
       apiError.details = responseData;
       apiError.data = responseData;
 
-      // 401 未授权 - 触发登出事件
-      if (error.response?.status === 401) {
+      // Only CPA management-auth 401s log the user out. Keeper's
+      // invalid_credential is an operational usage-export failure.
+      if (shouldDispatchUnauthorizedLogout(error.response?.status, parsedError.apiCode)) {
         window.dispatchEvent(new Event('unauthorized'));
       }
 
@@ -228,6 +229,14 @@ class ApiClient {
    */
   async getRaw(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
     return this.instance.get(url, config);
+  }
+
+  async putRaw(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+    return this.instance.put(url, data, config);
+  }
+
+  async postRaw(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+    return this.instance.post(url, data, config);
   }
 
   /**

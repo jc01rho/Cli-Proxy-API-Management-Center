@@ -116,7 +116,13 @@ export type PluginStoreAuthRule = {
   allowInsecure: boolean;
 };
 
+import {
+  DEFAULT_KEEPER_EXPORT_VISUAL_VALUES,
+  type KeeperExportVisualValues,
+} from './keeperExportVisual';
+
 export type VisualConfigValues = {
+  keeperExport: KeeperExportVisualValues;
   host: string;
   port: string;
   tlsEnable: boolean;
@@ -191,6 +197,7 @@ export const makeClientId = () => {
 };
 
 export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
+  keeperExport: DEFAULT_KEEPER_EXPORT_VISUAL_VALUES,
   host: '',
   port: '',
   tlsEnable: false,

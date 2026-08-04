@@ -407,11 +407,7 @@
     "quota_refresh_hint": "僅重新整理該驗證檔案的配額",
     "quota_refresh_success": "已重新整理「{{name}}」的配額",
     "quota_refresh_failed": "重新整理「{{name}}」的配額失敗：{{message}}",
-    "weight_display": "WRR 權重",
-    "weight_label": "調度權重（weight）",
-    "weight_hint": "預設值為 1；小於或等於 0 時不參與加權調度；最大值為 1,000,000。",
-    "weight_invalid_integer": "權重必須是整數。",
-    "weight_invalid_max": "權重不能超過 1,000,000。"
+    "weight_display": "WRR 權重"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -953,6 +949,9 @@
       },
       "search": {
         "placeholder": "搜尋設定項（標籤或 YAML 鍵名）",
+        "label": "搜尋視覺化設定欄位",
+        "previous": "上一個符合欄位",
+        "next": "下一個符合欄位",
         "no_results": "沒有符合的設定項"
       },
       "sections": {
@@ -1181,6 +1180,66 @@
           "override_raw_rules_desc": "始終按原始 JSON 片段覆寫參數值，適合 response_format、schema 等複雜欄位",
           "filter_rules": "篩選規則",
           "filter_rules_desc": "透過 JSON Path 預篩選上游請求體，自動剔除不合規/冗餘參數（Request Sanitization）"
+        },
+        "keeper_export": {
+          "title": "Keeper 匯出",
+          "description": "將去識別化的用量與中繼資料持久推送到 Keeper 執行個體；Token 不會存入瀏覽器。",
+          "fields": {
+            "enabled": "啟用 Keeper 匯出",
+            "keeper_url": "Keeper URL",
+            "token_env": "Token 環境變數名稱",
+            "token_env_hint": "只填寫環境變數名稱，Token 值不會進入表單或瀏覽器儲存。",
+            "outbox_path": "持久化 Outbox 路徑",
+            "outbox_quota": "Outbox 配額（位元組）",
+            "delivery": "投遞",
+            "max_batch_events": "批次事件上限",
+            "max_batch_bytes": "批次位元組上限",
+            "flush_interval": "刷新間隔（毫秒）",
+            "request_timeout": "請求逾時（毫秒）",
+            "initial_backoff": "初始退避（毫秒）",
+            "max_backoff": "最大退避（毫秒）",
+            "metadata": "中繼資料快照",
+            "metadata_enabled": "傳送完整中繼資料快照",
+            "metadata_interval": "中繼資料間隔（毫秒）",
+            "metadata_categories": "中繼資料類別",
+            "auth_files": "驗證檔案",
+            "api_keys": "API 金鑰",
+            "provider_identities": "提供者身分",
+            "privacy": "隱私控制",
+            "include_client_ip": "包含用戶端 IP",
+            "include_forwarded_for": "包含 forwarded-for",
+            "include_user_agent": "包含 User-Agent",
+            "tls": "TLS 與用戶端憑證",
+            "ca_file": "CA 憑證包路徑",
+            "client_cert_file": "用戶端憑證路徑",
+            "client_key_file": "用戶端私鑰路徑"
+          },
+          "test_success": "連線已驗證",
+          "token_configured": "Token 已設定",
+          "token_not_configured": "Token 未設定",
+          "token_status_unknown": "Token 狀態無法取得",
+          "actions": {
+            "refresh_status": "重新整理狀態",
+            "test_connection": "測試連線"
+          },
+          "status": {
+            "disabled": "已停用",
+            "starting": "啟動中",
+            "connected": "已連線",
+            "retrying": "重試中",
+            "degraded": "降級",
+            "blocked": "已封鎖",
+            "backlog": "積壓事件",
+            "acknowledged": "ACK 至",
+            "next": "下一期望",
+            "revisions": "修訂版本"
+          },
+          "eyebrow": "KEEPER 匯出 / V1",
+          "search_placeholder": "搜尋視覺欄位",
+          "search_label": "搜尋視覺欄位",
+          "search_previous": "上一個視覺欄位",
+          "search_next": "下一個視覺欄位",
+          "test_failed": "連線測試失敗"
         }
       },
       "api_keys": {
@@ -1254,7 +1313,21 @@
         "integer_range_1_3600": "請輸入 1 到 3600 之間的整數",
         "payload_invalid_number": "請輸入有效數字",
         "payload_invalid_boolean": "請選擇 true 或 false",
-        "payload_invalid_json": "請輸入有效的 JSON"
+        "payload_invalid_json": "請輸入有效的 JSON",
+        "usage_statistics_required": "啟用 Keeper 匯出前請先啟用用量統計",
+        "keeper_url_required": "請輸入 Keeper URL",
+        "keeper_url_https": "Keeper URL 必須使用 HTTPS 且不得包含查詢或片段",
+        "keeper_token_env": "請輸入大寫環境變數名稱",
+        "keeper_outbox_path": "請輸入絕對 Outbox 路徑",
+        "keeper_outbox_bytes": "Outbox 配額必須介於 16 MiB 到 1 TiB",
+        "keeper_batch_events": "批次事件數必須介於 1 到 500",
+        "keeper_batch_bytes": "批次大小必須介於 64 KiB 到 1 MiB",
+        "keeper_flush_interval": "刷新間隔必須介於 100 毫秒到 60 秒",
+        "keeper_request_timeout": "請求逾時必須介於 1 秒到 120 秒",
+        "keeper_initial_backoff": "初始退避必須介於 100 毫秒到 60 秒",
+        "keeper_max_backoff": "最大退避不得小於初始退避",
+        "keeper_metadata_interval": "中繼資料間隔必須介於 1 分鐘到 24 小時",
+        "keeper_metadata_categories": "至少選擇一個中繼資料類別"
       },
       "common": {
         "edit": "編輯",

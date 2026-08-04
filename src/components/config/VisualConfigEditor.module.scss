@@ -5,6 +5,8 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-width: 0;
+  overflow-x: hidden;
 
   :global(.form-group) {
     gap: 7px;
@@ -414,6 +416,11 @@
   scroll-margin-top: calc(var(--header-height, 64px) + 16px);
 }
 
+:global(.cfg-field-highlight-active) {
+  border-radius: 10px;
+  animation: cfgFieldHighlight 1.8s ease-out;
+}
+
 .fieldHighlightActive {
   border-radius: 10px;
   animation: cfgFieldHighlight 1.8s ease-out;
@@ -448,6 +455,167 @@
 }
 
 // Wrap bare inputs so they read as cards consistent with toggleRow / API key blocks.
+.keeperExportSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.keeperHero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+}
+
+.keeperEyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.keeperHero p {
+  margin: 0;
+  max-width: 66ch;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.keeperFieldGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.keeperSubsection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.keeperSubsection h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.tokenConfigured {
+  color: var(--success-color);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.keeperMetadataCategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.keeperMetadataCategories legend {
+  width: 100%;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.keeperMetadataCategory {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.keeperPrivacyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.toggleRowCompact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.keeperActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.keeperTestResult,
+.keeperStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px;
+  border: 1px solid var(--success-badge-border);
+  border-radius: 8px;
+  background: var(--success-badge-bg);
+  color: var(--success-badge-text);
+  font-size: 12px;
+}
+
+.keeperTestResult code {
+  display: block;
+  flex-basis: 100%;
+  color: inherit;
+  font-family: $font-mono;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.keeperStatusWarning {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.keeperStatusError {
+  border-color: var(--failure-badge-border);
+  background: var(--failure-badge-bg);
+  color: var(--failure-badge-text);
+}
+
+.keeperStatusMuted {
+  border-color: var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.keeperStatusMeta,
+.keeperStatusError {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
 .simpleField {
   padding: 14px;
   border: 1px solid var(--border-color);
@@ -526,6 +694,8 @@
 }
 
 .mobileSectionNav {
+  position: relative;
+  z-index: 1;
   display: none;
 
   @include mobile {
@@ -560,13 +730,19 @@
   text-align: left;
 }
 
+.mobileSectionNavButton:focus-visible,
+.navButton:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
 .mobileSectionNavButtonActive {
   border-color: var(--text-primary);
   background: color-mix(in srgb, var(--text-primary) 6%, transparent);
 }
 
 .mobileSectionNavIndex {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 750;
   letter-spacing: 0.08em;
@@ -654,7 +830,7 @@
 .navIndex {
   min-width: 24px;
   padding-top: 2px;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 750;
   letter-spacing: 0.08em;
@@ -715,28 +891,27 @@
 }
 
 .sections {
-  display: flex;
-  gap: 0;
+  display: block;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  align-items: stretch;
+  overflow-x: hidden;
+  overflow-y: visible;
   padding: 0 0 12px;
-  scroll-padding-left: 0;
-  scroll-snap-type: x mandatory;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
+
+  > * {
+    display: none;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  > [data-active-section='true'] {
+    display: flex;
+  }
 
   @include mobile {
     padding-bottom: 10px;
-  }
-
-  > * {
-    flex: 0 0 100%;
-    width: 100%;
-    max-width: 100%;
   }
 }
 

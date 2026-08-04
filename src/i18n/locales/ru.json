@@ -400,11 +400,7 @@
     "quota_refresh_hint": "Обновить квоту только для этих учётных данных",
     "quota_refresh_success": "Квота для \"{{name}}\" обновлена",
     "quota_refresh_failed": "Не удалось обновить квоту для \"{{name}}\": {{message}}",
-    "weight_display": "Вес WRR",
-    "weight_label": "Вес планирования (weight)",
-    "weight_hint": "По умолчанию 1. Значения ≤ 0 исключают эти учётные данные из взвешенного планирования; максимум 1 000 000.",
-    "weight_invalid_integer": "Вес должен быть целым числом.",
-    "weight_invalid_max": "Вес не может превышать 1 000 000."
+    "weight_display": "Вес WRR"
   },
   "antigravity_subscription": {
     "plan_unknown": "Неизвестно",
@@ -914,6 +910,9 @@
       },
       "search": {
         "placeholder": "Поиск настроек (по названию или ключу YAML)",
+        "label": "Поиск полей визуальной конфигурации",
+        "previous": "Предыдущее совпадение",
+        "next": "Следующее совпадение",
         "no_results": "Нет подходящих настроек"
       },
       "sections": {
@@ -1142,6 +1141,66 @@
           "override_raw_rules_desc": "Всегда перезаписывать значения как raw JSON-фрагменты; полезно для response_format, схем и других сложных полей",
           "filter_rules": "Правила фильтрации",
           "filter_rules_desc": "Предварительно фильтровать тело исходящего запроса через JSON Path, автоматически удалять несоответствующие или лишние параметры (санитизация запроса)"
+        },
+        "keeper_export": {
+          "title": "Экспорт Keeper",
+          "description": "Надёжно отправляйте обезличенные usage и метаданные в экземпляр Keeper; токены не сохраняются в браузере.",
+          "fields": {
+            "enabled": "Включить экспорт Keeper",
+            "keeper_url": "URL Keeper",
+            "token_env": "Переменная окружения токена",
+            "token_env_hint": "Указывайте только имя переменной окружения. Значение токена не попадает в форму или хранилище браузера.",
+            "outbox_path": "Путь постоянного Outbox",
+            "outbox_quota": "Лимит Outbox (байт)",
+            "delivery": "Доставка",
+            "max_batch_events": "Максимум событий в пакете",
+            "max_batch_bytes": "Максимум байт в пакете",
+            "flush_interval": "Интервал отправки (мс)",
+            "request_timeout": "Тайм-аут запроса (мс)",
+            "initial_backoff": "Начальная задержка (мс)",
+            "max_backoff": "Максимальная задержка (мс)",
+            "metadata": "Снимки метаданных",
+            "metadata_enabled": "Отправлять полные снимки метаданных",
+            "metadata_interval": "Интервал метаданных (мс)",
+            "metadata_categories": "Категория метаданных",
+            "auth_files": "Файлы аутентификации",
+            "api_keys": "API-ключи",
+            "provider_identities": "Идентичности провайдеров",
+            "privacy": "Настройки приватности",
+            "include_client_ip": "Включать IP клиента",
+            "include_forwarded_for": "Включать forwarded-for",
+            "include_user_agent": "Включать User-Agent",
+            "tls": "TLS и клиентские сертификаты",
+            "ca_file": "Путь к CA bundle",
+            "client_cert_file": "Путь к сертификату клиента",
+            "client_key_file": "Путь к ключу клиента"
+          },
+          "test_success": "Соединение проверено",
+          "token_configured": "Токен настроен",
+          "token_not_configured": "Токен не настроен",
+          "token_status_unknown": "Статус токена недоступен",
+          "actions": {
+            "refresh_status": "Обновить статус",
+            "test_connection": "Проверить соединение"
+          },
+          "status": {
+            "disabled": "Отключено",
+            "starting": "Запуск",
+            "connected": "Подключено",
+            "retrying": "Повтор",
+            "degraded": "Деградация",
+            "blocked": "Заблокировано",
+            "backlog": "событий в очереди",
+            "acknowledged": "ACK до",
+            "next": "следующее ожидаемое",
+            "revisions": "ревизии"
+          },
+          "eyebrow": "ЭКСПОРТ KEEPER / V1",
+          "search_placeholder": "Поиск визуальных полей",
+          "search_label": "Поиск визуальных полей",
+          "search_previous": "Предыдущее визуальное поле",
+          "search_next": "Следующее визуальное поле",
+          "test_failed": "Проверка соединения не удалась"
         }
       },
       "api_keys": {
@@ -1215,7 +1274,21 @@
         "integer_range_1_3600": "Введите целое число от 1 до 3600",
         "payload_invalid_number": "Введите корректное число",
         "payload_invalid_boolean": "Выберите true или false",
-        "payload_invalid_json": "Введите корректный JSON"
+        "payload_invalid_json": "Введите корректный JSON",
+        "usage_statistics_required": "Перед экспортом Keeper включите статистику использования",
+        "keeper_url_required": "Введите URL Keeper",
+        "keeper_url_https": "Используйте HTTPS URL Keeper без query или fragment",
+        "keeper_token_env": "Используйте имя переменной окружения в верхнем регистре",
+        "keeper_outbox_path": "Укажите абсолютный путь Outbox",
+        "keeper_outbox_bytes": "Лимит Outbox должен быть от 16 МиБ до 1 ТиБ",
+        "keeper_batch_events": "Число событий в пакете: от 1 до 500",
+        "keeper_batch_bytes": "Размер пакета: от 64 КиБ до 1 МиБ",
+        "keeper_flush_interval": "Интервал сброса: от 100 мс до 60 с",
+        "keeper_request_timeout": "Тайм-аут запроса: от 1 до 120 с",
+        "keeper_initial_backoff": "Начальная задержка: от 100 мс до 60 с",
+        "keeper_max_backoff": "Максимальная задержка не может быть меньше начальной",
+        "keeper_metadata_interval": "Интервал метаданных: от 1 минуты до 24 часов",
+        "keeper_metadata_categories": "Выберите хотя бы одну категорию метаданных"
       },
       "common": {
         "edit": "Изменить",

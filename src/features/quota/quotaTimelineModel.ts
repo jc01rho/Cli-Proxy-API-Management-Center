@@ -32,6 +32,18 @@ export interface TimelineLimit {
   /** Remaining percent, 0..100. */
   remaining: number;
 }
+
+export interface TimelineResetCredit {
+  id: string;
+  grantedAtMs: number | null;
+  expiresAtMs: number;
+}
+
+/** A reset-credit expiry projected onto the visible span. */
+export interface TimelineResetCreditMark extends TimelineResetCredit {
+  leftPercent: number;
+}
+
 /** One credential's row in the chart. */
 export interface TimelineLane {
   name: string;

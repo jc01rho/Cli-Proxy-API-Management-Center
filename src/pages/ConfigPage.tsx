@@ -19,6 +19,11 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useActionBarHeightVar } from '@/hooks/useActionBarHeightVar';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 import { useVisualConfig } from '@/hooks/useVisualConfig';
+import {
+  configFieldDomId,
+  getVisualSearchTargetIndex,
+  searchConfigFields,
+} from '@/components/config/configSearchIndex';
 import { apiKeyIpBlacklistApi } from '@/services/api';
 import { useNotificationStore, useAuthStore, useThemeStore, useConfigStore } from '@/stores';
 import { configFileApi } from '@/services/api/configFile';
@@ -63,6 +68,7 @@ export function ConfigPage() {
     visualDirty,
     visualParseError,
     visualValidationErrors,
+    keeperExportValidationErrors,
     visualHasPayloadValidationErrors,
     loadVisualValuesFromYaml,
     applyVisualChangesToYaml,
@@ -98,6 +104,13 @@ export function ConfigPage() {
     total: 0,
   });
   const [lastSearchedQuery, setLastSearchedQuery] = useState('');
+  const [visualSearchQuery, setVisualSearchQuery] = useState('');
+  const [visualSearchResults, setVisualSearchResults] = useState<{ current: number; total: number }>({ current: 0, total: 0 });
+  // Index of the CURRENT visual-search match; -1 means no match has been selected yet.
+  const [visualSearchIndex, setVisualSearchIndex] = useState(-1);
+  const visualSearchIndexRef = useRef(-1);
+  const [visualSearchFieldId, setVisualSearchFieldId] = useState<string>();
+  const [visualSearchSectionId, setVisualSearchSectionId] = useState<import('@/components/config/VisualConfigEditor').VisualSectionId | undefined>();
   const editorRef = useRef<ReactCodeMirrorRef | null>(null);
   const floatingActionsRef = useRef<HTMLDivElement>(null);
 
@@ -107,7 +120,9 @@ export function ConfigPage() {
   const hasVisualModeError = !!visualParseError;
   const hasVisualValidationErrors =
     activeTab === 'visual' &&
-    (Object.values(visualValidationErrors).some(Boolean) || visualHasPayloadValidationErrors);
+    (Object.values(visualValidationErrors).some(Boolean) ||
+      keeperExportValidationErrors.length > 0 ||
+      visualHasPayloadValidationErrors);
   const unsavedChangesDialog = useMemo(
     () => ({
       title: t('common.unsaved_changes_title'),
@@ -417,9 +432,70 @@ export function ConfigPage() {
   );
 
   // Search functionality
-  const performSearch = useCallback((query: string, direction: 'next' | 'prev' = 'next') => {
-    if (!query || !editorRef.current?.view) return;
+  useEffect(() => {
+    if (activeTab !== 'visual' || !visualSearchSectionId) return;
+    let secondFrame = 0;
+    const frame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        const anchor = visualSearchFieldId
+          ? document.getElementById(configFieldDomId(visualSearchFieldId))
+          : document.querySelector<HTMLElement>('.cfg-field-highlight-active');
+        anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        anchor?.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]:not([tabindex="-1"])')?.focus({ preventScroll: true });
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, [activeTab, visualSearchFieldId, visualSearchIndex, visualSearchSectionId]);
 
+  const jumpToVisualField = useCallback((query: string, direction: 'next' | 'prev' = 'next') => {
+    const matches = searchConfigFields(query, t);
+    if (matches.length === 0) {
+      setVisualSearchResults({ current: 0, total: 0 });
+      return;
+    }
+    const currentIndex = getVisualSearchTargetIndex(visualSearchIndexRef.current, matches.length, direction);
+    const target = matches[currentIndex];
+    visualSearchIndexRef.current = currentIndex;
+    setVisualSearchIndex(currentIndex);
+    setVisualSearchFieldId(target.fieldId);
+    setVisualSearchResults({ current: currentIndex + 1, total: matches.length });
+    const anchor = document.getElementById(configFieldDomId(target.fieldId));
+    if (!anchor) return;
+    const sectionId = anchor.closest<HTMLElement>('[data-editor-section]')?.id;
+    if (sectionId) {
+      setVisualSearchSectionId(sectionId as import('@/components/config/VisualConfigEditor').VisualSectionId);
+    } else {
+      const sectionMap: Record<string, import('@/components/config/VisualConfigEditor').VisualSectionId> = {
+        connectivity: 'server',
+        logging: 'system',
+        network: 'network',
+        quota: 'quota',
+        streaming: 'streaming',
+        advanced: 'advanced',
+        payload: 'payload',
+        keeperExport: 'keeperExport',
+      };
+      setVisualSearchSectionId(sectionMap[target.sectionId]);
+    }
+    anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.cfg-field-highlight-active').forEach((element) => element.classList.remove('cfg-field-highlight-active'));
+    anchor.classList.add('cfg-field-highlight-active');
+    const control = anchor.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
+    control?.focus({ preventScroll: true });
+  }, [t]);
+
+  const performSearch = useCallback((query: string, direction: 'next' | 'prev' = 'next') => {
+    if (!query) return;
+
+    if (activeTab === 'visual') {
+      jumpToVisualField(query, direction);
+      return;
+    }
+
+    if (!editorRef.current?.view) return;
     const view = editorRef.current.view;
     const doc = view.state.doc.toString();
     const matches: number[] = [];
@@ -479,7 +555,7 @@ export function ConfigPage() {
       scrollIntoView: true,
     });
     view.focus();
-  }, []);
+  }, [activeTab, jumpToVisualField]);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
@@ -588,6 +664,7 @@ export function ConfigPage() {
           className={`${styles.floatingStatus} ${
             isMobile ? styles.floatingStatusCompact : ''
           } ${getStatusClass()}`}
+          role="status"
         >
           {getFloatingStatusText()}
         </div>
@@ -660,10 +737,54 @@ export function ConfigPage() {
           )}
 
           {activeTab === 'visual' ? (
+            <div
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' || !visualSearchQuery) return;
+                const searchInput = event.currentTarget.querySelector('input[aria-label]');
+                if (event.target === searchInput) return;
+                event.preventDefault();
+                jumpToVisualField(visualSearchQuery, event.shiftKey ? 'prev' : 'next');
+              }}
+            >
+            <div className={styles.visualSearchToolbar} role="search">
+              <Input
+                value={visualSearchQuery}
+                onChange={(event) => {
+                  setVisualSearchQuery(event.target.value);
+                  visualSearchIndexRef.current = -1;
+                  setVisualSearchIndex(-1);
+                  setVisualSearchFieldId(undefined);
+                  setVisualSearchResults({ current: 0, total: 0 });
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    jumpToVisualField(visualSearchQuery, event.shiftKey ? 'prev' : 'next');
+                  }
+                }}
+                placeholder={t('config_management.visual.search.placeholder')}
+                aria-label={t('config_management.visual.search.label')}
+                disabled={disableControls || loading}
+                className={styles.searchInput}
+                rightElement={<span className={styles.searchCount}>{visualSearchResults.total ? `${visualSearchResults.current} / ${visualSearchResults.total}` : ''}</span>}
+              />
+              <div className={styles.searchActions}>
+                <Button variant="secondary" size="sm" onClick={() => jumpToVisualField(visualSearchQuery, 'prev')} disabled={!visualSearchQuery || loading || disableControls} aria-label={t('config_management.visual.search.previous')}>
+                  <IconChevronUp size={16} />
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => jumpToVisualField(visualSearchQuery, 'next')} disabled={!visualSearchQuery || loading || disableControls} aria-label={t('config_management.visual.search.next')}>
+                  <IconChevronDown size={16} />
+                </Button>
+              </div>
+            </div>
             <VisualConfigEditor
               values={visualValues}
               validationErrors={visualValidationErrors}
               hasPayloadValidationErrors={visualHasPayloadValidationErrors}
+              keeperExportValidationErrors={keeperExportValidationErrors}
+              visualSearchSectionId={visualSearchSectionId}
+              visualSearchFieldId={visualSearchFieldId}
+              visualSearchIndex={visualSearchIndex}
               disabled={disableControls || loading}
               blockedIps={blockedIps}
               blockedIpsLoading={blockedIpsLoading}
@@ -682,6 +803,7 @@ export function ConfigPage() {
               }}
               onChange={setVisualValues}
             />
+            </div>
           ) : (
             <div className={styles.sourceWorkspace}>
               <div className={styles.sourceToolbar}>

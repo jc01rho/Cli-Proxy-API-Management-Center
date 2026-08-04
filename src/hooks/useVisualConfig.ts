@@ -21,6 +21,11 @@ import {
   type OauthEndpointOverrideEntry,
   makeClientId,
 } from '@/types/visualConfig';
+import {
+  getKeeperExportValidationErrors,
+  parseKeeperExportYaml,
+  serializeKeeperExportYaml,
+} from '@/types/keeperExportVisual';
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -980,7 +985,55 @@ function mergeVisualConfigValues(
   currentValues: VisualConfigValues,
   patch: Partial<VisualConfigValues>
 ): VisualConfigValues {
-  const nextValues: VisualConfigValues = { ...currentValues, ...patch } as VisualConfigValues;
+  let nextValues: VisualConfigValues = { ...currentValues, ...patch } as VisualConfigValues;
+  if (patch.keeperExport) {
+    nextValues.keeperExport = { ...currentValues.keeperExport, ...patch.keeperExport };
+    if (patch.keeperExport.keeper) {
+      nextValues = {
+        ...nextValues,
+        keeperExport: {
+          ...nextValues.keeperExport,
+          keeper: { ...currentValues.keeperExport.keeper, ...patch.keeperExport.keeper },
+        },
+      };
+    }
+    if (patch.keeperExport.outbox) {
+      nextValues = {
+        ...nextValues,
+        keeperExport: {
+          ...nextValues.keeperExport,
+          outbox: { ...currentValues.keeperExport.outbox, ...patch.keeperExport.outbox },
+        },
+      };
+    }
+    if (patch.keeperExport.delivery) {
+      nextValues = {
+        ...nextValues,
+        keeperExport: {
+          ...nextValues.keeperExport,
+          delivery: { ...currentValues.keeperExport.delivery, ...patch.keeperExport.delivery },
+        },
+      };
+    }
+    if (patch.keeperExport.metadata) {
+      nextValues = {
+        ...nextValues,
+        keeperExport: {
+          ...nextValues.keeperExport,
+          metadata: { ...currentValues.keeperExport.metadata, ...patch.keeperExport.metadata },
+        },
+      };
+    }
+    if (patch.keeperExport.privacy) {
+      nextValues = {
+        ...nextValues,
+        keeperExport: {
+          ...nextValues.keeperExport,
+          privacy: { ...currentValues.keeperExport.privacy, ...patch.keeperExport.privacy },
+        },
+      };
+    }
+  }
   if (patch.streaming) {
     nextValues.streaming = { ...currentValues.streaming, ...patch.streaming };
   }
@@ -1006,6 +1059,13 @@ function getNextDirtyFields(
       updateDirty(key, nextValues[key] === baselineValues[key]);
     }
   };
+
+  if (Object.prototype.hasOwnProperty.call(patch, 'keeperExport')) {
+    updateDirty(
+      'keeperExport',
+      JSON.stringify(nextValues.keeperExport) === JSON.stringify(baselineValues.keeperExport)
+    );
+  }
 
   (
     [
@@ -1181,6 +1241,10 @@ export function useVisualConfig() {
     () => getVisualConfigValidationErrors(visualValues),
     [visualValues]
   );
+  const keeperExportValidationErrors = useMemo(
+    () => getKeeperExportValidationErrors(visualValues.keeperExport, visualValues.usageStatisticsEnabled),
+    [visualValues.keeperExport, visualValues.usageStatisticsEnabled]
+  );
   const visualHasPayloadValidationErrors = useMemo(
     () =>
       hasPayloadParamValidationErrors(visualValues.payloadDefaultRules) ||
@@ -1211,10 +1275,12 @@ export function useVisualConfig() {
       const payload = asRecord(parsed.payload);
       const streaming = asRecord(parsed.streaming);
       const plugins = asRecord(parsed.plugins);
+      const keeperExport = parseKeeperExportYaml(yamlContent);
       const claudeHeaderDefaults = asRecord(parsed['claude-header-defaults']);
       const codexHeaderDefaults = asRecord(parsed['codex-header-defaults']);
 
       const newValues: VisualConfigValues = {
+        keeperExport: keeperExport.values,
         host: typeof parsed.host === 'string' ? parsed.host : '',
         port: String(parsed.port ?? ''),
 
@@ -1755,7 +1821,10 @@ export function useVisualConfig() {
           deleteIfMapEmpty(doc, ['payload']);
         }
 
-        return doc.toString({ indent: 2, lineWidth: 120, minContentWidth: 0 });
+        const nextYaml = doc.toString({ indent: 2, lineWidth: 120, minContentWidth: 0 });
+        return dirtyFields.has('keeperExport')
+          ? serializeKeeperExportYaml(nextYaml, values.keeperExport, true)
+          : nextYaml;
       } catch {
         return currentYaml;
       }
@@ -1772,6 +1841,7 @@ export function useVisualConfig() {
     visualDirty,
     visualParseError,
     visualValidationErrors,
+    keeperExportValidationErrors,
     visualHasPayloadValidationErrors,
     loadVisualValuesFromYaml,
     applyVisualChangesToYaml,

@@ -407,11 +407,7 @@
     "quota_refresh_hint": "仅刷新该认证文件的额度",
     "quota_refresh_success": "已刷新 \"{{name}}\" 的额度",
     "quota_refresh_failed": "刷新 \"{{name}}\" 的额度失败：{{message}}",
-    "weight_display": "WRR 权重",
-    "weight_label": "调度权重（weight）",
-    "weight_hint": "默认值为 1；小于或等于 0 时不参与加权调度；最大值为 1,000,000。",
-    "weight_invalid_integer": "权重必须是整数。",
-    "weight_invalid_max": "权重不能超过 1,000,000。"
+    "weight_display": "WRR 权重"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -927,6 +923,9 @@
       },
       "search": {
         "placeholder": "搜索配置项（标签或 YAML 键名）",
+        "label": "搜索可视化配置字段",
+        "previous": "上一个匹配字段",
+        "next": "下一个匹配字段",
         "no_results": "没有匹配的配置项"
       },
       "sections": {
@@ -1155,6 +1154,66 @@
           "override_raw_rules_desc": "始终按原始 JSON 片段覆盖参数值，适合 response_format、schema 等复杂字段",
           "filter_rules": "过滤规则",
           "filter_rules_desc": "通过 JSON Path 预过滤上游请求体，自动剔除不合规/冗余参数（Request Sanitization）"
+        },
+        "keeper_export": {
+          "title": "Keeper 导出",
+          "description": "将脱敏的用量与元数据持久推送到 Keeper 实例；Token 不会存入浏览器。",
+          "fields": {
+            "enabled": "启用 Keeper 导出",
+            "keeper_url": "Keeper URL",
+            "token_env": "Token 环境变量名",
+            "token_env_hint": "这里只填写环境变量名，Token 值不会进入表单或浏览器存储。",
+            "outbox_path": "持久化 Outbox 路径",
+            "outbox_quota": "Outbox 配额（字节）",
+            "delivery": "投递",
+            "max_batch_events": "批量事件上限",
+            "max_batch_bytes": "批量字节上限",
+            "flush_interval": "刷新间隔（毫秒）",
+            "request_timeout": "请求超时（毫秒）",
+            "initial_backoff": "初始退避（毫秒）",
+            "max_backoff": "最大退避（毫秒）",
+            "metadata": "元数据快照",
+            "metadata_enabled": "发送完整元数据快照",
+            "metadata_interval": "元数据间隔（毫秒）",
+            "metadata_categories": "元数据类别",
+            "auth_files": "认证文件",
+            "api_keys": "API 密钥",
+            "provider_identities": "提供商身份",
+            "privacy": "隐私控制",
+            "include_client_ip": "包含客户端 IP",
+            "include_forwarded_for": "包含 forwarded-for",
+            "include_user_agent": "包含 User-Agent",
+            "tls": "TLS 与客户端证书",
+            "ca_file": "CA 证书包路径",
+            "client_cert_file": "客户端证书路径",
+            "client_key_file": "客户端私钥路径"
+          },
+          "test_success": "连接已验证",
+          "token_configured": "Token 已配置",
+          "token_not_configured": "Token 未配置",
+          "token_status_unknown": "Token 状态不可用",
+          "actions": {
+            "refresh_status": "刷新状态",
+            "test_connection": "测试连接"
+          },
+          "status": {
+            "disabled": "已禁用",
+            "starting": "启动中",
+            "connected": "已连接",
+            "retrying": "重试中",
+            "degraded": "降级",
+            "blocked": "已阻止",
+            "backlog": "积压事件",
+            "acknowledged": "ACK 至",
+            "next": "下一期望",
+            "revisions": "修订版本"
+          },
+          "eyebrow": "KEEPER 导出 / V1",
+          "search_placeholder": "搜索可视化字段",
+          "search_label": "搜索可视化字段",
+          "search_previous": "上一个可视化字段",
+          "search_next": "下一个可视化字段",
+          "test_failed": "连接测试失败"
         }
       },
       "api_keys": {
@@ -1228,7 +1287,21 @@
         "integer_range_1_3600": "请输入 1 到 3600 之间的整数",
         "payload_invalid_number": "请输入有效数字",
         "payload_invalid_boolean": "请选择 true 或 false",
-        "payload_invalid_json": "请输入有效的 JSON"
+        "payload_invalid_json": "请输入有效的 JSON",
+        "usage_statistics_required": "启用 Keeper 导出前请先启用用量统计",
+        "keeper_url_required": "请输入 Keeper URL",
+        "keeper_url_https": "Keeper URL 必须使用 HTTPS 且不能包含查询或片段",
+        "keeper_token_env": "请输入大写环境变量名",
+        "keeper_outbox_path": "请输入绝对 Outbox 路径",
+        "keeper_outbox_bytes": "Outbox 配额必须在 16 MiB 到 1 TiB 之间",
+        "keeper_batch_events": "批次事件数必须在 1 到 500 之间",
+        "keeper_batch_bytes": "批次大小必须在 64 KiB 到 1 MiB 之间",
+        "keeper_flush_interval": "刷新间隔必须在 100 毫秒到 60 秒之间",
+        "keeper_request_timeout": "请求超时必须在 1 秒到 120 秒之间",
+        "keeper_initial_backoff": "初始退避必须在 100 毫秒到 60 秒之间",
+        "keeper_max_backoff": "最大退避必须不小于初始退避",
+        "keeper_metadata_interval": "元数据间隔必须在 1 分钟到 24 小时之间",
+        "keeper_metadata_categories": "至少选择一个元数据类别"
       },
       "common": {
         "edit": "编辑",

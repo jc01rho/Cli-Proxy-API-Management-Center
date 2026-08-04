@@ -23,6 +23,7 @@ dist-ssr
 skills
 .tldr/
 .tldrignore
+.omo/
 
 # Editor directories and files
 settings.local.json

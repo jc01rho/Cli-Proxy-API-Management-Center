@@ -2,13 +2,15 @@
 @use '../styles/variables' as *;
 
 .container {
+  position: relative;
+  z-index: 1;
   width: min(100%, 1480px);
   min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: clamp(18px, 2.4vw, 28px);
   margin: 0 auto;
-  overflow-y: auto;
+  overflow-y: visible;
   padding-bottom: calc(
     var(--config-action-bar-height, 0px) + 16px + env(safe-area-inset-bottom) + #{$spacing-md}
   );
@@ -89,6 +91,8 @@
   flex-direction: column;
   gap: $spacing-lg;
   min-height: 0;
+  min-width: 0;
+  overflow: visible;
 }
 
 .sourceWorkspace {
@@ -96,6 +100,18 @@
   flex-direction: column;
   gap: 12px;
   min-height: 0;
+}
+
+.visualSearchToolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+
+  @include mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .sourceToolbar {
@@ -287,6 +303,7 @@
   bottom: calc(16px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   z-index: 50;
+  isolation: isolate;
   pointer-events: auto;
   width: fit-content;
   max-width: calc(100vw - 24px);
@@ -301,7 +318,7 @@
   overflow-x: auto;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+  background: var(--bg-primary);
   box-shadow: var(--shadow-lg);
   scrollbar-width: none;
 

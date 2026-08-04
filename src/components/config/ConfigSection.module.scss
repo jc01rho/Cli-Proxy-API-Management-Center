@@ -4,15 +4,16 @@
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 22px);
-  height: clamp(520px, calc(100dvh - var(--header-height, 64px) - 250px), 780px);
+  height: auto;
   min-width: 0;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow: visible;
   overscroll-behavior: auto;
   padding: clamp(20px, 2.4vw, 28px);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  background: var(--bg-primary);
+  isolation: isolate;
   scroll-margin-top: 104px;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -20,20 +21,23 @@
 
   @include mobile {
     gap: 14px;
-    height: clamp(420px, calc(100dvh - var(--header-height, 64px) - 260px), 680px);
+    height: auto;
     padding: 16px;
     scroll-margin-top: 92px;
   }
 }
 
 .header {
+  position: relative;
+  z-index: 10;
+  isolation: isolate;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 10px;
   align-items: start;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--border-color);
-  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+  background: var(--bg-primary);
 
   @include mobile {
     grid-template-columns: minmax(0, 1fr);
@@ -77,18 +81,26 @@
 }
 
 .headingGroup {
+  position: relative;
+  z-index: 12;
   display: flex;
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  background: var(--bg-primary);
 }
 
 .title {
   margin: 0;
   color: var(--text-primary);
+  background: var(--bg-primary);
+  position: relative;
+  z-index: 11;
+  display: inline-block;
+  width: fit-content;
   font-size: clamp(18px, 1.6vw, 22px);
   font-weight: 680;
-  line-height: 1.18;
+  line-height: 1.4;
   letter-spacing: 0;
 }
 

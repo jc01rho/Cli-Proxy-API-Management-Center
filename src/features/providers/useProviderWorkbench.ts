@@ -1004,7 +1004,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistClaudeConfigs,
       persistCodexConfigs,
       persistGeminiKeys,
-      persistInteractionsKeys,
       persistOpenAIConfigs,
       refreshSnapshot,
       updateConfigValue,
@@ -1229,6 +1228,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       }
     },
     [
+      clearCache,
       config,
       persistClaudeConfigs,
       persistCodexConfigs,

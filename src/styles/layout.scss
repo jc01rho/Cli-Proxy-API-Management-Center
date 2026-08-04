@@ -43,11 +43,12 @@
 }
 
 .top-gradient-blur {
+  display: none;
   position: fixed;
   top: 0;
   right: 0;
   left: var(--sidebar-active-width);
-  z-index: $z-dropdown - 2;
+  z-index: -1;
   height: 141px;
   pointer-events: none;
   background: linear-gradient(
@@ -553,7 +554,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--text-primary) 42%, transparent);
+    color: var(--text-secondary);
     user-select: none;
   }
 
@@ -810,6 +811,7 @@
   flex-direction: column;
   gap: $spacing-lg;
   overflow-x: hidden;
+  overflow-y: visible;
 
   &.main-content-logs {
     flex: 1 1 auto;
@@ -835,6 +837,10 @@
 }
 
 @media (max-width: $breakpoint-mobile) {
+  .top-gradient-blur {
+    display: none;
+  }
+
   :root {
     --header-height: 74px;
     --shell-gutter: 12px;
@@ -976,11 +982,9 @@
     height: auto;
     min-height: 100vh;
     overflow: visible;
-    overflow-y: auto;
 
     &.content-logs {
       overflow: visible;
-      overflow-y: auto;
       height: auto;
     }
 

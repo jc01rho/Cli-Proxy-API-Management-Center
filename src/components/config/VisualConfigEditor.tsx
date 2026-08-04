@@ -3,6 +3,7 @@ import {
   useEffect,
   useId,
   useMemo,
+  useLayoutEffect,
   useRef,
   useState,
   type ComponentType,
@@ -28,6 +29,7 @@ import {
   type IconProps,
 } from '@/components/ui/icons';
 import { ConfigSection } from '@/components/config/ConfigSection';
+import { KeeperExportSection } from '@/components/config/KeeperExportSection';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type {
   APIKeyBlacklistEntry,
@@ -54,7 +56,7 @@ import {
 import { configFieldDomId } from './configSearchIndex';
 import styles from './VisualConfigEditor.module.scss';
 
-type VisualSectionId =
+export type VisualSectionId =
   | 'server'
   | 'auth'
   | 'system'
@@ -63,7 +65,8 @@ type VisualSectionId =
   | 'streaming'
   | 'advanced'
   | 'payload'
-  | 'fallback';
+  | 'fallback'
+  | 'keeperExport';
 
 type VisualSection = {
   id: VisualSectionId;
@@ -76,6 +79,7 @@ interface VisualConfigEditorProps {
   values: VisualConfigValues;
   validationErrors?: VisualConfigValidationErrors;
   hasPayloadValidationErrors?: boolean;
+  keeperExportValidationErrors?: import('@/types/keeperExportVisual').KeeperExportVisualValidationError[];
   disabled?: boolean;
   blockedIps?: APIKeyBlacklistEntry[];
   blockedIpsLoading?: boolean;
@@ -87,6 +91,9 @@ interface VisualConfigEditorProps {
   onBanBlockedIp?: (ip: string) => void;
   onUnbanBlockedIp?: (ip: string) => void;
   onChange: (values: Partial<VisualConfigValues>) => void;
+  visualSearchSectionId?: VisualSectionId;
+  visualSearchFieldId?: string;
+  visualSearchIndex?: number;
 }
 
 function getValidationMessage(
@@ -202,6 +209,7 @@ export function VisualConfigEditor({
   values,
   validationErrors,
   hasPayloadValidationErrors = false,
+  keeperExportValidationErrors = [],
   disabled = false,
   blockedIps = [],
   blockedIpsLoading = false,
@@ -213,6 +221,9 @@ export function VisualConfigEditor({
   onBanBlockedIp,
   onUnbanBlockedIp,
   onChange,
+  visualSearchSectionId,
+  visualSearchFieldId,
+  visualSearchIndex = -1,
 }: VisualConfigEditorProps) {
   const { t } = useTranslation();
   const pageTransitionLayer = usePageTransitionLayer();
@@ -231,6 +242,18 @@ export function VisualConfigEditor({
   const nonstreamKeepaliveHintId = `${nonstreamKeepaliveInputId}-hint`;
   const nonstreamKeepaliveErrorId = `${nonstreamKeepaliveInputId}-error`;
   const [activeSectionId, setActiveSectionId] = useState<VisualSectionId>('server');
+
+  useEffect(() => {
+    if (visualSearchSectionId) setActiveSectionId(visualSearchSectionId);
+  }, [visualSearchSectionId]);
+
+  useLayoutEffect(() => {
+    if (!visualSearchSectionId || activeSectionId !== visualSearchSectionId) return;
+    const anchor = visualSearchFieldId
+      ? document.getElementById(configFieldDomId(visualSearchFieldId))
+      : document.querySelector<HTMLElement>('.cfg-field-highlight-active');
+    anchor?.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]:not([tabindex="-1"])')?.focus({ preventScroll: true });
+  }, [activeSectionId, visualSearchFieldId, visualSearchIndex, visualSearchSectionId]);
   const sectionRefs = useRef<Partial<Record<VisualSectionId, HTMLElement | null>>>({});
   const mobileNavScrollerRef = useRef<HTMLDivElement | null>(null);
   const mobileNavButtonRefs = useRef<Partial<Record<VisualSectionId, HTMLButtonElement | null>>>(
@@ -424,6 +447,12 @@ export function VisualConfigEditor({
         ]),
       },
       {
+        id: 'keeperExport',
+        title: t('config_management.visual.sections.keeper_export.title'),
+        icon: IconSatellite,
+        errorCount: keeperExportValidationErrors.length,
+      },
+      {
         id: 'advanced',
         title: t('config_management.visual.sections.advanced.title'),
         icon: IconShield,
@@ -436,7 +465,7 @@ export function VisualConfigEditor({
         errorCount: hasPayloadValidationErrors ? 1 : 0,
       },
     ],
-    [countErrors, hasPayloadValidationErrors, t]
+    [countErrors, hasPayloadValidationErrors, keeperExportValidationErrors.length, t]
   );
 
   const hasValidationIssues =
@@ -496,8 +525,8 @@ export function VisualConfigEditor({
     setActiveSectionId(sectionId);
     sectionRefs.current[sectionId]?.scrollIntoView({
       behavior: 'smooth',
-      block: 'nearest',
-      inline: 'start',
+      block: 'start',
+      inline: 'nearest',
     });
   }, []);
 
@@ -561,6 +590,7 @@ export function VisualConfigEditor({
             <div
               ref={mobileNavScrollerRef}
               className={styles.mobileSectionNavScroller}
+              role="navigation"
               aria-label={t('config_management.visual.quick_jump', { defaultValue: '快速跳转' })}
             >
               {sections.map((section, index) => (
@@ -594,9 +624,11 @@ export function VisualConfigEditor({
           <div className={styles.sidebarRail}>{navContent}</div>
         </aside>
 
-        <div className={styles.sections}>
+        <div className={styles.sections} data-editor-sections="single-column">
           <ConfigSection
             id="server"
+            data-editor-section
+            data-active-section={activeSectionId === 'server' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.server = node;
             }}
@@ -722,6 +754,8 @@ export function VisualConfigEditor({
 
           <ConfigSection
             id="auth"
+            data-editor-section
+            data-active-section={activeSectionId === 'auth' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.auth = node;
             }}
@@ -835,6 +869,8 @@ export function VisualConfigEditor({
 
           <ConfigSection
             id="system"
+            data-editor-section
+            data-active-section={activeSectionId === 'system' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.system = node;
             }}
@@ -897,6 +933,8 @@ export function VisualConfigEditor({
 
           <ConfigSection
             id="fallback"
+            data-editor-section
+            data-active-section={activeSectionId === 'fallback' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.fallback = node;
             }}
@@ -995,6 +1033,8 @@ export function VisualConfigEditor({
 
           <ConfigSection
             id="network"
+            data-editor-section
+            data-active-section={activeSectionId === 'network' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.network = node;
             }}
@@ -1329,6 +1369,8 @@ export function VisualConfigEditor({
 
           <ConfigSection
             id="quota"
+            data-editor-section
+            data-active-section={activeSectionId === 'quota' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.quota = node;
             }}
@@ -1363,6 +1405,8 @@ export function VisualConfigEditor({
 
           <ConfigSection
             id="streaming"
+            data-editor-section
+            data-active-section={activeSectionId === 'streaming' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.streaming = node;
             }}
@@ -1463,7 +1507,30 @@ export function VisualConfigEditor({
           </ConfigSection>
 
           <ConfigSection
+            id="keeperExport"
+            data-editor-section
+            data-active-section={activeSectionId === 'keeperExport' ? 'true' : 'false'}
+            ref={(node) => {
+              sectionRefs.current.keeperExport = node;
+            }}
+            indexLabel="08"
+            icon={<IconSatellite size={16} />}
+            title={t('config_management.visual.sections.keeper_export.title')}
+            description={t('config_management.visual.sections.keeper_export.description')}
+          >
+            <KeeperExportSection
+              values={values.keeperExport}
+              validationErrors={keeperExportValidationErrors}
+              usageStatisticsEnabled={values.usageStatisticsEnabled}
+              disabled={disabled}
+              onChange={(keeperExport) => onChange({ keeperExport })}
+            />
+          </ConfigSection>
+
+          <ConfigSection
             id="advanced"
+            data-editor-section
+            data-active-section={activeSectionId === 'advanced' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.advanced = node;
             }}
@@ -1696,6 +1763,8 @@ export function VisualConfigEditor({
 
           <ConfigSection
             id="payload"
+            data-editor-section
+            data-active-section={activeSectionId === 'payload' ? 'true' : 'false'}
             ref={(node) => {
               sectionRefs.current.payload = node;
             }}

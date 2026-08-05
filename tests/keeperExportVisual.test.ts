@@ -112,6 +112,36 @@ describe('keeper export visual configuration', () => {
     expect(errors).not.toContain('keeper_token_env');
   });
 
+  test('accepts Windows drive and UNC outbox paths', () => {
+    for (const path of ['C:/ProgramData/CLIProxyAPI/keeper-outbox.db', String.raw`D:\CLIProxyAPI\keeper-outbox.db`, String.raw`\\keeper-host\outbox\keeper.db`]) {
+      const errors = getKeeperExportValidationErrors(
+        {
+          ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES,
+          enabled: true,
+          mode: 'push',
+          keeper: { ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES.keeper, url: 'https://keeper.example.com', tokenEnv: 'CPA_KEEPER_TOKEN' },
+          outbox: { ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES.outbox, path },
+        },
+        true
+      );
+      expect(errors).not.toContain('keeper_outbox_path');
+    }
+  });
+
+  test('accepts a relative outbox path', () => {
+    const errors = getKeeperExportValidationErrors(
+      {
+        ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES,
+        enabled: true,
+        mode: 'push',
+        keeper: { ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES.keeper, url: 'https://keeper.example.com', tokenEnv: 'CPA_KEEPER_TOKEN' },
+        outbox: { ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES.outbox, path: 'keeper-export/outbox.db' },
+      },
+      true
+    );
+    expect(errors).not.toContain('keeper_outbox_path');
+  });
+
   test('status tone is exhaustive and never color-only', () => {
     expect(getKeeperExportStatusTone('connected')).toEqual({ kind: 'success', icon: 'check' });
     expect(getKeeperExportStatusTone('retrying')).toEqual({ kind: 'warning', icon: 'retry' });

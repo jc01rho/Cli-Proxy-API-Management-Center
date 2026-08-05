@@ -1188,7 +1188,7 @@
             "enabled": "啟用 Keeper 匯出",
             "keeper_url": "Keeper URL",
             "token_env": "Token 環境變數名稱",
-            "token_env_hint": "只填寫環境變數名稱，Token 值不會進入表單或瀏覽器儲存。",
+            "token_env_hint": "只填寫環境變數名稱。若已在僅限擁有者讀取的 CPA YAML 檔案中直接設定 Token，請留空；Token 值不會進入表單或瀏覽器儲存。",
             "outbox_path": "持久化 Outbox 路徑",
             "outbox_quota": "Outbox 配額（位元組）",
             "delivery": "投遞",

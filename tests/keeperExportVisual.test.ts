@@ -99,6 +99,19 @@ describe('keeper export visual configuration', () => {
     );
   });
 
+  test('allows an empty token environment when a direct YAML token is preserved server-side', () => {
+    const errors = getKeeperExportValidationErrors(
+      {
+        ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES,
+        enabled: true,
+        mode: 'push',
+        keeper: { ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES.keeper, url: 'http://192.168.0.50:8080', tokenEnv: '' },
+      },
+      true
+    );
+    expect(errors).not.toContain('keeper_token_env');
+  });
+
   test('status tone is exhaustive and never color-only', () => {
     expect(getKeeperExportStatusTone('connected')).toEqual({ kind: 'success', icon: 'check' });
     expect(getKeeperExportStatusTone('retrying')).toEqual({ kind: 'warning', icon: 'retry' });

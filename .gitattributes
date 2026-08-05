@@ -1,0 +1,19 @@
+# Normalize line endings: keeper-export v1 contracts and JSON must stay LF-only
+# so that SHA256 manifests and "endsWith('}\n')" assertions in bun test stay
+# byte-identical across Linux/macOS/Windows runners. Without this, Windows
+# git config (core.autocrlf=true) would inject CRLF into the golden fixture
+# files and break the cross-repo byte-parity contract.
+*.json text eol=lf
+*.sha256 text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.lock text eol=lf
+*.jsonc text eol=lf

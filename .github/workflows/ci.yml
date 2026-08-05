@@ -15,6 +15,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Checkout Keeper export fixture repositories
+        run: |
+          git clone --depth=1 --branch main https://github.com/jc01rho/CLIProxyAPIPlus.git ../CLIProxyAPIPlus
+          git clone --depth=1 --branch main https://github.com/jc01rho/cpa-usage-keeper.git ../cpa-usage-keeper
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

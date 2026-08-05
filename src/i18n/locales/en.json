@@ -1163,7 +1163,7 @@
             "enabled": "Enable Keeper Export",
             "keeper_url": "Keeper URL",
             "token_env": "Token environment variable",
-            "token_env_hint": "Enter the environment variable name only. The token value never enters this form or browser storage.",
+            "token_env_hint": "Enter the environment variable name only. Leave this blank when a direct token is set in the owner-only CPA YAML file; token values never enter this form or browser storage.",
             "outbox_path": "Durable outbox path",
             "outbox_quota": "Outbox quota (bytes)",
             "delivery": "Delivery",

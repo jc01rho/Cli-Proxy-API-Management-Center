@@ -223,7 +223,9 @@ export function getKeeperExportValidationErrors(
       errors.push('keeper_url_scheme');
     }
   }
-  if (!/^[A-Z_][A-Z0-9_]{0,127}$/.test(values.keeper.tokenEnv)) errors.push('keeper_token_env');
+  if (values.keeper.tokenEnv && !/^[A-Z_][A-Z0-9_]{0,127}$/.test(values.keeper.tokenEnv)) {
+    errors.push('keeper_token_env');
+  }
   if (!values.outbox.path.startsWith('/')) errors.push('keeper_outbox_path');
   if (!integerInRange(values.outbox.maxBytes, 16 * 1024 * 1024, 1024 * 1024 * 1024 * 1024)) errors.push('keeper_outbox_bytes');
   if (!integerInRange(values.delivery.maxBatchEvents, 1, 500)) errors.push('keeper_batch_events');

@@ -1162,7 +1162,7 @@
             "enabled": "启用 Keeper 导出",
             "keeper_url": "Keeper URL",
             "token_env": "Token 环境变量名",
-            "token_env_hint": "这里只填写环境变量名，Token 值不会进入表单或浏览器存储。",
+            "token_env_hint": "这里只填写环境变量名。若已在仅限所有者读取的 CPA YAML 文件中直接设置 Token，请留空；Token 值不会进入表单或浏览器存储。",
             "outbox_path": "持久化 Outbox 路径",
             "outbox_quota": "Outbox 配额（字节）",
             "delivery": "投递",

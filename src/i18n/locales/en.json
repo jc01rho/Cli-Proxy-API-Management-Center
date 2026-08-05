@@ -1291,7 +1291,7 @@
         "payload_invalid_json": "Enter valid JSON",
         "usage_statistics_required": "Enable usage statistics before enabling Keeper Export",
         "keeper_url_required": "Enter a Keeper URL",
-        "keeper_url_https": "Use an HTTPS Keeper URL without query or fragment",
+        "keeper_url_scheme": "Use an HTTP or HTTPS Keeper URL without query or fragment",
         "keeper_token_env": "Use an uppercase environment variable name",
         "keeper_outbox_path": "Use an absolute outbox path",
         "keeper_outbox_bytes": "Outbox quota must be 16 MiB to 1 TiB",

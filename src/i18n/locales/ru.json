@@ -1277,7 +1277,7 @@
         "payload_invalid_json": "Введите корректный JSON",
         "usage_statistics_required": "Перед экспортом Keeper включите статистику использования",
         "keeper_url_required": "Введите URL Keeper",
-        "keeper_url_https": "Используйте HTTPS URL Keeper без query или fragment",
+        "keeper_url_scheme": "Используйте URL Keeper (HTTP или HTTPS) без query или fragment",
         "keeper_token_env": "Используйте имя переменной окружения в верхнем регистре",
         "keeper_outbox_path": "Укажите абсолютный путь Outbox",
         "keeper_outbox_bytes": "Лимит Outbox должен быть от 16 МиБ до 1 ТиБ",

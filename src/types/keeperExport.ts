@@ -1255,7 +1255,7 @@ const decodeProviderIdentityItem = (node: JsonNode, path: string): ProviderIdent
     providerType: str('providerType', { minBytes: 1, maxBytes: 128, tight: true }),
     displayName: str('displayName', { maxBytes: 256 }),
     prefix: str('prefix', { maxBytes: 256 }),
-    baseUrl: isNull(baseUrl) ? null : asHttpsUrl(baseUrl, `${path}.baseUrl`, 'invalid_field'),
+    baseUrl: isNull(baseUrl) ? null : asHttpUrl(baseUrl, `${path}.baseUrl`, 'invalid_field'),
     priority: isNull(priority) ? null : asInteger(priority, `${path}.priority`, -1000000, 1000000),
     disabled: isNull(disabled) ? null : asBoolean(disabled, `${path}.disabled`),
     note: isNull(note) ? null : asString(note, `${path}.note`, { maxBytes: 1024 }),
@@ -1265,8 +1265,8 @@ const decodeProviderIdentityItem = (node: JsonNode, path: string): ProviderIdent
   };
 };
 
-/** Absolute HTTPS URL: no userinfo, query, or fragment (spec sections 7.4, 8.1). */
-const asHttpsUrl = (node: JsonNode, path: string, code: KeeperErrorCode): string => {
+/** Absolute HTTP(S) URL: no userinfo, query, or fragment (spec sections 7.4, 8.1). */
+const asHttpUrl = (node: JsonNode, path: string, code: KeeperErrorCode): string => {
   if (node.kind !== 'string') return fail(code, `${path} must be a URL string`);
   const value = node.value;
   if (CONTROL_CHARS.test(value) || value !== value.trim() || byteLength(value) > 2048) {
@@ -1278,8 +1278,8 @@ const asHttpsUrl = (node: JsonNode, path: string, code: KeeperErrorCode): string
   } catch {
     return fail(code, `${path} is not a valid URL`);
   }
-  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) {
-    fail(code, `${path} must be an HTTPS URL without userinfo, query, or fragment`);
+  if ((url.protocol !== 'https:' && url.protocol !== 'http:') || url.username || url.password || url.search || url.hash) {
+    fail(code, `${path} must be an HTTP or HTTPS URL without userinfo, query, or fragment`);
   }
   return value;
 };
@@ -1609,7 +1609,7 @@ const validateSettingsSemantics = (settings: UsageExportSettings, path: string):
 
   // Push mode requirements (spec section 8.1).
   const urlNode: JsonNode = { kind: 'string', value: settings.keeper.url, start: 0, end: 0 };
-  asHttpsUrl(urlNode, `${path}.keeper.url`, 'invalid_settings');
+  asHttpUrl(urlNode, `${path}.keeper.url`, 'invalid_settings');
   if (!ENV_NAME.test(settings.keeper.tokenEnv)) {
     invalidSettings(`${path}.keeper.tokenEnv is not a valid environment variable name`);
   }

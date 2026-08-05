@@ -226,7 +226,7 @@ export function getKeeperExportValidationErrors(
   if (values.keeper.tokenEnv && !/^[A-Z_][A-Z0-9_]{0,127}$/.test(values.keeper.tokenEnv)) {
     errors.push('keeper_token_env');
   }
-  if (!values.outbox.path.startsWith('/')) errors.push('keeper_outbox_path');
+  if (!values.outbox.path.trim()) errors.push('keeper_outbox_path');
   if (!integerInRange(values.outbox.maxBytes, 16 * 1024 * 1024, 1024 * 1024 * 1024 * 1024)) errors.push('keeper_outbox_bytes');
   if (!integerInRange(values.delivery.maxBatchEvents, 1, 500)) errors.push('keeper_batch_events');
   if (!integerInRange(values.delivery.maxBatchBytes, 65536, 1048576)) errors.push('keeper_batch_bytes');

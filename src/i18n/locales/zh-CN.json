@@ -1290,7 +1290,7 @@
         "payload_invalid_json": "请输入有效的 JSON",
         "usage_statistics_required": "启用 Keeper 导出前请先启用用量统计",
         "keeper_url_required": "请输入 Keeper URL",
-        "keeper_url_https": "Keeper URL 必须使用 HTTPS 且不能包含查询或片段",
+        "keeper_url_scheme": "Keeper URL 必须使用 HTTP 或 HTTPS 且不能包含查询或片段",
         "keeper_token_env": "请输入大写环境变量名",
         "keeper_outbox_path": "请输入绝对 Outbox 路径",
         "keeper_outbox_bytes": "Outbox 配额必须在 16 MiB 到 1 TiB 之间",

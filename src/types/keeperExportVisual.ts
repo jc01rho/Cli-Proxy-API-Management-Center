@@ -36,7 +36,7 @@ export type KeeperExportVisualValues = {
 
 export type KeeperExportVisualValidationError =
   | 'usage_statistics_required'
-  | 'keeper_url_https'
+  | 'keeper_url_scheme'
   | 'keeper_token_env'
   | 'keeper_url_required'
   | 'keeper_outbox_path'
@@ -216,11 +216,11 @@ export function getKeeperExportValidationErrors(
   else {
     try {
       const url = new URL(values.keeper.url);
-      if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) {
-        errors.push('keeper_url_https');
+      if ((url.protocol !== 'https:' && url.protocol !== 'http:') || url.username || url.password || url.search || url.hash) {
+        errors.push('keeper_url_scheme');
       }
     } catch {
-      errors.push('keeper_url_https');
+      errors.push('keeper_url_scheme');
     }
   }
   if (!/^[A-Z_][A-Z0-9_]{0,127}$/.test(values.keeper.tokenEnv)) errors.push('keeper_token_env');

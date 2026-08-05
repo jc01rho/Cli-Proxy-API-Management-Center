@@ -184,9 +184,9 @@ export function KeeperExportSection({
             label={t('config_management.visual.sections.keeper_export.fields.keeper_url')}
             value={values.keeper.url}
             onChange={(event) => onChange(updateKeeper(values, { url: event.target.value }))}
-            placeholder="https://keeper.example.com"
+            placeholder="http://192.0.2.10:8080"
             disabled={disabled}
-            error={t(errorFor('keeper_url_required') ?? errorFor('keeper_url_https') ?? '') || undefined}
+            error={t(errorFor('keeper_url_required') ?? errorFor('keeper_url_scheme') ?? '') || undefined}
           />
         </div>
         <div className={styles.fieldShell} id="cfg-field-keeperTokenEnv">

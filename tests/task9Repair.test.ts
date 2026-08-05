@@ -66,7 +66,7 @@ describe('Task 9 repair contract', () => {
   });
 
   test('all eight repair validation messages are present in every locale', () => {
-    const keys = ['keeper_url_required', 'keeper_url_https', 'keeper_token_env', 'keeper_outbox_path', 'keeper_outbox_bytes', 'keeper_batch_events', 'keeper_batch_bytes', 'keeper_flush_interval', 'keeper_request_timeout', 'keeper_initial_backoff', 'keeper_max_backoff', 'keeper_metadata_interval', 'keeper_metadata_categories', 'usage_statistics_required'];
+    const keys = ['keeper_url_required', 'keeper_url_scheme', 'keeper_token_env', 'keeper_outbox_path', 'keeper_outbox_bytes', 'keeper_batch_events', 'keeper_batch_bytes', 'keeper_flush_interval', 'keeper_request_timeout', 'keeper_initial_backoff', 'keeper_max_backoff', 'keeper_metadata_interval', 'keeper_metadata_categories', 'usage_statistics_required'];
     for (const [locale, bundle] of Object.entries(locales)) {
       for (const key of keys) {
         const value = bundle.config_management.visual.validation[key as keyof typeof bundle.config_management.visual.validation];

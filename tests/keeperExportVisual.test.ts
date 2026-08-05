@@ -90,12 +90,12 @@ describe('keeper export visual configuration', () => {
         ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES,
         enabled: true,
         mode: 'push',
-        keeper: { ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES.keeper, url: 'http://keeper.invalid', tokenEnv: 'token' },
+        keeper: { ...DEFAULT_KEEPER_EXPORT_VISUAL_VALUES.keeper, url: 'ftp://keeper.invalid', tokenEnv: 'token' },
       },
       false
     );
     expect(errors).toEqual(
-      expect.arrayContaining(['keeper_url_https', 'keeper_token_env', 'usage_statistics_required'])
+      expect.arrayContaining(['keeper_url_scheme', 'keeper_token_env', 'usage_statistics_required'])
     );
   });
 

@@ -8,7 +8,13 @@ import {
   normalizeManagementOAuthProviderKey,
 } from '@/utils/providerKeys';
 
-export type BuiltInOAuthProvider = 'codex' | 'anthropic' | 'antigravity' | 'kimi' | 'xai';
+export type BuiltInOAuthProvider =
+  | 'codex'
+  | 'anthropic'
+  | 'antigravity'
+  | 'kimi'
+  | 'xai'
+  | 'cline';
 
 export interface OAuthStartResponse {
   url: string;
@@ -19,7 +25,13 @@ export interface OAuthCallbackResponse {
   status: 'ok';
 }
 
-const WEBUI_SUPPORTED = new Set<string>(['codex', 'anthropic', 'antigravity', 'xai']);
+export const WEBUI_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>([
+  'codex',
+  'anthropic',
+  'antigravity',
+  'xai',
+  'cline',
+]);
 
 const normalizeProviderForManagementPath = (provider: string): string => {
   const key = normalizeManagementOAuthProviderKey(provider);
@@ -33,7 +45,7 @@ export const oauthApi = {
   startAuth: (provider: string) => {
     const providerKey = normalizeProviderForManagementPath(provider);
     const params: Record<string, string | boolean> = {};
-    if (WEBUI_SUPPORTED.has(providerKey)) {
+    if (WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(providerKey as BuiltInOAuthProvider)) {
       params.is_webui = true;
     }
     return apiClient.get<OAuthStartResponse>(`/${providerKey}-auth-url`, {

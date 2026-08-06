@@ -4,7 +4,14 @@
  */
 
 // OAuth 提供商类型 - 内置通道 + 插件 AuthProvider identifier
-export type BuiltInOAuthProvider = 'codex' | 'anthropic' | 'antigravity' | 'gemini-cli' | 'kimi' | 'xai';
+export type BuiltInOAuthProvider =
+  | 'codex'
+  | 'anthropic'
+  | 'antigravity'
+  | 'gemini-cli'
+  | 'kimi'
+  | 'xai'
+  | 'cline';
 
 // OAuth provider 可来自内置通道或插件 AuthProvider identifier。
 export type OAuthProvider = BuiltInOAuthProvider | (string & {});

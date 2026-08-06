@@ -16,23 +16,26 @@ describe('standard thinking level selector', () => {
       'xhigh',
       'max',
       'auto',
+      'enable',
+      'disable',
+      'adaptive',
     ]);
   });
 
   test('reads standard levels and legacy capability flags', () => {
     expect(
       readThinkingLevels({
-        levels: ['LOW', 'custom', 'high', 'none'],
+        levels: ['LOW', 'custom', 'high', 'none', 'ENABLE', 'disable', 'Adaptive'],
         zero_allowed: true,
         dynamic_allowed: true,
       })
-    ).toEqual(['none', 'low', 'high', 'auto']);
+    ).toEqual(['none', 'low', 'high', 'auto', 'enable', 'disable', 'adaptive']);
   });
 
   test('writes canonical backend levels and omits an empty selection', () => {
     expect(buildThinkingFromLevels([])).toBeUndefined();
-    expect(buildThinkingFromLevels(['auto', 'high', 'none', 'low'])).toEqual({
-      levels: ['low', 'high', 'none', 'auto'],
+    expect(buildThinkingFromLevels(['adaptive', 'auto', 'high', 'none', 'low', 'enable'])).toEqual({
+      levels: ['low', 'high', 'none', 'auto', 'enable', 'adaptive'],
     });
   });
 });

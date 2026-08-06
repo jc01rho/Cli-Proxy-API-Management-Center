@@ -7,6 +7,9 @@ export const THINKING_LEVELS = [
   'xhigh',
   'max',
   'auto',
+  'enable',
+  'disable',
+  'adaptive',
 ] as const;
 
 export type ThinkingLevel = (typeof THINKING_LEVELS)[number];
@@ -21,6 +24,9 @@ const SERIALIZED_LEVEL_ORDER: readonly ThinkingLevel[] = [
   'max',
   'none',
   'auto',
+  'enable',
+  'disable',
+  'adaptive',
 ];
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>

@@ -1853,7 +1853,10 @@
         "high": "High",
         "xhigh": "Extra high",
         "max": "Maximum",
-        "auto": "Automatic"
+        "auto": "Automatic",
+        "enable": "Enable thinking",
+        "disable": "Disable thinking",
+        "adaptive": "Adaptive thinking"
       },
       "cloakCacheUserId": "Cache user_id",
       "cloakCacheUserIdHint": "Reuse the Claude cloak user_id per API key",

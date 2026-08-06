@@ -1877,7 +1877,10 @@
         "high": "高",
         "xhigh": "超高",
         "max": "最大",
-        "auto": "自動"
+        "auto": "自動",
+        "enable": "啟用思考",
+        "disable": "停用思考",
+        "adaptive": "自適應思考"
       },
       "cloakCacheUserId": "快取 user_id",
       "cloakCacheUserIdHint": "按 API key 複用 Claude cloak 產生的 user_id",

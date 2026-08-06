@@ -1829,7 +1829,10 @@
         "high": "Высокий",
         "xhigh": "Очень высокий",
         "max": "Максимальный",
-        "auto": "Автоматический"
+        "auto": "Автоматический",
+        "enable": "Включить thinking",
+        "disable": "Отключить thinking",
+        "adaptive": "Адаптивный thinking"
       },
       "cloakCacheUserId": "Кэшировать user_id",
       "cloakCacheUserIdHint": "Переиспользовать Claude cloak user_id для каждого API-ключа",

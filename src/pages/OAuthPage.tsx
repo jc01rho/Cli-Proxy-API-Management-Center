@@ -22,6 +22,8 @@ import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import iconGrok from '@/assets/icons/grok.svg';
 import iconGrokDark from '@/assets/icons/grok-dark.svg';
+import iconClineLight from '@/assets/icons/cline-light.svg';
+import iconClineDark from '@/assets/icons/cline-dark.svg';
 
 interface ProviderState {
   url?: string;
@@ -103,10 +105,22 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.xai_oauth_title',
     icon: { light: iconGrok, dark: iconGrokDark },
   },
+  {
+    kind: 'builtin',
+    id: 'cline',
+    titleKey: 'auth_login.cline_oauth_title',
+    icon: { light: iconClineLight, dark: iconClineDark },
+  },
 ];
 
 const BUILTIN_PROVIDER_IDS = new Set<string>(PROVIDERS.map((provider) => provider.id));
-const CALLBACK_SUPPORTED = new Set<string>(['codex', 'anthropic', 'antigravity', 'xai']);
+export const CALLBACK_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>([
+  'codex',
+  'anthropic',
+  'antigravity',
+  'xai',
+  'cline',
+]);
 const XAI_CALLBACK_URL = 'http://127.0.0.1:56121/callback';
 const KIMI_SIGN_UP_URL = 'https://www.kimi.com/code/?aff=cliproxyapi';
 const SUCCESS_RESET_DELAY_MS = 5000;
@@ -572,7 +586,8 @@ export function OAuthPage() {
     const state = states[provider.id] || {};
     const showKimiSignUp = featured && provider.kind === 'builtin' && provider.id === 'kimi';
     const canSubmitCallback =
-      (provider.kind === 'plugin' || CALLBACK_SUPPORTED.has(provider.id)) && Boolean(state.url);
+      (provider.kind === 'plugin' || CALLBACK_SUPPORTED_OAUTH_PROVIDERS.has(provider.id)) &&
+      Boolean(state.url);
     const loginButtonLabel =
       state.status === 'success'
         ? t('auth_login.login_another_account')

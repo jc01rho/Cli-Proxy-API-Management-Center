@@ -1666,7 +1666,9 @@
       "qiniuCloud": "Qiniu Cloud",
       "lmuAI": "LMU AI (Lingmou AI)",
       "kimi": "Kimi",
-      "interactions": "Interactions API"
+      "interactions": "Interactions API",
+      "infistar": "Infistar",
+      "kimi": "Kimi"
     },
     "table": {
       "key": "Ключ",
@@ -1721,11 +1723,15 @@
         "standard": "Обычный URL",
         "direct": "Прямой URL",
         "domestic": "Маршрут для материкового Китая",
-        "overseas": "Зарубежный маршрут"
+        "overseas": "Зарубежный маршрут",
+        "mainlandChina": "Материковый Китай (рекомендуется)",
+        "global": "Глобальный"
       },
       "urlOptionDescriptions": {
         "domestic": "Для пользователей и нагрузок в материковом Китае; обычно дает меньшую задержку в сетях материкового Китая.",
-        "overseas": "Для зарубежных развертываний, трансграничного доступа или задач, которым нужны зарубежные модели."
+        "overseas": "Для зарубежных развертываний, трансграничного доступа или задач, которым нужны зарубежные модели.",
+        "mainlandChinaRecommended": "Рекомендуется для пользователей и нагрузок в сетях материкового Китая.",
+        "global": "Для пользователей и нагрузок во всех остальных регионах."
       },
       "modelsTitle": "Настройки моделей по протоколам",
       "modelsHint": "Настраивайте allowlist моделей и алиасы отдельно для маршрутов Codex API, Anthropic, Gemini и OpenAI-compatible.",

@@ -68,6 +68,7 @@ export function ProviderResourcePanel({
         ? getKimiAffiliateUrl(i18n.resolvedLanguage ?? i18n.language)
         : group.id === 'code0' ||
             group.id === 'lmuAI' ||
+            group.id === 'infistar' ||
             group.id === 'fennoAI' ||
             group.id === 'qiniuCloud'
           ? getSponsorProviderDefinition(group.id).affiliateUrl

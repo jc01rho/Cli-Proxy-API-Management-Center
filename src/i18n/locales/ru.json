@@ -1316,6 +1316,10 @@
         "update": "Обновить",
         "add": "Добавить"
       }
+    },
+    "tabs": {
+      "visual": "Визуальный редактор",
+      "source": "Редактор исходного кода"
     }
   },
   "quota_management": {
@@ -1667,8 +1671,7 @@
       "lmuAI": "LMU AI (Lingmou AI)",
       "kimi": "Kimi",
       "interactions": "Interactions API",
-      "infistar": "Infistar",
-      "kimi": "Kimi"
+      "infistar": "Infistar"
     },
     "table": {
       "key": "Ключ",

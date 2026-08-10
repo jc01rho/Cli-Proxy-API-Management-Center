@@ -1330,6 +1330,10 @@
         "update": "Update",
         "add": "Add"
       }
+    },
+    "tabs": {
+      "visual": "Visual editor",
+      "source": "Source editor"
     }
   },
   "quota_management": {
@@ -1691,8 +1695,7 @@
       "lmuAI": "LMU AI (Lingmou AI)",
       "kimi": "Kimi",
       "interactions": "Interactions API",
-      "infistar": "Infistar",
-      "kimi": "Kimi"
+      "infistar": "Infistar"
     },
     "table": {
       "key": "Key",

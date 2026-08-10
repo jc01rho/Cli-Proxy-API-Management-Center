@@ -1355,6 +1355,10 @@
         "update": "更新",
         "add": "新增"
       }
+    },
+    "tabs": {
+      "visual": "可視化編輯",
+      "source": "源代碼編輯"
     }
   },
   "quota_management": {
@@ -1715,8 +1719,7 @@
       "lmuAI": "LMU AI（靈眸AI）",
       "kimi": "Kimi",
       "interactions": "Interactions API",
-      "infistar": "無限星河",
-      "kimi": "Kimi"
+      "infistar": "無限星河"
     },
     "table": {
       "key": "金鑰",

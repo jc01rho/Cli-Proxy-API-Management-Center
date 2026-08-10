@@ -107,7 +107,10 @@ function buildInitialForm(
         brand === 'interactions'
           ? ''
           : undefined,
-      apiKeyEntries: brand === 'openaiCompatibility' ? [emptyApiKeyEntry()] : undefined,
+      apiKeyEntries:
+        brand === 'openaiCompatibility' || brand === 'commandcode'
+          ? [emptyApiKeyEntry()]
+          : undefined,
     };
   }
 
@@ -207,6 +210,30 @@ function buildInitialForm(
         ? ''
         : undefined,
     comment: cfg.comment ?? '',
+    apiKeyEntries:
+      brand === 'commandcode'
+        ? (cfg as ProviderKeyConfig).apiKeyEntries?.length
+          ? (cfg as ProviderKeyConfig).apiKeyEntries!.map((entry) => ({
+              apiKey: '',
+              existingApiKey: entry.apiKey,
+              proxyUrl: entry.proxyUrl ?? '',
+              weight: entry.weight,
+              authIndex: entry.authIndex,
+            }))
+          : (
+              (cfg as ProviderKeyConfig).apiKey
+                ? [
+                    {
+                      apiKey: '',
+                      existingApiKey: (cfg as ProviderKeyConfig).apiKey,
+                      proxyUrl: cfg.proxyUrl ?? '',
+                      weight: cfg.weight,
+                      authIndex: undefined,
+                    },
+                  ]
+                : [emptyApiKeyEntry()]
+            )
+        : undefined,
   };
 }
 
@@ -407,10 +434,10 @@ export function BaseProviderForm({
       return t('providersPage.form.validation.baseUrlRequired');
     }
     const weights = [
-      ...(brand === 'openaiCompatibility'
+      ...(brand === 'openaiCompatibility' || brand === 'commandcode'
         ? (form.apiKeyEntries ?? []).map((entry) => entry.weight)
         : []),
-      ...(brand !== 'openaiCompatibility' ? [form.weight] : []),
+      ...(brand !== 'openaiCompatibility' && brand !== 'commandcode' ? [form.weight] : []),
     ];
     if (weights.some((weight) => weight !== undefined && !Number.isSafeInteger(weight))) {
       return t('providersPage.form.validation.weightInteger');
@@ -491,7 +518,8 @@ export function BaseProviderForm({
     brand === 'codex' ||
     brand === 'xai' ||
     isClaudeLikeBrand(brand) ||
-    brand === 'openaiCompatibility';
+    brand === 'openaiCompatibility' ||
+    brand === 'commandcode';
   const supportsModelImage = brand === 'openaiCompatibility';
   const singleConnectivity =
     brand === 'codex' || brand === 'xai'

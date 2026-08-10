@@ -82,11 +82,11 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   commandcode: {
     id: 'commandcode',
     supportsName: false,
-    supportsApiKey: true,
+    supportsApiKey: false,
     supportsDisabled: true,
     supportsBaseUrl: true,
     baseUrlRequired: true,
-    supportsProxyUrl: true,
+    supportsProxyUrl: false,
     supportsPrefix: true,
     supportsModels: true,
     supportsHeaders: true,
@@ -95,7 +95,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
     supportsTestModel: false,
     supportsWebsockets: false,
     supportsCloak: false,
-    supportsApiKeyEntries: false,
+    supportsApiKeyEntries: true,
     sheetSize: 'md',
   },
   xai: {

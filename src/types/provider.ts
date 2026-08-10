@@ -59,6 +59,7 @@ export interface ProviderKeyConfig {
   experimentalCchSigning?: boolean;
   authIndex?: string;
   comment?: string;
+  apiKeyEntries?: ApiKeyEntry[];
 }
 
 export interface OpenAIProviderConfig {

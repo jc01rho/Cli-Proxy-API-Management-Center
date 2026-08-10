@@ -536,11 +536,16 @@ export function useConnectivityTest(
     }
 
     const customHeaders = buildHeaderObject(formHeaders);
-    const explicitKey = (apiKey ?? '').trim();
-    const persistedKey = (fallbackApiKey ?? '').trim();
+    const firstEntry = apiKeyEntries?.[0];
+    const explicitKey = ((firstEntry?.apiKey ?? '') || (apiKey ?? '')).trim();
+    const persistedKey = (
+      firstEntry?.existingApiKey?.trim() ||
+      (fallbackApiKey ?? '').trim()
+    );
     const headerKey = resolveBearerToken(customHeaders);
     const resolvedKey = explicitKey || persistedKey || headerKey;
-    const resolvedAuthIndex = (authIndex ?? '').trim() || undefined;
+    const resolvedAuthIndex =
+      firstEntry?.authIndex?.trim() || (authIndex ?? '').trim() || undefined;
 
     if (!resolvedKey && !resolvedAuthIndex) {
       setCommandcodeStatus({ state: 'error', message: messages.apiKeyRequired });
@@ -618,6 +623,7 @@ export function useConnectivityTest(
     }
   }, [
     apiKey,
+    apiKeyEntries,
     authIndex,
     baseUrl,
     brand,

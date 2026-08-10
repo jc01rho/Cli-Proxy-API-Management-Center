@@ -122,6 +122,7 @@ export const CALLBACK_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>(
   'cline',
 ]);
 const XAI_CALLBACK_URL = 'http://127.0.0.1:56121/callback';
+const CLINE_CALLBACK_URL = 'http://localhost:7829/callback';
 const KIMI_SIGN_UP_URL = 'https://www.kimi.com/code/?aff=cliproxyapi';
 const SUCCESS_RESET_DELAY_MS = 5000;
 const getProviderI18nPrefix = (provider: string) => provider.replace('-', '_');
@@ -248,9 +249,43 @@ const buildXaiCallbackUrl = (input: string, state?: string): string | null => {
   return callbackUrl.toString();
 };
 
+const buildClineCallbackUrl = (input: string, state?: string): string | null => {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+
+  // If the input is already an absolute URL (the full callback redirect from
+  // 9Router/WorkOS), just ensure it carries the state parameter. 9Router does
+  // not echo state back, so we inject the state we generated at auth start.
+  if (isAbsoluteUrl(trimmed)) {
+    try {
+      const url = new URL(trimmed);
+      if (!url.searchParams.get('state')) {
+        const callbackState = state?.trim();
+        if (!callbackState) return null;
+        url.searchParams.set('state', callbackState);
+      }
+      return url.toString();
+    } catch {
+      return null;
+    }
+  }
+
+  // Query-like input (e.g. "code=eyJ...") or a raw code value.
+  const params = readQueryLikeCallbackInput(trimmed);
+  const callbackState = params?.get('state')?.trim() || state?.trim();
+  if (!callbackState) return null;
+
+  const url = new URL(CLINE_CALLBACK_URL);
+  const code = params?.get('code')?.trim() || trimmed;
+  url.searchParams.set('code', code);
+  url.searchParams.set('state', callbackState);
+  return url.toString();
+};
+
 const resolveCallbackUrl = (provider: string, input: string, state?: string): string | null => {
-  if (provider !== 'xai') return input.trim();
-  return buildXaiCallbackUrl(input, state);
+  if (provider === 'xai') return buildXaiCallbackUrl(input, state);
+  if (provider === 'cline') return buildClineCallbackUrl(input, state);
+  return input.trim();
 };
 
 export function OAuthPage() {

@@ -220,6 +220,26 @@ const buildProviderKeyConfig = (
   if (brand === 'claude') {
     next.experimentalCchSigning = input.experimentalCchSigning === true;
   }
+  if (brand === 'commandcode') {
+    const entries =
+      input.apiKeyEntries
+        ?.map((entry) => {
+          const fallbackApiKey =
+            entry.existingApiKey?.trim() ||
+            (existing as ProviderKeyConfig)?.apiKeyEntries?.[0]?.apiKey?.trim() ||
+            '';
+          return {
+            apiKey: entry.apiKey.trim() || fallbackApiKey,
+            proxyUrl: entry.proxyUrl.trim() || undefined,
+            weight: entry.weight,
+            authIndex: entry.authIndex?.trim() || undefined,
+          };
+        })
+        .filter((entry) => entry.apiKey) ?? [];
+    if (entries.length) {
+      next.apiKeyEntries = entries;
+    }
+  }
   return next;
 };
 

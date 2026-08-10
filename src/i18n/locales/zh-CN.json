@@ -1238,6 +1238,11 @@
         "input_label": "API 密钥",
         "input_placeholder": "粘贴你的 API 密钥",
         "input_hint": "此处仅修改本地配置文件内容，不会自动同步到 API 密钥管理接口",
+        "models_label": "允许的模型模式",
+        "models_placeholder": "gpt-*\ngpt-5.2",
+        "models_hint": "每行一个模式。留空表示允许全部模型，* 可作为通配符。",
+        "model_all": "模型：允许全部",
+        "model_restricted": "模型：{{patterns}}",
         "error_empty": "请输入 API 密钥",
         "error_invalid": "API 密钥包含无效字符",
         "strength": {

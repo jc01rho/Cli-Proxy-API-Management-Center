@@ -22,6 +22,10 @@ import {
   makeClientId,
 } from '@/types/visualConfig';
 import {
+  normalizeApiKeyModelWhitelists,
+  parseApiKeyModelWhitelists,
+} from '@/utils/apiKeyModelWhitelists';
+import {
   getKeeperExportValidationErrors,
   parseKeeperExportYaml,
   serializeKeeperExportYaml,
@@ -1101,6 +1105,7 @@ function getNextDirtyFields(
       'rmPanelRepo',
       'authDir',
       'apiKeysText',
+      'apiKeyModelWhitelists',
       'debug',
       'commercialMode',
       'loggingToFile',
@@ -1279,6 +1284,11 @@ export function useVisualConfig() {
       const claudeHeaderDefaults = asRecord(parsed['claude-header-defaults']);
       const codexHeaderDefaults = asRecord(parsed['codex-header-defaults']);
 
+      const apiKeysText = resolveApiKeysText(parsed);
+      const apiKeys = apiKeysText
+        .split('\n')
+        .map((key) => key.trim())
+        .filter(Boolean);
       const newValues: VisualConfigValues = {
         keeperExport: keeperExport.values,
         host: typeof parsed.host === 'string' ? parsed.host : '',
@@ -1303,7 +1313,11 @@ export function useVisualConfig() {
               : '',
 
         authDir: typeof parsed['auth-dir'] === 'string' ? parsed['auth-dir'] : '',
-        apiKeysText: resolveApiKeysText(parsed),
+        apiKeysText,
+        apiKeyModelWhitelists: parseApiKeyModelWhitelists(
+          parsed['api-key-model-whitelists'],
+          apiKeys
+        ),
         pluginsEnabled: Boolean(plugins?.enabled),
         pluginStoreSources: parseStringList(plugins?.['store-sources']),
         pluginStoreAuth: parsePluginStoreAuthRules(plugins?.['store-auth']),
@@ -1502,6 +1516,15 @@ export function useVisualConfig() {
           doc.setIn(['api-keys'], apiKeys);
         } else if (docHas(doc, ['api-keys'])) {
           doc.deleteIn(['api-keys']);
+        }
+        const apiKeyModelWhitelists = normalizeApiKeyModelWhitelists(
+          values.apiKeyModelWhitelists,
+          apiKeys
+        );
+        if (Object.keys(apiKeyModelWhitelists).length > 0) {
+          doc.setIn(['api-key-model-whitelists'], apiKeyModelWhitelists);
+        } else if (docHas(doc, ['api-key-model-whitelists'])) {
+          doc.deleteIn(['api-key-model-whitelists']);
         }
         deleteLegacyApiKeysProvider(doc);
 

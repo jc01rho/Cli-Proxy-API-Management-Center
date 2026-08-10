@@ -1239,6 +1239,11 @@
         "input_label": "API Key",
         "input_placeholder": "Paste your API key",
         "input_hint": "This only modifies the local config file content, it will not sync to the API Key Management interface",
+        "models_label": "Allowed model patterns",
+        "models_placeholder": "gpt-*\ngpt-5.2",
+        "models_hint": "One pattern per line. Leave empty to allow every model. Use * as a wildcard.",
+        "model_all": "Models: all allowed",
+        "model_restricted": "Models: {{patterns}}",
         "error_empty": "Please enter an API key",
         "error_invalid": "API key contains invalid characters",
         "strength": {

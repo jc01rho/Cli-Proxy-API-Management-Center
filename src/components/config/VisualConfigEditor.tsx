@@ -293,6 +293,10 @@ export function VisualConfigEditor({
     (apiKeysText: string) => onChange({ apiKeysText }),
     [onChange]
   );
+  const handleApiKeyModelWhitelistsChange = useCallback(
+    (apiKeyModelWhitelists: Record<string, string[]>) => onChange({ apiKeyModelWhitelists }),
+    [onChange]
+  );
   const handleFallbackModelsChange = useCallback(
     (fallbackModels: Record<string, string>) => onChange({ fallbackModels }),
     [onChange]
@@ -776,8 +780,10 @@ export function VisualConfigEditor({
               <div className={styles.subsection}>
                 <ApiKeysCardEditor
                   value={values.apiKeysText}
+                  modelWhitelists={values.apiKeyModelWhitelists}
                   disabled={disabled}
                   onChange={handleApiKeysTextChange}
+                  onModelWhitelistsChange={handleApiKeyModelWhitelistsChange}
                 />
               </div>
 

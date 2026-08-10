@@ -345,6 +345,7 @@ const serializeApiKeyEntry = (entry: ApiKeyEntry) => {
   const payload: Record<string, unknown> = { 'api-key': entry.apiKey };
   if (entry.proxyUrl) payload['proxy-url'] = entry.proxyUrl;
   if (entry.weight !== undefined) payload.weight = entry.weight;
+  if (entry.comment?.trim()) payload.comment = entry.comment.trim();
   return payload;
 };
 

@@ -233,6 +233,7 @@ const buildProviderKeyConfig = (
             proxyUrl: entry.proxyUrl.trim() || undefined,
             weight: entry.weight,
             authIndex: entry.authIndex?.trim() || undefined,
+            comment: entry.comment?.trim() || undefined,
           };
         })
         .filter((entry) => entry.apiKey) ?? [];
@@ -272,6 +273,7 @@ const buildOpenAIConfig = (
           proxyUrl: entry.proxyUrl.trim() || undefined,
           weight: entry.weight,
           authIndex: entry.authIndex?.trim() || undefined,
+          comment: entry.comment?.trim() || undefined,
         };
       })
       .filter((entry) => entry.apiKey) ?? [];

@@ -58,6 +58,7 @@ const emptyApiKeyEntry = (): ApiKeyEntryInput => ({
   apiKey: '',
   proxyUrl: '',
   weight: undefined,
+  comment: '',
 });
 const XAI_API_BASE_URL = 'https://api.x.ai/v1';
 
@@ -150,6 +151,7 @@ function buildInitialForm(
             proxyUrl: entry.proxyUrl ?? '',
             weight: entry.weight,
             authIndex: entry.authIndex,
+            comment: entry.comment ?? '',
           }))
         : [emptyApiKeyEntry()],
     };
@@ -219,6 +221,7 @@ function buildInitialForm(
               proxyUrl: entry.proxyUrl ?? '',
               weight: entry.weight,
               authIndex: entry.authIndex,
+              comment: entry.comment ?? '',
             }))
           : (
               (cfg as ProviderKeyConfig).apiKey
@@ -229,6 +232,7 @@ function buildInitialForm(
                       proxyUrl: cfg.proxyUrl ?? '',
                       weight: cfg.weight,
                       authIndex: undefined,
+                      comment: '',
                     },
                   ]
                 : [emptyApiKeyEntry()]

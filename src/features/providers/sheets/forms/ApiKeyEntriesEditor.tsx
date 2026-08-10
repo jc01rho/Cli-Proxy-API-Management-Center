@@ -239,6 +239,16 @@ export function ApiKeyEntriesEditor({
                   />
                 </div>
                 <div className={styles.field}>
+                  <label className={styles.label}>{t('providersPage.form.comment')}</label>
+                  <input
+                    className={styles.input}
+                    value={entry.comment ?? ''}
+                    onChange={(e) => onUpdate(idx, { comment: e.target.value })}
+                    disabled={mutating}
+                    placeholder={t('providersPage.form.commentPlaceholder')}
+                  />
+                </div>
+                <div className={styles.field}>
                   <label className={styles.label}>{t('providersPage.form.weight')}</label>
                   <input
                     className={styles.input}

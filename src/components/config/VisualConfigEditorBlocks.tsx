@@ -166,12 +166,16 @@ function buildProtocolOptions(
 
 export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
   value,
+  modelWhitelists,
   disabled,
   onChange,
+  onModelWhitelistsChange,
 }: {
   value: string;
+  modelWhitelists: Record<string, string[]>;
   disabled?: boolean;
   onChange: (nextValue: string) => void;
+  onModelWhitelistsChange: (nextValue: Record<string, string[]>) => void;
 }) {
   const { t } = useTranslation();
   const showNotification = useNotificationStore((state) => state.showNotification);
@@ -199,6 +203,7 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
   const [modalOpen, setModalOpen] = useState(false);
   const [editingApiKeyId, setEditingApiKeyId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [modelPatternsValue, setModelPatternsValue] = useState('');
   const [formError, setFormError] = useState('');
 
   function generateSecureApiKey(): string {
@@ -211,6 +216,7 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
   const openAddModal = () => {
     setEditingApiKeyId(null);
     setInputValue('');
+    setModelPatternsValue('');
     setFormError('');
     setModalOpen(true);
   };
@@ -219,6 +225,7 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
     const editingIndex = renderApiKeyIds.findIndex((id) => id === apiKeyId);
     setEditingApiKeyId(apiKeyId);
     setInputValue(apiKeys[editingIndex] ?? '');
+    setModelPatternsValue((modelWhitelists[apiKeys[editingIndex] ?? ''] ?? []).join('\n'));
     setFormError('');
     setModalOpen(true);
   };
@@ -226,6 +233,7 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
   const closeModal = () => {
     setModalOpen(false);
     setInputValue('');
+    setModelPatternsValue('');
     setEditingApiKeyId(null);
     setFormError('');
   };
@@ -238,7 +246,11 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
     const index = renderApiKeyIds.findIndex((id) => id === apiKeyId);
     if (index < 0) return;
     setApiKeyIds(renderApiKeyIds.filter((id) => id !== apiKeyId));
+    const deletedKey = apiKeys[index];
     updateApiKeys(apiKeys.filter((_, i) => i !== index));
+    const nextWhitelists = { ...modelWhitelists };
+    delete nextWhitelists[deletedKey];
+    onModelWhitelistsChange(nextWhitelists);
   };
 
   const handleSave = () => {
@@ -262,7 +274,26 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
     if (editingApiKeyId === null) {
       setApiKeyIds([...renderApiKeyIds, makeClientId()]);
     }
+    const patterns = Array.from(
+      new Set(
+        modelPatternsValue
+          .split('\n')
+          .map((pattern) => pattern.trim())
+          .filter(Boolean)
+      )
+    );
+    const previousKey = editingIndex >= 0 ? apiKeys[editingIndex] : '';
+    const nextWhitelists = { ...modelWhitelists };
+    if (previousKey && previousKey !== trimmed) {
+      delete nextWhitelists[previousKey];
+    }
+    if (patterns.length > 0) {
+      nextWhitelists[trimmed] = patterns;
+    } else {
+      delete nextWhitelists[trimmed];
+    }
     updateApiKeys(nextKeys);
+    onModelWhitelistsChange(nextWhitelists);
     closeModal();
   };
 
@@ -300,6 +331,13 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
                   {t('config_management.visual.api_keys.input_label')}
                 </div>
                 <div className="item-subtitle">{maskApiKey(String(key || ''))}</div>
+                <div className="item-subtitle">
+                  {(modelWhitelists[key] ?? []).length > 0
+                    ? t('config_management.visual.api_keys.model_restricted', {
+                        patterns: modelWhitelists[key].join(', '),
+                      })
+                    : t('config_management.visual.api_keys.model_all')}
+                </div>
               </div>
               <div className="item-actions">
                 <Button
@@ -388,6 +426,21 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor({
               {formError}
             </div>
           )}
+        </div>
+        <div className="form-group">
+          <label htmlFor={`${apiKeyInputId}-models`}>
+            {t('config_management.visual.api_keys.models_label')}
+          </label>
+          <textarea
+            id={`${apiKeyInputId}-models`}
+            className="input"
+            rows={4}
+            placeholder={t('config_management.visual.api_keys.models_placeholder')}
+            value={modelPatternsValue}
+            onChange={(event) => setModelPatternsValue(event.target.value)}
+            disabled={disabled}
+          />
+          <div className="hint">{t('config_management.visual.api_keys.models_hint')}</div>
         </div>
       </Modal>
     </div>

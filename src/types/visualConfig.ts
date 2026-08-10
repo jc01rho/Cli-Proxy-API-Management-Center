@@ -135,6 +135,7 @@ export type VisualConfigValues = {
   rmPanelRepo: string;
   authDir: string;
   apiKeysText: string;
+  apiKeyModelWhitelists: Record<string, string[]>;
   pluginsEnabled: boolean;
   pluginStoreSources: string[];
   pluginStoreAuth: PluginStoreAuthRule[];
@@ -210,6 +211,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   rmPanelRepo: '',
   authDir: '',
   apiKeysText: '',
+  apiKeyModelWhitelists: {},
   pluginsEnabled: false,
   pluginStoreSources: [],
   pluginStoreAuth: [],

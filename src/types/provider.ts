@@ -18,6 +18,7 @@ export interface ApiKeyEntry {
   weight?: number;
   authIndex?: string;
   headers?: Record<string, string>;
+  comment?: string;
 }
 
 export interface CloakConfig {

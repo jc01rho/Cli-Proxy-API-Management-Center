@@ -124,6 +124,7 @@ const normalizeApiKeyEntry = (entry: unknown): ApiKeyEntry | null => {
   const authIndex = normalizeAuthIndex(
     record?.['auth-index'] ?? record?.authIndex ?? record?.['auth_index']
   );
+  const comment = record ? record.comment ?? record['comment'] : undefined;
 
   const result: ApiKeyEntry = {
     apiKey: trimmed,
@@ -131,6 +132,7 @@ const normalizeApiKeyEntry = (entry: unknown): ApiKeyEntry | null => {
   };
   if (weight !== undefined) result.weight = weight;
   if (authIndex) result.authIndex = authIndex;
+  if (comment) result.comment = String(comment);
   return result;
 };
 

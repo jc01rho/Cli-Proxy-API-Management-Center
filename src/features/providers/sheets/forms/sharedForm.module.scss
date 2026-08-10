@@ -1252,6 +1252,20 @@
   }
 }
 
+.apiKeyEntryComment {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+
+  &::before {
+    content: '| Comment: ';
+    color: var(--text-quaternary);
+  }
+}
+
 .apiKeyEntryStats {
   display: flex;
   gap: 6px;

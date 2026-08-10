@@ -157,6 +157,11 @@ export function ResourceDetailView({ resource, usageByProvider }: ResourceDetail
                   {entry.proxyUrl ? (
                     <span className={styles.apiKeyEntryProxy}>{entry.proxyUrl}</span>
                   ) : null}
+                  {entry.comment ? (
+                    <span className={styles.apiKeyEntryComment} title={entry.comment}>
+                      {entry.comment}
+                    </span>
+                  ) : null}
                   <div className={styles.apiKeyEntryStats}>
                     <span className={`${styles.apiKeyEntryStat} ${styles.apiKeyEntryStatSuccess}`}>
                       <IconCheck size={12} /> {entryStats.success}

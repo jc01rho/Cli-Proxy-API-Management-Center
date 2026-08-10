@@ -195,6 +195,7 @@ export interface ApiKeyEntryInput {
   proxyUrl: string;
   weight?: number;
   authIndex?: string;
+  comment?: string;
 }
 
 export interface CloakInput {

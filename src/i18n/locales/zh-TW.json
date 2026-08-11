@@ -65,6 +65,8 @@
     "subtitle": "管理中心"
   },
   "login": {
+    "show_key": "顯示金鑰",
+    "hide_key": "隱藏金鑰",
     "subtitle": "請輸入連線資訊以存取管理介面",
     "connection_current": "目前位址",
     "connection_auto_hint": "系統將自動使用目前存取位址進行連線",
@@ -131,6 +133,15 @@
     "system_info": "運行與診斷資訊"
   },
   "weight_robin_queue": {
+    "select_model": "選擇模型/別名",
+    "all_models": "所有模型",
+    "auto_refresh_on": "自動重新整理：開",
+    "auto_refresh_off": "自動重新整理：關",
+    "current_position": "目前位置",
+    "last_picked": "上次選取",
+    "total_picks": "總選取次數",
+    "picks_delta": "選取次數（最近 2 秒）",
+    "last_picked_at": "上次選取時間",
     "page_title": "Weight-Robin 佇列",
     "page_subtitle": "詳細檢視 weight-robin 路由策略所使用的加權輪詢佇列。",
     "back_to_config": "返回設定",
@@ -258,6 +269,8 @@
     "routing_strategy_weighted_round_robin": "weighted-round-robin（加權輪詢）"
   },
   "auth_files": {
+    "delete_all_title": "刪除所有檔案",
+    "delete_title": "刪除檔案",
     "title": "驗證檔案管理",
     "meta_total": "{{count}} 個憑證",
     "meta_active": "{{count}} 個啟用",
@@ -577,6 +590,7 @@
     "result_file": "儲存檔案"
   },
   "oauth_excluded": {
+    "delete_title": "刪除排除項目",
     "title": "OAuth 模型停用",
     "description": "按供應商分列展示，點擊卡片編輯或刪除；支援 * 萬用字元，範圍跟隨上方的設定檔篩選標籤。",
     "add": "新增停用",
@@ -634,6 +648,7 @@
     "rules_reserved": "「*」會停用整個 provider，請改用「已停用」開關"
   },
   "oauth_model_alias": {
+    "delete_title": "刪除對應",
     "title": "OAuth 模型別名",
     "add": "新增別名",
     "add_title": "新增供應商模型別名",
@@ -696,6 +711,8 @@
     "upgrade_required_desc": "目前伺服器版本不支援 OAuth 模型別名功能，請升級到最新版本的 CPA（CLI Proxy API）後重試。"
   },
   "auth_login": {
+    "login_another_account": "登入其他帳號",
+    "view_auth_files": "檢視驗證檔案",
     "recommended_provider_section": "推薦提供商",
     "recommended_provider_badge": "推薦提供商",
     "other_oauth_providers": "其他 OAuth 提供商",
@@ -844,6 +861,7 @@
     "no_requests": "無請求"
   },
   "logs": {
+    "clear_confirm_title": "清除日誌",
     "title": "記錄檢視",
     "refresh_button": "重新整理記錄",
     "clear_button": "清空記錄",
@@ -967,6 +985,20 @@
         "next": "下一個符合欄位",
         "no_results": "沒有符合的設定項"
       },
+      "quick_jump": "快速跳轉",
+      "validation_blocked_short": "修正錯誤",
+      "oauth_endpoints": {
+        "title": "OAuth 端點覆寫",
+        "description": "為各 OAuth 提供者覆寫授權、權杖、重新整理、使用者資訊、裝置授權或 API 基礎 URL。",
+        "add_override": "新增覆寫",
+        "provider_placeholder": "提供者鍵，例如 claude",
+        "api_base_url": "API 基礎 URL",
+        "authorize_url": "授權 URL",
+        "token_url": "權杖 URL",
+        "refresh_url": "重新整理 URL（選填）",
+        "userinfo_url": "使用者資訊 URL（選填）",
+        "device_authorize_url": "裝置授權 URL（選填）"
+      },
       "sections": {
         "common": {
           "title": "常用",
@@ -987,6 +1019,8 @@
           "signature_title": "Antigravity 簽章"
         },
         "server": {
+          "title": "伺服器設定",
+          "description": "監聽位址、連接埠與安全連線設定",
           "host": "主機位址",
           "port": "連接埠"
         },
@@ -1012,6 +1046,8 @@
           "panel_repo": "面板儲存庫"
         },
         "auth": {
+          "title": "存取與驗證",
+          "description": "API 金鑰、驗證檔案與被封鎖的用戶端位址",
           "auth_dir": "驗證檔案目錄（auth-dir）",
           "auth_dir_hint": "存放驗證檔案的目錄路徑（支援 ~）",
           "ip_blacklist_blocked_title": "IP 黑名單",
@@ -1020,9 +1056,15 @@
           "ip_blacklist_refresh": "重新整理",
           "ip_blacklist_input_placeholder": "輸入要封禁的 IP 位址",
           "ip_blacklist_add": "封禁 IP",
-          "ip_blacklist_empty": "暫無封禁 IP"
+          "ip_blacklist_empty": "暫無封禁 IP",
+          "ip_blacklist_until": "封鎖至 {{value}}",
+          "ip_blacklist_remaining": "剩餘 {{value}}",
+          "ip_blacklist_attempts": "{{count}} 次失敗嘗試",
+          "ip_blacklist_unban": "解除封鎖"
         },
         "system": {
+          "title": "系統設定",
+          "description": "日誌、重試行為、外掛與執行階段設定",
           "debug": "除錯模式",
           "debug_desc": "啟用詳細的除錯記錄",
           "commercial_mode": "商業模式",
@@ -1163,6 +1205,10 @@
           "chain_hint": "有序的回退模型清單,當主模型與特定回退模型皆失敗時依序嘗試",
           "add_model": "新增回退模型",
           "add_chain": "新增鏈項目",
+          "source_placeholder": "來源模型",
+          "target_placeholder": "回退模型",
+          "chain_placeholder": "回退模型",
+          "chain_max_error": "回退鏈最多支援 20 個模型",
           "max_depth_title": "回退最大深度",
           "max_depth_hint": "從回退鏈中嘗試的最大模型數量(預設:3)。需要更長的回退鏈時可調高(例如 10)。",
           "max_depth_placeholder": "3"
@@ -1367,6 +1413,7 @@
     }
   },
   "quota_management": {
+    "sort_label": "排序方式",
     "title": "配額管理",
     "description": "集中查看 OAuth 配額與剩餘情況",
     "refresh_files": "重新整理驗證檔案",
@@ -1576,6 +1623,7 @@
     "empty_src_desc": "此插件選單未提供可嵌入的頁面位址。"
   },
   "system_info": {
+    "request_log_disabled": "請求日誌已停用",
     "title": "管理中心資訊",
     "about_title": "CLI Proxy API Management Center",
     "models_title": "可用模型清單",
@@ -1604,6 +1652,11 @@
     "clear_login_confirm": "確認清理本地登入資訊並登出？"
   },
   "notification": {
+    "api_key_ip_blacklist_banned": "已封鎖 IP {{ip}}",
+    "api_key_ip_blacklist_unbanned": "已解除封鎖 IP {{ip}}",
+    "load_failed": "載入失敗",
+    "please_enter": "請輸入",
+    "save_failed": "儲存失敗",
     "request_log_updated": "請求記錄設定已更新",
     "login_storage_cleared": "本地登入資訊已清理",
     "api_key_added": "API 金鑰新增成功",

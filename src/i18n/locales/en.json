@@ -65,6 +65,8 @@
     "subtitle": "Management Center"
   },
   "login": {
+    "show_key": "Show key",
+    "hide_key": "Hide key",
     "subtitle": "Please enter connection information to access the management interface",
     "connection_current": "Current URL",
     "connection_auto_hint": "The system will automatically use the current URL for connection",
@@ -131,6 +133,15 @@
     "system_info": "Runtime & diagnostics"
   },
   "weight_robin_queue": {
+    "select_model": "Select model/alias",
+    "all_models": "All models",
+    "auto_refresh_on": "Auto: ON",
+    "auto_refresh_off": "Auto: OFF",
+    "current_position": "Current Position",
+    "last_picked": "Last Picked",
+    "total_picks": "Total Picks",
+    "picks_delta": "Picks (last 2s)",
+    "last_picked_at": "Last Picked At",
     "page_title": "Weight-Robin Queue",
     "page_subtitle": "Detailed view of the weighted cycle used by weight-robin routing strategy.",
     "back_to_config": "Back to Config",
@@ -259,6 +270,8 @@
     "routing_strategy_weighted_round_robin": "weighted-round-robin (weighted cycle)"
   },
   "auth_files": {
+    "delete_all_title": "Delete All Files",
+    "delete_title": "Delete File",
     "title": "Auth Files Management",
     "meta_total": "{{count}} credentials",
     "meta_active": "{{count}} active",
@@ -578,6 +591,7 @@
     "result_file": "Persisted file"
   },
   "oauth_excluded": {
+    "delete_title": "Delete Exclusion",
     "title": "OAuth Model Disablement",
     "description": "Per-provider model disablement is shown as cards; click a card to edit or delete. Wildcards * are supported and the scope follows the auth file filter.",
     "add": "Add Disablement",
@@ -635,6 +649,7 @@
     "rules_reserved": "“*” disables the whole provider — use the Disabled switch instead"
   },
   "oauth_model_alias": {
+    "delete_title": "Delete Mappings",
     "title": "OAuth Model Aliases",
     "add": "Add Alias",
     "add_title": "Add provider model aliases",
@@ -819,6 +834,7 @@
     "no_requests": "No requests"
   },
   "logs": {
+    "clear_confirm_title": "Clear Logs",
     "title": "Logs Viewer",
     "refresh_button": "Refresh Logs",
     "clear_button": "Clear Logs",
@@ -942,6 +958,20 @@
         "next": "Next matching field",
         "no_results": "No matching settings"
       },
+      "quick_jump": "Quick jump",
+      "validation_blocked_short": "Fix errors",
+      "oauth_endpoints": {
+        "title": "OAuth endpoint overrides",
+        "description": "Override authorize, token, refresh, userinfo, device authorization, or API base URLs per OAuth provider.",
+        "add_override": "Add override",
+        "provider_placeholder": "Provider key, e.g. claude",
+        "api_base_url": "API base URL",
+        "authorize_url": "Authorize URL",
+        "token_url": "Token URL",
+        "refresh_url": "Refresh URL (optional)",
+        "userinfo_url": "Userinfo URL (optional)",
+        "device_authorize_url": "Device authorize URL (optional)"
+      },
       "sections": {
         "common": {
           "title": "Common",
@@ -962,6 +992,8 @@
           "signature_title": "Antigravity Signature"
         },
         "server": {
+          "title": "Server Configuration",
+          "description": "Listening address, port, and secure connection settings",
           "host": "Host Address",
           "port": "Port"
         },
@@ -987,6 +1019,8 @@
           "panel_repo": "Panel Repository"
         },
         "auth": {
+          "title": "Access & Authentication",
+          "description": "API keys, authentication files, and blocked client addresses",
           "auth_dir": "Auth Directory (auth-dir)",
           "auth_dir_hint": "Directory path for authentication files (supports ~)",
           "ip_blacklist_blocked_title": "IP Blacklist",
@@ -995,9 +1029,15 @@
           "ip_blacklist_refresh": "Refresh",
           "ip_blacklist_input_placeholder": "Enter IP address to block",
           "ip_blacklist_add": "Block IP",
-          "ip_blacklist_empty": "No blocked IPs"
+          "ip_blacklist_empty": "No blocked IPs",
+          "ip_blacklist_until": "Blocked until {{value}}",
+          "ip_blacklist_remaining": "{{value}} remaining",
+          "ip_blacklist_attempts": "{{count}} failed attempts",
+          "ip_blacklist_unban": "Unblock"
         },
         "system": {
+          "title": "System Configuration",
+          "description": "Logging, retry behavior, plugins, and runtime settings",
           "debug": "Debug Mode",
           "debug_desc": "Enable verbose debug logging",
           "commercial_mode": "Commercial Mode",
@@ -1138,6 +1178,10 @@
           "chain_hint": "Ordered list of fallback models to try when the primary model and model-specific fallbacks fail",
           "add_model": "Add Fallback Model",
           "add_chain": "Add Chain Item",
+          "source_placeholder": "Source model",
+          "target_placeholder": "Fallback model",
+          "chain_placeholder": "Fallback model",
+          "chain_max_error": "The fallback chain supports up to 20 models",
           "max_depth_title": "Fallback Max Depth",
           "max_depth_hint": "Maximum number of fallback models to try from the chain (default: 3). Set higher (e.g. 10) for long fallback chains.",
           "max_depth_placeholder": "3"
@@ -1342,6 +1386,7 @@
     }
   },
   "quota_management": {
+    "sort_label": "Sort by",
     "title": "Quota Management",
     "description": "Monitor OAuth quota status for Antigravity, Codex, Claude, Kimi, and xAI credentials.",
     "refresh_files": "Refresh auth files",
@@ -1551,6 +1596,7 @@
     "empty_src_desc": "This plugin menu does not provide an embeddable page URL."
   },
   "system_info": {
+    "request_log_disabled": "Request logging disabled",
     "title": "Management Center Info",
     "about_title": "CLI Proxy API Management Center",
     "models_title": "Available Models",
@@ -1579,6 +1625,11 @@
     "clear_login_confirm": "Clear local login data and sign out now?"
   },
   "notification": {
+    "api_key_ip_blacklist_banned": "Blocked IP {{ip}}",
+    "api_key_ip_blacklist_unbanned": "Unblocked IP {{ip}}",
+    "load_failed": "Failed to load",
+    "please_enter": "Please enter",
+    "save_failed": "Failed to save",
     "request_log_updated": "Request logging setting updated",
     "login_storage_cleared": "Local login data cleared",
     "api_key_added": "API key added successfully",

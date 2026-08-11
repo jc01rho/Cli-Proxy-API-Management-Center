@@ -223,10 +223,10 @@ const buildProviderKeyConfig = (
   if (brand === 'commandcode') {
     const entries =
       input.apiKeyEntries
-        ?.map((entry) => {
+        ?.map((entry, index) => {
           const fallbackApiKey =
             entry.existingApiKey?.trim() ||
-            (existing as ProviderKeyConfig)?.apiKeyEntries?.[0]?.apiKey?.trim() ||
+            (existing as ProviderKeyConfig)?.apiKeyEntries?.[index]?.apiKey?.trim() ||
             '';
           return {
             apiKey: entry.apiKey.trim() || fallbackApiKey,

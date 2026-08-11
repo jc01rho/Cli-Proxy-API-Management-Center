@@ -350,7 +350,8 @@ const serializeApiKeyEntry = (entry: ApiKeyEntry) => {
 };
 
 const serializeProviderKey = (config: ProviderKeyConfig) => {
-  const payload: Record<string, unknown> = { 'api-key': config.apiKey };
+  const payload: Record<string, unknown> = {};
+  if (config.apiKey.trim()) payload['api-key'] = config.apiKey.trim();
   if (config.priority !== undefined) payload.priority = config.priority;
   if (config.weight !== undefined) payload.weight = config.weight;
   if (config.billingClass) payload['billing-class'] = config.billingClass;
@@ -385,6 +386,11 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
   }
   if (config.experimentalCchSigning) {
     payload['experimental-cch-signing'] = true;
+  }
+  if (config.apiKeyEntries?.length) {
+    payload['api-key-entries'] = config.apiKeyEntries
+      .map(serializeApiKeyEntry)
+      .filter((entry) => entry['api-key']);
   }
   return payload;
 };

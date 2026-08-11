@@ -9,10 +9,12 @@ import {
 
 const originalGet = apiClient.get;
 const originalPut = apiClient.put;
+const originalPatch = apiClient.patch;
 
 afterEach(() => {
   apiClient.get = originalGet;
   apiClient.put = originalPut;
+  apiClient.patch = originalPatch;
 });
 
 describe('provider credential weight normalization', () => {
@@ -105,6 +107,71 @@ describe('provider credential weight normalization', () => {
           { 'api-key': 'key-b', custom: 'keep-b', weight: 4 },
         ],
       },
+    ]);
+  });
+
+  test('round-trips CommandCode API key entries through GET, PUT, and PATCH', async () => {
+    const writes: Array<{ method: string; data: unknown }> = [];
+    apiClient.get = (async () => ({
+      'commandcode-api-key': [
+        {
+          'base-url': 'https://commandcode.example/v1',
+          'api-key-entries': [
+            {
+              'api-key': 'key-a',
+              weight: 3,
+              'proxy-url': 'socks5://proxy-a.example:1080',
+              comment: 'primary',
+            },
+            { 'api-key': 'key-b', weight: 1, comment: 'secondary' },
+          ],
+        },
+      ],
+    })) as typeof apiClient.get;
+    apiClient.put = (async (_url: string, data?: unknown) => {
+      writes.push({ method: 'PUT', data });
+      return undefined;
+    }) as typeof apiClient.put;
+    apiClient.patch = (async (_url: string, data?: unknown) => {
+      writes.push({ method: 'PATCH', data });
+      return undefined;
+    }) as typeof apiClient.patch;
+
+    const configs = await providersApi.getCommandCodeConfigs();
+    expect(configs).toEqual([
+      {
+        apiKey: '',
+        baseUrl: 'https://commandcode.example/v1',
+        apiKeyEntries: [
+          {
+            apiKey: 'key-a',
+            weight: 3,
+            proxyUrl: 'socks5://proxy-a.example:1080',
+            comment: 'primary',
+          },
+          { apiKey: 'key-b', weight: 1, proxyUrl: undefined, comment: 'secondary' },
+        ],
+      },
+    ]);
+
+    await providersApi.saveCommandCodeConfigs(configs);
+    await providersApi.updateCommandCodeConfig(0, configs[0]!);
+
+    const serialized = {
+      'base-url': 'https://commandcode.example/v1',
+      'api-key-entries': [
+        {
+          'api-key': 'key-a',
+          weight: 3,
+          'proxy-url': 'socks5://proxy-a.example:1080',
+          comment: 'primary',
+        },
+        { 'api-key': 'key-b', weight: 1, comment: 'secondary' },
+      ],
+    };
+    expect(writes).toEqual([
+      { method: 'PUT', data: [serialized] },
+      { method: 'PATCH', data: { index: 0, value: serialized } },
     ]);
   });
 });

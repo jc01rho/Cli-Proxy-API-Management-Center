@@ -65,6 +65,8 @@
     "subtitle": "管理中心"
   },
   "login": {
+    "show_key": "显示密钥",
+    "hide_key": "隐藏密钥",
     "subtitle": "请输入连接信息以访问管理界面",
     "connection_current": "当前地址",
     "connection_auto_hint": "系统将自动使用当前访问地址进行连接",
@@ -131,6 +133,15 @@
     "system_info": "运行与诊断信息"
   },
   "weight_robin_queue": {
+    "select_model": "选择模型/别名",
+    "all_models": "所有模型",
+    "auto_refresh_on": "自动刷新：开",
+    "auto_refresh_off": "自动刷新：关",
+    "current_position": "当前位置",
+    "last_picked": "上次选中",
+    "total_picks": "总选中次数",
+    "picks_delta": "选中次数（最近 2 秒）",
+    "last_picked_at": "上次选中时间",
     "page_title": "Weight-Robin 队列",
     "page_subtitle": "详细查看 weight-robin 路由策略所使用的加权轮询队列。",
     "back_to_config": "返回配置",
@@ -258,6 +269,8 @@
     "routing_strategy_weighted_round_robin": "weighted-round-robin (加权轮询)"
   },
   "auth_files": {
+    "delete_all_title": "删除所有文件",
+    "delete_title": "删除文件",
     "title": "认证文件管理",
     "meta_total": "{{count}} 个凭证",
     "meta_active": "{{count}} 个启用",
@@ -577,6 +590,7 @@
     "result_file": "存储文件"
   },
   "oauth_excluded": {
+    "delete_title": "删除排除项",
     "title": "OAuth 模型禁用",
     "description": "按提供商分列展示，点击卡片编辑或删除；支持 * 通配符，范围跟随上方的配置文件过滤标签。",
     "add": "新增禁用",
@@ -634,6 +648,7 @@
     "rules_reserved": "“*” 会停用整个 provider，请改用「已停用」开关"
   },
   "oauth_model_alias": {
+    "delete_title": "删除映射",
     "title": "OAuth 模型别名",
     "add": "新增别名",
     "add_title": "新增提供商模型别名",
@@ -818,6 +833,7 @@
     "no_requests": "无请求"
   },
   "logs": {
+    "clear_confirm_title": "清除日志",
     "title": "日志查看",
     "refresh_button": "刷新日志",
     "clear_button": "清空日志",
@@ -941,6 +957,20 @@
         "next": "下一个匹配字段",
         "no_results": "没有匹配的配置项"
       },
+      "quick_jump": "快速跳转",
+      "validation_blocked_short": "修复错误",
+      "oauth_endpoints": {
+        "title": "OAuth 端点覆盖",
+        "description": "为每个 OAuth 提供商覆盖授权、令牌、刷新、用户信息、设备授权或 API 基础 URL。",
+        "add_override": "添加覆盖",
+        "provider_placeholder": "提供商键，例如 claude",
+        "api_base_url": "API 基础 URL",
+        "authorize_url": "授权 URL",
+        "token_url": "令牌 URL",
+        "refresh_url": "刷新 URL（可选）",
+        "userinfo_url": "用户信息 URL（可选）",
+        "device_authorize_url": "设备授权 URL（可选）"
+      },
       "sections": {
         "common": {
           "title": "常用",
@@ -961,6 +991,8 @@
           "signature_title": "Antigravity 签名"
         },
         "server": {
+          "title": "服务器配置",
+          "description": "监听地址、端口和安全连接设置",
           "host": "主机地址",
           "port": "端口"
         },
@@ -986,6 +1018,8 @@
           "panel_repo": "面板仓库"
         },
         "auth": {
+          "title": "访问与身份验证",
+          "description": "API 密钥、身份验证文件和被阻止的客户端地址",
           "auth_dir": "认证文件目录 (auth-dir)",
           "auth_dir_hint": "存放认证文件的目录路径（支持 ~）",
           "ip_blacklist_blocked_title": "IP 黑名单",
@@ -994,9 +1028,15 @@
           "ip_blacklist_refresh": "刷新",
           "ip_blacklist_input_placeholder": "输入要封禁的 IP 地址",
           "ip_blacklist_add": "封禁 IP",
-          "ip_blacklist_empty": "暂无封禁 IP"
+          "ip_blacklist_empty": "暂无封禁 IP",
+          "ip_blacklist_until": "阻止至 {{value}}",
+          "ip_blacklist_remaining": "剩余 {{value}}",
+          "ip_blacklist_attempts": "{{count}} 次失败尝试",
+          "ip_blacklist_unban": "解除阻止"
         },
         "system": {
+          "title": "系统配置",
+          "description": "日志、重试行为、插件和运行时设置",
           "debug": "调试模式",
           "debug_desc": "启用详细的调试日志",
           "commercial_mode": "商业模式",
@@ -1137,6 +1177,10 @@
           "chain_hint": "有序的回退模型列表，当主模型和特定回退模型都失败时依次尝试",
           "add_model": "添加回退模型",
           "add_chain": "添加链项",
+          "source_placeholder": "源模型",
+          "target_placeholder": "回退模型",
+          "chain_placeholder": "回退模型",
+          "chain_max_error": "回退链最多支持 20 个模型",
           "max_depth_title": "回退最大深度",
           "max_depth_hint": "从回退链中尝试的最大模型数量（默认：3）。需要更长的回退链时可调高（例如 10）。",
           "max_depth_placeholder": "3"
@@ -1341,6 +1385,7 @@
     }
   },
   "quota_management": {
+    "sort_label": "排序方式",
     "title": "配额管理",
     "description": "集中查看 OAuth 额度与剩余情况",
     "refresh_files": "刷新认证文件",
@@ -1550,6 +1595,7 @@
     "empty_src_desc": "该插件菜单未提供可嵌入的页面地址。"
   },
   "system_info": {
+    "request_log_disabled": "请求日志已禁用",
     "title": "管理中心信息",
     "about_title": "CLI Proxy API Management Center",
     "models_title": "可用模型列表",
@@ -1578,6 +1624,11 @@
     "clear_login_confirm": "确认清理本地登录信息并退出登录？"
   },
   "notification": {
+    "api_key_ip_blacklist_banned": "已阻止 IP {{ip}}",
+    "api_key_ip_blacklist_unbanned": "已解除阻止 IP {{ip}}",
+    "load_failed": "加载失败",
+    "please_enter": "请输入",
+    "save_failed": "保存失败",
     "request_log_updated": "请求日志设置已更新",
     "login_storage_cleared": "本地登录信息已清理",
     "api_key_added": "API密钥添加成功",

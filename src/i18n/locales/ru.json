@@ -65,6 +65,8 @@
     "subtitle": "Центр управления"
   },
   "login": {
+    "show_key": "Показать ключ",
+    "hide_key": "Скрыть ключ",
     "subtitle": "Введите данные подключения, чтобы получить доступ к панели управления",
     "connection_current": "Текущий URL",
     "connection_auto_hint": "Система автоматически использует текущий URL для подключения",
@@ -130,6 +132,15 @@
     "system_info": "Состояние и диагностика"
   },
   "weight_robin_queue": {
+    "select_model": "Выберите модель или псевдоним",
+    "all_models": "Все модели",
+    "auto_refresh_on": "Автообновление: ВКЛ",
+    "auto_refresh_off": "Автообновление: ВЫКЛ",
+    "current_position": "Текущая позиция",
+    "last_picked": "Последний выбор",
+    "total_picks": "Всего выборов",
+    "picks_delta": "Выборов за последние 2 с",
+    "last_picked_at": "Время последнего выбора",
     "page_title": "Очередь Weight-Robin",
     "page_subtitle": "Подробный вид взвешенного цикла, используемого стратегией маршрутизации weight-robin.",
     "back_to_config": "К конфигурации",
@@ -257,6 +268,11 @@
     "routing_strategy_weighted_round_robin": "weighted-round-robin (взвешенный цикл)"
   },
   "auth_files": {
+    "delete_all_title": "Удалить все файлы",
+    "delete_title": "Удалить файл",
+    "headers_label": "Пользовательские заголовки (headers)",
+    "headers_hint": "Введите пользовательские HTTP-заголовки как объект JSON, например {\"X-My-Header\": \"value\"}",
+    "headers_placeholder": "{\n  \"Header-Name\": \"value\"\n}",
     "title": "Управление файлами авторизации",
     "meta_total": "{{count}} учётных данных",
     "meta_active": "{{count}} активно",
@@ -469,6 +485,12 @@
     "plan_team": "Team"
   },
   "codex_quota": {
+    "reset_button": "Сбросить квоту",
+    "reset_confirm_button": "Сбросить квоту",
+    "reset_confirm_message": "Для сброса квоты Codex для «{{name}}» будет использован 1 ручной сброс. Продолжить?",
+    "reset_confirm_title": "Сброс квоты Codex",
+    "reset_failed": "Не удалось сбросить квоту Codex для «{{name}}»: {{message}}",
+    "reset_success": "Квота Codex для «{{name}}» сброшена",
     "title": "Квота Codex",
     "empty_title": "Файлы авторизации Codex отсутствуют",
     "empty_desc": "Загрузите учётные данные Codex, чтобы увидеть квоту.",
@@ -564,6 +586,7 @@
     "result_file": "Сохранённый файл"
   },
   "oauth_excluded": {
+    "delete_title": "Удалить исключение",
     "title": "Отключение OAuth-моделей",
     "description": "Отключения моделей по провайдерам отображаются карточками; нажмите карточку, чтобы изменить или удалить. Поддерживаются шаблоны *. Область зависит от фильтра файлов авторизации.",
     "add": "Добавить отключение",
@@ -621,6 +644,7 @@
     "rules_reserved": "«*» отключает провайдера целиком — используйте переключатель «Отключено»"
   },
   "oauth_model_alias": {
+    "delete_title": "Удалить сопоставления",
     "title": "Псевдонимы моделей OAuth",
     "add": "Добавить псевдоним",
     "add_title": "Добавление псевдонимов моделей провайдера",
@@ -805,6 +829,7 @@
     "no_requests": "Нет запросов"
   },
   "logs": {
+    "clear_confirm_title": "Очистить логи",
     "title": "Просмотр журналов",
     "refresh_button": "Обновить журналы",
     "clear_button": "Очистить журналы",
@@ -928,6 +953,20 @@
         "next": "Следующее совпадение",
         "no_results": "Нет подходящих настроек"
       },
+      "quick_jump": "Быстрый переход",
+      "validation_blocked_short": "Исправьте ошибки",
+      "oauth_endpoints": {
+        "title": "Переопределение конечных точек OAuth",
+        "description": "Переопределите URL авторизации, токена, обновления, данных пользователя, авторизации устройства или базовый URL API для каждого провайдера OAuth.",
+        "add_override": "Добавить переопределение",
+        "provider_placeholder": "Ключ провайдера, например claude",
+        "api_base_url": "Базовый URL API",
+        "authorize_url": "URL авторизации",
+        "token_url": "URL токена",
+        "refresh_url": "URL обновления (необязательно)",
+        "userinfo_url": "URL данных пользователя (необязательно)",
+        "device_authorize_url": "URL авторизации устройства (необязательно)"
+      },
       "sections": {
         "common": {
           "title": "Основные",
@@ -948,6 +987,8 @@
           "signature_title": "Подпись Antigravity"
         },
         "server": {
+          "title": "Настройки сервера",
+          "description": "Адрес прослушивания, порт и параметры защищённого соединения",
           "host": "Адрес хоста",
           "port": "Порт"
         },
@@ -973,6 +1014,8 @@
           "panel_repo": "Репозиторий панели"
         },
         "auth": {
+          "title": "Доступ и аутентификация",
+          "description": "API-ключи, файлы аутентификации и заблокированные адреса клиентов",
           "auth_dir": "Каталог auth-dir",
           "auth_dir_hint": "Путь к каталогу с файлами аутентификации (поддерживает ~)",
           "ip_blacklist_blocked_title": "Чёрный список IP",
@@ -981,9 +1024,15 @@
           "ip_blacklist_refresh": "Обновить",
           "ip_blacklist_input_placeholder": "Введите IP-адрес для блокировки",
           "ip_blacklist_add": "Заблокировать IP",
-          "ip_blacklist_empty": "Нет заблокированных IP"
+          "ip_blacklist_empty": "Нет заблокированных IP",
+          "ip_blacklist_until": "Заблокирован до {{value}}",
+          "ip_blacklist_remaining": "Осталось {{value}}",
+          "ip_blacklist_attempts": "Неудачных попыток: {{count}}",
+          "ip_blacklist_unban": "Разблокировать"
         },
         "system": {
+          "title": "Системные настройки",
+          "description": "Журналирование, повторы, плагины и параметры среды выполнения",
           "debug": "Режим отладки",
           "debug_desc": "Включить подробные отладочные журналы",
           "commercial_mode": "Коммерческий режим",
@@ -1124,6 +1173,10 @@
           "chain_hint": "Упорядоченный список резервных моделей, испробуемых при сбое основной модели и указанных резервов",
           "add_model": "Добавить резервную модель",
           "add_chain": "Добавить элемент цепочки",
+          "source_placeholder": "Исходная модель",
+          "target_placeholder": "Резервная модель",
+          "chain_placeholder": "Резервная модель",
+          "chain_max_error": "Цепочка поддерживает не более 20 моделей",
           "max_depth_title": "Максимальная глубина отката",
           "max_depth_hint": "Максимальное число резервных моделей из цепочки (по умолчанию: 3). Увеличьте (например, до 10) для длинных цепочек.",
           "max_depth_placeholder": "3"
@@ -1328,6 +1381,7 @@
     }
   },
   "quota_management": {
+    "sort_label": "Сортировка",
     "title": "Управление квотами",
     "description": "Следите за статусом квот OAuth для учётных данных Antigravity, Codex, Claude, Kimi и xAI.",
     "refresh_files": "Обновить файлы авторизации",
@@ -1527,7 +1581,17 @@
     "gate_step3_action": "Установить этот плагин",
     "gate_step3_hint": "Введите точный идентификатор, показанный выше, чтобы включить установку."
   },
+  "plugin_resource": {
+    "empty_src": "URL страницы плагина не указан",
+    "empty_src_desc": "В меню плагина не указан URL страницы, доступной для встраивания.",
+    "load_failed": "Не удалось загрузить страницу плагина",
+    "not_found": "Страница плагина не найдена",
+    "not_found_desc": "Эта страница не объявлена в текущем списке плагинов backend.",
+    "page_count": "Страниц: {{count}}",
+    "unavailable": "Страница плагина недоступна"
+  },
   "system_info": {
+    "request_log_disabled": "Журнал запросов отключён",
     "title": "Информация о центре управления",
     "about_title": "CLI Proxy API Management Center",
     "models_title": "Доступные модели",
@@ -1556,6 +1620,11 @@
     "clear_login_confirm": "Очистить локальные данные входа и выйти?"
   },
   "notification": {
+    "api_key_ip_blacklist_banned": "IP {{ip}} заблокирован",
+    "api_key_ip_blacklist_unbanned": "IP {{ip}} разблокирован",
+    "load_failed": "Не удалось загрузить",
+    "please_enter": "Введите",
+    "save_failed": "Не удалось сохранить",
     "request_log_updated": "Настройка журналирования запросов обновлена",
     "login_storage_cleared": "Локальные данные входа очищены",
     "api_key_added": "API-ключ успешно добавлен",

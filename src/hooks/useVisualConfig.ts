@@ -434,6 +434,92 @@ function areStringArraysEqual(left: string[] | undefined, right: string[] | unde
   return true;
 }
 
+function areStringRecordsEqual(
+  left: Record<string, string> | undefined,
+  right: Record<string, string> | undefined
+): boolean {
+  const leftRecord = left ?? {};
+  const rightRecord = right ?? {};
+  if (leftRecord === rightRecord) return true;
+  const leftKeys = Object.keys(leftRecord);
+  const rightKeys = Object.keys(rightRecord);
+  if (leftKeys.length !== rightKeys.length) return false;
+  return leftKeys.every(
+    (key) =>
+      Object.prototype.hasOwnProperty.call(rightRecord, key) && leftRecord[key] === rightRecord[key]
+  );
+}
+
+function areTokenThresholdRulesEqual(
+  left: TokenThresholdRule[] | undefined,
+  right: TokenThresholdRule[] | undefined
+): boolean {
+  const leftItems = left ?? [];
+  const rightItems = right ?? [];
+  if (leftItems === rightItems) return true;
+  if (leftItems.length !== rightItems.length) return false;
+  for (let i = 0; i < leftItems.length; i += 1) {
+    const a = leftItems[i];
+    const b = rightItems[i];
+    if (!a || !b) return false;
+    if (
+      a.id !== b.id ||
+      a.modelPattern !== b.modelPattern ||
+      (a.minTokens ?? '') !== (b.minTokens ?? '') ||
+      (a.maxTokens ?? '') !== (b.maxTokens ?? '') ||
+      a.billingClass !== b.billingClass ||
+      a.enabled !== b.enabled
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function areOauthEndpointOverridesEqual(
+  left: OauthEndpointOverrideEntry[] | undefined,
+  right: OauthEndpointOverrideEntry[] | undefined
+): boolean {
+  const leftItems = left ?? [];
+  const rightItems = right ?? [];
+  if (leftItems === rightItems) return true;
+  if (leftItems.length !== rightItems.length) return false;
+  for (let i = 0; i < leftItems.length; i += 1) {
+    const a = leftItems[i];
+    const b = rightItems[i];
+    if (!a || !b) return false;
+    if (
+      a.id !== b.id ||
+      a.provider !== b.provider ||
+      a.apiBaseUrl !== b.apiBaseUrl ||
+      a.authorizeUrl !== b.authorizeUrl ||
+      a.tokenUrl !== b.tokenUrl ||
+      a.refreshUrl !== b.refreshUrl ||
+      a.userinfoUrl !== b.userinfoUrl ||
+      a.deviceAuthorizeUrl !== b.deviceAuthorizeUrl
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function areStringListRecordsEqual(
+  left: Record<string, string[]> | undefined,
+  right: Record<string, string[]> | undefined
+): boolean {
+  const leftRecord = left ?? {};
+  const rightRecord = right ?? {};
+  if (leftRecord === rightRecord) return true;
+  const leftKeys = Object.keys(leftRecord);
+  if (leftKeys.length !== Object.keys(rightRecord).length) return false;
+  return leftKeys.every(
+    (key) =>
+      Object.prototype.hasOwnProperty.call(rightRecord, key) &&
+      areStringArraysEqual(leftRecord[key], rightRecord[key])
+  );
+}
+
 function arePluginStoreAuthRulesEqual(
   left: PluginStoreAuthRule[] | undefined,
   right: PluginStoreAuthRule[] | undefined
@@ -1105,7 +1191,6 @@ function getNextDirtyFields(
       'rmPanelRepo',
       'authDir',
       'apiKeysText',
-      'apiKeyModelWhitelists',
       'debug',
       'commercialMode',
       'loggingToFile',
@@ -1122,13 +1207,56 @@ function getNextDirtyFields(
       'routingStrategy',
       'routingSessionAffinity',
       'routingSessionAffinityTTL',
+      'routingMode',
+      'fallbackMaxDepth',
+      'apiKeyIpBlacklistFailureThreshold',
+      'apiKeyIpBlacklistFailureWindow',
+      'apiKeyIpBlacklistBlockDuration',
+      'enableGeminiCliEndpoint',
     ] as Array<keyof VisualConfigValues>
   ).forEach(updateScalarDirty);
 
+  if (Object.prototype.hasOwnProperty.call(patch, 'apiKeyModelWhitelists')) {
+    updateDirty(
+      'apiKeyModelWhitelists',
+      areStringListRecordsEqual(
+        nextValues.apiKeyModelWhitelists,
+        baselineValues.apiKeyModelWhitelists
+      )
+    );
+  }
   if (Object.prototype.hasOwnProperty.call(patch, 'pluginStoreSources')) {
     updateDirty(
       'pluginStoreSources',
       areStringArraysEqual(nextValues.pluginStoreSources, baselineValues.pluginStoreSources)
+    );
+  }
+
+  if (Object.prototype.hasOwnProperty.call(patch, 'fallbackChain')) {
+    updateDirty(
+      'fallbackChain',
+      areStringArraysEqual(nextValues.fallbackChain, baselineValues.fallbackChain)
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'fallbackModels')) {
+    updateDirty(
+      'fallbackModels',
+      areStringRecordsEqual(nextValues.fallbackModels, baselineValues.fallbackModels)
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'tokenThresholdRules')) {
+    updateDirty(
+      'tokenThresholdRules',
+      areTokenThresholdRulesEqual(nextValues.tokenThresholdRules, baselineValues.tokenThresholdRules)
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'oauthEndpointOverrides')) {
+    updateDirty(
+      'oauthEndpointOverrides',
+      areOauthEndpointOverridesEqual(
+        nextValues.oauthEndpointOverrides,
+        baselineValues.oauthEndpointOverrides
+      )
     );
   }
   if (Object.prototype.hasOwnProperty.call(patch, 'pluginStoreAuth')) {

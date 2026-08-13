@@ -1387,6 +1387,8 @@
   },
   "quota_management": {
     "sort_label": "Sort by",
+    "sort_default": "Default order",
+    "sort_soonest": "Soonest reset",
     "title": "Quota Management",
     "description": "Monitor OAuth quota status for Antigravity, Codex, Claude, Kimi, and xAI credentials.",
     "refresh_files": "Refresh auth files",

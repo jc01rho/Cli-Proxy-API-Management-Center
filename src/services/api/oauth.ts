@@ -14,7 +14,8 @@ export type BuiltInOAuthProvider =
   | 'antigravity'
   | 'kimi'
   | 'xai'
-  | 'cline';
+  | 'cline'
+  | 'cursor';
 
 export interface OAuthStartResponse {
   url: string;

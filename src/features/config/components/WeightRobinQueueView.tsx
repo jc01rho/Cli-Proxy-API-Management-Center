@@ -15,6 +15,7 @@ const PROVIDER_COLORS: Record<string, string> = {
   kiro: '#00bcd4',
   antigravity: '#607d8b',
   xai: '#00acc1',
+  cursor: '#111111',
 };
 
 function getProviderColor(provider: string): string {

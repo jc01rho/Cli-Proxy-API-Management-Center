@@ -25,6 +25,7 @@ import iconGrokDark from '@/assets/icons/grok-dark.svg';
 import iconClineLight from '@/assets/icons/cline-light.svg';
 import iconClineDark from '@/assets/icons/cline-dark.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
+import iconKilo from '@/assets/icons/kilo.svg';
 
 interface ProviderState {
   url?: string;
@@ -117,6 +118,12 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     id: 'cursor',
     titleKey: 'auth_login.cursor_oauth_title',
     icon: iconCursor,
+  },
+  {
+    kind: 'builtin',
+    id: 'kilo',
+    titleKey: 'auth_login.kilo_oauth_title',
+    icon: iconKilo,
   },
 ];
 

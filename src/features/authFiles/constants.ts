@@ -13,6 +13,7 @@ import iconKimiLight from '@/assets/icons/kimi-light.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
+import iconKilo from '@/assets/icons/kilo.svg';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import { normalizeOAuthProviderKey } from '@/utils/providerKeys';
 import { parseTimestamp } from '@/utils/timestamp';
@@ -47,6 +48,7 @@ export const OAUTH_PROVIDER_PRESETS = [
   'codex',
   'cline',
   'cursor',
+  'kilo',
   'kimi',
 ];
 
@@ -66,6 +68,7 @@ export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
   'codex',
   'cline',
   'cursor',
+  'kilo',
   'kimi',
   'xai',
 ]);
@@ -79,6 +82,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   claude: iconClaude,
   cline: { light: iconClineLight, dark: iconClineDark },
   cursor: iconCursor,
+  kilo: iconKilo,
   codex: iconCodex,
   gemini: iconGemini,
   xai: { light: iconGrok, dark: iconGrokDark },

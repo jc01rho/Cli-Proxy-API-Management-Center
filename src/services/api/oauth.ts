@@ -15,7 +15,8 @@ export type BuiltInOAuthProvider =
   | 'kimi'
   | 'xai'
   | 'cline'
-  | 'cursor';
+  | 'cursor'
+  | 'kilo';
 
 export interface OAuthStartResponse {
   url: string;

@@ -11,7 +11,8 @@ export type BuiltInOAuthProvider =
   | 'gemini-cli'
   | 'kimi'
   | 'xai'
-  | 'cline';
+  | 'cline'
+  | 'cursor';
 
 // OAuth provider 可来自内置通道或插件 AuthProvider identifier。
 export type OAuthProvider = BuiltInOAuthProvider | (string & {});

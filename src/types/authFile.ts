@@ -14,6 +14,7 @@ export type AuthFileType =
   | 'codex'
   | 'cline'
   | 'antigravity'
+  | 'cursor'
   | 'xai'
   | 'iflow'
   | 'vertex'

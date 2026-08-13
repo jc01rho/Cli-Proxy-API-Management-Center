@@ -24,6 +24,7 @@ import iconGrok from '@/assets/icons/grok.svg';
 import iconGrokDark from '@/assets/icons/grok-dark.svg';
 import iconClineLight from '@/assets/icons/cline-light.svg';
 import iconClineDark from '@/assets/icons/cline-dark.svg';
+import iconCursor from '@/assets/icons/cursor.svg';
 
 interface ProviderState {
   url?: string;
@@ -110,6 +111,12 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     id: 'cline',
     titleKey: 'auth_login.cline_oauth_title',
     icon: { light: iconClineLight, dark: iconClineDark },
+  },
+  {
+    kind: 'builtin',
+    id: 'cursor',
+    titleKey: 'auth_login.cursor_oauth_title',
+    icon: iconCursor,
   },
 ];
 

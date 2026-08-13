@@ -1386,6 +1386,8 @@
   },
   "quota_management": {
     "sort_label": "排序方式",
+    "sort_default": "默认顺序",
+    "sort_soonest": "最快恢复优先",
     "title": "配额管理",
     "description": "集中查看 OAuth 额度与剩余情况",
     "refresh_files": "刷新认证文件",

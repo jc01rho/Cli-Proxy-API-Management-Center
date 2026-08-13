@@ -715,7 +715,7 @@ export function BaseProviderForm({
         </div>
         ) : null}
 
-        {brand !== 'openaiCompatibility' ? (
+        {brand !== 'openaiCompatibility' && brand !== 'commandcode' ? (
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${fid}-weight`}>
               {t('providersPage.form.weight')}

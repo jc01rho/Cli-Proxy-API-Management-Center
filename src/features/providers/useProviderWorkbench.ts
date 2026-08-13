@@ -236,9 +236,12 @@ const buildProviderKeyConfig = (
             comment: entry.comment?.trim() || undefined,
           };
         })
-        .filter((entry) => entry.apiKey) ?? [];
+		.filter((entry) => entry.apiKey) ?? [];
     if (entries.length) {
       next.apiKeyEntries = entries;
+      // api-key-entries is the source of truth; clear the legacy top-level key
+      // so it does not duplicate the first entry on save.
+      next.apiKey = '';
     }
   }
   return next;

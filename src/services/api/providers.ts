@@ -391,6 +391,10 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
     payload['api-key-entries'] = config.apiKeyEntries
       .map(serializeApiKeyEntry)
       .filter((entry) => entry['api-key']);
+    // Nested entries are the source of truth; omit the legacy top-level key.
+    if ((payload['api-key-entries'] as unknown[]).length) {
+      delete payload['api-key'];
+    }
   }
   return payload;
 };

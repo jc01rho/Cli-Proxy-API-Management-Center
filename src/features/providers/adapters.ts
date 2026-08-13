@@ -139,7 +139,21 @@ export function codexToResource(config: ProviderKeyConfig, index: number): Provi
 }
 
 export function commandcodeToResource(config: ProviderKeyConfig, index: number): ProviderResource {
-  return providerKeyToResource('commandcode', config, index);
+  const resource = providerKeyToResource('commandcode', config, index);
+  const entries = config.apiKeyEntries ?? [];
+  const firstKey = (config.apiKey ?? '').trim() || entries[0]?.apiKey?.trim() || '';
+  return {
+    ...resource,
+    id: buildId('commandcode', index, truncateForId(firstKey)),
+    identifier: maskApiKey(firstKey) || `#${index + 1}`,
+    apiKeyPreview: firstKey ? maskApiKey(firstKey) : null,
+    apiKey: firstKey || null,
+    apiKeyEntryCount: entries.length,
+    selector: {
+      ...resource.selector,
+      apiKey: firstKey,
+    } as ProviderResourceSelector,
+  };
 }
 
 export function xaiToResource(config: ProviderKeyConfig, index: number): ProviderResource {

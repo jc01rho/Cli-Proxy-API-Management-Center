@@ -13,7 +13,8 @@ export type BuiltInOAuthProvider =
   | 'xai'
   | 'cline'
   | 'cursor'
-  | 'kilo';
+  | 'kilo'
+  | 'kiro';
 
 // OAuth provider 可来自内置通道或插件 AuthProvider identifier。
 export type OAuthProvider = BuiltInOAuthProvider | (string & {});

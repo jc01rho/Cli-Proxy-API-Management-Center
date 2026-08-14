@@ -26,6 +26,8 @@ import iconClineLight from '@/assets/icons/cline-light.svg';
 import iconClineDark from '@/assets/icons/cline-dark.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
 import iconKilo from '@/assets/icons/kilo.svg';
+const iconKiro =
+  'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg';
 
 interface ProviderState {
   url?: string;
@@ -33,6 +35,8 @@ interface ProviderState {
   status?: 'idle' | 'waiting' | 'success' | 'error';
   error?: string;
   polling?: boolean;
+  userCode?: string;
+  expiresIn?: number;
   callbackUrl?: string;
   callbackSubmitting?: boolean;
   callbackStatus?: 'success' | 'error';
@@ -125,6 +129,12 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.kilo_oauth_title',
     icon: iconKilo,
   },
+  {
+    kind: 'builtin',
+    id: 'kiro',
+    titleKey: 'auth_login.kiro_oauth_title',
+    icon: iconKiro,
+  },
 ];
 
 const BUILTIN_PROVIDER_IDS = new Set<string>(PROVIDERS.map((provider) => provider.id));
@@ -139,6 +149,11 @@ const XAI_CALLBACK_URL = 'http://127.0.0.1:56121/callback';
 const CLINE_CALLBACK_URL = 'http://localhost:7829/callback';
 const KIMI_SIGN_UP_URL = 'https://www.kimi.com/code/?aff=cliproxyapi';
 const SUCCESS_RESET_DELAY_MS = 5000;
+const KIRO_DEVICE_METHODS = [
+  { id: 'builder-id', labelKey: 'auth_login.kiro_oauth_method_builder_id' },
+  { id: 'google', labelKey: 'auth_login.kiro_oauth_method_google' },
+  { id: 'github', labelKey: 'auth_login.kiro_oauth_method_github' },
+] as const;
 const getProviderI18nPrefix = (provider: string) => provider.replace('-', '_');
 const getAuthKey = (provider: string, suffix: string) =>
   `auth_login.${getProviderI18nPrefix(provider)}_${suffix}`;
@@ -431,6 +446,8 @@ export function OAuthPage() {
       callbackSubmitting: false,
       callbackStatus: undefined,
       callbackError: undefined,
+      userCode: undefined,
+      expiresIn: undefined,
     });
     successResetTimers.current[provider] = window.setTimeout(() => {
       resetProviderAttempt(provider);
@@ -467,11 +484,13 @@ export function OAuthPage() {
     pollingTimers.current[provider] = timer;
   };
 
-  const startAuth = async (provider: string) => {
+  const startAuth = async (provider: string, extra?: Record<string, string>) => {
     clearProviderTimers(provider);
     updateProviderState(provider, {
       url: undefined,
       state: undefined,
+      userCode: undefined,
+      expiresIn: undefined,
       status: 'waiting',
       polling: true,
       error: undefined,
@@ -480,12 +499,14 @@ export function OAuthPage() {
       callbackUrl: '',
     });
     try {
-      const res = await oauthApi.startAuth(provider);
+      const res = await oauthApi.startAuth(provider, extra);
       if (!res.state) {
         const message = t('auth_login.missing_state');
         updateProviderState(provider, {
           url: res.url,
           state: undefined,
+          userCode: res.user_code,
+          expiresIn: res.expires_in,
           status: 'error',
           error: message,
           polling: false,
@@ -496,6 +517,8 @@ export function OAuthPage() {
       updateProviderState(provider, {
         url: res.url,
         state: res.state,
+        userCode: res.user_code,
+        expiresIn: res.expires_in,
         status: 'waiting',
         polling: true,
       });
@@ -660,7 +683,19 @@ export function OAuthPage() {
           </span>
         }
         extra={
-          showKimiSignUp ? (
+          provider.kind === 'builtin' && provider.id === 'kiro' ? (
+            <div className={styles.methodActions}>
+              {KIRO_DEVICE_METHODS.map((method) => (
+                <Button
+                  key={method.id}
+                  onClick={() => startAuth('kiro', { provider: method.id })}
+                  loading={state.polling}
+                >
+                  {t(method.labelKey)}
+                </Button>
+              ))}
+            </div>
+          ) : showKimiSignUp ? (
             <div className={styles.featuredActions}>
               <Button
                 onClick={() => window.open(KIMI_SIGN_UP_URL, '_blank', 'noopener,noreferrer')}
@@ -700,6 +735,14 @@ export function OAuthPage() {
                   {getProviderText(provider, 'open_link')}
                 </Button>
               </div>
+            </div>
+          )}
+          {state.userCode && (
+            <div className={styles.userCodeBox}>
+              <div className={styles.authUrlLabel}>
+                {t('auth_login.kiro_oauth_user_code_label')}
+              </div>
+              <div className={styles.userCodeValue}>{state.userCode}</div>
             </div>
           )}
           {canSubmitCallback && (

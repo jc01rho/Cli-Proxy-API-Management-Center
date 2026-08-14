@@ -310,6 +310,57 @@ export interface KimiQuotaState {
   errorStatus?: number;
 }
 
+// Kiro API payload types
+export interface KiroSubscriptionInfo {
+  subscriptionTitle?: string;
+  type?: string;
+}
+
+export interface KiroUsageBreakdown {
+  displayName?: string;
+  resourceType?: string;
+  currentUsage?: number | string;
+  currentUsageWithPrecision?: number | string;
+  usageLimit?: number | string;
+  usageLimitWithPrecision?: number | string;
+  currentOverages?: number | string;
+  currentOveragesWithPrecision?: number | string;
+  overageRate?: number | string;
+  unit?: string;
+  nextDateReset?: number | string;
+}
+
+export interface KiroUsagePayload {
+  subscriptionInfo?: KiroSubscriptionInfo | null;
+  usageBreakdownList?: KiroUsageBreakdown[] | null;
+  nextDateReset?: number | string;
+  daysUntilReset?: number | string;
+}
+
+export interface KiroQuotaRow {
+  id: string;
+  label: string;
+  used: number;
+  limit: number;
+  unit?: string;
+  /** Reset instant in epoch ms, usually supplied as a Unix millisecond value. */
+  resetAtMs?: number | null;
+  /** Full quota-window duration, only when an upstream payload supplies one. */
+  periodHours?: number | null;
+}
+
+export interface KiroQuotaData {
+  subscriptionTitle: string | null;
+  subscriptionType: string | null;
+  rows: KiroQuotaRow[];
+}
+
+export interface KiroQuotaState extends KiroQuotaData {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  error?: string;
+  errorStatus?: number;
+}
+
 // xAI/Grok API payload types
 export interface XaiBillingCent {
   val?: number | string;

@@ -13,11 +13,12 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import i18n from '@/i18n';
 import { CodexQuotaBody } from '@/features/quota/providers/codex/CodexQuotaBody';
 import { ClaudeQuotaBody } from '@/features/quota/providers/claude/ClaudeQuotaBody';
+import { KiroQuotaBody } from '@/features/quota/providers/kiro/KiroQuotaBody';
 import { KimiQuotaBody } from '@/features/quota/providers/kimi/KimiQuotaBody';
 import { QUOTA_CLASS_KEYS, bindQuotaClasses } from '@/features/quota/types';
 import { formatInstantShort } from '@/utils/quota';
 import { DAY_MS, HOUR_MS } from '@/utils/time/durations';
-import type { ClaudeQuotaState, CodexQuotaState, KimiQuotaState } from '@/types';
+import type { ClaudeQuotaState, CodexQuotaState, KiroQuotaState, KimiQuotaState } from '@/types';
 
 const classes = bindQuotaClasses(
   Object.fromEntries(QUOTA_CLASS_KEYS.map((key) => [key, key])),
@@ -163,6 +164,35 @@ describe('KimiQuotaBody', () => {
     expect(markup).toContain('quotaResetRelative');
     expect(markup).toMatch(/3 hours/);
     expect(markup).not.toContain('resets in 3h');
+  });
+});
+
+describe('KiroQuotaBody', () => {
+  test('renders the subscription, precise usage, and reset countdown', () => {
+    const resetAtMs = now + 4 * DAY_MS;
+    const quota: KiroQuotaState = {
+      status: 'success',
+      subscriptionTitle: 'Kiro Pro+',
+      subscriptionType: 'PRO',
+      rows: [
+        {
+          id: 'agentic-request',
+          label: 'Agentic requests',
+          used: 695.17,
+          limit: 1000.5,
+          unit: 'credits',
+          resetAtMs,
+          periodHours: 720,
+        },
+      ],
+    };
+    const markup = renderToStaticMarkup(createElement(KiroQuotaBody, { quota, classes }));
+
+    expect(markup).toContain('Kiro Pro+');
+    expect(markup).toContain('Agentic requests');
+    expect(markup).toContain('695.17 / 1,000.5 credits');
+    expect(markup).toContain(formatInstantShort(resetAtMs));
+    expect(markup).toMatch(/4 days/);
   });
 });
 

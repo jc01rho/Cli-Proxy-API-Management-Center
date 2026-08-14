@@ -129,6 +129,16 @@ button.quotaMessageAction {
   color: var(--text-secondary);
 }
 
+.quotaRow[data-kiro-quota] .quotaAmount,
+.quotaRow[data-kiro-quota] [data-kiro-reset] {
+  white-space: nowrap;
+}
+
+.quotaRow[data-kiro-quota] [data-kiro-reset] {
+  display: inline-flex;
+  align-items: baseline;
+}
+
 /* ---------- 进度条（QuotaProgressBar 注入，Meter 风 6px 轨道） ---------- */
 
 .quotaBar {
@@ -318,6 +328,22 @@ button.quotaMessageAction {
     overflow: visible;
     text-overflow: clip;
     overflow-wrap: anywhere;
+  }
+
+  .quotaRow[data-kiro-quota] .quotaMeta {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 3px 6px;
+    width: 100%;
+  }
+
+  .quotaRow[data-kiro-quota] .quotaAmount {
+    justify-self: end;
+  }
+
+  .quotaRow[data-kiro-quota] [data-kiro-reset] {
+    grid-column: 1 / -1;
+    justify-self: end;
   }
 }
 

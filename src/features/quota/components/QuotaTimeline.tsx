@@ -32,6 +32,11 @@ import type { QuotaCardState } from '../providers';
 import styles from './QuotaTimeline.module.scss';
 
 const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
+const WINDOW_STATE_KEYS = {
+  past: 'quota_management.windows_legend_elapsed',
+  live: 'quota_management.windows_legend_current',
+  next: 'quota_management.windows_legend_upcoming',
+} as const;
 
 const pad = (value: number) => String(value).padStart(2, '0');
 const formatDay = (ms: number) => {
@@ -389,17 +394,22 @@ function Lane({ lane, span, now, mode, cells, nowPercent, resolvedTheme }: LaneP
               mode === 'session'
                 ? formatTime(window.endMs)
                 : `${formatDay(window.endMs)} ${formatTime(window.endMs)}`;
+            const stateLabel = t(WINDOW_STATE_KEYS[window.state]);
+            const windowDescription = `${lane.displayName}, ${stateLabel}, ${formatDay(
+              window.startMs
+            )} ${formatTime(window.startMs)} → ${formatDay(window.endMs)} ${formatTime(
+              window.endMs
+            )}${window.remaining !== null ? `, ${window.remaining}% remaining` : ''}`;
 
             return (
               <div
                 key={window.startMs}
                 className={`${styles.window} ${styles[`window${capitalize(window.state)}`]}`}
                 style={{ left: `${window.leftPercent}%`, width: `${window.widthPercent}%` }}
-                title={`${lane.displayName}\n${formatDay(window.startMs)} ${formatTime(
-                  window.startMs
-                )} → ${formatDay(window.endMs)} ${formatTime(window.endMs)}${
-                  window.remaining !== null ? `\n${window.remaining}% remaining` : ''
-                }`}
+                role="img"
+                tabIndex={0}
+                aria-label={windowDescription}
+                title={windowDescription}
               >
                 {/* Only the API-reported current window has meaningful usage;
                     projected windows intentionally have no fill. */}

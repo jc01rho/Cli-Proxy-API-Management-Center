@@ -549,6 +549,19 @@
     "limit_index": "Limit #{{index}}",
     "reset_hint": "resets in {{hint}}"
   },
+  "kiro_quota": {
+    "title": "Kiro Quota",
+    "empty_title": "No Kiro Auth Files",
+    "empty_desc": "Connect a Kiro credential to view subscription usage.",
+    "idle": "Click here to refresh quota",
+    "loading": "Loading quota...",
+    "load_failed": "Failed to load quota: {{message}}",
+    "missing_auth_index": "Auth file missing auth_index",
+    "empty_data": "No quota data available",
+    "refresh_button": "Refresh Quota",
+    "fetch_all": "Fetch All",
+    "plan_label": "Plan"
+  },
   "xai_quota": {
     "title": "Grok Quota",
     "empty_title": "No xAI/Grok Auth Files",
@@ -1430,7 +1443,7 @@
     "sort_default": "Default order",
     "sort_soonest": "Soonest reset",
     "title": "Quota Management",
-    "description": "Monitor OAuth quota status for Antigravity, Codex, Claude, Kimi, and xAI credentials.",
+    "description": "Monitor OAuth quota status for Antigravity, Codex, Claude, Kiro, Kimi, and xAI credentials.",
     "refresh_files": "Refresh auth files",
     "refresh_files_and_quota": "Refresh files & quota",
     "refresh_all_credentials": "Refresh all credentials",
@@ -1441,7 +1454,7 @@
     "meta_loaded": "{{count}} loaded",
     "meta_attention": "{{count}} need attention",
     "empty_title": "No quota-capable credentials",
-    "empty_desc": "Connect an Antigravity, Claude, Codex, xAI, or Kimi credential to track its quota here.",
+    "empty_desc": "Connect an Antigravity, Claude, Codex, xAI, Kiro, or Kimi credential to track its quota here.",
     "windows_title": "Quota windows",
     "windows_span_weekly": "two weeks",
     "windows_span_session": "three days",

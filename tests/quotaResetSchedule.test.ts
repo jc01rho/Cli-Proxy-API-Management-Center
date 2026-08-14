@@ -99,6 +99,13 @@ describe('collectQuotaRowInstants', () => {
     expect(collectQuotaRowInstants('kimi', quota).map((i) => i.rowId)).toEqual(['r1']);
   });
 
+  test('collects Kiro rows', () => {
+    const quota = { status: 'success', rows: [{ id: 'agentic-request', resetAtMs: NOW + DAY_MS }] };
+    expect(collectQuotaRowInstants('kiro', quota)).toEqual([
+      { rowId: 'agentic-request', atMs: NOW + DAY_MS, kind: 'window' },
+    ]);
+  });
+
   test('returns nothing unless the credential loaded successfully', () => {
     for (const status of ['idle', 'loading', 'error']) {
       expect(collectQuotaRowInstants('claude', { ...claudeQuota, status })).toEqual([]);

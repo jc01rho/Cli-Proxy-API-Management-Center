@@ -16,11 +16,14 @@ export type BuiltInOAuthProvider =
   | 'xai'
   | 'cline'
   | 'cursor'
-  | 'kilo';
+  | 'kilo'
+  | 'kiro';
 
 export interface OAuthStartResponse {
   url: string;
   state?: string;
+  user_code?: string;
+  expires_in?: number;
 }
 
 export interface OAuthCallbackResponse {
@@ -44,9 +47,9 @@ const normalizeProviderForManagementPath = (provider: string): string => {
 };
 
 export const oauthApi = {
-  startAuth: (provider: string) => {
+  startAuth: (provider: string, extra?: Record<string, string>) => {
     const providerKey = normalizeProviderForManagementPath(provider);
-    const params: Record<string, string | boolean> = {};
+    const params: Record<string, string | boolean> = { ...(extra ?? {}) };
     if (WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(providerKey as BuiltInOAuthProvider)) {
       params.is_webui = true;
     }

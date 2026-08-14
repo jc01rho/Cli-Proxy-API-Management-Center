@@ -49,6 +49,7 @@ export const OAUTH_PROVIDER_PRESETS = [
   'cline',
   'cursor',
   'kilo',
+  'kiro',
   'kimi',
 ];
 
@@ -69,6 +70,7 @@ export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
   'cline',
   'cursor',
   'kilo',
+  'kiro',
   'kimi',
   'xai',
 ]);

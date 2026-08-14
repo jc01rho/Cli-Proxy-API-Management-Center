@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconFilterAll } from '@/components/ui/icons';
 import {
@@ -23,6 +24,11 @@ export type ProviderTabsProps = {
  */
 export function ProviderTabs({ types, counts, active, resolvedTheme, onChange }: ProviderTabsProps) {
   const { t } = useTranslation();
+  const activeTabRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    activeTabRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [active]);
 
   return (
     <div className={styles.tabs} role="group" aria-label={t('auth_files.filter_all')}>
@@ -35,6 +41,7 @@ export function ProviderTabs({ types, counts, active, resolvedTheme, onChange }:
           <button
             key={type}
             type="button"
+            ref={isActive ? activeTabRef : undefined}
             className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
             aria-pressed={isActive}
             onClick={() => onChange(type)}

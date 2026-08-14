@@ -372,6 +372,53 @@ describe('buildTimelineLane', () => {
     ]);
   });
 
+  test('kiro: derives remaining from subscription credit counts', () => {
+    const lane = buildTimelineLane({
+      ...base,
+      provider: 'kiro',
+      quota: {
+        status: 'success',
+        rows: [
+          {
+            label: 'Agentic requests',
+            used: 695,
+            limit: 1000,
+            resetAtMs: 9000,
+            periodHours: 720,
+          },
+        ],
+      },
+      maxPeriodHours: 14 * 24,
+    });
+
+    expect(lane.anchorMs).toBe(9000);
+    expect(lane.periodHours).toBe(720);
+    expect(lane.remaining).toBe(31);
+    expect(lane.limits).toEqual([{ label: 'Agentic requests', remaining: 31 }]);
+  });
+
+  test('kiro: does not claim a drawable window without an API-supplied duration', () => {
+    const lane = buildTimelineLane({
+      ...base,
+      provider: 'kiro',
+      quota: {
+        status: 'success',
+        rows: [
+          {
+            label: 'Credit',
+            used: 400,
+            limit: 1000,
+            resetAtMs: 9000,
+          },
+        ],
+      },
+    });
+
+    expect(lane.anchorMs).toBe(9000);
+    expect(lane.periodHours).toBeNull();
+    expect(laneHasWindow(lane)).toBe(false);
+  });
+
   test('antigravity anchors on its bucket reset, with remaining from the fraction', () => {
     const lane = buildTimelineLane({
       ...base,
@@ -482,6 +529,7 @@ describe('buildTimelineLane', () => {
     expect(
       laneHasWindow(buildTimelineLane({ ...base, provider: 'claude', quota: undefined }))
     ).toBe(false);
+    expect(laneHasWindow({ ...drawable, periodHours: null })).toBe(false);
   });
 
   test('providers with no usable reset produce an empty lane, not a dropped one', () => {

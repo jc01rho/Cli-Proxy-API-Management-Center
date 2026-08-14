@@ -15,6 +15,7 @@ export type AuthFileType =
   | 'cline'
   | 'antigravity'
   | 'cursor'
+  | 'kiro'
   | 'xai'
   | 'iflow'
   | 'vertex'

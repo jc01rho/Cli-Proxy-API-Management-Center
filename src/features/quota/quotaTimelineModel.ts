@@ -251,16 +251,22 @@ export function pickLaneWindow<
 /**
  * Whether a lane has anything to draw, in any mode.
  *
- * Without an anchor no bar can be projected at any span or zoom, so the row
- * would be permanently blank. The card grid above already enumerates every
- * credential, so a blank row here adds no information — it just makes the
- * chart taller and the real lanes harder to compare against each other.
+ * Without both an anchor and a positive period no bar can be projected at any
+ * span or zoom, so the row would be permanently blank. The card grid above
+ * already enumerates every credential, so a blank row here adds no information
+ * — it just makes the chart taller and the real lanes harder to compare against
+ * each other.
  *
  * Note this is about the lane, not the current view: an anchored lane whose
  * windows fall outside the visible span still gets a row, and says so.
  */
 export function laneHasWindow(lane: TimelineLane): boolean {
-  return lane.anchorMs !== null;
+  return (
+    lane.anchorMs !== null &&
+    typeof lane.periodHours === 'number' &&
+    Number.isFinite(lane.periodHours) &&
+    lane.periodHours > 0
+  );
 }
 
 /* ------------------------------------------------------------------ lanes */
@@ -465,14 +471,14 @@ export function buildTimelineLane(input: TimelineLaneInput): TimelineLane {
     };
   }
 
-  if (provider === 'kimi') {
+  if (provider === 'kiro' || provider === 'kimi') {
     const rows = ((quota as { rows?: KimiRowLike[] }).rows ?? []).filter(
       (row) => typeof row.resetAtMs === 'number'
     );
     const chosen = pickLaneWindow(rows, maxPeriodHours);
     if (!chosen) return empty;
 
-    // Kimi reports raw counts; remaining is derived.
+    // Kiro and Kimi report raw counts; remaining is derived.
     const remainingOf = (row: KimiRowLike) =>
       row.limit > 0 ? clampPercent(Math.round(((row.limit - row.used) / row.limit) * 100)) : null;
 

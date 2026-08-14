@@ -48,6 +48,16 @@
   letter-spacing: 0.01em;
 }
 
+.quotaRow[data-kiro-quota] .quotaAmount,
+.quotaRow[data-kiro-quota] [data-kiro-reset] {
+  white-space: nowrap;
+}
+
+.quotaRow[data-kiro-quota] [data-kiro-reset] {
+  display: inline-flex;
+  align-items: baseline;
+}
+
 /* 百分比穿墨色而非填充色 —— 文字不承担状态编码，颜色留给水位条 */
 .quotaPercent {
   font-weight: 650;
@@ -180,6 +190,22 @@
     overflow: visible;
     text-overflow: clip;
     overflow-wrap: anywhere;
+  }
+
+  .quotaRow[data-kiro-quota] .quotaMeta {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 3px 7px;
+    width: 100%;
+  }
+
+  .quotaRow[data-kiro-quota] .quotaAmount {
+    justify-self: end;
+  }
+
+  .quotaRow[data-kiro-quota] [data-kiro-reset] {
+    grid-column: 1 / -1;
+    justify-self: end;
   }
 }
 

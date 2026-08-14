@@ -48,6 +48,29 @@ describe('QuotaTimeline rendering', () => {
     );
   });
 
+  test('exposes rendered windows to keyboard and assistive technology', () => {
+    const markup = renderToStaticMarkup(
+      createElement(QuotaTimeline, {
+        ...baseProps,
+        quotaFor: () => ({
+          status: 'success',
+          windows: [
+            {
+              label: '7-day',
+              usedPercent: 25,
+              resetAtMs: new Date(2026, 7, 1, 12).getTime(),
+              periodHours: 168,
+            },
+          ],
+        }),
+      })
+    );
+
+    expect(markup).toContain('role="img"');
+    expect(markup).toContain('tabindex="0"');
+    expect(markup).toContain('aria-label="');
+  });
+
   test('keeps the panel and controls visible when 5-hour mode has no matching lanes', () => {
     const weeklyOnlyQuota = {
       status: 'success' as const,

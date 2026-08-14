@@ -6,6 +6,9 @@ import type {
   AntigravityQuotaBucket,
   AntigravityQuotaGroup,
   AntigravityQuotaSummaryPayload,
+  KiroQuotaData,
+  KiroQuotaRow,
+  KiroUsagePayload,
   KimiUsagePayload,
   KimiUsageDetail,
   KimiLimitItem,
@@ -369,6 +372,49 @@ export function buildKimiQuotaRows(payload: KimiUsagePayload): KimiQuotaRow[] {
   }
 
   return rows;
+}
+
+export function buildKiroQuotaRows(payload: KiroUsagePayload): KiroQuotaRow[] {
+  const breakdowns = Array.isArray(payload.usageBreakdownList)
+    ? payload.usageBreakdownList
+    : [];
+
+  return breakdowns
+    .map((breakdown, index): KiroQuotaRow | null => {
+      const used = normalizeNumberValue(
+        breakdown.currentUsageWithPrecision ?? breakdown.currentUsage
+      );
+      const limit = normalizeNumberValue(
+        breakdown.usageLimitWithPrecision ?? breakdown.usageLimit
+      );
+      if (used === null && limit === null) return null;
+
+      const resourceType = normalizeStringValue(breakdown.resourceType);
+      const label =
+        normalizeStringValue(breakdown.displayName) ??
+        resourceType ??
+        `Kiro usage ${index + 1}`;
+      const id = toStableId(resourceType ?? label, `kiro-usage-${index + 1}`);
+
+      return {
+        id,
+        label,
+        used: used ?? 0,
+        limit: limit ?? 0,
+        unit: normalizeStringValue(breakdown.unit) ?? undefined,
+        resetAtMs: resolveResetMs([breakdown.nextDateReset, payload.nextDateReset]),
+      };
+    })
+    .filter((row): row is KiroQuotaRow => row !== null);
+}
+
+export function buildKiroQuotaData(payload: KiroUsagePayload): KiroQuotaData {
+  return {
+    subscriptionTitle:
+      normalizeStringValue(payload.subscriptionInfo?.subscriptionTitle) ?? null,
+    subscriptionType: normalizeStringValue(payload.subscriptionInfo?.type) ?? null,
+    rows: buildKiroQuotaRows(payload),
+  };
 }
 
 function normalizeXaiCentValue(value: XaiBillingConfig['monthlyLimit']): number | null {

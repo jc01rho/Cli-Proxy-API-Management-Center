@@ -5,6 +5,7 @@
 import type {
   ClaudeUsagePayload,
   CodexUsagePayload,
+  KiroUsagePayload,
   KimiUsagePayload,
   XaiBillingPayload,
 } from '@/types';
@@ -182,6 +183,23 @@ export function parseKimiUsagePayload(payload: unknown): KimiUsagePayload | null
   }
   if (typeof payload === 'object') {
     return payload as KimiUsagePayload;
+  }
+  return null;
+}
+
+export function parseKiroUsagePayload(payload: unknown): KiroUsagePayload | null {
+  if (payload === undefined || payload === null) return null;
+  if (typeof payload === 'string') {
+    const trimmed = payload.trim();
+    if (!trimmed) return null;
+    try {
+      return JSON.parse(trimmed) as KiroUsagePayload;
+    } catch {
+      return null;
+    }
+  }
+  if (typeof payload === 'object') {
+    return payload as KiroUsagePayload;
   }
   return null;
 }

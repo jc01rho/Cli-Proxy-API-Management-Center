@@ -19,6 +19,7 @@ const FILES: AuthFileItem[] = [
   file('codex-a.json', 'codex'),
   file('claude-a.json', 'claude'),
   file('kimi-a.json', 'kimi'),
+  file('kiro-a.json', 'kiro'),
   file('codex-b.json', 'codex'),
   file('grok-a.json', 'grok'), // 别名归一到 xai
   file('gemini-a.json', 'gemini'), // 不支持额度
@@ -39,23 +40,31 @@ describe('classifyQuotaFiles', () => {
     const entries = classifyQuotaFiles(FILES);
     expect(entries.map((entry) => entry.file.name)).not.toContain('gemini-a.json');
     expect(entries.map((entry) => entry.file.name)).not.toContain('claude-off.json');
-    expect(entries).toHaveLength(5);
+    expect(entries).toHaveLength(6);
   });
 
   test('orders entries by provider tab order', () => {
     const entries = classifyQuotaFiles(FILES);
-    expect(entries.map((entry) => entry.type)).toEqual(['claude', 'codex', 'codex', 'xai', 'kimi']);
+    expect(entries.map((entry) => entry.type)).toEqual([
+      'claude',
+      'codex',
+      'codex',
+      'xai',
+      'kiro',
+      'kimi',
+    ]);
   });
 });
 
 describe('buildTabCounts', () => {
   test('counts per provider plus an all total, zero-filling empty tabs', () => {
     expect(buildTabCounts(classifyQuotaFiles(FILES))).toEqual({
-      all: 5,
+      all: 6,
       claude: 1,
       antigravity: 0,
       codex: 2,
       xai: 1,
+      kiro: 1,
       kimi: 1,
     });
   });
@@ -65,7 +74,7 @@ describe('filterEntriesByTab', () => {
   const entries = classifyQuotaFiles(FILES);
 
   test("passes everything through on the 'all' tab", () => {
-    expect(filterEntriesByTab(entries, 'all')).toHaveLength(5);
+    expect(filterEntriesByTab(entries, 'all')).toHaveLength(6);
   });
 
   test('filters to a single provider', () => {
@@ -133,6 +142,7 @@ describe('sortQuotaEntries', () => {
         'codex-a.json': 300,
         'claude-a.json': 100,
         'kimi-a.json': 200,
+        'kiro-a.json': 250,
         'codex-b.json': 400,
         'grok-a.json': 50,
       })
@@ -141,6 +151,7 @@ describe('sortQuotaEntries', () => {
       'grok-a.json',
       'claude-a.json',
       'kimi-a.json',
+      'kiro-a.json',
       'codex-a.json',
       'codex-b.json',
     ]);
@@ -160,6 +171,7 @@ describe('sortQuotaEntries', () => {
       'claude-a.json',
       'codex-a.json',
       'grok-a.json',
+      'kiro-a.json',
     ]);
   });
 

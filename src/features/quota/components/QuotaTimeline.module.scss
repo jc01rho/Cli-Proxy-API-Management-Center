@@ -269,6 +269,11 @@ $lane-width: 210px;
   font-size: 10.5px;
   white-space: nowrap;
   position: absolute;
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
 }
 
 // Current window: solid, in the provider's colour — the row's focal point.

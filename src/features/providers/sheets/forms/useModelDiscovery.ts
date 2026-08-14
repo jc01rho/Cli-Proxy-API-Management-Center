@@ -13,6 +13,7 @@ export const MODEL_DISCOVERY_BRANDS: ReadonlyArray<ProviderBrand> = [
   'claude',
   'claudeApi',
   'openaiCompatibility',
+  'commandcode',
 ];
 
 export const isModelDiscoveryBrand = (brand: ProviderBrand): boolean =>
@@ -104,6 +105,23 @@ export function useModelDiscovery(args: UseModelDiscoveryArgs): UseModelDiscover
             throw firstErr;
           }
         }
+      } else if (brand === 'commandcode') {
+        const firstEntry = (apiKeyEntries ?? []).find(
+          (e) =>
+            (e.apiKey ?? '').trim() || (e.existingApiKey ?? '').trim() || (e.authIndex ?? '').trim()
+        );
+        const entryKey =
+          (firstEntry?.apiKey ?? '').trim() ||
+          (firstEntry?.existingApiKey ?? '').trim() ||
+          (apiKey ?? '').trim() ||
+          (fallbackApiKey ?? '').trim();
+        const entryAuthIndex = (firstEntry?.authIndex ?? '').trim() || resolvedAuthIndex;
+        next = await modelsApi.fetchCommandCodeModelsViaApiCall(
+          baseUrl,
+          entryKey,
+          baseHeaders,
+          entryAuthIndex
+        );
       }
       setModels(next ?? []);
       setHasFetched(true);

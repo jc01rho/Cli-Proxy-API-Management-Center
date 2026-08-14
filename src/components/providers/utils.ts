@@ -11,6 +11,7 @@ import {
 
 const DISABLE_ALL_MODELS_RULE = '*';
 const DEFAULT_GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com';
+export const DEFAULT_COMMANDCODE_BASE_URL = 'https://api.commandcode.ai';
 
 export const hasDisableAllModelsRule = (models?: string[]) =>
   Array.isArray(models) &&
@@ -88,6 +89,23 @@ export const buildClaudeMessagesEndpoint = (baseUrl: string): string => {
   }
   return `${trimmed}/v1/messages`;
 };
+
+const normalizeCommandCodeHost = (baseUrl: string): string => {
+  let trimmed = normalizeUpstreamBaseUrl(baseUrl, DEFAULT_COMMANDCODE_BASE_URL);
+  if (!trimmed) return DEFAULT_COMMANDCODE_BASE_URL;
+  trimmed = trimmed.replace(/\/provider\/v1\/models$/i, '');
+  trimmed = trimmed.replace(/\/provider\/v1$/i, '');
+  trimmed = trimmed.replace(/\/provider$/i, '');
+  trimmed = trimmed.replace(/\/v1\/models$/i, '');
+  trimmed = trimmed.replace(/\/v1$/i, '');
+  return trimmed.replace(/\/+$/g, '') || DEFAULT_COMMANDCODE_BASE_URL;
+};
+
+export const buildCommandCodeGenerateEndpoint = (baseUrl: string): string =>
+  `${normalizeCommandCodeHost(baseUrl)}/alpha/generate`;
+
+export const buildCommandCodeModelsEndpoint = (baseUrl: string): string =>
+  `${normalizeCommandCodeHost(baseUrl)}/provider/v1/models`;
 
 export const INTERACTIONS_API_REVISION = '2026-05-20';
 

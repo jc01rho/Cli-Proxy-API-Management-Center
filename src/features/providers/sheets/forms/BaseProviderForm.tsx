@@ -37,6 +37,7 @@ import { ApiKeyEntriesEditor } from './ApiKeyEntriesEditor';
 import { ModelEntriesEditor } from './ModelEntriesEditor';
 import styles from './sharedForm.module.scss';
 import { CLAUDE_API_BASE_URL } from '../../claudeApi';
+import { DEFAULT_COMMANDCODE_BASE_URL } from '@/components/providers/utils';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 
 /** 模块级常量，免得每次渲染都给 picker 一个新数组引用。 */
@@ -83,7 +84,13 @@ function buildInitialForm(
       apiKey: '',
       name: '',
       baseUrl:
-        brand === 'claudeApi' ? CLAUDE_API_BASE_URL : brand === 'xai' ? XAI_API_BASE_URL : '',
+        brand === 'claudeApi'
+          ? CLAUDE_API_BASE_URL
+          : brand === 'xai'
+            ? XAI_API_BASE_URL
+            : brand === 'commandcode'
+              ? DEFAULT_COMMANDCODE_BASE_URL
+              : '',
       proxyUrl: '',
       prefix: '',
       disabled: false,

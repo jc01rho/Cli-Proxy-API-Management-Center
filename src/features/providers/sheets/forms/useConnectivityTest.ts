@@ -3,6 +3,7 @@ import { apiCallApi, getApiCallErrorMessage } from '@/services/api';
 import {
   buildCodexResponsesEndpoint,
   buildClaudeMessagesEndpoint,
+  buildCommandCodeGenerateEndpoint,
   buildGeminiGenerateContentEndpoint,
   buildInteractionsEndpoint,
   buildInteractionsProbePayload,
@@ -76,9 +77,8 @@ export interface ConnectivityErrorMessages {
 }
 
 const buildCommandCodeEndpoint = (baseUrl: string): string | null => {
-  const trimmed = baseUrl.trim().replace(/\/+$/, '');
-  if (!trimmed) return null;
-  return `${trimmed}/alpha/generate`;
+  if (!baseUrl.trim()) return null;
+  return buildCommandCodeGenerateEndpoint(baseUrl) || null;
 };
 
 export interface UseConnectivityTestResult {

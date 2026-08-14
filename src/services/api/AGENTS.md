@@ -27,7 +27,7 @@ api/
 | Base client/auth | `client.ts` | `/v0/management` prefix and unauthorized flow. |
 | Provider config calls | `providers.ts`, `config.ts` | Keep provider key names in sync with YAML. |
 | Auth file APIs | `authFiles.ts` | Encode file names. |
-| External API proxy calls | `apiCall.ts`, `models.ts` | Used by model discovery UI. |
+| External API proxy calls | `apiCall.ts`, `models.ts` | Used by model discovery UI. CommandCode는 `/provider/v1/models` (`fetchCommandCodeModelsViaApiCall`). |
 | Shape normalization | `transformers.ts` | Backend snake/kebab/camel differences. |
 
 ## CONVENTIONS

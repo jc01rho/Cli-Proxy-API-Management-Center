@@ -730,6 +730,21 @@ export const providersApi = {
   deleteCommandCodeConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/commandcode-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 
+  async getFreebuffConfigs(): Promise<ProviderKeyConfig[]> {
+    const data = await apiClient.get('/freebuff-api-key');
+    const list = extractArrayPayload(data, 'freebuff-api-key');
+    return list.map((item) => normalizeProviderKeyConfig(item)).filter(Boolean) as ProviderKeyConfig[];
+  },
+
+  saveFreebuffConfigs: (configs: ProviderKeyConfig[]) =>
+    apiClient.put('/freebuff-api-key', configs.map((item) => serializeProviderKey(item))),
+
+  updateFreebuffConfig: (index: number, value: ProviderKeyConfig) =>
+    apiClient.patch('/freebuff-api-key', { index, value: serializeProviderKey(value) }),
+
+  deleteFreebuffConfig: (apiKey: string, baseUrl?: string) =>
+    apiClient.delete(`/freebuff-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+
   async getMistralConfigs(): Promise<ProviderKeyConfig[]> {
     const data = await apiClient.get('/mistral-api-key');
     const list = extractArrayPayload(data, 'mistral-api-key');

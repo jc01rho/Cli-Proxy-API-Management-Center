@@ -17,6 +17,7 @@ const PROVIDER_COLORS: Record<string, string> = {
   codex: '#34a853',
   'openai-compatible': '#9b59b6',
   commandcode: '#e97a2b',
+  freebuff: '#16a34a',
   mistral: '#ff6f00',
   kiro: '#00bcd4',
   antigravity: '#607d8b',

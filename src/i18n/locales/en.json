@@ -1799,6 +1799,7 @@
       "openaiCompatibility": "OpenAI Compatible",
       "ampcode": "Amp CLI",
       "commandcode": "CommandCode",
+      "freebuff": "Freebuff",
       "apikeyFun": "APIKEY.FUN",
       "code0": "Code0",
       "fennoAI": "FennoAI",

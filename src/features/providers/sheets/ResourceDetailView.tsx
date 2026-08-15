@@ -120,9 +120,16 @@ export function ResourceDetailView({ resource, usageByProvider }: ResourceDetail
     resource.brand === 'openaiCompatibility' ? (resource.raw as OpenAIProviderConfig) : null;
   const commandcodeConfig =
     resource.brand === 'commandcode' ? (resource.raw as ProviderKeyConfig) : null;
-  const apiKeyEntries = openaiConfig?.apiKeyEntries ?? commandcodeConfig?.apiKeyEntries ?? [];
-  const entryProviderName = openaiConfig?.name ?? 'commandcode';
-  const entryBaseUrl = openaiConfig?.baseUrl ?? commandcodeConfig?.baseUrl;
+  const freebuffConfig =
+    resource.brand === 'freebuff' ? (resource.raw as ProviderKeyConfig) : null;
+  const apiKeyEntries =
+    openaiConfig?.apiKeyEntries ??
+    commandcodeConfig?.apiKeyEntries ??
+    freebuffConfig?.apiKeyEntries ??
+    [];
+  const entryProviderName = openaiConfig?.name ?? resource.brand;
+  const entryBaseUrl =
+    openaiConfig?.baseUrl ?? commandcodeConfig?.baseUrl ?? freebuffConfig?.baseUrl;
 
   return (
     <div>

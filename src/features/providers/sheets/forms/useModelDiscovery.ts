@@ -14,6 +14,7 @@ export const MODEL_DISCOVERY_BRANDS: ReadonlyArray<ProviderBrand> = [
   'claudeApi',
   'openaiCompatibility',
   'commandcode',
+  'freebuff',
 ];
 
 export const isModelDiscoveryBrand = (brand: ProviderBrand): boolean =>
@@ -117,6 +118,23 @@ export function useModelDiscovery(args: UseModelDiscoveryArgs): UseModelDiscover
           (fallbackApiKey ?? '').trim();
         const entryAuthIndex = (firstEntry?.authIndex ?? '').trim() || resolvedAuthIndex;
         next = await modelsApi.fetchCommandCodeModelsViaApiCall(
+          baseUrl,
+          entryKey,
+          baseHeaders,
+          entryAuthIndex
+        );
+      } else if (brand === 'freebuff') {
+        const firstEntry = (apiKeyEntries ?? []).find(
+          (e) =>
+            (e.apiKey ?? '').trim() || (e.existingApiKey ?? '').trim() || (e.authIndex ?? '').trim()
+        );
+        const entryKey =
+          (firstEntry?.apiKey ?? '').trim() ||
+          (firstEntry?.existingApiKey ?? '').trim() ||
+          (apiKey ?? '').trim() ||
+          (fallbackApiKey ?? '').trim();
+        const entryAuthIndex = (firstEntry?.authIndex ?? '').trim() || resolvedAuthIndex;
+        next = await modelsApi.fetchFreebuffModelsViaApiCall(
           baseUrl,
           entryKey,
           baseHeaders,

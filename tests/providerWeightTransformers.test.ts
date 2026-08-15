@@ -174,4 +174,69 @@ describe('provider credential weight normalization', () => {
       { method: 'PATCH', data: { index: 0, value: serialized } },
     ]);
   });
+
+  test('round-trips Freebuff API key entries through GET, PUT, and PATCH', async () => {
+    const writes: Array<{ method: string; data: unknown }> = [];
+    apiClient.get = (async () => ({
+      'freebuff-api-key': [
+        {
+          'base-url': 'https://freebuff.example/v1',
+          'api-key-entries': [
+            {
+              'api-key': 'key-a',
+              weight: 3,
+              'proxy-url': 'socks5://proxy-a.example:1080',
+              comment: 'primary',
+            },
+            { 'api-key': 'key-b', weight: 1, comment: 'secondary' },
+          ],
+        },
+      ],
+    })) as typeof apiClient.get;
+    apiClient.put = (async (_url: string, data?: unknown) => {
+      writes.push({ method: 'PUT', data });
+      return undefined;
+    }) as typeof apiClient.put;
+    apiClient.patch = (async (_url: string, data?: unknown) => {
+      writes.push({ method: 'PATCH', data });
+      return undefined;
+    }) as typeof apiClient.patch;
+
+    const configs = await providersApi.getFreebuffConfigs();
+    expect(configs).toEqual([
+      {
+        apiKey: '',
+        baseUrl: 'https://freebuff.example/v1',
+        apiKeyEntries: [
+          {
+            apiKey: 'key-a',
+            weight: 3,
+            proxyUrl: 'socks5://proxy-a.example:1080',
+            comment: 'primary',
+          },
+          { apiKey: 'key-b', weight: 1, proxyUrl: undefined, comment: 'secondary' },
+        ],
+      },
+    ]);
+
+    await providersApi.saveFreebuffConfigs(configs);
+    await providersApi.updateFreebuffConfig(0, configs[0]!);
+
+    const serialized = {
+      'base-url': 'https://freebuff.example/v1',
+      'api-key-entries': [
+        {
+          'api-key': 'key-a',
+          weight: 3,
+          'proxy-url': 'socks5://proxy-a.example:1080',
+          comment: 'primary',
+        },
+        { 'api-key': 'key-b', weight: 1, comment: 'secondary' },
+      ],
+    };
+    expect(writes).toEqual([
+      { method: 'PUT', data: [serialized] },
+      { method: 'PATCH', data: { index: 0, value: serialized } },
+    ]);
+  });
 });

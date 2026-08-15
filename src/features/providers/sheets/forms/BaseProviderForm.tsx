@@ -29,7 +29,11 @@ import type {
   ProviderEntryFormInput,
   ProviderResource,
 } from '../../types';
-import { useConnectivityTest, type ConnectivityErrorMessages } from './useConnectivityTest';
+import {
+  apiKeyEntriesConnectivityKind,
+  useConnectivityTest,
+  type ConnectivityErrorMessages,
+} from './useConnectivityTest';
 import { useModelDiscovery } from './useModelDiscovery';
 import { ModelDiscoveryPanel } from './ModelDiscoveryPanel';
 import { ConnectivityStatusIcon } from './ConnectivityStatusIcon';
@@ -37,7 +41,7 @@ import { ApiKeyEntriesEditor } from './ApiKeyEntriesEditor';
 import { ModelEntriesEditor } from './ModelEntriesEditor';
 import styles from './sharedForm.module.scss';
 import { CLAUDE_API_BASE_URL } from '../../claudeApi';
-import { DEFAULT_COMMANDCODE_BASE_URL } from '@/components/providers/utils';
+import { DEFAULT_COMMANDCODE_BASE_URL, DEFAULT_FREEBUFF_BASE_URL } from '@/components/providers/utils';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 
 /** 模块级常量，免得每次渲染都给 picker 一个新数组引用。 */
@@ -90,6 +94,8 @@ function buildInitialForm(
             ? XAI_API_BASE_URL
             : brand === 'commandcode'
               ? DEFAULT_COMMANDCODE_BASE_URL
+            : brand === 'freebuff'
+              ? DEFAULT_FREEBUFF_BASE_URL
               : '',
       proxyUrl: '',
       prefix: '',
@@ -116,7 +122,7 @@ function buildInitialForm(
           ? ''
           : undefined,
       apiKeyEntries:
-        brand === 'openaiCompatibility' || brand === 'commandcode'
+        brand === 'openaiCompatibility' || brand === 'commandcode' || brand === 'freebuff'
           ? [emptyApiKeyEntry()]
           : undefined,
     };
@@ -220,7 +226,7 @@ function buildInitialForm(
         : undefined,
     comment: cfg.comment ?? '',
     apiKeyEntries:
-      brand === 'commandcode'
+      brand === 'commandcode' || brand === 'freebuff'
         ? (cfg as ProviderKeyConfig).apiKeyEntries?.length
           ? (cfg as ProviderKeyConfig).apiKeyEntries!.map((entry) => ({
               apiKey: '',
@@ -445,10 +451,10 @@ export function BaseProviderForm({
       return t('providersPage.form.validation.baseUrlRequired');
     }
     const weights = [
-      ...(brand === 'openaiCompatibility' || brand === 'commandcode'
+      ...(brand === 'openaiCompatibility' || brand === 'commandcode' || brand === 'freebuff'
         ? (form.apiKeyEntries ?? []).map((entry) => entry.weight)
         : []),
-      ...(brand !== 'openaiCompatibility' && brand !== 'commandcode' ? [form.weight] : []),
+      ...(brand !== 'openaiCompatibility' && brand !== 'commandcode' && brand !== 'freebuff' ? [form.weight] : []),
     ];
     if (weights.some((weight) => weight !== undefined && !Number.isSafeInteger(weight))) {
       return t('providersPage.form.validation.weightInteger');
@@ -530,7 +536,7 @@ export function BaseProviderForm({
     brand === 'xai' ||
     isClaudeLikeBrand(brand) ||
     brand === 'openaiCompatibility' ||
-    brand === 'commandcode';
+    brand === 'commandcode' || brand === 'freebuff';
   const supportsModelImage = brand === 'openaiCompatibility';
   const singleConnectivity =
     brand === 'codex' || brand === 'xai'
@@ -638,23 +644,40 @@ export function BaseProviderForm({
               placeholder="https://api.example.com"
               disabled={mutating}
             />
-            {brand === 'commandcode' ? (
+            {brand === 'commandcode' || brand === 'freebuff' ? (
               <div className={styles.connectivityRow}>
                 <button
                   type="button"
                   className={styles.connectivityBtn}
                   disabled={mutating || connectivity.isTestingAny}
-                  onClick={() => void connectivity.runCommandCode()}
+                  onClick={() =>
+                    void (brand === 'freebuff'
+                      ? connectivity.runFreebuff()
+                      : connectivity.runCommandCode())
+                  }
                 >
-                  {connectivity.commandcodeStatus.state === 'loading' ? (
+                  {(brand === 'freebuff'
+                    ? connectivity.freebuffStatus
+                    : connectivity.commandcodeStatus
+                  ).state === 'loading' ? (
                     <span className={`${styles.statusIcon} ${styles.statusIconLoading}`}>
                       <IconLoader2 size={14} />
                     </span>
                   ) : null}
                   <span>{t('providersPage.connectivity.test')}</span>
                 </button>
-                <ConnectivityStatusIcon state={connectivity.commandcodeStatus.state} />
-                {connectivity.commandcodeStatus.state === 'success' ? (
+                <ConnectivityStatusIcon
+                  state={
+                    (brand === 'freebuff'
+                      ? connectivity.freebuffStatus
+                      : connectivity.commandcodeStatus
+                    ).state
+                  }
+                />
+                {(brand === 'freebuff'
+                  ? connectivity.freebuffStatus
+                  : connectivity.commandcodeStatus
+                ).state === 'success' ? (
                   <span className={styles.connectivityHintSuccess}>
                     {t('providersPage.connectivity.success')}
                   </span>
@@ -664,6 +687,11 @@ export function BaseProviderForm({
             {brand === 'commandcode' && connectivity.commandcodeStatus.state === 'error' ? (
               <div className={styles.connectivityError}>
                 {connectivity.commandcodeStatus.message}
+              </div>
+            ) : null}
+            {brand === 'freebuff' && connectivity.freebuffStatus.state === 'error' ? (
+              <div className={styles.connectivityError}>
+                {connectivity.freebuffStatus.message}
               </div>
             ) : null}
           </div>
@@ -722,7 +750,7 @@ export function BaseProviderForm({
         </div>
         ) : null}
 
-        {brand !== 'openaiCompatibility' && brand !== 'commandcode' ? (
+        {brand !== 'openaiCompatibility' && brand !== 'commandcode' && brand !== 'freebuff' ? (
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${fid}-weight`}>
               {t('providersPage.form.weight')}
@@ -890,8 +918,30 @@ export function BaseProviderForm({
                 actualApiKeyEntries.filter((_, i) => i !== idx)
               )
             }
-            onTest={(idx) => void connectivity.runOpenAIKey(idx)}
-            onTestAll={() => void connectivity.runOpenAIAllKeys()}
+            onTest={(idx) => {
+              const kind = apiKeyEntriesConnectivityKind(brand);
+              if (kind === 'commandcode') {
+                void connectivity.runCommandCodeKey(idx);
+                return;
+              }
+              if (kind === 'freebuff') {
+                void connectivity.runFreebuffKey(idx);
+                return;
+              }
+              void connectivity.runOpenAIKey(idx);
+            }}
+            onTestAll={() => {
+              const kind = apiKeyEntriesConnectivityKind(brand);
+              if (kind === 'commandcode') {
+                void connectivity.runCommandCodeAllKeys();
+                return;
+              }
+              if (kind === 'freebuff') {
+                void connectivity.runFreebuffAllKeys();
+                return;
+              }
+              void connectivity.runOpenAIAllKeys();
+            }}
           />
         </Collapsible>
       ) : null}

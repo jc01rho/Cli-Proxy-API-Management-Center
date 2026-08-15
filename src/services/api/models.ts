@@ -5,7 +5,7 @@
 import axios from 'axios';
 import { normalizeModelList } from '@/utils/models';
 import { normalizeApiBase } from '@/utils/connection';
-import { buildCommandCodeModelsEndpoint } from '@/components/providers/utils';
+import { buildCommandCodeModelsEndpoint, buildFreebuffModelsEndpoint } from '@/components/providers/utils';
 import { apiCallApi, getApiCallErrorMessage } from './apiCall';
 import { isRecord } from '@/utils/helpers';
 
@@ -336,6 +336,43 @@ export const modelsApi = {
     authIndex?: string
   ) {
     const endpoint = buildCommandCodeModelsEndpoint(baseUrl);
+    if (!endpoint) {
+      throw new Error('Invalid base url');
+    }
+
+    const trimmedAuthIndex = authIndex?.trim() || undefined;
+    const resolvedHeaders = { ...headers };
+    if (apiKey && !hasHeader(resolvedHeaders, 'authorization')) {
+      resolvedHeaders.Authorization = `Bearer ${apiKey}`;
+    } else if (trimmedAuthIndex && !hasHeader(resolvedHeaders, 'authorization')) {
+      resolvedHeaders.Authorization = 'Bearer $TOKEN$';
+    }
+
+    const result = await apiCallApi.request({
+      authIndex: trimmedAuthIndex,
+      method: 'GET',
+      url: endpoint,
+      header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined,
+    });
+
+    if (result.statusCode < 200 || result.statusCode >= 300) {
+      throw new Error(getApiCallErrorMessage(result));
+    }
+
+    const payload = result.body ?? result.bodyText;
+    return normalizeModelList(payload, { dedupe: true });
+  },
+
+  /**
+   * Fetch Freebuff catalog from `/api/v1/models` via api-call.
+   */
+  async fetchFreebuffModelsViaApiCall(
+    baseUrl: string,
+    apiKey?: string,
+    headers: Record<string, string> = {},
+    authIndex?: string
+  ) {
+    const endpoint = buildFreebuffModelsEndpoint(baseUrl);
     if (!endpoint) {
       throw new Error('Invalid base url');
     }

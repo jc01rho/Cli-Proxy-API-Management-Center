@@ -15,6 +15,7 @@ import {
   code0ToResource,
   codexToResource,
   commandcodeToResource,
+  freebuffToResource,
   fennoAIToResource,
   geminiToResource,
   interactionsToResource,
@@ -181,6 +182,7 @@ const buildProviderKeyConfig = (
     | 'interactions'
     | 'codex'
     | 'commandcode'
+    | 'freebuff'
     | 'xai'
     | 'claude'
     | 'vertex'
@@ -220,7 +222,7 @@ const buildProviderKeyConfig = (
   if (brand === 'claude') {
     next.experimentalCchSigning = input.experimentalCchSigning === true;
   }
-  if (brand === 'commandcode') {
+  if (brand === 'commandcode' || brand === 'freebuff') {
     const entries =
       input.apiKeyEntries
         ?.map((entry, index) => {
@@ -426,12 +428,14 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         vertexResult,
         openaiResult,
         commandcodeResult,
+        freebuffResult,
         mistralResult,
       ] = await Promise.allSettled([
         fetchConfig(true),
         providersApi.getVertexConfigs(),
         providersApi.getOpenAIProviders(),
         providersApi.getCommandCodeConfigs(),
+        providersApi.getFreebuffConfigs(),
         providersApi.getMistralConfigs(),
       ]);
       if (configResult.status !== 'fulfilled') {
@@ -446,6 +450,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       if (commandcodeResult.status === 'fulfilled') {
         updateConfigValue('commandcode-api-key', commandcodeResult.value || []);
         clearCache('commandcode-api-key');
+      }
+      if (freebuffResult.status === 'fulfilled') {
+        updateConfigValue('freebuff-api-key', freebuffResult.value || []);
+        clearCache('freebuff-api-key');
       }
       if (mistralResult.status === 'fulfilled') {
         updateConfigValue('mistral-api-key', mistralResult.value || []);
@@ -516,6 +524,9 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           break;
         case 'commandcode':
           resources = (config.commandcodeApiKeys ?? []).map((c, i) => commandcodeToResource(c, i));
+          break;
+        case 'freebuff':
+          resources = (config.freebuffApiKeys ?? []).map((c, i) => freebuffToResource(c, i));
           break;
         case 'xai':
           resources = (config.xaiApiKeys ?? []).map((item, index) => xaiToResource(item, index));
@@ -690,6 +701,15 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     [clearCache, updateConfigValue]
   );
 
+  const persistFreebuffConfigs = useCallback(
+    async (next: ProviderKeyConfig[]) => {
+      await providersApi.saveFreebuffConfigs(next);
+      updateConfigValue('freebuff-api-key', next);
+      clearCache('freebuff-api-key');
+    },
+    [clearCache, updateConfigValue]
+  );
+
   const toggleSponsorConfig = async (raw: SponsorProviderRaw, disabled: boolean) => {
     for (const item of raw.gemini) {
       const excludedModels = disabled
@@ -843,6 +863,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = [...(config?.commandcodeApiKeys ?? [])];
           next.push(buildProviderKeyConfig('commandcode', input) as ProviderKeyConfig);
           await persistCommandCodeConfigs(next);
+        } else if (brand === 'freebuff') {
+          const next = [...(config?.freebuffApiKeys ?? [])];
+          next.push(buildProviderKeyConfig('freebuff', input) as ProviderKeyConfig);
+          await persistFreebuffConfigs(next);
         } else if (brand === 'xai') {
           await providersApi.createXAIConfig(
             buildProviderKeyConfig('xai', input) as ProviderKeyConfig
@@ -888,6 +912,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistClaudeConfigs,
       persistCodexConfigs,
       persistCommandCodeConfigs,
+      persistFreebuffConfigs,
       persistGeminiKeys,
       persistInteractionsKeys,
       persistMistralConfigs,
@@ -928,6 +953,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const existing = list[idx];
           list[idx] = buildProviderKeyConfig('commandcode', input, existing) as ProviderKeyConfig;
           await persistCommandCodeConfigs(list);
+        } else if (brand === 'freebuff') {
+          const list = [...(config?.freebuffApiKeys ?? [])];
+          const existing = list[idx];
+          list[idx] = buildProviderKeyConfig('freebuff', input, existing) as ProviderKeyConfig;
+          await persistFreebuffConfigs(list);
         } else if (brand === 'xai') {
           const sel = resource.selector;
           if (sel.brand === 'xai') {
@@ -987,6 +1017,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistClaudeConfigs,
       persistCodexConfigs,
       persistCommandCodeConfigs,
+      persistFreebuffConfigs,
       persistGeminiKeys,
       persistInteractionsKeys,
       persistMistralConfigs,
@@ -1020,6 +1051,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = (config?.commandcodeApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('commandcode-api-key', next);
           clearCache('commandcode-api-key');
+        } else if (sel.brand === 'freebuff') {
+          await providersApi.deleteFreebuffConfig(sel.apiKey, sel.baseUrl);
+          const next = (config?.freebuffApiKeys ?? []).filter((_, i) => i !== sel.index);
+          updateConfigValue('freebuff-api-key', next);
+          clearCache('freebuff-api-key');
         } else if (sel.brand === 'xai') {
           await providersApi.deleteXAIConfig(sel.apiKey, sel.baseUrl);
           const next = (config?.xaiApiKeys ?? []).filter((_, i) => i !== sel.index);
@@ -1119,6 +1155,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         } else if (
           brand === 'codex' ||
           brand === 'commandcode' ||
+          brand === 'freebuff' ||
           brand === 'xai' ||
           brand === 'claude' ||
           brand === 'claudeApi' ||
@@ -1130,13 +1167,15 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
               ? 'codexApiKeys'
               : brand === 'commandcode'
                 ? 'commandcodeApiKeys'
-                : brand === 'xai'
-                  ? 'xaiApiKeys'
-                  : brand === 'claude' || brand === 'claudeApi'
-                    ? 'claudeApiKeys'
-                    : brand === 'mistral'
-                      ? 'mistralApiKeys'
-                      : 'vertexApiKeys';
+                : brand === 'freebuff'
+                  ? 'freebuffApiKeys'
+                  : brand === 'xai'
+                    ? 'xaiApiKeys'
+                    : brand === 'claude' || brand === 'claudeApi'
+                      ? 'claudeApiKeys'
+                      : brand === 'mistral'
+                        ? 'mistralApiKeys'
+                        : 'vertexApiKeys';
           const list = [...((config?.[key] as ProviderKeyConfig[] | undefined) ?? [])];
           const current = list[idx];
           if (!current) return;
@@ -1146,6 +1185,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           list[idx] = { ...current, excludedModels: excluded };
           if (brand === 'codex') await persistCodexConfigs(list);
           else if (brand === 'commandcode') await persistCommandCodeConfigs(list);
+          else if (brand === 'freebuff') await persistFreebuffConfigs(list);
           else if (brand === 'xai') {
             const sel = resource.selector;
             if (sel.brand === 'xai') {
@@ -1189,6 +1229,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       persistClaudeConfigs,
       persistCodexConfigs,
       persistCommandCodeConfigs,
+      persistFreebuffConfigs,
       persistGeminiKeys,
       persistInteractionsKeys,
       persistMistralConfigs,

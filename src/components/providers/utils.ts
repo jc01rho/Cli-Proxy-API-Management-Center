@@ -125,6 +125,7 @@ export const pickFreebuffProbeModel = (
 const normalizeFreebuffHost = (baseUrl: string): string => {
   let trimmed = normalizeUpstreamBaseUrl(baseUrl, DEFAULT_FREEBUFF_BASE_URL);
   if (!trimmed) return DEFAULT_FREEBUFF_BASE_URL;
+  trimmed = trimmed.replace(/\/api\/v1\/freebuff\/session$/i, '');
   trimmed = trimmed.replace(/\/api\/v1\/models$/i, '');
   trimmed = trimmed.replace(/\/api\/v1\/chat\/completions$/i, '');
   trimmed = trimmed.replace(/\/api\/v1$/i, '');
@@ -135,6 +136,9 @@ const normalizeFreebuffHost = (baseUrl: string): string => {
 
 export const buildFreebuffModelsEndpoint = (baseUrl: string): string =>
   `${normalizeFreebuffHost(baseUrl)}/api/v1/models`;
+
+export const buildFreebuffSessionEndpoint = (baseUrl: string): string =>
+  `${normalizeFreebuffHost(baseUrl)}/api/v1/freebuff/session`;
 
 export const buildFreebuffChatCompletionsEndpoint = (baseUrl: string): string =>
   `${normalizeFreebuffHost(baseUrl)}/api/v1/chat/completions`;

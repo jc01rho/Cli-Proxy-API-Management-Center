@@ -7,7 +7,7 @@ import {
   buildCodexResponsesEndpoint,
   buildClaudeMessagesEndpoint,
   buildCommandCodeGenerateEndpoint,
-  buildFreebuffModelsEndpoint,
+  buildFreebuffSessionEndpoint,
   buildGeminiGenerateContentEndpoint,
   buildInteractionsEndpoint,
   buildInteractionsProbePayload,
@@ -97,7 +97,9 @@ const buildCommandCodeEndpoint = (baseUrl: string): string | null => {
 
 const buildFreebuffEndpoint = (baseUrl: string): string | null => {
   const source = baseUrl.trim() || DEFAULT_FREEBUFF_BASE_URL;
-  return buildFreebuffModelsEndpoint(source) || null;
+  // Official Codebuff has no /api/v1/models catalog. GET /api/v1/freebuff/session
+  // is the first executor hop and returns JSON 401/200 instead of Next.js HTML.
+  return buildFreebuffSessionEndpoint(source) || null;
 };
 
 export type ApiKeyEntriesConnectivityKind = 'openaiCompatibility' | 'commandcode' | 'freebuff';

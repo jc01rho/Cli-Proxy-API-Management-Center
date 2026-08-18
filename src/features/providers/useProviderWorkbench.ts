@@ -78,6 +78,8 @@ import {
 import { buildKimiRaw, isKimiClaudeProvider, isKimiOpenAIProvider } from './kimi';
 import {
   getSponsorProviderDefinition,
+  isTemporarilyHiddenSponsorBrand,
+  TEMPORARILY_HIDDEN_SPONSOR_BRANDS,
   type SponsorProtocolUrls,
 } from './sponsorDefinitions';
 import { runSponsorMutationWithRecovery } from './sponsorMutationRecovery';
@@ -483,6 +485,9 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
 
   const snapshot = useMemo<ProviderSnapshot | null>(() => {
     if (!config) return null;
+    // 临时隐藏的赞助商：不排除其协议配置，让各协议分组接管显示（见 sponsorDefinitions.ts）
+    const fennoAIHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('fennoAI');
+    const qiniuCloudHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('qiniuCloud');
     const groups: ProviderGroup[] = PROVIDER_BRAND_ORDER.map((brand) => {
       let resources: ProviderResource[] = [];
       switch (brand) {
@@ -491,7 +496,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             (out, item, index) => {
               if (
                 !isCode0GeminiProvider(item) &&
-                !isQiniuCloudGeminiProvider(item) &&
+                (qiniuCloudHidden || !isQiniuCloudGeminiProvider(item)) &&
                 !isLmuAIGeminiProvider(item) &&
                 !isInfistarGeminiProvider(item)
               ) {
@@ -512,8 +517,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             if (
               !isApiKeyFunCodexProvider(item) &&
               !isCode0CodexProvider(item) &&
-              !isFennoAICodexProvider(item) &&
-              !isQiniuCloudCodexProvider(item) &&
+              (fennoAIHidden || !isFennoAICodexProvider(item)) &&
+              (qiniuCloudHidden || !isQiniuCloudCodexProvider(item)) &&
               !isLmuAICodexProvider(item) &&
               !isInfistarCodexProvider(item)
             ) {
@@ -537,8 +542,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
               if (
                 !isApiKeyFunClaudeProvider(item) &&
                 !isCode0ClaudeProvider(item) &&
-                !isFennoAIClaudeProvider(item) &&
-                !isQiniuCloudClaudeProvider(item) &&
+                (fennoAIHidden || !isFennoAIClaudeProvider(item)) &&
+                (qiniuCloudHidden || !isQiniuCloudClaudeProvider(item)) &&
                 !isLmuAIClaudeProvider(item) &&
                 !isInfistarClaudeProvider(item) &&
                 !isKimiClaudeProvider(item) &&
@@ -574,7 +579,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
               if (
                 !isApiKeyFunOpenAIProvider(item) &&
                 !isCode0OpenAIProvider(item) &&
-                !isQiniuCloudOpenAIProvider(item) &&
+                (qiniuCloudHidden || !isQiniuCloudOpenAIProvider(item)) &&
                 !isLmuAIOpenAIProvider(item) &&
                 !isInfistarOpenAIProvider(item) &&
                 !isKimiOpenAIProvider(item)
@@ -629,7 +634,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     });
     return {
       fetchedAt,
-      groups,
+      groups: groups.filter((group) => !isTemporarilyHiddenSponsorBrand(group.id)),
     };
   }, [config, fetchedAt]);
 

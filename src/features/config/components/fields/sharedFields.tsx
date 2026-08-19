@@ -5,6 +5,7 @@
 import { useTranslation } from 'react-i18next';
 import type { ReactNode } from 'react';
 import {
+  ApiKeysCardEditor,
   FallbackModelsEditor,
   OauthEndpointOverridesEditor,
   StringListEditor,
@@ -14,7 +15,6 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { VisualConfigValues } from '@/types/visualConfig';
 import { SPONSORS } from '../../sponsors';
-import { ApiKeysCardEditor } from '../blocks/ApiKeysCardEditor';
 import { FieldAnchor, FieldGroup, FieldShell, FieldStack, ToggleRow } from './FieldPrimitives';
 import fieldStyles from './Field.module.scss';
 

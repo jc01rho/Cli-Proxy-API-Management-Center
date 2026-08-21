@@ -145,9 +145,11 @@ const buildCommandCodeHeaderObj = (
 ): Record<string, string> => {
   const headerObj: Record<string, string> = {
     'Content-Type': 'application/json',
-    'x-command-code-version': '0.26.20',
+    'x-command-code-version': '1.12.0',
     'x-cli-environment': 'production',
     'x-project-slug': 'cli-proxy',
+    'x-taste-learning': 'true',
+    'x-co-flag': 'false',
     ...buildHeaderObject(formHeaders),
   };
   if (!hasHeader(headerObj, 'authorization') && resolvedKey) {

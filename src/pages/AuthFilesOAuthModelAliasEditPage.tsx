@@ -341,19 +341,11 @@ export function AuthFilesOAuthModelAliasEditPage() {
       return;
     }
 
-    const seenAlias = new Set<string>();
-    let hasDuplicateAlias = false;
     const normalized = mappings
       .map((entry) => {
         const name = String(entry.name ?? '').trim();
         const alias = String(entry.alias ?? '').trim();
         if (!name || !alias) return null;
-        const aliasKey = alias.toLowerCase();
-        if (seenAlias.has(aliasKey)) {
-          hasDuplicateAlias = true;
-          return null;
-        }
-        seenAlias.add(aliasKey);
         const normalizedEntry: OAuthModelAliasEntry = { name, alias };
         if (entry.fork) normalizedEntry.fork = true;
         if (typeof entry.forceMapping === 'boolean') {
@@ -362,11 +354,6 @@ export function AuthFilesOAuthModelAliasEditPage() {
         return normalizedEntry;
       })
       .filter(Boolean) as OAuthModelAliasEntry[];
-
-    if (hasDuplicateAlias) {
-      showNotification(t('oauth_model_alias.duplicate_alias'), 'error');
-      return;
-    }
 
     setSaving(true);
     try {

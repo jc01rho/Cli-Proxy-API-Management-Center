@@ -370,8 +370,11 @@ export const normalizeOauthModelAlias = (
     if (!key) return;
     if (!Array.isArray(mappings)) return;
 
+    // Duplicate aliases within a channel are preserved (ai-providers parity):
+    // runtime resolution is deterministic first-entry-wins, and dropping them
+    // here used to silently strip duplicates from GET loads and PATCH saves
+    // before they ever reached the backend config file.
     const normalized = result[key] ?? [];
-    const seenAlias = new Set(normalized.map((entry) => entry.alias.toLowerCase()));
     mappings
       .map((item) => {
         if (!item || typeof item !== 'object') return null;
@@ -390,11 +393,7 @@ export const normalizeOauthModelAlias = (
       })
       .filter(Boolean)
       .forEach((entry) => {
-        const aliasEntry = entry as OAuthModelAliasEntry;
-        const aliasKey = aliasEntry.alias.toLowerCase();
-        if (seenAlias.has(aliasKey)) return;
-        seenAlias.add(aliasKey);
-        normalized.push(aliasEntry);
+        normalized.push(entry as OAuthModelAliasEntry);
       });
 
     if (normalized.length) {

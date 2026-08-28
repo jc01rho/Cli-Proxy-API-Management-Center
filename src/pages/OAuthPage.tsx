@@ -151,7 +151,6 @@ export const CALLBACK_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>(
   'antigravity',
   'xai',
   'cline',
-  'zcode',
 ]);
 const XAI_CALLBACK_URL = 'http://127.0.0.1:56121/callback';
 const CLINE_CALLBACK_URL = 'http://localhost:7829/callback';

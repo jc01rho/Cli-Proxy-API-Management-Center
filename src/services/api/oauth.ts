@@ -17,7 +17,8 @@ export type BuiltInOAuthProvider =
   | 'cline'
   | 'cursor'
   | 'kilo'
-  | 'kiro';
+  | 'kiro'
+  | 'zcode';
 
 export interface OAuthStartResponse {
   url: string;

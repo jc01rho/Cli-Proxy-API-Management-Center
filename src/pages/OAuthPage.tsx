@@ -26,6 +26,7 @@ import iconClineLight from '@/assets/icons/cline-light.svg';
 import iconClineDark from '@/assets/icons/cline-dark.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
 import iconKilo from '@/assets/icons/kilo.svg';
+import iconGlm from '@/assets/icons/glm.svg';
 const iconKiro =
   'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg';
 
@@ -135,6 +136,12 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.kiro_oauth_title',
     icon: iconKiro,
   },
+  {
+    kind: 'builtin',
+    id: 'zcode',
+    titleKey: 'auth_login.zcode_oauth_title',
+    icon: iconGlm,
+  },
 ];
 
 const BUILTIN_PROVIDER_IDS = new Set<string>(PROVIDERS.map((provider) => provider.id));
@@ -144,6 +151,7 @@ export const CALLBACK_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>(
   'antigravity',
   'xai',
   'cline',
+  'zcode',
 ]);
 const XAI_CALLBACK_URL = 'http://127.0.0.1:56121/callback';
 const CLINE_CALLBACK_URL = 'http://localhost:7829/callback';

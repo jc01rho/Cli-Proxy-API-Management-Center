@@ -777,6 +777,7 @@
     "kilo_oauth_start_error": "啟動 Kilo OAuth 失敗:",
     "kilo_oauth_polling_error": "檢查驗證狀態失敗:",
     "kiro_oauth_title": "Kiro OAuth",
+    "zcode_oauth_title": "GLM ZCode OAuth",
     "kiro_oauth_button": "開始 Kiro 登入",
     "kiro_oauth_hint": "透過裝置碼 OAuth 流程登入 Kiro，可選擇 Builder ID、Google 或 GitHub，自動取得並儲存驗證檔案。",
     "kiro_oauth_url_label": "授權連結:",

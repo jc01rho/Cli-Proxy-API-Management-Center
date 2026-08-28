@@ -776,6 +776,7 @@
     "kilo_oauth_start_error": "Failed to start Kilo OAuth:",
     "kilo_oauth_polling_error": "Failed to check authentication status:",
     "kiro_oauth_title": "Kiro OAuth",
+    "zcode_oauth_title": "GLM ZCode OAuth",
     "kiro_oauth_button": "Start Kiro Login",
     "kiro_oauth_hint": "Log in to Kiro through the device-code OAuth flow. Choose Builder ID, Google, or GitHub. Authentication files are obtained and saved automatically.",
     "kiro_oauth_url_label": "Authorization URL:",

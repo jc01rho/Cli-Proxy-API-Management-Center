@@ -328,6 +328,7 @@
     "pagination_info": "Page {{current}} / {{total}} · {{count}} files",
     "search_label": "Search configs",
     "search_placeholder": "Filter by name, account, type, or provider. Use * as a wildcard",
+    "search_placeholder_short": "Search name, account, type, or provider",
     "problem_filter_label": "Status Filter",
     "problem_filter_all": "All",
     "problem_filter_enabled": "Enabled",
@@ -1825,6 +1826,7 @@
       "websocketsTag": "WebSockets",
       "cloakTag": "Cloak",
       "noFallbackKey": "No fallback key",
+      "cliProfileTag": "CLI Profile",
       "empty": "No resources yet, click \"New\" to add.",
       "filterPlaceholder": "Search keys, URLs, prefixes…",
       "description": "Manage resources under {{route}}"
@@ -1987,8 +1989,10 @@
       },
       "cloakCacheUserId": "Cache user_id",
       "cloakCacheUserIdHint": "Reuse the Claude cloak user_id per API key",
-      "experimentalCchSigning": "Experimental CCH signing",
-      "experimentalCchSigningHint": "Sign the final cloaked Claude /v1/messages body with CCH",
+      "fingerprintProfile": "Request fingerprint",
+      "fingerprintProfileDefault": "Default (caller-owned)",
+      "fingerprintProfileClaudeCodeCli": "Claude Code CLI",
+      "fingerprintProfileHint": "Keep the caller's prompt and headers by default, or opt in to the Claude Code CLI request fingerprint.",
       "validation": {
         "nameRequired": "Name is required",
         "apiKeyRequired": "At least one API key is required",

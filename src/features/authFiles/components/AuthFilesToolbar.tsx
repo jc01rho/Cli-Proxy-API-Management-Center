@@ -91,7 +91,8 @@ export function AuthFilesToolbar(props: AuthFilesToolbarProps) {
         <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={t('auth_files.search_placeholder')}
+          placeholder={t('auth_files.search_placeholder_short')}
+          title={t('auth_files.search_placeholder')}
           aria-label={t('auth_files.search_label')}
           rightElement={<IconSearch className={styles.searchIcon} size={16} />}
         />

@@ -329,6 +329,7 @@
     "pagination_info": "Страница {{current}} / {{total}} · {{count}} файлов",
     "search_label": "Поиск конфигов",
     "search_placeholder": "Фильтр по имени, аккаунту, типу или провайдеру, поддерживается wildcard *",
+    "search_placeholder_short": "Имя, аккаунт, тип или провайдер",
     "problem_filter_label": "Фильтр статуса",
     "problem_filter_all": "Все",
     "problem_filter_enabled": "Вкл.",
@@ -1818,6 +1819,7 @@
       "websocketsTag": "WebSockets",
       "cloakTag": "Cloak",
       "noFallbackKey": "Резервный ключ не задан",
+      "cliProfileTag": "CLI-профиль",
       "empty": "Нет ресурсов, нажмите \"Создать\".",
       "filterPlaceholder": "Поиск по ключам, URL, префиксам…",
       "description": "Управление ресурсами {{route}}"
@@ -1980,8 +1982,10 @@
       },
       "cloakCacheUserId": "Кэшировать user_id",
       "cloakCacheUserIdHint": "Переиспользовать Claude cloak user_id для каждого API-ключа",
-      "experimentalCchSigning": "Экспериментальная CCH-подпись",
-      "experimentalCchSigningHint": "Подписывать финальное тело cloaked Claude /v1/messages через CCH",
+      "fingerprintProfile": "Отпечаток запроса",
+      "fingerprintProfileDefault": "По умолчанию (управляет клиент)",
+      "fingerprintProfileClaudeCodeCli": "Claude Code CLI",
+      "fingerprintProfileHint": "По умолчанию сохраняются prompt и заголовки клиента; можно включить отпечаток запросов Claude Code CLI.",
       "validation": {
         "nameRequired": "Название обязательно",
         "apiKeyRequired": "Нужен хотя бы один API-ключ",

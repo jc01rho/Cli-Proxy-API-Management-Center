@@ -121,6 +121,12 @@ function buildInitialForm(
         brand === 'interactions'
           ? ''
           : undefined,
+      maxOutputTokens:
+        brand === 'openaiCompatibility'
+          ? 5
+          : isClaudeLikeBrand(brand) || brand === 'gemini'
+            ? 8
+            : undefined,
       apiKeyEntries:
         brand === 'openaiCompatibility' || brand === 'commandcode' || brand === 'freebuff'
           ? [emptyApiKeyEntry()]
@@ -156,6 +162,7 @@ function buildInitialForm(
         : [emptyHeader()],
       excludedModelsText: '',
       testModel: cfg.testModel ?? '',
+      maxOutputTokens: 5,
       comment: (cfg as OpenAIProviderConfig & { comment?: string }).comment ?? '',
       apiKeyEntries: cfg.apiKeyEntries?.length
         ? cfg.apiKeyEntries.map((entry) => ({
@@ -224,6 +231,8 @@ function buildInitialForm(
       brand === 'interactions'
         ? ''
         : undefined,
+    maxOutputTokens:
+      isClaudeLikeBrand(brand) || brand === 'gemini' ? 8 : undefined,
     comment: cfg.comment ?? '',
     apiKeyEntries:
       brand === 'commandcode' || brand === 'freebuff'
@@ -312,6 +321,7 @@ export function BaseProviderForm({
       brand,
       baseUrl: form.baseUrl,
       testModel: form.testModel,
+      maxOutputTokens: form.maxOutputTokens,
       models: form.models,
       formHeaders: form.headers,
       apiKeyEntries: form.apiKeyEntries,
@@ -808,6 +818,24 @@ export function BaseProviderForm({
               onChange={(value) => updateField('testModel', value)}
               disabled={mutating}
               ariaLabel={t('providersPage.form.testModel')}
+            />
+            <label className={styles.label} htmlFor={`${fid}-maxOutputTokens`}>
+              {t('providersPage.form.maxOutputTokens')}
+            </label>
+            <input
+              id={`${fid}-maxOutputTokens`}
+              type="number"
+              min={1}
+              className={styles.input}
+              value={form.maxOutputTokens ?? ''}
+              onChange={(e) =>
+                updateField(
+                  'maxOutputTokens',
+                  e.target.value === '' ? undefined : Number(e.target.value)
+                )
+              }
+              disabled={mutating}
+              placeholder={t('providersPage.form.maxOutputTokensPlaceholder')}
             />
             {singleConnectivity ? (
               <div className={styles.connectivityRow}>

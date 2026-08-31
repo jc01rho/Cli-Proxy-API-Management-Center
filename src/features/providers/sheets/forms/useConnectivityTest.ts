@@ -73,6 +73,7 @@ export interface UseConnectivityTestArgs {
   brand: ProviderBrand;
   baseUrl: string;
   testModel?: string;
+  maxOutputTokens?: number;
   models: ModelEntryInput[];
   formHeaders: Array<{ key: string; value: string }>;
   apiKeyEntries?: ApiKeyEntryInput[];
@@ -189,6 +190,7 @@ export function useConnectivityTest(
     brand,
     baseUrl,
     testModel,
+    maxOutputTokens,
     models,
     formHeaders,
     apiKeyEntries,
@@ -342,7 +344,7 @@ export function useConnectivityTest(
               model,
               messages: [{ role: 'user', content: 'Hi' }],
               stream: false,
-              max_tokens: 5,
+              max_tokens: maxOutputTokens ?? 5,
             }),
           },
           { timeout: DEFAULT_TIMEOUT_MS }
@@ -368,6 +370,7 @@ export function useConnectivityTest(
       baseUrl,
       brand,
       formHeaders,
+      maxOutputTokens,
       messages,
       models,
       testModel,
@@ -440,6 +443,7 @@ export function useConnectivityTest(
             model,
             input: 'Hi',
             stream: false,
+            ...(maxOutputTokens != null ? { max_output_tokens: maxOutputTokens } : {}),
           }),
         },
         { timeout: DEFAULT_TIMEOUT_MS }
@@ -456,7 +460,7 @@ export function useConnectivityTest(
     } finally {
       setInFlight((n) => n - 1);
     }
-  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, messages, models, testModel]);
+  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, maxOutputTokens, messages, models, testModel]);
 
   const runGemini = useCallback(async (): Promise<void> => {
     if (brand !== 'gemini' && brand !== 'interactions') return;
@@ -517,7 +521,7 @@ export function useConnectivityTest(
               ? buildInteractionsProbePayload(model)
               : {
                   contents: [{ parts: [{ text: 'Hi' }] }],
-                  generationConfig: { maxOutputTokens: 8 },
+                  generationConfig: { maxOutputTokens: maxOutputTokens ?? 8 },
                 }
           ),
         },
@@ -535,7 +539,7 @@ export function useConnectivityTest(
     } finally {
       setInFlight((n) => n - 1);
     }
-  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, messages, models, testModel]);
+  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, maxOutputTokens, messages, models, testModel]);
 
   const runClaude = useCallback(async (): Promise<void> => {
     if (brand !== 'claude' && brand !== 'claudeApi') return;
@@ -588,7 +592,7 @@ export function useConnectivityTest(
           header: headerObj,
           data: JSON.stringify({
             model,
-            max_tokens: 8,
+            max_tokens: maxOutputTokens ?? 8,
             messages: [{ role: 'user', content: 'Hi' }],
           }),
         },
@@ -606,7 +610,7 @@ export function useConnectivityTest(
     } finally {
       setInFlight((n) => n - 1);
     }
-  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, messages, models, testModel]);
+  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, maxOutputTokens, messages, models, testModel]);
 
   const runCommandCode = useCallback(async (): Promise<void> => {
     if (brand !== 'commandcode') return;

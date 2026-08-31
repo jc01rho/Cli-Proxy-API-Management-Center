@@ -1974,6 +1974,8 @@
       "websockets": "啟用 WebSockets",
       "testModel": "測試模型",
       "testModelClaudeHint": "僅用於連通性測試,不會被儲存",
+      "maxOutputTokens": "最大輸出令牌數",
+      "maxOutputTokensPlaceholder": "例如 1024",
       "testModelAutoWith": "自動 · {{name}}",
       "testModelAutoEmpty": "自動(尚未新增模型)",
       "testModelCustom": "{{name}}(自訂)",

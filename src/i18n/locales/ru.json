@@ -1942,6 +1942,8 @@
       "websockets": "Включить WebSockets",
       "testModel": "Тестовая модель",
       "testModelClaudeHint": "Используется только для проверки соединения; не сохраняется",
+      "maxOutputTokens": "Макс. выходных токенов",
+      "maxOutputTokensPlaceholder": "например 1024",
       "testModelAutoWith": "Авто · {{name}}",
       "testModelAutoEmpty": "Авто (модели ещё не добавлены)",
       "testModelCustom": "{{name}} (своя)",

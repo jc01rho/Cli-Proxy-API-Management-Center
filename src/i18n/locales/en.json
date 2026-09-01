@@ -353,6 +353,7 @@
     "filter_cursor": "Cursor",
     "filter_kilo": "Kilo",
     "filter_kiro": "Kiro",
+    "filter_zcode": "Zcode",
     "filter_antigravity": "Antigravity",
     "filter_xai": "xAI",
     "filter_iflow": "iFlow",
@@ -562,6 +563,24 @@
     "refresh_button": "Refresh Quota",
     "fetch_all": "Fetch All",
     "plan_label": "Plan"
+  },
+  "zcode_quota": {
+    "title": "Zcode (Z.AI) quota",
+    "empty_title": "No Zcode credentials",
+    "empty_desc": "Add a Zcode (Z.AI) credential to view its coding-plan quota here.",
+    "idle": "Click to load Zcode quota",
+    "loading": "Loading Zcode quota…",
+    "load_failed": "Failed to load Zcode quota: {message}",
+    "missing_auth_index": "Zcode credential is missing an auth index; refresh the file list.",
+    "empty_data": "No quota data returned for this credential.",
+    "refresh_button": "Refresh quota",
+    "fetch_all": "Fetch all",
+    "plan_label": "Plan level",
+    "window_five_hour": "5-hour window",
+    "window_weekly": "Weekly window",
+    "window_mcp": "MCP / time limit",
+    "window_monthly": "Monthly",
+    "used_of": "{used}% used"
   },
   "xai_quota": {
     "title": "Grok Quota",

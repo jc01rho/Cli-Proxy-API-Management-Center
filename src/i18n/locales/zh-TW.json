@@ -352,6 +352,7 @@
     "filter_cursor": "Cursor",
     "filter_kilo": "Kilo",
     "filter_kiro": "Kiro",
+    "filter_zcode": "Zcode",
     "filter_antigravity": "Antigravity",
     "filter_xai": "xAI",
     "filter_iflow": "iFlow",
@@ -561,6 +562,24 @@
     "refresh_button": "重新整理配額",
     "fetch_all": "取得全部",
     "plan_label": "方案"
+  },
+  "zcode_quota": {
+    "title": "Zcode（Z.AI）額度",
+    "empty_title": "尚無 Zcode 憑證",
+    "empty_desc": "新增 Zcode（Z.AI）憑證後即可在此查看編碼方案額度。",
+    "idle": "點擊載入 Zcode 額度",
+    "loading": "正在載入 Zcode 額度…",
+    "load_failed": "載入 Zcode 額度失敗：{message}",
+    "missing_auth_index": "Zcode 憑證缺少 auth index，請重新整理檔案清單。",
+    "empty_data": "該憑證未回傳額度資料。",
+    "refresh_button": "重新整理額度",
+    "fetch_all": "全部取得",
+    "plan_label": "方案等級",
+    "window_five_hour": "5 小時視窗",
+    "window_weekly": "每週視窗",
+    "window_mcp": "MCP / 時間限額",
+    "window_monthly": "每月",
+    "used_of": "已用 {used}%"
   },
   "xai_quota": {
     "title": "Grok 配額",

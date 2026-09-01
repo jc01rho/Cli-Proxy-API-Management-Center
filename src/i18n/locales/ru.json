@@ -354,6 +354,7 @@
     "filter_cursor": "Cursor",
     "filter_kilo": "Kilo",
     "filter_kiro": "Kiro",
+    "filter_zcode": "Zcode",
     "filter_antigravity": "Antigravity",
     "filter_xai": "xAI",
     "filter_iflow": "iFlow",
@@ -557,6 +558,24 @@
     "refresh_button": "Обновить квоту",
     "fetch_all": "Получить все",
     "plan_label": "Тариф"
+  },
+  "zcode_quota": {
+    "title": "Квота Zcode (Z.AI)",
+    "empty_title": "Нет учётных данных Zcode",
+    "empty_desc": "Добавьте учётные данные Zcode (Z.AI), чтобы видеть квоту coding-плана.",
+    "idle": "Нажмите, чтобы загрузить квоту Zcode",
+    "loading": "Загрузка квоты Zcode…",
+    "load_failed": "Не удалось загрузить квоту Zcode: {message}",
+    "missing_auth_index": "У учётных данных Zcode нет auth index; обновите список файлов.",
+    "empty_data": "Для этих учётных данных квота не возвращена.",
+    "refresh_button": "Обновить квоту",
+    "fetch_all": "Загрузить все",
+    "plan_label": "Уровень плана",
+    "window_five_hour": "5-часовое окно",
+    "window_weekly": "Недельное окно",
+    "window_mcp": "MCP / лимит времени",
+    "window_monthly": "Месяц",
+    "used_of": "Использовано {used}%"
   },
   "xai_quota": {
     "title": "Квота Grok",

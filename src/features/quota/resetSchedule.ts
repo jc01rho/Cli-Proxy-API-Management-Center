@@ -129,6 +129,31 @@ export function collectQuotaRowInstants(
     return collectRows((quota as { rows?: WindowLike[] }).rows ?? [], 'row');
   }
 
+  if (provider === 'zcode') {
+    // Fixed windows carry ISO `reset_at` strings instead of epoch-ms rows.
+    const windows = (
+      quota as {
+        fiveHour?: { name?: string; reset_at?: string | null } | null;
+        weekly?: { name?: string; reset_at?: string | null } | null;
+        mcp?: { name?: string; reset_at?: string | null } | null;
+        monthly?: { name?: string; reset_at?: string | null } | null;
+      } | null
+    );
+    if (!windows) return [];
+    const entries: [string, string | null | undefined][] = [
+      ['five-hour', windows.fiveHour?.reset_at],
+      ['weekly', windows.weekly?.reset_at],
+      ['mcp', windows.mcp?.reset_at],
+      ['monthly', windows.monthly?.reset_at],
+    ];
+    return entries
+      .map(([rowId, resetAt], index): QuotaRowInstant | null => {
+        const atMs = resetAt ? parseIsoToMs(resetAt) : null;
+        return atMs === null ? null : { rowId: rowId || `window-${index}`, atMs, kind: 'window' };
+      })
+      .filter((instant): instant is QuotaRowInstant => instant !== null);
+  }
+
   return [];
 }
 

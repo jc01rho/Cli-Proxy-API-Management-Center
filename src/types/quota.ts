@@ -448,3 +448,27 @@ export interface XaiQuotaState {
   error?: string;
   errorStatus?: number;
 }
+
+// zcode/Z.AI coding-plan quota payload (GET /v0/management/zcode-quota)
+export interface ZcodeQuotaWindow {
+  name: string;
+  used_percent: number;
+  remaining_percent: number;
+  reset_at?: string | null;
+}
+
+export interface ZcodeQuotaData {
+  authIndex: string;
+  email: string;
+  level: string;
+  fiveHour: ZcodeQuotaWindow;
+  weekly: ZcodeQuotaWindow;
+  mcp: ZcodeQuotaWindow;
+  monthly: ZcodeQuotaWindow;
+}
+
+export interface ZcodeQuotaState extends ZcodeQuotaData {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  error?: string;
+  errorStatus?: number;
+}

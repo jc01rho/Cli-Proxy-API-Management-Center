@@ -31,6 +31,10 @@ export function isKiroFile(file: AuthFileItem): boolean {
   return resolveAuthProvider(file) === 'kiro';
 }
 
+export function isZcodeFile(file: AuthFileItem): boolean {
+  return resolveAuthProvider(file) === 'zcode';
+}
+
 export function isXaiFile(file: AuthFileItem): boolean {
   return resolveAuthProvider(file) === 'xai';
 }

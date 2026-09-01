@@ -54,6 +54,13 @@ describe('classifyQuotaFiles', () => {
       'kimi',
     ]);
   });
+
+  test('keeps zcode in the tab order without matching fixture files', () => {
+    // zcode participates in the tab ordering; the fixtures above contain no
+    // zcode credential, so the classification must be unchanged.
+    const entries = classifyQuotaFiles(FILES);
+    expect(entries.map((entry) => entry.type)).not.toContain('zcode');
+  });
 });
 
 describe('buildTabCounts', () => {
@@ -66,6 +73,7 @@ describe('buildTabCounts', () => {
       xai: 1,
       kiro: 1,
       kimi: 1,
+      zcode: 0,
     });
   });
 });

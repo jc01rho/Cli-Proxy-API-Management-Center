@@ -10,6 +10,7 @@ import iconGrokDark from '@/assets/icons/grok-dark.svg';
 import iconIflow from '@/assets/icons/iflow.svg';
 import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconKimiLight from '@/assets/icons/kimi-light.svg';
+import iconGlm from '@/assets/icons/glm.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
@@ -28,7 +29,14 @@ export type AuthFileModelItem = {
 };
 export type AuthFileIconAsset = string | { light: string; dark: string };
 
-export type QuotaProviderType = 'antigravity' | 'claude' | 'codex' | 'kiro' | 'kimi' | 'xai';
+export type QuotaProviderType =
+  | 'antigravity'
+  | 'claude'
+  | 'codex'
+  | 'kiro'
+  | 'kimi'
+  | 'xai'
+  | 'zcode';
 export type OAuthConfigLoadError = 'loading' | 'unsupported' | 'load' | null;
 
 export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
@@ -38,6 +46,7 @@ export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
   'kiro',
   'kimi',
   'xai',
+  'zcode',
 ]);
 
 export const OAUTH_PROVIDER_PRESETS = [
@@ -52,6 +61,7 @@ export const OAUTH_PROVIDER_PRESETS = [
   'kilo',
   'kiro',
   'kimi',
+  'zcode',
 ];
 
 const OAUTH_PROVIDER_EXCLUDES = new Set(['all', 'unknown', 'empty']);
@@ -74,6 +84,7 @@ export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
   'kiro',
   'kimi',
   'xai',
+  'zcode',
 ]);
 
 // 标签类型颜色配置：权威版本在 @/utils/quota/constants.ts，此处仅转发
@@ -92,6 +103,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   kiro: 'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg',
   iflow: iconIflow,
   kimi: { light: iconKimiDark, dark: iconKimiLight },
+  zcode: iconGlm,
   qwen: iconQwen,
   vertex: iconVertex,
 };

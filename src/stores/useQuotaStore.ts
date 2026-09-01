@@ -10,6 +10,7 @@ import type {
   KiroQuotaState,
   KimiQuotaState,
   XaiQuotaState,
+  ZcodeQuotaState,
 } from '@/types';
 
 type QuotaUpdater<T> = T | ((prev: T) => T);
@@ -22,12 +23,14 @@ interface QuotaStoreState {
   kiroQuota: Record<string, KiroQuotaState>;
   kimiQuota: Record<string, KimiQuotaState>;
   xaiQuota: Record<string, XaiQuotaState>;
+  zcodeQuota: Record<string, ZcodeQuotaState>;
   setAntigravityQuota: (updater: QuotaUpdater<Record<string, AntigravityQuotaState>>) => void;
   setClaudeQuota: (updater: QuotaUpdater<Record<string, ClaudeQuotaState>>) => void;
   setCodexQuota: (updater: QuotaUpdater<Record<string, CodexQuotaState>>) => void;
   setKiroQuota: (updater: QuotaUpdater<Record<string, KiroQuotaState>>) => void;
   setKimiQuota: (updater: QuotaUpdater<Record<string, KimiQuotaState>>) => void;
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
+  setZcodeQuota: (updater: QuotaUpdater<Record<string, ZcodeQuotaState>>) => void;
   clearQuotaCache: () => void;
 }
 
@@ -46,6 +49,7 @@ export const useQuotaStore = create<QuotaStoreState>((set) => ({
   kiroQuota: {},
   kimiQuota: {},
   xaiQuota: {},
+  zcodeQuota: {},
   setAntigravityQuota: (updater) =>
     set((state) => ({
       antigravityQuota: resolveUpdater(updater, state.antigravityQuota),
@@ -70,6 +74,10 @@ export const useQuotaStore = create<QuotaStoreState>((set) => ({
     set((state) => ({
       xaiQuota: resolveUpdater(updater, state.xaiQuota),
     })),
+  setZcodeQuota: (updater) =>
+    set((state) => ({
+      zcodeQuota: resolveUpdater(updater, state.zcodeQuota),
+    })),
   clearQuotaCache: () =>
     set((state) => ({
       cacheGeneration: state.cacheGeneration + 1,
@@ -79,6 +87,7 @@ export const useQuotaStore = create<QuotaStoreState>((set) => ({
       kiroQuota: {},
       kimiQuota: {},
       xaiQuota: {},
+      zcodeQuota: {},
     })),
 }));
 

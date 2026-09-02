@@ -1231,7 +1231,6 @@ function getNextDirtyFields(
       areStringArraysEqual(nextValues.pluginStoreSources, baselineValues.pluginStoreSources)
     );
   }
-
   if (Object.prototype.hasOwnProperty.call(patch, 'fallbackChain')) {
     updateDirty(
       'fallbackChain',
@@ -1256,6 +1255,15 @@ function getNextDirtyFields(
       areOauthEndpointOverridesEqual(
         nextValues.oauthEndpointOverrides,
         baselineValues.oauthEndpointOverrides
+      )
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'antigravitySensitiveWords')) {
+    updateDirty(
+      'antigravitySensitiveWords',
+      areStringArraysEqual(
+        nextValues.antigravitySensitiveWords,
+        baselineValues.antigravitySensitiveWords
       )
     );
   }
@@ -1409,6 +1417,7 @@ export function useVisualConfig() {
       const streaming = asRecord(parsed.streaming);
       const plugins = asRecord(parsed.plugins);
       const keeperExport = parseKeeperExportYaml(yamlContent);
+      const antigravity = asRecord(parsed.antigravity);
       const claudeHeaderDefaults = asRecord(parsed['claude-header-defaults']);
       const codexHeaderDefaults = asRecord(parsed['codex-header-defaults']);
 
@@ -1487,6 +1496,7 @@ export function useVisualConfig() {
             : '',
 
         enableGeminiCliEndpoint: Boolean(parsed['enable-gemini-cli-endpoint']),
+        antigravitySensitiveWords: parseStringList(antigravity?.['sensitive-words']),
         antigravitySignatureCacheEnabled: Boolean(
           parsed['antigravity-signature-cache-enabled'] ?? true
         ),
@@ -1739,6 +1749,37 @@ export function useVisualConfig() {
           doc.setIn(
             ['antigravity-signature-cache-enabled'],
             values.antigravitySignatureCacheEnabled
+          );
+        }
+        if (dirtyFields.has('authAutoRefreshWorkers')) {
+          setIntFromStringInDoc(doc, ['auth-auto-refresh-workers'], values.authAutoRefreshWorkers);
+        }
+        if (dirtyFields.has('wsAuth')) setBooleanInDoc(doc, ['ws-auth'], values.wsAuth);
+        if (dirtyFields.has('antigravitySensitiveWords')) {
+          ensureMapInDoc(doc, ['antigravity']);
+          setStringListInDoc(
+            doc,
+            ['antigravity', 'sensitive-words'],
+            values.antigravitySensitiveWords
+          );
+          deleteIfMapEmpty(doc, ['antigravity']);
+        }
+        if (dirtyFields.has('antigravitySignatureCacheEnabled')) {
+          if (
+            docHas(doc, ['antigravity-signature-cache-enabled']) ||
+            !values.antigravitySignatureCacheEnabled
+          ) {
+            doc.setIn(
+              ['antigravity-signature-cache-enabled'],
+              values.antigravitySignatureCacheEnabled
+            );
+          }
+        }
+        if (dirtyFields.has('antigravitySignatureBypassStrict')) {
+          setBooleanInDoc(
+            doc,
+            ['antigravity-signature-bypass-strict'],
+            values.antigravitySignatureBypassStrict
           );
         }
         setBooleanInDoc(

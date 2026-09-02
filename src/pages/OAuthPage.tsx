@@ -12,6 +12,7 @@ import { copyToClipboard } from '@/utils/clipboard';
 import { getErrorMessage, isRecord } from '@/utils/helpers';
 import { notifyAuthFilesChanged } from '@/features/authFiles/authFilesEvents';
 import { getPluginTitle, resolvePluginAssetURL } from '@/features/plugins/pluginResources';
+import { getKimiAffiliateUrl } from '@/features/providers/kimi';
 import type { PluginListEntry } from '@/types';
 import styles from './OAuthPage.module.scss';
 import iconCodex from '@/assets/icons/codex.svg';
@@ -154,7 +155,6 @@ export const CALLBACK_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>(
 ]);
 const XAI_CALLBACK_URL = 'http://127.0.0.1:56121/callback';
 const CLINE_CALLBACK_URL = 'http://localhost:7829/callback';
-const KIMI_SIGN_UP_URL = 'https://www.kimi.com/code/?aff=cliproxyapi';
 const SUCCESS_RESET_DELAY_MS = 5000;
 const KIRO_DEVICE_METHODS = [
   { id: 'builder-id', labelKey: 'auth_login.kiro_oauth_method_builder_id' },
@@ -325,7 +325,7 @@ const resolveCallbackUrl = (provider: string, input: string, state?: string): st
 };
 
 export function OAuthPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const apiBase = useAuthStore((state) => state.apiBase);
   const { showNotification } = useNotificationStore();
@@ -705,7 +705,13 @@ export function OAuthPage() {
           ) : showKimiSignUp ? (
             <div className={styles.featuredActions}>
               <Button
-                onClick={() => window.open(KIMI_SIGN_UP_URL, '_blank', 'noopener,noreferrer')}
+                onClick={() =>
+                  window.open(
+                    getKimiAffiliateUrl(i18n.resolvedLanguage ?? i18n.language),
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+                }
               >
                 {t('auth_login.kimi_sign_up_button')}
               </Button>

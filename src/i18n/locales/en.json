@@ -570,7 +570,7 @@
     "empty_desc": "Add a Zcode (Z.AI) credential to view its coding-plan quota here.",
     "idle": "Click to load Zcode quota",
     "loading": "Loading Zcode quota…",
-    "load_failed": "Failed to load Zcode quota: {message}",
+    "load_failed": "Failed to load Zcode quota: {{message}}",
     "missing_auth_index": "Zcode credential is missing an auth index; refresh the file list.",
     "empty_data": "No quota data returned for this credential.",
     "refresh_button": "Refresh quota",
@@ -580,7 +580,7 @@
     "window_weekly": "Weekly window",
     "window_mcp": "MCP / time limit",
     "window_monthly": "Monthly",
-    "used_of": "{used}% used"
+    "used_of": "{{used}}% used"
   },
   "xai_quota": {
     "title": "Grok Quota",

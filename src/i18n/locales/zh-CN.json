@@ -569,7 +569,7 @@
     "empty_desc": "添加 Zcode（Z.AI）凭证后即可在此查看编码套餐额度。",
     "idle": "点击加载 Zcode 额度",
     "loading": "正在加载 Zcode 额度…",
-    "load_failed": "加载 Zcode 额度失败：{message}",
+    "load_failed": "加载 Zcode 额度失败：{{message}}",
     "missing_auth_index": "Zcode 凭证缺少 auth index，请刷新文件列表。",
     "empty_data": "该凭证未返回额度数据。",
     "refresh_button": "刷新额度",
@@ -579,7 +579,7 @@
     "window_weekly": "每周窗口",
     "window_mcp": "MCP / 时间限额",
     "window_monthly": "每月",
-    "used_of": "已用 {used}%"
+    "used_of": "已用 {{used}}%"
   },
   "xai_quota": {
     "title": "Grok 额度",

@@ -73,6 +73,19 @@ export const INTEGER_STRING_PATTERN = /^[+-]?\d+$/;
 export const TRUTHY_TEXT_VALUES = new Set(['true', '1', 'yes', 'y', 'on']);
 export const FALSY_TEXT_VALUES = new Set(['false', '0', 'no', 'n', 'off']);
 export const AUTH_FILE_WEBSOCKET_PROVIDERS = new Set(['codex', 'xai']);
+
+export const AUTH_FILE_MODEL_ALIAS_PROVIDERS = new Set([
+  'claude',
+  'codex',
+  'kimi',
+  'kiro',
+  'github-copilot',
+  'gemini-cli',
+  'aistudio',
+  'antigravity',
+  'iflow',
+  'xai',
+]);
 export const AUTH_FILE_USING_API_PROVIDERS = new Set(['xai']);
 export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
   'antigravity',
@@ -231,6 +244,9 @@ export const readAuthFileDisableCooling = (value: Record<string, unknown>): bool
 
 export const supportsAuthFileWebsockets = (providerKey: string): boolean =>
   AUTH_FILE_WEBSOCKET_PROVIDERS.has(normalizeProviderKey(providerKey));
+
+export const supportsAuthFileModelAlias = (providerKey: string): boolean =>
+  AUTH_FILE_MODEL_ALIAS_PROVIDERS.has(normalizeProviderKey(providerKey));
 
 export const readAuthFileWebsockets = (value: Record<string, unknown>): boolean =>
   parseDisableCoolingValue(value.websockets ?? value.websocket) ?? false;

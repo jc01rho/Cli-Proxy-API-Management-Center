@@ -2139,5 +2139,19 @@
     "modelCatalog": {
       "notLoaded": "未載入"
     }
+  },
+  "auth_file_details": {
+    "model_aliases": {
+      "label": "模型別名",
+      "name_placeholder": "原模型名稱",
+      "alias_placeholder": "別名（必填）",
+      "fork_label": "保留原名",
+      "add": "新增別名",
+      "hint": "帳戶級模型別名。對原模型的請求將路由到別名。",
+      "error_empty_name": "別名列需要填寫原模型名稱。",
+      "error_empty_alias": "別名列需要填寫別名。",
+      "error_name_equals_alias": "原模型與別名必須不同。",
+      "error_duplicate_alias": "該帳戶內存在重複別名。"
+    }
   }
 }

@@ -31,6 +31,7 @@ export type AuthFileFieldsPatch = {
   using_api?: boolean;
   note?: string;
   'excluded-models'?: string[];
+  model_aliases?: Array<Record<string, unknown>>;
   expired?: string;
 };
 type AuthFileBatchFailure = { name: string; error: string };

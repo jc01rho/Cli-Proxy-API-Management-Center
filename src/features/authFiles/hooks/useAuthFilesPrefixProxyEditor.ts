@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authFilesApi, type AuthFileFieldsPatch } from '@/services/api';
-import type { AuthFileItem } from '@/types';
+import { serializeOauthModelAliases } from '@/services/api/authFiles';
+import type { AuthFileItem, OAuthModelAliasEntry } from '@/types';
 import { useNotificationStore } from '@/stores';
 import {
   applyAuthFileWebsockets,
@@ -11,9 +12,16 @@ import {
   readAuthFileDisableCooling,
   readAuthFileWebsockets,
   readAuthFileUsingApi,
+  supportsAuthFileModelAlias,
   supportsAuthFileWebsockets,
   supportsAuthFileUsingApi,
 } from '@/features/authFiles/constants';
+import {
+  applyModelAliases,
+  readModelAliases,
+  validateModelAliasRows,
+  type ModelAliasValidationErrorKey,
+} from '@/features/authFiles/modelAliases';
 import {
   parseCredentialWeightText,
   readCredentialWeight,
@@ -29,7 +37,10 @@ type AuthFileHeadersErrorKey =
 type AuthFileContentErrorKey =
   'auth_files.prefix_proxy_invalid_json' | 'auth_files.prefix_proxy_html_challenge';
 type AuthFileWeightErrorKey = 'auth_files.weight_invalid_integer' | 'auth_files.weight_invalid_max';
-type AuthFileEditorErrorKey = AuthFileHeadersErrorKey | AuthFileWeightErrorKey;
+type AuthFileEditorErrorKey =
+  | AuthFileHeadersErrorKey
+  | AuthFileWeightErrorKey
+  | ModelAliasValidationErrorKey;
 
 export type PrefixProxyEditorField =
   | 'prefix'
@@ -41,9 +52,10 @@ export type PrefixProxyEditorField =
   | 'usingApi'
   | 'note'
   | 'excludedModelsText'
-  | 'headersText';
+  | 'headersText'
+  | 'modelAliases';
 
-export type PrefixProxyEditorFieldValue = string | boolean;
+export type PrefixProxyEditorFieldValue = string | boolean | OAuthModelAliasEntry[];
 
 export type PrefixProxyEditorState = {
   fileName: string;
@@ -74,6 +86,9 @@ export type PrefixProxyEditorState = {
   headersText: string;
   headersTouched: boolean;
   headersError: string | null;
+  modelAliases: OAuthModelAliasEntry[];
+  modelAliasesTouched: boolean;
+  modelAliasesError: string | null;
 };
 
 export type UseAuthFilesPrefixProxyEditorOptions = {
@@ -375,6 +390,17 @@ export const buildAuthFileFieldsPatch = (
     }
   }
 
+  if (editor.modelAliasesTouched) {
+    const aliasErrorKey = validateModelAliasRows(editor.modelAliases);
+    if (aliasErrorKey) {
+      throw new Error(resolveError(aliasErrorKey));
+    }
+    const originalAliases = readModelAliases(original);
+    if (JSON.stringify(editor.modelAliases) !== JSON.stringify(originalAliases)) {
+      patch.model_aliases = serializeOauthModelAliases(editor.modelAliases);
+    }
+  }
+
   return patch;
 };
 
@@ -448,6 +474,10 @@ const buildPrefixProxyUpdatedText = (
     next = applyAuthFileUsingApi(next, patch.using_api);
   }
 
+  if (editor.modelAliasesTouched) {
+    next = applyModelAliases(next, editor.modelAliases);
+  }
+
   return JSON.stringify(next);
 };
 
@@ -462,7 +492,8 @@ export function useAuthFilesPrefixProxyEditor(
 
   const hasBlockingValidationError = Boolean(
     (prefixProxyEditor?.headersTouched && prefixProxyEditor.headersError) ||
-    prefixProxyEditor?.weightError
+    prefixProxyEditor?.weightError ||
+    (prefixProxyEditor?.modelAliasesTouched && prefixProxyEditor.modelAliasesError)
   );
   const prefixProxyUpdatedText =
     prefixProxyEditor && !hasBlockingValidationError
@@ -519,6 +550,9 @@ export function useAuthFilesPrefixProxyEditor(
       headersText: '',
       headersTouched: false,
       headersError: null,
+      modelAliases: [],
+      modelAliasesTouched: false,
+      modelAliasesError: null,
     });
 
     try {
@@ -574,6 +608,7 @@ export function useAuthFilesPrefixProxyEditor(
         const { errorKey } = parseHeadersText(headersText);
         headersError = errorKey ? t(errorKey) : null;
       }
+      const modelAliases = supportsAuthFileModelAlias(providerKey) ? readModelAliases(json) : [];
 
       setPrefixProxyEditor((prev) => {
         if (!prev || prev.fileName !== name) return prev;
@@ -603,6 +638,9 @@ export function useAuthFilesPrefixProxyEditor(
           headersText,
           headersTouched: false,
           headersError,
+          modelAliases,
+          modelAliasesTouched: false,
+          modelAliasesError: null,
           error: null,
         };
       });
@@ -663,6 +701,16 @@ export function useAuthFilesPrefixProxyEditor(
           headersText,
           headersTouched: true,
           headersError: errorKey ? t(errorKey) : null,
+        };
+      }
+      if (field === 'modelAliases') {
+        const modelAliases = Array.isArray(value) ? value : [];
+        const errorKey = validateModelAliasRows(modelAliases);
+        return {
+          ...prev,
+          modelAliases,
+          modelAliasesTouched: true,
+          modelAliasesError: errorKey ? t(errorKey) : null,
         };
       }
       return prev;

@@ -12,11 +12,13 @@ import type {
   PrefixProxyEditorState,
 } from '@/features/authFiles/hooks/useAuthFilesPrefixProxyEditor';
 import {
+  supportsAuthFileModelAlias,
   supportsAuthFileUsingApi,
   supportsAuthFileWebsockets,
 } from '@/features/authFiles/constants';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 import { AuthFileExcludedModelsField } from './AuthFileExcludedModelsField';
+import { ModelAliasEditorSection } from './ModelAliasEditorSection';
 import styles from './AuthFileDetailsSheet.module.scss';
 
 /** API 边界归一化补写的派生字段——INFO 视图里只展示后端原始形状，避免重复噪音。 */
@@ -248,6 +250,14 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                     disabled={disableControls || editor.saving || !editor.json}
                     onChange={(value) => onChange('excludedModelsText', value)}
                   />
+                  {supportsAuthFileModelAlias(editor.providerKey) && (
+                    <ModelAliasEditorSection
+                      value={editor.modelAliases}
+                      disabled={disableControls || editor.saving || !editor.json}
+                      error={editor.modelAliasesError}
+                      onChange={(value) => onChange('modelAliases', value)}
+                    />
+                  )}
                   <div className="form-group">
                     <label>{t('auth_files.headers_label')}</label>
                     <textarea

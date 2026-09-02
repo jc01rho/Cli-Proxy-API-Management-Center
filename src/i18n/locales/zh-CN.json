@@ -2111,5 +2111,19 @@
     "modelCatalog": {
       "notLoaded": "未加载"
     }
+  },
+  "auth_file_details": {
+    "model_aliases": {
+      "label": "模型别名",
+      "name_placeholder": "原模型名称",
+      "alias_placeholder": "别名（必填）",
+      "fork_label": "保留原名",
+      "add": "添加别名",
+      "hint": "账户级模型别名。对原模型的请求将路由到别名。",
+      "error_empty_name": "别名行需要填写原模型名称。",
+      "error_empty_alias": "别名行需要填写别名。",
+      "error_name_equals_alias": "原模型与别名必须不同。",
+      "error_duplicate_alias": "该账户内存在重复别名。"
+    }
   }
 }

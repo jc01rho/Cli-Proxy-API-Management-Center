@@ -2114,5 +2114,19 @@
     "modelCatalog": {
       "notLoaded": "Not loaded"
     }
+  },
+  "auth_file_details": {
+    "model_aliases": {
+      "label": "Model Aliases",
+      "name_placeholder": "Source model name",
+      "alias_placeholder": "Alias (required)",
+      "fork_label": "Keep original",
+      "add": "Add alias",
+      "hint": "Per-account model aliases. Requests for the source model are routed to the alias.",
+      "error_empty_name": "Alias rows need a source model name.",
+      "error_empty_alias": "Alias rows need an alias.",
+      "error_name_equals_alias": "Source model and alias must differ.",
+      "error_duplicate_alias": "Duplicate alias within this account."
+    }
   }
 }

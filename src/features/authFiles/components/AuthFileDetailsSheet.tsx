@@ -12,6 +12,7 @@ import type {
   PrefixProxyEditorState,
 } from '@/features/authFiles/hooks/useAuthFilesPrefixProxyEditor';
 import {
+  supportsAuthFileBaseUrl,
   supportsAuthFileModelAlias,
   supportsAuthFileUsingApi,
   supportsAuthFileWebsockets,
@@ -190,6 +191,16 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                     disabled={disableControls || editor.saving || !editor.json}
                     onChange={(e) => onChange('proxyUrl', e.target.value)}
                   />
+                  {supportsAuthFileBaseUrl(editor.providerKey) && (
+                    <Input
+                      label={t('auth_files.base_url_label')}
+                      value={editor.baseUrl}
+                      placeholder={t('auth_files.base_url_placeholder')}
+                      hint={t('auth_files.base_url_hint')}
+                      disabled={disableControls || editor.saving || !editor.json}
+                      onChange={(e) => onChange('baseUrl', e.target.value)}
+                    />
+                  )}
                   <Input
                     label={t('auth_files.priority_label')}
                     value={editor.priority}

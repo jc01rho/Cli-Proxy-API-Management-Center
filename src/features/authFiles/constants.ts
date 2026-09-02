@@ -87,6 +87,9 @@ export const AUTH_FILE_MODEL_ALIAS_PROVIDERS = new Set([
   'xai',
 ]);
 export const AUTH_FILE_USING_API_PROVIDERS = new Set(['xai']);
+
+/** Providers whose OAuth credential supports a per-credential endpoint (base_url) override. */
+export const AUTH_FILE_BASE_URL_PROVIDERS = new Set(['claude']);
 export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
   'antigravity',
   'claude',
@@ -263,6 +266,14 @@ export const applyAuthFileWebsockets = (
 
 export const supportsAuthFileUsingApi = (providerKey: string): boolean =>
   AUTH_FILE_USING_API_PROVIDERS.has(normalizeProviderKey(providerKey));
+
+export const supportsAuthFileBaseUrl = (providerKey: string): boolean =>
+  AUTH_FILE_BASE_URL_PROVIDERS.has(normalizeProviderKey(providerKey));
+
+export const readAuthFileBaseUrl = (value: Record<string, unknown>): string => {
+  const raw = value.base_url ?? value['base-url'];
+  return typeof raw === 'string' ? raw.trim() : '';
+};
 
 export const readAuthFileUsingApi = (value: Record<string, unknown>): boolean =>
   parseDisableCoolingValue(value.using_api) ?? false;

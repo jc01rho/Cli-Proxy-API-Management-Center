@@ -162,6 +162,7 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   keeperOutbox: ['keeperExport'],
   keeperBacklog: ['keeperExport'],
   keeperUrl: ['keeperExport'],
+  antigravitySensitiveWords: ['antigravitySensitiveWords'],
   antigravitySignatureCacheEnabled: ['antigravitySignatureCacheEnabled'],
   antigravitySignatureBypassStrict: ['antigravitySignatureBypassStrict'],
   claudeHeaderUserAgent: ['claudeHeaderUserAgent'],

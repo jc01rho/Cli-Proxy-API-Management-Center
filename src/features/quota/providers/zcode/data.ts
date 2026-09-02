@@ -17,6 +17,23 @@ import type { QuotaProviderData } from '../types';
 const asNumber = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0;
 
+/**
+ * Backend unused windows are zero-filled (used=0, remaining=0, no reset).
+ * Frontend emptyWindow() uses remaining=100 with an empty name.
+ * A live 0% window still has a name and remaining=100.
+ */
+export const isZcodeWindowPresent = (
+  win: ZcodeQuotaData['fiveHour'] | null | undefined
+): boolean => {
+  if (!win) return false;
+  const used = asNumber(win.used_percent);
+  const remaining = asNumber(win.remaining_percent);
+  const hasReset = Boolean(win.reset_at);
+  if (used === 0 && remaining === 0 && !hasReset) return false;
+  if (!win.name && used === 0 && !hasReset) return false;
+  return true;
+};
+
 const emptyWindow = () => ({
   name: '',
   used_percent: 0,

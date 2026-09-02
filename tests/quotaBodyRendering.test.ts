@@ -15,10 +15,17 @@ import { CodexQuotaBody } from '@/features/quota/providers/codex/CodexQuotaBody'
 import { ClaudeQuotaBody } from '@/features/quota/providers/claude/ClaudeQuotaBody';
 import { KiroQuotaBody } from '@/features/quota/providers/kiro/KiroQuotaBody';
 import { KimiQuotaBody } from '@/features/quota/providers/kimi/KimiQuotaBody';
+import { ZcodeQuotaBody } from '@/features/quota/providers/zcode/ZcodeQuotaBody';
 import { QUOTA_CLASS_KEYS, bindQuotaClasses } from '@/features/quota/types';
 import { formatInstantShort } from '@/utils/quota';
 import { DAY_MS, HOUR_MS } from '@/utils/time/durations';
-import type { ClaudeQuotaState, CodexQuotaState, KiroQuotaState, KimiQuotaState } from '@/types';
+import type {
+  ClaudeQuotaState,
+  CodexQuotaState,
+  KiroQuotaState,
+  KimiQuotaState,
+  ZcodeQuotaState,
+} from '@/types';
 
 const classes = bindQuotaClasses(
   Object.fromEntries(QUOTA_CLASS_KEYS.map((key) => [key, key])),
@@ -225,5 +232,60 @@ describe('ClaudeQuotaBody', () => {
     expect(markup).toContain('08-06 04:00');
     expect(markup).toMatch(/2 hours/);
     expect(markup).toMatch(/4 days/);
+  });
+});
+
+describe('ZcodeQuotaBody', () => {
+  const emptyWindow = {
+    name: '',
+    used_percent: 0,
+    remaining_percent: 0,
+    reset_at: null,
+  };
+
+  const quota: ZcodeQuotaState = {
+    status: 'success',
+    authIndex: 'zcode-1',
+    email: 'user@example.com',
+    level: 'pro',
+    fiveHour: {
+      name: 'five_hour',
+      used_percent: 31,
+      remaining_percent: 69,
+      reset_at: new Date(now + 2 * HOUR_MS).toISOString(),
+    },
+    weekly: {
+      name: 'weekly',
+      used_percent: 100,
+      remaining_percent: 0,
+      reset_at: new Date(now + 3 * DAY_MS).toISOString(),
+    },
+    mcp: {
+      name: 'mcp',
+      used_percent: 100,
+      remaining_percent: 0,
+      reset_at: new Date(now + 3 * DAY_MS).toISOString(),
+    },
+    monthly: emptyWindow,
+  };
+
+  test('interpolates used percent instead of the {used} placeholder', () => {
+    const markup = renderToStaticMarkup(createElement(ZcodeQuotaBody, { quota, classes }));
+
+    expect(markup).toContain('31% used');
+    expect(markup).toContain('100% used');
+    expect(markup).not.toContain('{used}');
+    expect(markup).toContain('69%');
+    expect(markup).toContain('0%');
+  });
+
+  test('omits the unused monthly window that the backend never populates', () => {
+    const markup = renderToStaticMarkup(createElement(ZcodeQuotaBody, { quota, classes }));
+
+    expect(markup).toContain('5-hour window');
+    expect(markup).toContain('Weekly window');
+    expect(markup).toContain('MCP / time limit');
+    expect(markup.match(/data-zcode-quota/g)?.length).toBe(3);
+    expect(markup).not.toContain('Monthly');
   });
 });

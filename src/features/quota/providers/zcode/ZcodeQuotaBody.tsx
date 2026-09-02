@@ -10,6 +10,7 @@ import { useNow } from '@/hooks/useNow';
 import { QuotaMeter } from '../../components/QuotaMeter';
 import { QuotaResetLabel } from '../../components/QuotaResetLabel';
 import type { QuotaBodyProps } from '../../types';
+import { isZcodeWindowPresent } from './data';
 
 const WINDOW_KEYS = ['fiveHour', 'weekly', 'mcp', 'monthly'] as const;
 type WindowKey = (typeof WINDOW_KEYS)[number];
@@ -32,9 +33,11 @@ export function ZcodeQuotaBody({ quota, classes }: QuotaBodyProps<ZcodeQuotaStat
   const now = useNow();
   const locale = i18n.resolvedLanguage ?? 'en';
 
-  const windows = WINDOW_KEYS.map((key) => ({ key, win: quota[key] }));
+  const windows = WINDOW_KEYS.map((key) => ({ key, win: quota[key] })).filter(({ win }) =>
+    isZcodeWindowPresent(win)
+  );
 
-  if (windows.every(({ win }) => !win || (!win.used_percent && !win.name))) {
+  if (windows.length === 0) {
     return <div className={classes.quotaMessage}>{t('zcode_quota.empty_data')}</div>;
   }
 

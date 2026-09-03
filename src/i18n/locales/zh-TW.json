@@ -2169,6 +2169,20 @@
       "error_duplicate_alias": "該帳戶內存在重複別名。"
     }
   },
+  "meta_muse_quota": {
+    "title": "Meta Muse 額度",
+    "empty_title": "尚無 Meta Muse 憑證",
+    "empty_desc": "Meta 裝置 OAuth 憑證設定在 AI Providers > OpenAI Compatible 中。",
+    "idle": "載入已快取的 Meta Muse 額度",
+    "loading": "正在載入已快取的 Meta Muse 額度…",
+    "load_failed": "載入 Meta Muse 額度失敗：{{message}}",
+    "missing_auth_index": "Meta Muse 憑證缺少 auth index，請重新整理檔案清單。",
+    "empty_data": "此憑證尚未快取被動蒐集的額度資訊。",
+    "window_five_hour": "5 小時視窗",
+    "window_weekly": "每週視窗",
+    "used_of": "已用 {{used}}%",
+    "passive_notice": "資料來自最近一次 Meta 串流回應（{{observedAt}}）。重新整理只讀取快取，不會送出推論請求。"
+  },
   "commandcode_quota": {
     "title": "Command Code 額度",
     "empty_title": "尚無 Command Code 憑證",

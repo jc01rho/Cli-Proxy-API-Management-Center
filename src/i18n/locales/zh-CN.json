@@ -2141,6 +2141,20 @@
       "error_duplicate_alias": "该账户内存在重复别名。"
     }
   },
+  "meta_muse_quota": {
+    "title": "Meta Muse 额度",
+    "empty_title": "暂无 Meta Muse 凭证",
+    "empty_desc": "Meta 设备 OAuth 凭证配置在 AI Providers > OpenAI Compatible 中。",
+    "idle": "加载已缓存的 Meta Muse 额度",
+    "loading": "正在加载已缓存的 Meta Muse 额度…",
+    "load_failed": "加载 Meta Muse 额度失败：{{message}}",
+    "missing_auth_index": "Meta Muse 凭证缺少 auth index，请刷新文件列表。",
+    "empty_data": "该凭证尚未缓存被动采集的额度信息。",
+    "window_five_hour": "5 小时窗口",
+    "window_weekly": "每周窗口",
+    "used_of": "已用 {{used}}%",
+    "passive_notice": "数据来自最近一次 Meta 流响应（{{observedAt}}）。刷新只读取缓存，不会发送推理请求。"
+  },
   "commandcode_quota": {
     "title": "Command Code 额度",
     "empty_title": "暂无 Command Code 凭证",

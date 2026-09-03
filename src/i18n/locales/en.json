@@ -2144,6 +2144,20 @@
       "error_duplicate_alias": "Duplicate alias within this account."
     }
   },
+  "meta_muse_quota": {
+    "title": "Meta Muse quota",
+    "empty_title": "No Meta Muse credentials",
+    "empty_desc": "Meta device OAuth credentials are configured under AI Providers > OpenAI Compatible.",
+    "idle": "Load cached Meta Muse quota",
+    "loading": "Loading cached Meta Muse quota…",
+    "load_failed": "Failed to load Meta Muse quota: {{message}}",
+    "missing_auth_index": "Meta Muse credential is missing an auth index; refresh the file list.",
+    "empty_data": "No passive quota observation is cached for this credential yet.",
+    "window_five_hour": "5-hour window",
+    "window_weekly": "Weekly window",
+    "used_of": "{{used}}% used",
+    "passive_notice": "Observed from the latest Meta stream at {{observedAt}}. Refresh reads this cache only and never sends an inference request."
+  },
   "commandcode_quota": {
     "title": "Command Code quota",
     "empty_title": "No Command Code credentials",

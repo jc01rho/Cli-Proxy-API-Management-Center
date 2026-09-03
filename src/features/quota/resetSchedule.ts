@@ -154,6 +154,28 @@ export function collectQuotaRowInstants(
       .filter((instant): instant is QuotaRowInstant => instant !== null);
   }
 
+  if (provider === 'commandcode') {
+    // Fixed windows carry ISO `reset_at` strings; the credits row carries an
+    // optional `expires_at` (subscription period end).
+    const state = quota as {
+      fiveHour?: { name?: string; reset_at?: string | null } | null;
+      weekly?: { name?: string; reset_at?: string | null } | null;
+      creditsUsd?: { expires_at?: string | null } | null;
+    } | null;
+    if (!state) return [];
+    const entries: [string, string | null | undefined][] = [
+      ['five-hour', state.fiveHour?.reset_at],
+      ['weekly', state.weekly?.reset_at],
+      ['credits', state.creditsUsd?.expires_at],
+    ];
+    return entries
+      .map(([rowId, resetAt], index): QuotaRowInstant | null => {
+        const atMs = resetAt ? parseIsoToMs(resetAt) : null;
+        return atMs === null ? null : { rowId: rowId || `window-${index}`, atMs, kind: 'window' };
+      })
+      .filter((instant): instant is QuotaRowInstant => instant !== null);
+  }
+
   return [];
 }
 

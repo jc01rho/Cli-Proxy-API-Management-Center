@@ -399,7 +399,7 @@
     "proxy_url_placeholder": "socks5://username:password@proxy_ip:port/",
     "base_url_label": "API base URL (base_url)",
     "base_url_placeholder": "e.g. https://your-proxy.example.com/anthropic",
-    "base_url_hint": "Only effective for OAuth providers that support per-credential endpoint overrides (e.g. Claude). Leave empty to use the provider\u0027s default.",
+    "base_url_hint": "Only effective for OAuth providers that support per-credential endpoint overrides (e.g. Claude). Leave empty to use the provider's default.",
     "priority_label": "Priority (priority)",
     "priority_placeholder": "e.g. 10 or -1",
     "priority_hint": "Integers only. Invalid values are ignored. Larger value means higher priority.",
@@ -430,7 +430,8 @@
     "quota_refresh_hint": "Refresh quota only for this credential",
     "quota_refresh_success": "Quota refreshed for \"{{name}}\"",
     "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}",
-    "weight_display": "WRR weight"
+    "weight_display": "WRR weight",
+    "filter_commandcode": "Command Code"
   },
   "antigravity_subscription": {
     "plan_unknown": "Unknown",
@@ -861,6 +862,17 @@
     "xai_oauth_status_error": "Authentication failed:",
     "xai_oauth_start_error": "Failed to start xAI OAuth:",
     "xai_oauth_polling_error": "Failed to check authentication status:",
+    "meta_oauth_title": "Meta OAuth",
+    "meta_oauth_button": "Start Meta Login",
+    "meta_oauth_hint": "Log in with your Meta account to mint a Model API key from your Muse subscription. The key is stored automatically in the meta provider of openai-compatibility.",
+    "meta_oauth_url_label": "Authorization URL:",
+    "meta_open_link": "Open Link",
+    "meta_copy_link": "Copy Link",
+    "meta_oauth_status_waiting": "Waiting for authentication...",
+    "meta_oauth_status_success": "Authentication successful!",
+    "meta_oauth_status_error": "Authentication failed:",
+    "meta_oauth_start_error": "Failed to start Meta OAuth:",
+    "meta_oauth_polling_error": "Failed to check authentication status:",
     "plugin_oauth_title": "{{name}} OAuth",
     "plugin_oauth_button": "Start {{name}} Login",
     "plugin_oauth_hint": "Log in to {{name}} through the plugin OAuth flow, automatically obtain and save authentication files.",
@@ -2131,5 +2143,22 @@
       "error_name_equals_alias": "Source model and alias must differ.",
       "error_duplicate_alias": "Duplicate alias within this account."
     }
+  },
+  "commandcode_quota": {
+    "title": "Command Code quota",
+    "empty_title": "No Command Code credentials",
+    "empty_desc": "Add a Command Code credential to view its account quota here.",
+    "idle": "Click to load Command Code quota",
+    "loading": "Loading Command Code quota…",
+    "load_failed": "Failed to load Command Code quota: {{message}}",
+    "missing_auth_index": "Command Code credential is missing an auth index; refresh the file list.",
+    "empty_data": "No quota data returned for this credential.",
+    "refresh_button": "Refresh quota",
+    "fetch_all": "Fetch all",
+    "window_five_hour": "5-hour window",
+    "window_weekly": "Weekly window",
+    "used_of": "{{used}}% used",
+    "credits_label": "Subscription credits",
+    "credits_used": "{{used}} / {{limit}} used"
   }
 }

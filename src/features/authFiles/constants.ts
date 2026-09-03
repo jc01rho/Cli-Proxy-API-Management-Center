@@ -36,7 +36,8 @@ export type QuotaProviderType =
   | 'kiro'
   | 'kimi'
   | 'xai'
-  | 'zcode';
+  | 'zcode'
+  | 'commandcode';
 export type OAuthConfigLoadError = 'loading' | 'unsupported' | 'load' | null;
 
 export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
@@ -47,6 +48,7 @@ export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
   'kimi',
   'xai',
   'zcode',
+  'commandcode',
 ]);
 
 export const OAUTH_PROVIDER_PRESETS = [
@@ -101,6 +103,7 @@ export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
   'kimi',
   'xai',
   'zcode',
+  'commandcode',
 ]);
 
 // 标签类型颜色配置：权威版本在 @/utils/quota/constants.ts，此处仅转发
@@ -120,6 +123,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   iflow: iconIflow,
   kimi: { light: iconKimiDark, dark: iconKimiLight },
   zcode: iconGlm,
+  commandcode: iconGlm,
   qwen: iconQwen,
   vertex: iconVertex,
 };

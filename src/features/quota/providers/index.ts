@@ -25,6 +25,8 @@ import { XAI_CONFIG } from './xai/data';
 import { XaiQuotaBody } from './xai/XaiQuotaBody';
 import { ZCODE_CONFIG } from './zcode/data';
 import { ZcodeQuotaBody } from './zcode/ZcodeQuotaBody';
+import { COMMANDCODE_CONFIG } from './commandcode/data';
+import { CommandCodeQuotaBody } from './commandcode/CommandCodeQuotaBody';
 
 /** 所有 provider 额度状态的公共骨架（各 *QuotaState 的结构子集）。 */
 export interface QuotaCardState {
@@ -59,6 +61,7 @@ export const QUOTA_ADAPTERS: Record<QuotaProviderType, QuotaAdapter> = {
   kimi: { ...KIMI_CONFIG, Body: KimiQuotaBody } as unknown as QuotaAdapter,
   xai: { ...XAI_CONFIG, Body: XaiQuotaBody } as unknown as QuotaAdapter,
   zcode: { ...ZCODE_CONFIG, Body: ZcodeQuotaBody } as unknown as QuotaAdapter,
+  commandcode: { ...COMMANDCODE_CONFIG, Body: CommandCodeQuotaBody } as unknown as QuotaAdapter,
 };
 
 export type QuotaMapUpdater = (

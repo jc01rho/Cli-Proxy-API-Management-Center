@@ -5,8 +5,7 @@
 [English](README.md)
 
 **主项目**: https://github.com/router-for-me/CLIProxyAPI  
-**示例地址**: https://remote.router-for.me/  
-**最低版本要求**: ≥ 7.1.0（推荐最新）
+**最低版本要求**: ≥ 7.2.147（推荐最新）
 
 **Keeper Export 运维指南**：[部署、可视化配置编辑器、状态/ACK/积压、故障排查、回滚与发布验证](docs/keeper-export.md)
 

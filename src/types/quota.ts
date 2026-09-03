@@ -502,3 +502,24 @@ export interface CommandCodeQuotaState extends CommandCodeQuotaData {
   error?: string;
   errorStatus?: number;
 }
+
+// Meta Muse passive subscription quota (GET /v0/management/meta-muse-quota).
+// Values are cache observations from response.subscription_usage SSE frames.
+export interface MetaMuseQuotaWindow {
+  usedPercent: number | null;
+  remainingPercent: number | null;
+  resetAt: string | null;
+}
+
+export interface MetaMuseQuotaData {
+  authIndex: string;
+  fiveHour: MetaMuseQuotaWindow;
+  weekly: MetaMuseQuotaWindow;
+  observedAt: string | null;
+}
+
+export interface MetaMuseQuotaState extends MetaMuseQuotaData {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  error?: string;
+  errorStatus?: number;
+}

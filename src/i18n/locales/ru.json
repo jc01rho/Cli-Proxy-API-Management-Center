@@ -2137,6 +2137,20 @@
       "error_duplicate_alias": "Повторяющийся псевдоним в этом аккаунте."
     }
   },
+  "meta_muse_quota": {
+    "title": "Квота Meta Muse",
+    "empty_title": "Нет учётных данных Meta Muse",
+    "empty_desc": "Учётные данные Meta device OAuth настраиваются в AI Providers > OpenAI Compatible.",
+    "idle": "Загрузить кэшированную квоту Meta Muse",
+    "loading": "Загрузка кэшированной квоты Meta Muse…",
+    "load_failed": "Не удалось загрузить квоту Meta Muse: {{message}}",
+    "missing_auth_index": "У учётных данных Meta Muse нет auth index; обновите список файлов.",
+    "empty_data": "Для этих учётных данных ещё нет пассивно собранной квоты в кэше.",
+    "window_five_hour": "5-часовое окно",
+    "window_weekly": "Недельное окно",
+    "used_of": "Использовано {{used}}%",
+    "passive_notice": "Данные получены из последнего потока Meta в {{observedAt}}. Обновление читает только кэш и не отправляет запрос на инференс."
+  },
   "commandcode_quota": {
     "title": "Квота Command Code",
     "empty_title": "Нет учётных данных Command Code",

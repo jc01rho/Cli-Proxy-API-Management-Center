@@ -108,6 +108,7 @@ export function QuotaPage() {
   const xaiQuota = useQuotaStore((state) => state.xaiQuota);
   const zcodeQuota = useQuotaStore((state) => state.zcodeQuota);
   const commandcodeQuota = useQuotaStore((state) => state.commandcodeQuota);
+  const metaMuseQuota = useQuotaStore((state) => state.metaMuseQuota ?? {});
 
   const quotaByType = useMemo<Record<QuotaProviderType, Record<string, QuotaCardState>>>(
     () =>
@@ -120,6 +121,7 @@ export function QuotaPage() {
         xai: xaiQuota,
         zcode: zcodeQuota,
         commandcode: commandcodeQuota,
+        meta: metaMuseQuota,
       }) as unknown as Record<QuotaProviderType, Record<string, QuotaCardState>>,
     [
       antigravityQuota,
@@ -130,6 +132,7 @@ export function QuotaPage() {
       xaiQuota,
       zcodeQuota,
       commandcodeQuota,
+      metaMuseQuota,
     ]
   );
 

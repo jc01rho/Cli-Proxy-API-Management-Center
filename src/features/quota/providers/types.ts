@@ -14,6 +14,7 @@ import type {
   CommandCodeQuotaState,
   KiroQuotaState,
   KimiQuotaState,
+  MetaMuseQuotaState,
   XaiQuotaState,
   ZcodeQuotaState,
 } from '@/types';
@@ -28,7 +29,8 @@ export type QuotaProviderType =
   | 'kimi'
   | 'xai'
   | 'zcode'
-  | 'commandcode';
+  | 'commandcode'
+  | 'meta';
 
 /** useQuotaStore 的结构契约（storeSelector/storeSetter 依赖）。 */
 export interface QuotaStore {
@@ -40,6 +42,7 @@ export interface QuotaStore {
   xaiQuota: Record<string, XaiQuotaState>;
   zcodeQuota: Record<string, ZcodeQuotaState>;
   commandcodeQuota: Record<string, CommandCodeQuotaState>;
+  metaMuseQuota: Record<string, MetaMuseQuotaState>;
   setAntigravityQuota: (updater: QuotaUpdater<Record<string, AntigravityQuotaState>>) => void;
   setClaudeQuota: (updater: QuotaUpdater<Record<string, ClaudeQuotaState>>) => void;
   setCodexQuota: (updater: QuotaUpdater<Record<string, CodexQuotaState>>) => void;
@@ -48,6 +51,7 @@ export interface QuotaStore {
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
   setZcodeQuota: (updater: QuotaUpdater<Record<string, ZcodeQuotaState>>) => void;
   setCommandCodeQuota: (updater: QuotaUpdater<Record<string, CommandCodeQuotaState>>) => void;
+  setMetaMuseQuota: (updater: QuotaUpdater<Record<string, MetaMuseQuotaState>>) => void;
   clearQuotaCache: () => void;
 }
 

@@ -425,7 +425,8 @@
     "quota_refresh_hint": "Обновить квоту только для этих учётных данных",
     "quota_refresh_success": "Квота для \"{{name}}\" обновлена",
     "quota_refresh_failed": "Не удалось обновить квоту для \"{{name}}\": {{message}}",
-    "weight_display": "Вес WRR"
+    "weight_display": "Вес WRR",
+    "filter_commandcode": "Command Code"
   },
   "antigravity_subscription": {
     "plan_unknown": "Неизвестно",
@@ -856,6 +857,17 @@
     "xai_oauth_status_error": "Ошибка аутентификации:",
     "xai_oauth_start_error": "Не удалось запустить xAI OAuth:",
     "xai_oauth_polling_error": "Не удалось проверить статус аутентификации:",
+    "meta_oauth_title": "Meta OAuth",
+    "meta_oauth_button": "Войти через Meta",
+    "meta_oauth_hint": "Войдите с учётной записью Meta, чтобы выпустить ключ Model API из подписки Muse. Ключ автоматически сохраняется в провайдере meta секции openai-compatibility.",
+    "meta_oauth_url_label": "URL авторизации:",
+    "meta_open_link": "Открыть ссылку",
+    "meta_copy_link": "Копировать ссылку",
+    "meta_oauth_status_waiting": "Ожидание аутентификации...",
+    "meta_oauth_status_success": "Аутентификация успешна!",
+    "meta_oauth_status_error": "Ошибка аутентификации:",
+    "meta_oauth_start_error": "Не удалось запустить Meta OAuth:",
+    "meta_oauth_polling_error": "Не удалось проверить статус аутентификации:",
     "plugin_oauth_title": "{{name}} OAuth",
     "plugin_oauth_button": "Начать вход {{name}}",
     "plugin_oauth_hint": "Выполните вход в {{name}} через OAuth-поток плагина и автоматически получите/сохраните файлы авторизации.",
@@ -2124,5 +2136,22 @@
       "error_name_equals_alias": "Исходная модель и псевдоним должны различаться.",
       "error_duplicate_alias": "Повторяющийся псевдоним в этом аккаунте."
     }
+  },
+  "commandcode_quota": {
+    "title": "Квота Command Code",
+    "empty_title": "Нет учётных данных Command Code",
+    "empty_desc": "Добавьте учётные данные Command Code, чтобы видеть квоту аккаунта.",
+    "idle": "Нажмите, чтобы загрузить квоту Command Code",
+    "loading": "Загрузка квоты Command Code…",
+    "load_failed": "Не удалось загрузить квоту Command Code: {{message}}",
+    "missing_auth_index": "У учётных данных Command Code нет auth index; обновите список файлов.",
+    "empty_data": "Для этих учётных данных квота не возвращена.",
+    "refresh_button": "Обновить квоту",
+    "fetch_all": "Загрузить все",
+    "window_five_hour": "5-часовое окно",
+    "window_weekly": "Недельное окно",
+    "used_of": "Использовано {{used}}%",
+    "credits_label": "Кредиты подписки",
+    "credits_used": "Использовано {{used}} / {{limit}}"
   }
 }

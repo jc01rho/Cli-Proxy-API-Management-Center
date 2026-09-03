@@ -472,3 +472,33 @@ export interface ZcodeQuotaState extends ZcodeQuotaData {
   error?: string;
   errorStatus?: number;
 }
+
+// Command Code quota payload (GET /v0/management/commandcode-quota)
+export interface CommandCodeQuotaWindow {
+  name: string;
+  used_percent: number;
+  remaining_percent: number;
+  reset_at?: string | null;
+}
+
+export interface CommandCodeCreditsUsd {
+  used: number;
+  limit: number;
+  remaining: number;
+  percent: number;
+  expires_at?: string | null;
+}
+
+export interface CommandCodeQuotaData {
+  authIndex: string;
+  email: string;
+  fiveHour: CommandCodeQuotaWindow;
+  weekly: CommandCodeQuotaWindow;
+  creditsUsd?: CommandCodeCreditsUsd | null;
+}
+
+export interface CommandCodeQuotaState extends CommandCodeQuotaData {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  error?: string;
+  errorStatus?: number;
+}

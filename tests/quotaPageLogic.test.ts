@@ -74,6 +74,7 @@ describe('buildTabCounts', () => {
       kiro: 1,
       kimi: 1,
       zcode: 0,
+      commandcode: 0,
     });
   });
 });

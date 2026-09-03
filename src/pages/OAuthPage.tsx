@@ -23,6 +23,7 @@ import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import iconGrok from '@/assets/icons/grok.svg';
 import iconGrokDark from '@/assets/icons/grok-dark.svg';
+import iconMeta from '@/assets/icons/meta.svg';
 import iconClineLight from '@/assets/icons/cline-light.svg';
 import iconClineDark from '@/assets/icons/cline-dark.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
@@ -112,6 +113,12 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     id: 'xai',
     titleKey: 'auth_login.xai_oauth_title',
     icon: { light: iconGrok, dark: iconGrokDark },
+  },
+  {
+    kind: 'builtin',
+    id: 'meta',
+    titleKey: 'auth_login.meta_oauth_title',
+    icon: iconMeta,
   },
   {
     kind: 'builtin',

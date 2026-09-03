@@ -35,6 +35,10 @@ export function isZcodeFile(file: AuthFileItem): boolean {
   return resolveAuthProvider(file) === 'zcode';
 }
 
+export function isCommandCodeFile(file: AuthFileItem): boolean {
+  return resolveAuthProvider(file) === 'commandcode';
+}
+
 export function isXaiFile(file: AuthFileItem): boolean {
   return resolveAuthProvider(file) === 'xai';
 }

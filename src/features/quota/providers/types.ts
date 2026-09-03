@@ -11,6 +11,7 @@ import type {
   AuthFileItem,
   ClaudeQuotaState,
   CodexQuotaState,
+  CommandCodeQuotaState,
   KiroQuotaState,
   KimiQuotaState,
   XaiQuotaState,
@@ -26,7 +27,8 @@ export type QuotaProviderType =
   | 'kiro'
   | 'kimi'
   | 'xai'
-  | 'zcode';
+  | 'zcode'
+  | 'commandcode';
 
 /** useQuotaStore 的结构契约（storeSelector/storeSetter 依赖）。 */
 export interface QuotaStore {
@@ -37,6 +39,7 @@ export interface QuotaStore {
   kimiQuota: Record<string, KimiQuotaState>;
   xaiQuota: Record<string, XaiQuotaState>;
   zcodeQuota: Record<string, ZcodeQuotaState>;
+  commandcodeQuota: Record<string, CommandCodeQuotaState>;
   setAntigravityQuota: (updater: QuotaUpdater<Record<string, AntigravityQuotaState>>) => void;
   setClaudeQuota: (updater: QuotaUpdater<Record<string, ClaudeQuotaState>>) => void;
   setCodexQuota: (updater: QuotaUpdater<Record<string, CodexQuotaState>>) => void;
@@ -44,6 +47,7 @@ export interface QuotaStore {
   setKimiQuota: (updater: QuotaUpdater<Record<string, KimiQuotaState>>) => void;
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
   setZcodeQuota: (updater: QuotaUpdater<Record<string, ZcodeQuotaState>>) => void;
+  setCommandCodeQuota: (updater: QuotaUpdater<Record<string, CommandCodeQuotaState>>) => void;
   clearQuotaCache: () => void;
 }
 

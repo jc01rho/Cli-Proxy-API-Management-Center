@@ -14,6 +14,7 @@ export type BuiltInOAuthProvider =
   | 'antigravity'
   | 'kimi'
   | 'xai'
+  | 'meta'
   | 'cline'
   | 'cursor'
   | 'kilo'

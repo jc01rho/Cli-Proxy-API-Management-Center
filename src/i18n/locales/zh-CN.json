@@ -429,7 +429,8 @@
     "quota_refresh_hint": "仅刷新该认证文件的额度",
     "quota_refresh_success": "已刷新 \"{{name}}\" 的额度",
     "quota_refresh_failed": "刷新 \"{{name}}\" 的额度失败：{{message}}",
-    "weight_display": "WRR 权重"
+    "weight_display": "WRR 权重",
+    "filter_commandcode": "Command Code"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -860,6 +861,17 @@
     "xai_oauth_status_error": "认证失败:",
     "xai_oauth_start_error": "启动 xAI OAuth 失败:",
     "xai_oauth_polling_error": "检查认证状态失败:",
+    "meta_oauth_title": "Meta OAuth",
+    "meta_oauth_button": "开始 Meta 登录",
+    "meta_oauth_hint": "使用 Meta 账号登录，从 Muse 订阅铸造 Model API 密钥，密钥会自动保存到 openai-compatibility 的 meta 提供商。",
+    "meta_oauth_url_label": "授权 URL：",
+    "meta_open_link": "打开链接",
+    "meta_copy_link": "复制链接",
+    "meta_oauth_status_waiting": "等待认证...",
+    "meta_oauth_status_success": "认证成功！",
+    "meta_oauth_status_error": "认证失败：",
+    "meta_oauth_start_error": "启动 Meta OAuth 失败：",
+    "meta_oauth_polling_error": "检查认证状态失败：",
     "plugin_oauth_title": "{{name}} OAuth",
     "plugin_oauth_button": "开始 {{name}} 登录",
     "plugin_oauth_hint": "通过插件提供的 OAuth 流程登录 {{name}}，自动获取并保存认证文件。",
@@ -2128,5 +2140,22 @@
       "error_name_equals_alias": "原模型与别名必须不同。",
       "error_duplicate_alias": "该账户内存在重复别名。"
     }
+  },
+  "commandcode_quota": {
+    "title": "Command Code 额度",
+    "empty_title": "暂无 Command Code 凭证",
+    "empty_desc": "添加 Command Code 凭证后即可在此查看账户额度。",
+    "idle": "点击加载 Command Code 额度",
+    "loading": "正在加载 Command Code 额度…",
+    "load_failed": "加载 Command Code 额度失败：{{message}}",
+    "missing_auth_index": "Command Code 凭证缺少 auth index，请刷新文件列表。",
+    "empty_data": "该凭证未返回额度数据。",
+    "refresh_button": "刷新额度",
+    "fetch_all": "全部获取",
+    "window_five_hour": "5 小时窗口",
+    "window_weekly": "每周窗口",
+    "used_of": "已用 {{used}}%",
+    "credits_label": "订阅积分",
+    "credits_used": "已用 {{used}} / {{limit}}"
   }
 }

@@ -12,7 +12,7 @@ import type {
   ClaudeQuotaWindow,
   ClaudeUsagePayload,
 } from '@/types';
-import { apiCallApi, getApiCallErrorMessage } from '@/services/api';
+import { apiCallApi, getApiCallErrorMessage, type ApiCallResult } from '@/services/api';
 import {
   CLAUDE_PROFILE_URL,
   CLAUDE_USAGE_URL,
@@ -37,6 +37,66 @@ export type ClaudeQuotaData = {
   planType?: string | null;
 };
 
+interface ThirdPartyClaudeLimit {
+  limit_type?: string;
+  limit_window?: string;
+  max_value?: number;
+  current_value?: number;
+  remaining_value?: number;
+  used_percent?: number;
+  model_filter?: string | null;
+  reset_at?: string;
+}
+
+const isThirdPartyLimits = (limits: unknown[]): limits is ThirdPartyClaudeLimit[] =>
+  limits.length > 0 &&
+  typeof limits[0] === 'object' &&
+  limits[0] !== null &&
+  ('limit_window' in limits[0] || 'limit_type' in limits[0]);
+
+const parseLimitWindowHours = (window: string): number => {
+  const trimmed = window.trim().toLowerCase();
+  if (trimmed === 'daily' || trimmed === 'day') return 24;
+  if (trimmed === 'weekly' || trimmed === 'week') return 168;
+  if (trimmed === 'monthly' || trimmed === 'month') return 720;
+  const match = trimmed.match(/^(\d+)\s*h(?:our)?s?$/);
+  if (match) return Number(match[1]);
+  return 24;
+};
+
+const formatLimitWindowLabel = (window: string, t: TFunction): string => {
+  const trimmed = window.trim().toLowerCase();
+  if (trimmed === '3h') return t('claude_quota.three_hour', '3-hour limit');
+  if (trimmed === '5h') return t('claude_quota.five_hour');
+  if (trimmed === 'daily' || trimmed === 'day') return t('claude_quota.daily', 'Daily limit');
+  if (trimmed === 'weekly' || trimmed === 'week') return t('claude_quota.seven_day');
+  return window;
+};
+
+export const resolveClaudeUsageUrl = (file: AuthFileItem): string => {
+  const quotaUrl =
+    (typeof file.quota_url === 'string' && file.quota_url.trim()) ||
+    (typeof file['quota_url'] === 'string' && (file['quota_url'] as string).trim()) ||
+    (typeof file['quota-url'] === 'string' && (file['quota-url'] as string).trim()) ||
+    '';
+  if (quotaUrl) return quotaUrl;
+
+  const baseUrl =
+    (typeof file.baseUrl === 'string' && file.baseUrl.trim()) ||
+    (typeof file.base_url === 'string' && file.base_url.trim()) ||
+    (typeof file['base_url'] === 'string' && (file['base_url'] as string).trim()) ||
+    (typeof file['base-url'] === 'string' && (file['base-url'] as string).trim()) ||
+    '';
+  if (baseUrl) {
+    const trimmed = baseUrl.replace(/\/+$/, '');
+    if (!trimmed.includes('api.anthropic.com')) {
+      return `${trimmed}/v1/usage/self`;
+    }
+  }
+
+  return CLAUDE_USAGE_URL;
+};
+
 const findFableUsageLimit = (payload: ClaudeUsagePayload) => {
   if (!Array.isArray(payload.limits)) return null;
 
@@ -53,9 +113,32 @@ const findFableUsageLimit = (payload: ClaudeUsagePayload) => {
 };
 
 export const buildClaudeQuotaWindows = (
-  payload: ClaudeUsagePayload,
+  payload: ClaudeUsagePayload & { limits?: unknown[] | null },
   t: TFunction
 ): ClaudeQuotaWindow[] => {
+  const rawLimits = Array.isArray(payload.limits) ? payload.limits : [];
+  if (isThirdPartyLimits(rawLimits)) {
+    return rawLimits.map((limit, index) => {
+      const usedPercent = normalizeNumberValue(limit.used_percent);
+      const windowStr = (limit.limit_window ?? '').trim();
+      const modelFilter = (limit.model_filter ?? '').trim();
+      const windowLabel = formatLimitWindowLabel(windowStr, t);
+      const label = modelFilter ? `${modelFilter} (${windowLabel})` : windowLabel;
+      const resetLabel = formatQuotaResetTime(limit.reset_at);
+      const resetAtMs = resolveResetMs([limit.reset_at]);
+      const periodHours = parseLimitWindowHours(windowStr);
+
+      return {
+        id: `third-party-${modelFilter || 'all'}-${windowStr || 'window'}-${index}`,
+        label,
+        usedPercent,
+        resetLabel,
+        resetAtMs,
+        periodHours,
+      };
+    });
+  }
+
   const windows: ClaudeQuotaWindow[] = [];
   const fableLimit = findFableUsageLimit(payload);
 
@@ -160,47 +243,77 @@ const fetchClaudeQuota = async (file: AuthFileItem, t: TFunction): Promise<Claud
     throw new Error(t('claude_quota.missing_auth_index'));
   }
 
-  const [usageResult, profileResult] = await Promise.allSettled([
+  const targetUsageUrl = resolveClaudeUsageUrl(file);
+  const isCustomUrl = targetUsageUrl !== CLAUDE_USAGE_URL;
+
+  // For custom quota/base URLs (e.g. 3rd-party mirrors like nekos), do not
+  // request Anthropic's official profile endpoint with the 3rd-party token.
+  const requests: [Promise<unknown>, Promise<unknown>?] = [
     apiCallApi.request({
       authIndex,
       method: 'GET',
-      url: CLAUDE_USAGE_URL,
-      header: { ...CLAUDE_REQUEST_HEADERS },
+      url: targetUsageUrl,
+      header: isCustomUrl
+        ? { Authorization: 'Bearer $TOKEN$', 'Content-Type': 'application/json' }
+        : { ...CLAUDE_REQUEST_HEADERS },
     }),
-    apiCallApi.request({
-      authIndex,
-      method: 'GET',
-      url: CLAUDE_PROFILE_URL,
-      header: { ...CLAUDE_REQUEST_HEADERS },
-    }),
-  ]);
+  ];
+
+  if (!isCustomUrl) {
+    requests.push(
+      apiCallApi.request({
+        authIndex,
+        method: 'GET',
+        url: CLAUDE_PROFILE_URL,
+        header: { ...CLAUDE_REQUEST_HEADERS },
+      })
+    );
+  }
+
+  const [usageResult, profileResult] = await Promise.allSettled(requests);
 
   if (usageResult.status === 'rejected') {
     throw usageResult.reason;
   }
 
-  const result = usageResult.value;
+  const result = usageResult.value as ApiCallResult;
 
   if (result.statusCode < 200 || result.statusCode >= 300) {
     throw createStatusError(getApiCallErrorMessage(result), result.statusCode);
   }
 
-  const payload = parseClaudeUsagePayload(result.body ?? result.bodyText);
+  const rawBody = result.body ?? result.bodyText;
+  const payload = parseClaudeUsagePayload(rawBody) as (ClaudeUsagePayload & Record<string, unknown>) | null;
   if (!payload) {
     throw new Error(t('claude_quota.empty_windows'));
   }
 
   const windows = buildClaudeQuotaWindows(payload, t);
   const planType =
+    profileResult &&
     profileResult.status === 'fulfilled' &&
-    profileResult.value.statusCode >= 200 &&
-    profileResult.value.statusCode < 300
+    (profileResult.value as { statusCode: number }).statusCode >= 200 &&
+    (profileResult.value as { statusCode: number }).statusCode < 300
       ? resolveClaudePlanType(
-          parseClaudeProfilePayload(profileResult.value.body ?? profileResult.value.bodyText)
+          parseClaudeProfilePayload(
+            (profileResult.value as { body?: unknown; bodyText?: string }).body ??
+              (profileResult.value as { body?: unknown; bodyText?: string }).bodyText
+          )
         )
       : null;
 
-  return { windows, extraUsage: payload.extra_usage, planType };
+  let extraUsage = payload.extra_usage;
+  // If third-party payload has total_cost_usd, synthesize extraUsage for display
+  if (!extraUsage && typeof payload.total_cost_usd === 'number') {
+    extraUsage = {
+      is_enabled: true,
+      monthly_limit: 0,
+      used_credits: Math.round(payload.total_cost_usd * 100),
+      utilization: null,
+    };
+  }
+
+  return { windows, extraUsage, planType };
 };
 
 export const CLAUDE_CONFIG: QuotaProviderData<ClaudeQuotaState, ClaudeQuotaData> = {

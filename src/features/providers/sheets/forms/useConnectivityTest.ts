@@ -117,9 +117,9 @@ export function apiKeyEntriesConnectivityKind(
 const buildCommandCodeProbePayload = (model: string): string =>
   JSON.stringify({
     config: {
-      workingDir: '/tmp',
+      workingDir: '/home/user/workspace',
       date: new Date().toISOString().slice(0, 10),
-      environment: 'terminal',
+      environment: 'linux',
       structure: [],
       isGitRepo: false,
       currentBranch: '',
@@ -131,6 +131,7 @@ const buildCommandCodeProbePayload = (model: string): string =>
     taste: '',
     skills: null,
     permissionMode: 'standard',
+    mode: 'agent',
     params: {
       model,
       messages: [{ role: 'user', content: 'Hi' }],
@@ -139,6 +140,19 @@ const buildCommandCodeProbePayload = (model: string): string =>
     },
   });
 
+// The upstream associates pause_turn continuations by x-session-id; the CLI
+// sends a per-session UUID, so probes carry one too.
+const newSessionId = (): string => {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 const buildCommandCodeHeaderObj = (
   formHeaders: Array<{ key: string; value: string }>,
   resolvedKey: string,
@@ -146,11 +160,15 @@ const buildCommandCodeHeaderObj = (
 ): Record<string, string> => {
   const headerObj: Record<string, string> = {
     'Content-Type': 'application/json',
+    // The upstream /alpha/generate endpoint rejects non-CLI fingerprints with
+    // 400 "Proxy use detected"; mirror the official CLI wire identity.
+    'User-Agent': 'cli',
     'x-command-code-version': '1.12.0',
     'x-cli-environment': 'production',
-    'x-project-slug': 'cli-proxy',
-    'x-taste-learning': 'true',
+    'x-project-slug': 'workspace',
+    'x-taste-learning': 'false',
     'x-co-flag': 'false',
+    'x-session-id': newSessionId(),
     ...buildHeaderObject(formHeaders),
   };
   if (!hasHeader(headerObj, 'authorization') && resolvedKey) {

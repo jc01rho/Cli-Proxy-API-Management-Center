@@ -117,3 +117,30 @@ test('resolveMetaMuseQuotaError keeps numeric status for a genuinely missing end
   // Then
   expect(status).toBe(404);
 });
+
+test('resolveMetaMuseQuotaError maps unobserved 404 to cached-empty copy', async () => {
+  const { resolveMetaMuseQuotaError } = await import('../src/features/quota/providers/meta/data');
+  const t = ((key: string) => key) as import('i18next').TFunction;
+  const err = Object.assign(new Error('Not Found'), { status: 404, details: { error: 'meta muse quota not observed yet' } });
+  let message = '';
+  try { resolveMetaMuseQuotaError(err, t); } catch (e: unknown) { message = e instanceof Error ? e.message : ''; }
+  expect(message).toBe('meta_muse_quota.empty_data');
+});
+
+test('resolveMetaMuseQuotaError maps credential 404 to refresh-file-list copy', async () => {
+  const { resolveMetaMuseQuotaError } = await import('../src/features/quota/providers/meta/data');
+  const t = ((key: string) => key) as import('i18next').TFunction;
+  const err = Object.assign(new Error('Not Found'), { status: 404, details: { error: 'meta credential not found' } });
+  let message = '';
+  try { resolveMetaMuseQuotaError(err, t); } catch (e: unknown) { message = e instanceof Error ? e.message : ''; }
+  expect(message).toBe('meta_muse_quota.credential_not_found');
+});
+
+test('resolveMetaMuseQuotaError keeps numeric status for a genuinely missing endpoint', async () => {
+  const { resolveMetaMuseQuotaError } = await import('../src/features/quota/providers/meta/data');
+  const t = ((key: string) => key) as import('i18next').TFunction;
+  const err = Object.assign(new Error('Not Found'), { status: 404 });
+  let status: unknown;
+  try { resolveMetaMuseQuotaError(err, t); } catch (e: unknown) { status = (e as { status?: unknown }).status; }
+  expect(status).toBe(404);
+});

@@ -3,12 +3,12 @@ import type { ApiError, AuthFileItem, MetaMuseQuotaData, MetaMuseQuotaState } fr
 import { authFilesApi } from '@/services/api';
 import { isDisabledAuthFile } from '@/utils/quota';
 import { normalizeAuthIndex } from '@/utils/authIndex';
-import type { QuotaProviderData } from '../types';
 import {
   emptyMetaMuseQuotaData,
   parseMetaMuseQuotaPayload,
   selectMetaMuseQuota,
 } from './parse';
+import type { QuotaProviderData } from '../types';
 
 /**
  * Read one string field from an axios-style error payload without letting a

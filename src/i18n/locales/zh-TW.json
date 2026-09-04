@@ -2177,6 +2177,7 @@
     "loading": "正在載入已快取的 Meta Muse 額度…",
     "load_failed": "載入 Meta Muse 額度失敗：{{message}}",
     "missing_auth_index": "Meta Muse 憑證缺少 auth index，請重新整理檔案清單。",
+    "credential_not_found": "在伺服端未找到該 Meta 憑證；請重新整理檔案清單後重試。",
     "empty_data": "此憑證尚未快取被動蒐集的額度資訊。",
     "window_five_hour": "5 小時視窗",
     "window_weekly": "每週視窗",

@@ -2152,6 +2152,7 @@
     "loading": "Loading cached Meta Muse quota…",
     "load_failed": "Failed to load Meta Muse quota: {{message}}",
     "missing_auth_index": "Meta Muse credential is missing an auth index; refresh the file list.",
+    "credential_not_found": "The Meta credential was not found on the server; refresh the file list and try again.",
     "empty_data": "No passive quota observation is cached for this credential yet.",
     "window_five_hour": "5-hour window",
     "window_weekly": "Weekly window",

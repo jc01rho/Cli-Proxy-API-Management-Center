@@ -279,6 +279,11 @@ export const readAuthFileBaseUrl = (value: Record<string, unknown>): string => {
   return typeof raw === 'string' ? raw.trim() : '';
 };
 
+export const readAuthFileQuotaUrl = (value: Record<string, unknown>): string => {
+  const raw = value.quota_url ?? value['quota-url'];
+  return typeof raw === 'string' ? raw.trim() : '';
+};
+
 export const readAuthFileUsingApi = (value: Record<string, unknown>): boolean =>
   parseDisableCoolingValue(value.using_api) ?? false;
 

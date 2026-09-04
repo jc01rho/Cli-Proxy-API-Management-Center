@@ -10,6 +10,7 @@ import {
   normalizeProviderKey,
   parsePriorityValue,
   readAuthFileBaseUrl,
+  readAuthFileQuotaUrl,
   readAuthFileDisableCooling,
   readAuthFileWebsockets,
   readAuthFileUsingApi,
@@ -48,6 +49,7 @@ export type PrefixProxyEditorField =
   | 'prefix'
   | 'proxyUrl'
   | 'baseUrl'
+  | 'quotaUrl'
   | 'priority'
   | 'weight'
   | 'disableCooling'
@@ -74,6 +76,7 @@ export type PrefixProxyEditorState = {
   prefix: string;
   proxyUrl: string;
   baseUrl: string;
+  quotaUrl: string;
   priority: string;
   weight: string;
   weightError: string | null;
@@ -313,6 +316,11 @@ export const buildAuthFileFieldsPatch = (
     if (nextBaseURL !== originalBaseURL) {
       patch.base_url = nextBaseURL;
     }
+    const originalQuotaURL = readAuthFileQuotaUrl(original);
+    const nextQuotaURL = editor.quotaUrl.trim();
+    if (nextQuotaURL !== originalQuotaURL) {
+      patch.quota_url = nextQuotaURL;
+    }
   }
 
   const originalPriority = parsePriorityValue(original.priority);
@@ -445,6 +453,13 @@ const buildPrefixProxyUpdatedText = (
       delete next.base_url;
     }
   }
+  if (patch.quota_url !== undefined) {
+    if (patch.quota_url) {
+      next.quota_url = patch.quota_url;
+    } else {
+      delete next.quota_url;
+    }
+  }
 
   if (patch.priority !== undefined) {
     if (patch.priority === 0) {
@@ -555,6 +570,7 @@ export function useAuthFilesPrefixProxyEditor(
       prefix: '',
       proxyUrl: '',
       baseUrl: '',
+      quotaUrl: '',
       priority: '',
       weight: '',
       weightError: null,
@@ -613,6 +629,7 @@ export function useAuthFilesPrefixProxyEditor(
       const prefix = typeof json.prefix === 'string' ? json.prefix : '';
       const proxyUrl = typeof json.proxy_url === 'string' ? json.proxy_url : '';
       const baseUrl = supportsAuthFileBaseUrl(providerKey) ? readAuthFileBaseUrl(json) : '';
+      const quotaUrl = supportsAuthFileBaseUrl(providerKey) ? readAuthFileQuotaUrl(json) : '';
       const priority = parsePriorityValue(json.priority);
       const weight = readCredentialWeight(json.weight);
       const disableCooling = readAuthFileDisableCooling(json);
@@ -645,6 +662,7 @@ export function useAuthFilesPrefixProxyEditor(
           prefix,
           proxyUrl,
           baseUrl,
+          quotaUrl,
           priority: priority !== undefined ? String(priority) : '',
           weight: weight !== undefined ? String(weight) : '',
           weightError: null,
@@ -686,6 +704,7 @@ export function useAuthFilesPrefixProxyEditor(
       if (field === 'prefix') return { ...prev, prefix: String(value) };
       if (field === 'proxyUrl') return { ...prev, proxyUrl: String(value) };
       if (field === 'baseUrl') return { ...prev, baseUrl: String(value) };
+      if (field === 'quotaUrl') return { ...prev, quotaUrl: String(value) };
       if (field === 'priority') return { ...prev, priority: String(value) };
       if (field === 'weight') {
         const weight = String(value);

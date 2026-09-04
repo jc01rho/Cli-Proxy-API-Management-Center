@@ -20,6 +20,7 @@ export type AuthFileFieldsPatch = {
   prefix?: string;
   proxy_url?: string;
   base_url?: string;
+  quota_url?: string;
   headers?: Record<string, string>;
   priority?: number;
   weight?: number | null;

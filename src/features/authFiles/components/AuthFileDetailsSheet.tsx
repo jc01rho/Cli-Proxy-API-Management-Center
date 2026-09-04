@@ -201,6 +201,16 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                       onChange={(e) => onChange('baseUrl', e.target.value)}
                     />
                   )}
+                  {supportsAuthFileBaseUrl(editor.providerKey) && (
+                    <Input
+                      label={t('auth_files.quota_url_label')}
+                      value={editor.quotaUrl}
+                      placeholder={t('auth_files.quota_url_placeholder')}
+                      hint={t('auth_files.quota_url_hint')}
+                      disabled={disableControls || editor.saving || !editor.json}
+                      onChange={(e) => onChange('quotaUrl', e.target.value)}
+                    />
+                  )}
                   <Input
                     label={t('auth_files.priority_label')}
                     value={editor.priority}

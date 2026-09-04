@@ -499,7 +499,9 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "three_hour": "3-hour limit",
+    "daily": "Daily limit"
   },
   "codex_quota": {
     "title": "Codex Quota",

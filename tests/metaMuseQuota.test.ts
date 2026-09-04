@@ -51,3 +51,69 @@ test('selectMetaMuseQuota treats a legacy persisted store as an empty cache', ()
   // Then
   expect(quota).toEqual({});
 });
+
+test('resolveMetaMuseQuotaError maps unobserved 404 to cached-empty copy', async () => {
+  // Given
+  const { resolveMetaMuseQuotaError } = await import(
+    '../src/features/quota/providers/meta/data'
+  );
+  const t = ((key: string) => key) as import('i18next').TFunction;
+  const err = Object.assign(new Error('Not Found'), {
+    status: 404,
+    details: { error: 'meta muse quota not observed yet' },
+  });
+
+  // When
+  let message = '';
+  try {
+    resolveMetaMuseQuotaError(err, t);
+  } catch (thrown: unknown) {
+    message = thrown instanceof Error ? thrown.message : '';
+  }
+
+  // Then
+  expect(message).toBe('meta_muse_quota.empty_data');
+});
+
+test('resolveMetaMuseQuotaError maps credential 404 to refresh-file-list copy', async () => {
+  // Given
+  const { resolveMetaMuseQuotaError } = await import(
+    '../src/features/quota/providers/meta/data'
+  );
+  const t = ((key: string) => key) as import('i18next').TFunction;
+  const err = Object.assign(new Error('Not Found'), {
+    status: 404,
+    details: { error: 'meta credential not found' },
+  });
+
+  // When
+  let message = '';
+  try {
+    resolveMetaMuseQuotaError(err, t);
+  } catch (thrown: unknown) {
+    message = thrown instanceof Error ? thrown.message : '';
+  }
+
+  // Then
+  expect(message).toBe('meta_muse_quota.credential_not_found');
+});
+
+test('resolveMetaMuseQuotaError keeps numeric status for a genuinely missing endpoint', async () => {
+  // Given
+  const { resolveMetaMuseQuotaError } = await import(
+    '../src/features/quota/providers/meta/data'
+  );
+  const t = ((key: string) => key) as import('i18next').TFunction;
+  const err = Object.assign(new Error('Not Found'), { status: 404 });
+
+  // When
+  let status: unknown;
+  try {
+    resolveMetaMuseQuotaError(err, t);
+  } catch (thrown: unknown) {
+    status = (thrown as { status?: unknown }).status;
+  }
+
+  // Then
+  expect(status).toBe(404);
+});

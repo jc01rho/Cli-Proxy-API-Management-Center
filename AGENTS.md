@@ -1,82 +1,86 @@
-# MANAGEMENT CENTER KNOWLEDGE BASE
+# Repository Guidelines
 
-**Generated:** 2026-05-29
-**Latest Tag:** v1.14.0-9
-**Branch:** main
+## Project Scope & Structure
 
-## OVERVIEW
+This is a React 19 + TypeScript + Vite management frontend for CLI Proxy API, not the proxy itself. It talks to the backend Management API under `/v0/management`.
 
-React 19 + Vite management UI for `CLIProxyAPIPlus` management endpoints. Builds single-file bundle served as `management.html` by Plus.
+- `src/features/`: feature-owned pages, components, hooks, types, and logic. Current features include `dashboard`, `providers`, `authFiles`, `quota`, `config`, and `plugins`. Prefer this layout for new feature work.
+- `src/pages/`: existing route pages outside the feature layout. Follow nearby conventions when modifying these; do not migrate unrelated code.
+- `src/components/`, `src/hooks/`, `src/utils/`: shared UI, hooks, and utilities. Keep feature-specific code within its feature rather than promoting it prematurely.
+- `src/services/api/`: API client, domain endpoints, and backend data normalization. `src/services/storage/`: browser persistence.
+- `src/stores/`: Zustand state. `src/types/`: shared types. `src/styles/`: global styles and theme tokens.
+- `src/App.tsx`: hash-router setup. `src/router/MainRoutes.tsx`: authenticated route table. `ProtectedRoute` and `MainLayout` guard and wrap the authenticated app.
+- `src/assets/`: bundled assets, including provider icons in `icons/`.
+- `src/i18n/locales/`: `en.json`, `zh-CN.json`, `zh-TW.json`, and `ru.json`; fallback language is `zh-CN`. Update all four files when adding or changing translation keys, including accessible labels.
 
-## STRUCTURE
+## Build, Test, and Development Commands
 
-```text
-Cli-Proxy-API-Management-Center/
-├── src/main.tsx                  # React root
-├── src/App.tsx                   # app shell
-├── src/router/MainRoutes.tsx     # hash routes under management.html
-├── src/pages/                    # route screens
-├── src/services/api/             # management API client layer
-├── src/stores/                   # Zustand state
-├── src/components/providers/     # provider sections/lists/status
-├── src/components/ui/            # base UI widgets
-├── src/i18n/locales/             # translations (en, zh-CN, zh-TW, ru)
-└── vite.config.ts                # vite-plugin-singlefile build
-```
+Use Bun; `package.json` pins `bun@1.3.14`, and CI uses Node.js 24. Keep dependency changes consistent with `bun.lock`; do not introduce another package manager's lockfile.
 
-## WHERE TO LOOK
+- `bun install --frozen-lockfile`: install locked dependencies.
+- `bun run dev`: start Vite at `http://localhost:5173` by default.
+- `bun run build`: TypeScript compilation followed by the production Vite build.
+- `bun run preview`: serve the built output locally.
+- `bun run test`: run all Bun tests.
+- `bun test tests/apiError.test.ts`: example focused test run.
+- `bun run lint`: run ESLint over TypeScript/TSX files. Some rules emit warnings; the current command does not enforce zero warnings.
+- `bun run type-check`: run `tsc --noEmit`; the main TypeScript config includes `src`, not `tests`.
+- `bun run verify`: run tests, lint, and build (which includes TypeScript compilation).
+- `bun run format`: format all `src/**/*.{ts,tsx,css,scss}`. Prefer targeted formatting of changed files during routine work to avoid unrelated diffs.
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Route registration | `src/router/MainRoutes.tsx` | New pages must be added here. |
-| Provider list/edit | `src/pages/AiProvidersPage.tsx`, `src/pages/AiProviders*EditPage.tsx` | Keep section + route + store/API types aligned. |
-| Backend calls | `src/services/api/` | No component-level raw management requests. |
-| Global config state | `src/stores/useConfigStore.ts` | Config sections, loading, persistence. |
-| Navigation shell | `src/components/layout/MainLayout.tsx`, `src/components/providers/ProviderNav/` | Provider nav and active item metadata. |
-| Translations | `src/i18n/locales/*.json` | 4 locales: en, zh-CN, zh-TW, ru. Add keys for every visible string. |
+## Deployment Constraints
 
-## CONVENTIONS
+The production artifact is a single `dist/index.html` with JS/CSS and bundled assets inlined by `vite-plugin-singlefile`. The release workflow renames it to `management.html` for backend hosting; `vX.Y.Z` tags trigger releases.
 
-- Config keys mirror backend YAML, including kebab-case provider keys such as `openai-compatibility` and `ollama-api-key`.
-- UI state updates go through Zustand actions; do not mutate store objects in components.
-- `services/api/transformers.ts` absorbs backend naming differences before data reaches pages/stores.
-- Provider UI changes usually require `types/config.ts`, `services/api/providers.ts`, `stores/useConfigStore.ts`, route/page, section, nav, and translations.
+Preserve hash routing and single-file deployment. Changes to assets, imports, code splitting, or build configuration must not introduce required external build artifacts. Do not edit generated `dist/` files. App version is injected as `__APP_VERSION__` from `VERSION`, then git tags, then the package version, falling back to `dev`.
 
-## RECENT CHANGES
+## API Contracts & State
 
-- **v1.14.0-9**: Latest UI updates.
-- **v1.14.0-4**: AI Providers table에 priority 컬럼 추가. types/adapters/table/번역을 일괄 갱신.
-- **v1.14.0-3**: CommandCode provider name translation 추가.
-- **v1.14.0-2**: CommandCode 프로바이더를 ProvidersWorkbenchPage에 통합 - brand, descriptor, adapter, workbench hook.
+- Treat backend contracts as the source of truth. Inspect `../CLIProxyAPI` before changing endpoint names, payloads, provider keys, OAuth callback parameters, auth-file semantics, or plugin/config contracts. If that checkout is unavailable, report the missing evidence rather than guessing; do not modify the backend unless requested.
+- Reuse `apiClient` from `src/services/api/client.ts` for Management API requests through domain modules. It centralizes the API prefix, bearer authentication, error normalization, and response-header handling. Avoid bypassing it with ad hoc requests in components.
+- Preserve the client's event integration: `unauthorized` handles 401s, `server-version-update` carries version/build metadata, and `server-plugin-support-update` carries plugin capability information. Keep plugin routes gated by backend support.
+- Normalize backend fields on read and serialize on write in the API layer; consult `transformers.ts` and the relevant domain module. Keep raw backend field-name handling out of ordinary UI components.
+- `useConfigStore.fetchConfig(forceRefresh?: boolean)` uses a full-config TTL cache and in-flight request deduplication, not section-based fetching. Reuse it where appropriate and invalidate/update caches after mutations using existing store actions.
+- Preserve stale-request guards and cache cleanup when switching connections or logging out. Old asynchronous responses must not overwrite the new session's state.
+- Provider UI capabilities live in `src/features/providers/descriptors.ts`; `adapters.ts` maps provider configs to the shared resource model. Extend these existing abstractions rather than scattering provider-specific conditionals across components.
 
-## ANTI-PATTERNS
+## Coding Style & UI Conventions
 
-- Do not call `/v0/management/*` directly from pages/components.
-- Do not add private endpoints or real keys to placeholders, translations, fixtures, or the bundle.
+Use 2-space indentation, semicolons, single quotes, ES5 trailing commas, and 100-character line width. Prefer typed React components and `unknown` with narrowing for untrusted data; avoid introducing `any` unless an unavoidable boundary requires it. Use the `@/` alias for `src` imports.
+
+Component files use PascalCase, hooks use `useName`, and API modules use domain names such as `oauth.ts`. SCSS Modules sit beside their page or component as `Name.module.scss`. Vite automatically injects `src/styles/variables.scss` into SCSS; new modules do not need to import it again. Reuse shared components from `src/components/ui/` and existing theme tokens before adding new primitives or hard-coded colors.
+
+Keep user-facing text in i18n. Preserve keyboard interaction, accessible names, focus behavior, and reduced-motion handling when modifying interactive UI.
+
+## Testing & Verification
+
+Tests are centralized under `tests/` as `*.test.ts` and use `bun:test`. Existing suites cover pure logic, React server-side static rendering via `renderToStaticMarkup`, and source/contract checks. There is no configured browser DOM test harness; static markup tests do not verify browser interactions. Prefer extracting testable logic and following nearby test patterns rather than introducing a new framework by default.
+
+For code changes, add or update relevant regression tests, run focused tests while iterating, and run `bun run verify` before handoff. For UI changes, also verify the affected route in a browser and include screenshots or notes. Report commands actually run, failures, and anything not verified; if a backend or browser is unavailable, state the limitation explicitly. Documentation-only changes can be checked with diff/content validation instead of a full build.
+
+## Security
+
+Never commit real management keys, provider credentials, auth files, or other secrets; redact them from logs, screenshots, and test fixtures. Management keys are entered at runtime and persisted according to the remember-password setting. `src/services/storage/secureStorage.ts` provides reversible obfuscation, not encryption or a security boundary. Do not weaken authentication, plugin trust checks, or session isolation for convenience.
+
+## Commits & Guidance Maintenance
+
+Use Conventional Commits, such as `feat(providers): add a provider` or `fix(auth-files): preserve disabled actions`. Keep changes focused. Pull requests should include a summary, linked issue when applicable, backend version/reproduction details for integration work, UI screenshots or notes when relevant, and verification results.
+
+Maintain shared repository guidance in `AGENTS.md`. When updating it, synchronize the local `CLAUDE.md` to identical content if present; `CLAUDE.md` is currently ignored and untracked, so shared guidance must not depend on it. Keep guidance aligned with source and configuration rather than duplicating long implementation details.
+
+## Fork Notes (jc01rho)
+
+Local-only guidance preserved from the fork knowledge base:
+
+- Config keys mirror backend YAML, including kebab-case provider keys such as
+  `openai-compatibility` and `ollama-api-key`.
+- Provider UI changes usually require `types/config.ts`,
+  `services/api/providers.ts`, `stores/useConfigStore.ts`, route/page, section,
+  nav, and translations.
 - Do not reintroduce removed Trae provider UX.
-- Do not use `as any` to bypass config/provider type mismatches.
 - Ollama Configuration test request failures must show error logs in the log viewer.
-- Ollama Cloud API must use both `https://ollama.com/v1/tags` and `https://ollama.com/api/tags`.
-
-## COMMANDS
-
-```bash
-npm run type-check
-npm run build
-npm run lint
-```
-
-## NOTES
-
+- Ollama Cloud API must use both `https://ollama.com/v1/tags` and
+  `https://ollama.com/api/tags`.
 - Release workflow renames `dist/index.html` to `management.html` for GitHub Releases.
-- Local embedding requires copying built `dist/index.html` into `CLIProxyAPIPlus/management.html`.
-
-## SUB-DOCUMENTS
-
-```text
-src/pages/AGENTS.md
-src/services/api/AGENTS.md
-src/stores/AGENTS.md
-src/components/providers/AGENTS.md
-src/components/ui/AGENTS.md
-```
+- Local embedding requires copying built `dist/index.html` into
+  `CLIProxyAPIPlus/management.html`.

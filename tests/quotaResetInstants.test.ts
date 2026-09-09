@@ -20,6 +20,12 @@ describe('parseIsoToMs', () => {
     );
   });
 
+  test('treats a timezone-less timestamp as UTC, not browser-local', () => {
+    // Upstream quota APIs emit UTC instants but some omit the trailing `Z`.
+    expect(parseIsoToMs('2026-09-09T04:27:07.403949')).toBe(Date.UTC(2026, 8, 9, 4, 27, 7, 403));
+    expect(parseIsoToMs('2026-09-09 04:27:07')).toBe(Date.UTC(2026, 8, 9, 4, 27, 7));
+  });
+
   test('rejects non-strings, blanks and unparseable text', () => {
     expect(parseIsoToMs(undefined)).toBeNull();
     expect(parseIsoToMs('   ')).toBeNull();

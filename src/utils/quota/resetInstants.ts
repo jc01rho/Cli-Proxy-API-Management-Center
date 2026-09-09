@@ -19,14 +19,26 @@ const HOUR_MS = 3_600_000;
  *
  * Tolerates the over-precise fractional seconds some providers emit
  * (`.123456789`), which `new Date()` rejects on some engines.
+ *
+ * A timestamp with no timezone designator is assumed to be UTC: upstream
+ * quota APIs emit UTC instants but some omit the trailing `Z`, and `new
+ * Date()` would otherwise interpret those as browser-local time (e.g. a
+ * `04:27 UTC` reset rendering as `04:27 KST`, nine hours off).
  */
 export function parseIsoToMs(value: unknown): number | null {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  const normalized = trimmed.replace(/(\.\d{6})\d+/, '$1');
+  const normalized = assumeUtcWhenNaive(trimmed.replace(/(\.\d{6})\d+/, '$1'));
   const ms = new Date(normalized).getTime();
   return Number.isFinite(ms) ? ms : null;
+}
+
+/** Append a `Z` designator when the timestamp carries date+time but no offset. */
+function assumeUtcWhenNaive(value: string): string {
+  if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(value)) return value;
+  if (!/\d[T ]\d/.test(value)) return value;
+  return `${value.replace(' ', 'T')}Z`;
 }
 
 /**

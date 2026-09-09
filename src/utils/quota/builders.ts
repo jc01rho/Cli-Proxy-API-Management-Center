@@ -21,7 +21,7 @@ import type {
   XaiProductUsageSummary,
 } from '@/types';
 import { normalizeNumberValue, normalizeQuotaFraction, normalizeStringValue } from './parsers';
-import { parseOffsetSecondsToMs, resolveResetMs } from './resetInstants';
+import { parseIsoToMs, parseOffsetSecondsToMs, resolveResetMs } from './resetInstants';
 
 const ANTIGRAVITY_BUCKET_WINDOW_ORDER = new Map<string, number>([
   ['5h', 0],
@@ -154,11 +154,10 @@ function kimiResetHint(data: Record<string, unknown>): string | undefined {
     const raw = data[key];
     if (typeof raw === 'string' && raw.trim()) {
       try {
-        const truncated = raw.replace(/(\.\d{6})\d+/, '$1');
-        const date = new Date(truncated);
-        if (Number.isNaN(date.getTime())) continue;
+        const ms = parseIsoToMs(raw);
+        if (ms === null) continue;
         const now = Date.now();
-        const delta = date.getTime() - now;
+        const delta = ms - now;
         if (delta <= 0) return undefined;
         const totalMinutes = Math.floor(delta / 60000);
         return formatKimiResetDuration(totalMinutes);

@@ -362,7 +362,7 @@ export function useConnectivityTest(
               model,
               messages: [{ role: 'user', content: 'Hi' }],
               stream: false,
-              max_tokens: maxOutputTokens ?? 5,
+              max_tokens: maxOutputTokens ?? 20,
             }),
           },
           { timeout: DEFAULT_TIMEOUT_MS }

@@ -123,7 +123,7 @@ function buildInitialForm(
           : undefined,
       maxOutputTokens:
         brand === 'openaiCompatibility'
-          ? 5
+          ? 20
           : isClaudeLikeBrand(brand) || brand === 'gemini'
             ? 8
             : undefined,
@@ -162,7 +162,7 @@ function buildInitialForm(
         : [emptyHeader()],
       excludedModelsText: '',
       testModel: cfg.testModel ?? '',
-      maxOutputTokens: 5,
+      maxOutputTokens: 20,
       comment: (cfg as OpenAIProviderConfig & { comment?: string }).comment ?? '',
       apiKeyEntries: cfg.apiKeyEntries?.length
         ? cfg.apiKeyEntries.map((entry) => ({

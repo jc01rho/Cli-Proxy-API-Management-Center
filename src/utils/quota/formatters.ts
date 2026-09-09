@@ -6,11 +6,12 @@ import type { TFunction } from 'i18next';
 import type { CodexUsageWindow } from '@/types';
 import { normalizeNumberValue } from './parsers';
 import { formatInstantShort } from './relativeTime';
+import { parseIsoToMs } from './resetInstants';
 
 export function formatQuotaResetTime(value?: string): string {
   if (!value) return '-';
-  const ms = new Date(value).getTime();
-  if (Number.isNaN(ms)) return '-';
+  const ms = parseIsoToMs(value);
+  if (ms === null) return '-';
   return formatInstantShort(ms);
 }
 

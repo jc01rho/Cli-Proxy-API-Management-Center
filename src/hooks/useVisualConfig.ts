@@ -12,6 +12,7 @@ import type {
   PayloadRule,
   RoutingStrategy,
   TokenThresholdRule,
+  ModelTimeGate,
   VisualConfigValues,
   VisualConfigValidationErrors,
   PayloadParamValidationErrorCode,
@@ -261,6 +262,87 @@ function parseTokenThresholdRules(rules: unknown): TokenThresholdRule[] {
       };
     })
     .filter(Boolean) as TokenThresholdRule[];
+}
+
+function parseModelTimeGates(rules: unknown): ModelTimeGate[] {
+  if (!Array.isArray(rules)) return [];
+  return rules
+    .map((rule, index) => {
+      const record = asRecord(rule);
+      if (!record) return null;
+      const models = record.models ?? record['models'];
+      return {
+        id: `model-time-gate-${index}`,
+        name: typeof record.name === 'string' ? String(record.name) : '',
+        schedule: typeof record.schedule === 'string' ? String(record.schedule) : '',
+        duration: typeof record.duration === 'string' ? String(record.duration) : '',
+        provider: typeof record.provider === 'string' ? String(record.provider) : '',
+        authId:
+          typeof (record['auth-id'] ?? record.authId) === 'string'
+            ? String(record['auth-id'] ?? record.authId)
+            : '',
+        models: Array.isArray(models)
+          ? models.map((m) => String(m ?? '')).filter((m) => m.trim() !== '').join(', ')
+          : typeof models === 'string'
+            ? models
+            : '',
+        enabled: typeof record.enabled === 'boolean' ? record.enabled : true,
+      };
+    })
+    .filter(Boolean) as ModelTimeGate[];
+}
+
+function serializeModelTimeGates(rules: ModelTimeGate[]): Array<Record<string, unknown>> {
+  return rules
+    .map((rule) => {
+      const name = rule.name.trim();
+      const schedule = rule.schedule.trim();
+      const duration = rule.duration.trim();
+      if (name === '' || schedule === '' || duration === '') return null;
+      const serialized: Record<string, unknown> = {
+        name,
+        schedule,
+        duration,
+        enabled: rule.enabled,
+      };
+      if (rule.provider.trim() !== '') serialized.provider = rule.provider.trim();
+      if (rule.authId.trim() !== '') serialized['auth-id'] = rule.authId.trim();
+      const models = rule.models
+        .split(',')
+        .map((m) => m.trim())
+        .filter((m) => m !== '');
+      if (models.length > 0) serialized.models = models;
+      return serialized;
+    })
+    .filter(Boolean) as Array<Record<string, unknown>>;
+}
+
+function areModelTimeGatesEqual(
+  left: ModelTimeGate[] | undefined,
+  right: ModelTimeGate[] | undefined
+): boolean {
+  const leftItems = left ?? [];
+  const rightItems = right ?? [];
+  if (leftItems === rightItems) return true;
+  if (leftItems.length !== rightItems.length) return false;
+  for (let i = 0; i < leftItems.length; i += 1) {
+    const a = leftItems[i];
+    const b = rightItems[i];
+    if (!a || !b) return false;
+    if (
+      a.id !== b.id ||
+      a.name !== b.name ||
+      a.schedule !== b.schedule ||
+      a.duration !== b.duration ||
+      a.provider !== b.provider ||
+      a.authId !== b.authId ||
+      a.models !== b.models ||
+      a.enabled !== b.enabled
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function serializeTokenThresholdRules(rules: TokenThresholdRule[]): Array<Record<string, unknown>> {
@@ -1243,6 +1325,12 @@ function getNextDirtyFields(
       areStringRecordsEqual(nextValues.fallbackModels, baselineValues.fallbackModels)
     );
   }
+  if (Object.prototype.hasOwnProperty.call(patch, 'modelTimeGates')) {
+    updateDirty(
+      'modelTimeGates',
+      areModelTimeGatesEqual(nextValues.modelTimeGates, baselineValues.modelTimeGates)
+    );
+  }
   if (Object.prototype.hasOwnProperty.call(patch, 'tokenThresholdRules')) {
     updateDirty(
       'tokenThresholdRules',
@@ -1538,6 +1626,7 @@ export function useVisualConfig() {
         routingStrategy: parseRoutingStrategy(routing?.strategy),
         routingMode: routing?.mode === 'key-based' ? 'key-based' : 'provider-based',
         tokenThresholdRules: parseTokenThresholdRules(routing?.['token-threshold-rules']),
+        modelTimeGates: parseModelTimeGates(routing?.['model-time-gates']),
         fallbackModels: asRecord(routing?.['fallback-models'])
           ? Object.fromEntries(
               Object.entries(asRecord(routing?.['fallback-models']) ?? {})
@@ -1911,6 +2000,13 @@ export function useVisualConfig() {
             doc.setIn(['routing', 'token-threshold-rules'], tokenThresholdRules);
           } else if (docHas(doc, ['routing', 'token-threshold-rules'])) {
             doc.deleteIn(['routing', 'token-threshold-rules']);
+          }
+
+          const modelTimeGates = serializeModelTimeGates(values.modelTimeGates);
+          if (modelTimeGates.length > 0) {
+            doc.setIn(['routing', 'model-time-gates'], modelTimeGates);
+          } else if (docHas(doc, ['routing', 'model-time-gates'])) {
+            doc.deleteIn(['routing', 'model-time-gates']);
           }
 
           const fallbackEntries = Object.entries(values.fallbackModels)

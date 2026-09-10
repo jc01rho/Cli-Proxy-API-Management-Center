@@ -1210,6 +1210,20 @@
   align-items: center;
 }
 
+.timeGateRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.timeGateEnabled {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
 .payloadRowActionButton {
   flex: 0 0 auto;
   justify-self: start;

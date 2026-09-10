@@ -15,6 +15,7 @@ import type {
   PayloadParamValidationErrorCode,
   PayloadParamValueType,
   PayloadRule,
+  ModelTimeGate,
   TokenThresholdRule,
   PluginStoreAuthApplyTo,
   PluginStoreAuthRule,
@@ -811,6 +812,105 @@ export const StringListEditor = memo(function StringListEditor({
       <div className={styles.actionRow}>
         <Button variant="secondary" size="sm" onClick={addItem} disabled={disabled || reachedMaxItems}>
           {addButtonLabel ?? t('config_management.visual.common.add')}
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+export const ModelTimeGatesEditor = memo(function ModelTimeGatesEditor({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: ModelTimeGate[];
+  disabled?: boolean;
+  onChange: (next: ModelTimeGate[]) => void;
+}) {
+  const { t } = useTranslation();
+  const rows = value.length ? value : [];
+  const updateRule = (ruleId: string, patch: Partial<ModelTimeGate>) => {
+    onChange(rows.map((rule) => (rule.id === ruleId ? { ...rule, ...patch } : rule)));
+  };
+  const removeRule = (ruleId: string) => onChange(rows.filter((rule) => rule.id !== ruleId));
+  const addRule = () =>
+    onChange([
+      ...rows,
+      {
+        id: makeClientId(),
+        name: '',
+        schedule: '0 1 * * 1-5',
+        duration: '3h',
+        provider: '',
+        authId: '',
+        models: '',
+        enabled: true,
+      },
+    ]);
+  const toggleEnabled = (ruleId: string, enabled: boolean) => updateRule(ruleId, { enabled });
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {rows.map((rule) => (
+        <div key={rule.id} className={styles.timeGateRow}>
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.network.time_gate_name')}
+            value={rule.name}
+            onChange={(e) => updateRule(rule.id, { name: e.target.value })}
+            disabled={disabled}
+          />
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.network.time_gate_schedule')}
+            value={rule.schedule}
+            onChange={(e) => updateRule(rule.id, { schedule: e.target.value })}
+            disabled={disabled}
+          />
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.network.time_gate_duration')}
+            value={rule.duration}
+            onChange={(e) => updateRule(rule.id, { duration: e.target.value })}
+            disabled={disabled}
+          />
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.network.time_gate_provider')}
+            value={rule.provider}
+            onChange={(e) => updateRule(rule.id, { provider: e.target.value })}
+            disabled={disabled}
+          />
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.network.time_gate_auth_id')}
+            value={rule.authId}
+            onChange={(e) => updateRule(rule.id, { authId: e.target.value })}
+            disabled={disabled}
+          />
+          <input
+            className="input"
+            placeholder={t('config_management.visual.sections.network.time_gate_models')}
+            value={rule.models}
+            onChange={(e) => updateRule(rule.id, { models: e.target.value })}
+            disabled={disabled}
+          />
+          <label className={styles.timeGateEnabled}>
+            <input
+              type="checkbox"
+              checked={rule.enabled}
+              disabled={disabled}
+              onChange={(e) => toggleEnabled(rule.id, e.target.checked)}
+            />
+            {t('config_management.visual.common.enabled')}
+          </label>
+          <Button variant="ghost" size="sm" onClick={() => removeRule(rule.id)} disabled={disabled}>
+            {t('config_management.visual.common.delete')}
+          </Button>
+        </div>
+      ))}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="secondary" size="sm" onClick={addRule} disabled={disabled}>
+          {t('config_management.visual.sections.network.add_time_gate')}
         </Button>
       </div>
     </div>

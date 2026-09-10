@@ -1496,7 +1496,8 @@
         "delete": "删除",
         "cancel": "取消",
         "update": "更新",
-        "add": "添加"
+        "add": "添加",
+        "enabled": "已启用"
       }
     },
     "tabs": {

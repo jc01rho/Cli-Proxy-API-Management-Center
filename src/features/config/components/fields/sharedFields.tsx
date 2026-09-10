@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import {
   ApiKeysCardEditor,
   FallbackModelsEditor,
+  ModelTimeGatesEditor,
   OauthEndpointOverridesEditor,
   StringListEditor,
   TokenThresholdRulesEditor,
@@ -232,6 +233,19 @@ export function ForkOnlyFields({ values, disabled, onChange }: SharedFieldProps)
             value={values.tokenThresholdRules}
             disabled={disabled}
             onChange={(tokenThresholdRules) => onChange({ tokenThresholdRules })}
+          />
+        </FieldGroup>
+      </FieldAnchor>
+
+      <FieldAnchor fieldId="modelTimeGates">
+        <FieldGroup
+          title={t('config_management.visual.sections.network.model_time_gates_title')}
+          description={t('config_management.visual.sections.network.model_time_gates_desc')}
+        >
+          <ModelTimeGatesEditor
+            value={values.modelTimeGates}
+            disabled={disabled}
+            onChange={(modelTimeGates) => onChange({ modelTimeGates })}
           />
         </FieldGroup>
       </FieldAnchor>

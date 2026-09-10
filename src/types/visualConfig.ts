@@ -48,6 +48,17 @@ export type TokenThresholdRule = {
 	enabled: boolean;
 };
 
+export type ModelTimeGate = {
+	id: string;
+	name: string;
+	schedule: string;
+	duration: string;
+	provider: string;
+	authId: string;
+	models: string;
+	enabled: boolean;
+};
+
 export type VisualConfigValidationErrors = Partial<
   Record<VisualConfigFieldPath, VisualConfigValidationErrorCode>
 >;
@@ -162,6 +173,7 @@ export type VisualConfigValues = {
   routingStrategy: RoutingStrategy;
   routingMode: 'provider-based' | 'key-based';
   tokenThresholdRules: TokenThresholdRule[];
+  modelTimeGates: ModelTimeGate[];
   fallbackModels: Record<string, string>;
   fallbackChain: string[];
   fallbackMaxDepth: string;
@@ -239,6 +251,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   routingStrategy: 'round-robin',
   routingMode: 'provider-based',
   tokenThresholdRules: [],
+  modelTimeGates: [],
   fallbackModels: {},
   fallbackChain: [],
   fallbackMaxDepth: '',

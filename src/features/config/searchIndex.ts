@@ -181,6 +181,13 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['routing', 'token-threshold-rules'],
   },
   {
+    fieldId: 'modelTimeGates',
+    sectionId: 'advanced',
+    labelKey: L('sections.network.model_time_gates_title'),
+    hintKey: L('sections.network.model_time_gates_desc'),
+    yamlKeys: ['routing', 'model-time-gates'],
+  },
+  {
     fieldId: 'fallbackModels',
     sectionId: 'advanced',
     labelKey: L('sections.fallback.models_title'),

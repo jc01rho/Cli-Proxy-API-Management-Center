@@ -121,6 +121,7 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   routingStrategy: ['routingStrategy'],
   routingMode: ['routingMode'],
   tokenThresholdRules: ['tokenThresholdRules'],
+  modelTimeGates: ['modelTimeGates'],
   fallbackModels: ['fallbackModels'],
   fallbackChain: ['fallbackChain'],
   fallbackMaxDepth: ['fallbackMaxDepth'],

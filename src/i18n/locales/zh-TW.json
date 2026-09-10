@@ -1524,7 +1524,8 @@
         "delete": "刪除",
         "cancel": "取消",
         "update": "更新",
-        "add": "新增"
+        "add": "新增",
+        "enabled": "已啟用"
       }
     },
     "tabs": {

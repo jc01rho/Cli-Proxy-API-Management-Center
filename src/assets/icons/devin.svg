@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <style>
+      .devin-bg { fill: #0f172a; }
+      .devin-mark { fill: #10b981; }
+      .devin-accent { fill: #34d399; }
+    </style>
+  </defs>
+  <rect class="devin-bg" width="64" height="64" rx="14" />
+  <path class="devin-mark" d="M18 16h16c7.732 0 14 6.268 14 14s-6.268 14-14 14H18V16zm7 7v21h9c3.866 0 7-3.134 7-7s-3.134-7-7-7h-9z" />
+  <rect class="devin-accent" x="25" y="27" width="5" height="10" rx="1.5" />
+</svg>

@@ -15,6 +15,7 @@ import iconQwen from '@/assets/icons/qwen.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import iconKilo from '@/assets/icons/kilo.svg';
+import iconDevin from '@/assets/icons/devin.svg';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import { normalizeOAuthProviderKey } from '@/utils/providerKeys';
 import { parseTimestamp } from '@/utils/timestamp';
@@ -64,6 +65,7 @@ export const OAUTH_PROVIDER_PRESETS = [
   'kiro',
   'kimi',
   'zcode',
+  'devin',
 ];
 
 const OAUTH_PROVIDER_EXCLUDES = new Set(['all', 'unknown', 'empty']);
@@ -126,6 +128,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   commandcode: iconGlm,
   qwen: iconQwen,
   vertex: iconVertex,
+  devin: iconDevin,
 };
 
 export const clampCardPageSize = (value: number) =>

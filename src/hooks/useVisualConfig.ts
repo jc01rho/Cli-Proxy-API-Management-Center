@@ -281,6 +281,7 @@ function parseModelTimeGates(rules: unknown): ModelTimeGate[] {
           typeof (record['auth-id'] ?? record.authId) === 'string'
             ? String(record['auth-id'] ?? record.authId)
             : '',
+        mode: record.mode === 'allow' ? 'allow' : 'exclude',
         models: Array.isArray(models)
           ? models.map((m) => String(m ?? '')).filter((m) => m.trim() !== '').join(', ')
           : typeof models === 'string'
@@ -307,6 +308,8 @@ function serializeModelTimeGates(rules: ModelTimeGate[]): Array<Record<string, u
       };
       if (rule.provider.trim() !== '') serialized.provider = rule.provider.trim();
       if (rule.authId.trim() !== '') serialized['auth-id'] = rule.authId.trim();
+      // 'exclude' is the backend default, so only persist the non-default mode.
+      if (rule.mode === 'allow') serialized.mode = 'allow';
       const models = rule.models
         .split(',')
         .map((m) => m.trim())
@@ -336,6 +339,7 @@ function areModelTimeGatesEqual(
       a.duration !== b.duration ||
       a.provider !== b.provider ||
       a.authId !== b.authId ||
+      a.mode !== b.mode ||
       a.models !== b.models ||
       a.enabled !== b.enabled
     ) {

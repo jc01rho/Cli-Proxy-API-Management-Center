@@ -48,6 +48,8 @@ export type TokenThresholdRule = {
 	enabled: boolean;
 };
 
+export type ModelTimeGateMode = 'exclude' | 'allow';
+
 export type ModelTimeGate = {
 	id: string;
 	name: string;
@@ -55,6 +57,7 @@ export type ModelTimeGate = {
 	duration: string;
 	provider: string;
 	authId: string;
+	mode: ModelTimeGateMode;
 	models: string;
 	enabled: boolean;
 };

@@ -29,6 +29,7 @@ import iconClineDark from '@/assets/icons/cline-dark.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
 import iconKilo from '@/assets/icons/kilo.svg';
 import iconGlm from '@/assets/icons/glm.svg';
+import iconDevin from '@/assets/icons/devin.svg';
 const iconKiro =
   'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg';
 
@@ -150,6 +151,12 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.zcode_oauth_title',
     icon: iconGlm,
   },
+  {
+    kind: 'builtin',
+    id: 'devin',
+    titleKey: 'auth_login.devin_oauth_title',
+    icon: iconDevin,
+  },
 ];
 
 const BUILTIN_PROVIDER_IDS = new Set<string>(PROVIDERS.map((provider) => provider.id));
@@ -159,9 +166,11 @@ export const CALLBACK_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>(
   'antigravity',
   'xai',
   'cline',
+  'devin',
 ]);
 const XAI_CALLBACK_URL = 'http://127.0.0.1:56121/callback';
 const CLINE_CALLBACK_URL = 'http://localhost:7829/callback';
+const DEVIN_CALLBACK_URL = 'http://localhost/oauth-callback';
 const SUCCESS_RESET_DELAY_MS = 5000;
 const KIRO_DEVICE_METHODS = [
   { id: 'builder-id', labelKey: 'auth_login.kiro_oauth_method_builder_id' },
@@ -325,9 +334,39 @@ const buildClineCallbackUrl = (input: string, state?: string): string | null => 
   return url.toString();
 };
 
+const buildDevinCallbackUrl = (input: string, state?: string): string | null => {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+
+  if (isAbsoluteUrl(trimmed)) {
+    try {
+      const url = new URL(trimmed);
+      if (!url.searchParams.get('state')) {
+        const callbackState = state?.trim();
+        if (!callbackState) return null;
+        url.searchParams.set('state', callbackState);
+      }
+      return url.toString();
+    } catch {
+      return null;
+    }
+  }
+
+  const params = readQueryLikeCallbackInput(trimmed);
+  const callbackState = params?.get('state')?.trim() || state?.trim();
+  if (!callbackState) return null;
+
+  const url = new URL(DEVIN_CALLBACK_URL);
+  const code = params?.get('code')?.trim() || trimmed;
+  url.searchParams.set('code', code);
+  url.searchParams.set('state', callbackState);
+  return url.toString();
+};
+
 const resolveCallbackUrl = (provider: string, input: string, state?: string): string | null => {
   if (provider === 'xai') return buildXaiCallbackUrl(input, state);
   if (provider === 'cline') return buildClineCallbackUrl(input, state);
+  if (provider === 'devin') return buildDevinCallbackUrl(input, state);
   return input.trim();
 };
 

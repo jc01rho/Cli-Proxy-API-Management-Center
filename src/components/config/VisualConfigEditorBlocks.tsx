@@ -843,6 +843,7 @@ export const ModelTimeGatesEditor = memo(function ModelTimeGatesEditor({
         duration: '3h',
         provider: '',
         authId: '',
+        mode: 'exclude',
         models: '',
         enabled: true,
       },
@@ -886,6 +887,24 @@ export const ModelTimeGatesEditor = memo(function ModelTimeGatesEditor({
             value={rule.authId}
             onChange={(e) => updateRule(rule.id, { authId: e.target.value })}
             disabled={disabled}
+          />
+          <Select
+            value={rule.mode}
+            options={[
+              {
+                value: 'exclude',
+                label: t('config_management.visual.sections.network.time_gate_mode_exclude'),
+              },
+              {
+                value: 'allow',
+                label: t('config_management.visual.sections.network.time_gate_mode_allow'),
+              },
+            ]}
+            aria-label={t('config_management.visual.sections.network.time_gate_mode')}
+            disabled={disabled}
+            onChange={(mode) =>
+              updateRule(rule.id, { mode: mode as ModelTimeGate['mode'] })
+            }
           />
           <input
             className="input"

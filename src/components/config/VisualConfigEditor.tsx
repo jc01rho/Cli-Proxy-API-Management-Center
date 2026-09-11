@@ -51,6 +51,7 @@ import {
   PayloadRulesEditor,
   PluginStoreAuthEditor,
   StringListEditor,
+  ModelTimeGatesEditor,
   TokenThresholdRulesEditor,
 } from './VisualConfigEditorBlocks';
 import { configFieldDomId } from './configSearchIndex';
@@ -934,6 +935,21 @@ export function VisualConfigEditor({
                   onChange={(tokenThresholdRules) => onChange({ tokenThresholdRules })}
                 />
               </SectionSubsection>
+
+              <FieldAnchor fieldId="modelTimeGates">
+                <SectionSubsection
+                  title={t('config_management.visual.sections.network.model_time_gates_title')}
+                  description={t(
+                    'config_management.visual.sections.network.model_time_gates_desc'
+                  )}
+                >
+                  <ModelTimeGatesEditor
+                    value={values.modelTimeGates}
+                    disabled={disabled}
+                    onChange={(modelTimeGates) => onChange({ modelTimeGates })}
+                  />
+                </SectionSubsection>
+              </FieldAnchor>
             </SectionStack>
           </ConfigSection>
 

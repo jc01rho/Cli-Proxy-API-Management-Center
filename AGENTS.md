@@ -84,3 +84,7 @@ Local-only guidance preserved from the fork knowledge base:
 - Release workflow renames `dist/index.html` to `management.html` for GitHub Releases.
 - Local embedding requires copying built `dist/index.html` into
   `CLIProxyAPIPlus/management.html`.
+
+## Push / PR 규칙
+
+- forked upstream에는 절대 Pull Request를 생성하지 않는다. 모든 push는 `origin`(jc01rho) 브랜치에만 수행한다. upstream remote는 fetch/merge 전용이다.

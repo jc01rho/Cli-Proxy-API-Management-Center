@@ -47,3 +47,7 @@ providers/
 - Do not reintroduce Trae UI flows.
 - Do not leave timers/intervals without cleanup.
 - Do not make OllamaSection a variant of CodexSection.
+
+## Push / PR 규칙
+
+- forked upstream에는 절대 Pull Request를 생성하지 않는다. 모든 push는 `origin`(jc01rho) 브랜치에만 수행한다. upstream remote는 fetch/merge 전용이다.

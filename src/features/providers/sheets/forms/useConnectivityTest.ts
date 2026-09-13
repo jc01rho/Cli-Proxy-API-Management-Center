@@ -135,8 +135,12 @@ const buildCommandCodeProbePayload = (model: string): string =>
     params: {
       model,
       messages: [{ role: 'user', content: 'Hi' }],
-      max_tokens: 8,
-      stream: false,
+      max_tokens: 20,
+      // The upstream /alpha/generate endpoint is CLI-only and rejects
+      // stream:false with 400 "Proxy use detected" (a non-streaming request
+      // is itself a non-CLI fingerprint), so the probe must stream like the
+      // real CLI does even though the caller only checks the HTTP status.
+      stream: true,
     },
   });
 
@@ -163,11 +167,10 @@ const buildCommandCodeHeaderObj = (
     // The upstream /alpha/generate endpoint rejects non-CLI fingerprints with
     // 400 "Proxy use detected"; mirror the official CLI wire identity.
     'User-Agent': 'cli',
-    'x-command-code-version': '1.12.0',
+    'x-command-code-version': '1.53.1',
     'x-cli-environment': 'production',
     'x-project-slug': 'workspace',
     'x-taste-learning': 'false',
-    'x-co-flag': 'false',
     'x-session-id': newSessionId(),
     ...buildHeaderObject(formHeaders),
   };

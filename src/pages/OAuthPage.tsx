@@ -14,6 +14,7 @@ import { notifyAuthFilesChanged } from '@/features/authFiles/authFilesEvents';
 import { getPluginTitle, resolvePluginAssetURL } from '@/features/plugins/pluginResources';
 import { getKimiAffiliateUrl } from '@/features/providers/kimi';
 import type { PluginListEntry } from '@/types';
+import { createOAuthAttempts, type OAuthAttempt } from './oauthAttempts';
 import styles from './OAuthPage.module.scss';
 import iconCodex from '@/assets/icons/codex.svg';
 import iconClaude from '@/assets/icons/claude.svg';
@@ -383,26 +384,24 @@ export function OAuthPage() {
     location: '',
     loading: false,
   });
-  const pollingTimers = useRef<Partial<Record<string, number>>>({});
-  const successResetTimers = useRef<Partial<Record<string, number>>>({});
+  const attempts = useRef(
+    createOAuthAttempts({
+      setTimeout: (callback, delay) => window.setTimeout(callback, delay),
+      clearTimeout: (timer) => window.clearTimeout(timer),
+    })
+  );
   const vertexFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const clearTimers = useCallback(() => {
-    Object.values(pollingTimers.current).forEach((timer) => {
-      if (timer !== undefined) window.clearInterval(timer);
-    });
-    Object.values(successResetTimers.current).forEach((timer) => {
-      if (timer !== undefined) window.clearTimeout(timer);
-    });
-    pollingTimers.current = {};
-    successResetTimers.current = {};
+    attempts.current.invalidateAll();
   }, []);
 
   useEffect(() => {
+    setStates({});
     return () => {
       clearTimers();
     };
-  }, [clearTimers]);
+  }, [apiBase, clearTimers]);
 
   useEffect(() => {
     let cancelled = false;
@@ -454,29 +453,8 @@ export function OAuthPage() {
     }));
   };
 
-  const clearPollingTimer = (provider: string) => {
-    const timer = pollingTimers.current[provider];
-    if (timer !== undefined) {
-      window.clearInterval(timer);
-      delete pollingTimers.current[provider];
-    }
-  };
-
-  const clearSuccessResetTimer = (provider: string) => {
-    const timer = successResetTimers.current[provider];
-    if (timer !== undefined) {
-      window.clearTimeout(timer);
-      delete successResetTimers.current[provider];
-    }
-  };
-
-  const clearProviderTimers = (provider: string) => {
-    clearPollingTimer(provider);
-    clearSuccessResetTimer(provider);
-  };
-
   const resetProviderAttempt = (provider: string) => {
-    clearProviderTimers(provider);
+    attempts.current.get(provider)?.invalidate();
     setStates((prev) => {
       return {
         ...prev,
@@ -486,8 +464,7 @@ export function OAuthPage() {
   };
 
   const completeProviderAuth = (provider: string) => {
-    clearPollingTimer(provider);
-    clearSuccessResetTimer(provider);
+    const resetAttempt = attempts.current.begin(provider);
     notifyAuthFilesChanged();
     updateProviderState(provider, {
       url: undefined,
@@ -502,16 +479,15 @@ export function OAuthPage() {
       userCode: undefined,
       expiresIn: undefined,
     });
-    successResetTimers.current[provider] = window.setTimeout(() => {
+    resetAttempt.schedule(() => {
       resetProviderAttempt(provider);
     }, SUCCESS_RESET_DELAY_MS);
   };
 
-  const startPolling = (provider: string, state: string) => {
-    clearPollingTimer(provider);
-    const timer = window.setInterval(async () => {
-      try {
-        const res = await oauthApi.getAuthStatus(state);
+  const startPolling = (provider: string, state: string, attempt: OAuthAttempt) => {
+    attempt.poll(
+      () => oauthApi.getAuthStatus(state),
+      (res) => {
         if (res.status === 'ok') {
           completeProviderAuth(provider);
           showNotification(getProviderTextByID(provider, 'oauth_status_success'), 'success');
@@ -521,24 +497,22 @@ export function OAuthPage() {
             `${getProviderTextByID(provider, 'oauth_status_error')} ${res.error || ''}`,
             'error'
           );
-          window.clearInterval(timer);
-          delete pollingTimers.current[provider];
         }
-      } catch (err: unknown) {
+        return res.status === 'wait';
+      },
+      (err) => {
         updateProviderState(provider, {
           status: 'error',
           error: getErrorMessage(err),
           polling: false,
         });
-        window.clearInterval(timer);
-        delete pollingTimers.current[provider];
-      }
-    }, 3000);
-    pollingTimers.current[provider] = timer;
+      },
+      3000
+    );
   };
 
   const startAuth = async (provider: string, extra?: Record<string, string>) => {
-    clearProviderTimers(provider);
+    const attempt = attempts.current.begin(provider);
     updateProviderState(provider, {
       url: undefined,
       state: undefined,
@@ -550,9 +524,11 @@ export function OAuthPage() {
       callbackStatus: undefined,
       callbackError: undefined,
       callbackUrl: '',
+      callbackSubmitting: false,
     });
     try {
       const res = await oauthApi.startAuth(provider, extra);
+      if (!attempt.isCurrent()) return;
       if (!res.state) {
         const message = t('auth_login.missing_state');
         updateProviderState(provider, {
@@ -575,8 +551,9 @@ export function OAuthPage() {
         status: 'waiting',
         polling: true,
       });
-      startPolling(provider, res.state);
+      startPolling(provider, res.state, attempt);
     } catch (err: unknown) {
+      if (!attempt.isCurrent()) return;
       const message = getErrorMessage(err);
       updateProviderState(provider, { status: 'error', error: message, polling: false });
       showNotification(
@@ -596,6 +573,8 @@ export function OAuthPage() {
   };
 
   const submitCallback = async (provider: string) => {
+    const attempt = attempts.current.get(provider);
+    if (!attempt?.isCurrent()) return;
     const callbackInput = (states[provider]?.callbackUrl || '').trim();
     if (!callbackInput) {
       showNotification(
@@ -625,9 +604,11 @@ export function OAuthPage() {
     });
     try {
       await oauthApi.submitCallback(provider, redirectUrl);
+      if (!attempt.isCurrent()) return;
       updateProviderState(provider, { callbackSubmitting: false, callbackStatus: 'success' });
       showNotification(t('auth_login.oauth_callback_success'), 'success');
     } catch (err: unknown) {
+      if (!attempt.isCurrent()) return;
       const status = getErrorStatus(err);
       const message = getErrorMessage(err);
       const errorMessage =

@@ -113,7 +113,7 @@ describe('Interactions API key provider', () => {
   test('maps the UI brand to the backend runtime usage provider', () => {
     expect(getProviderUsageKey('interactions')).toBe('gemini-interactions');
     expect(getProviderUsageKey('gemini')).toBe('gemini');
-    expect(getProviderUsageKey('claudeApi')).toBe('claude');
+    expect(getProviderUsageKey('claude')).toBe('claude');
   });
 
   test('saves the whole interactions list while preserving unknown fields', async () => {

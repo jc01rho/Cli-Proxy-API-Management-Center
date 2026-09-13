@@ -567,7 +567,7 @@ export function useConnectivityTest(
   }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, maxOutputTokens, messages, models, testModel]);
 
   const runClaude = useCallback(async (): Promise<void> => {
-    if (brand !== 'claude' && brand !== 'claudeApi') return;
+    if (brand !== 'claude') return;
 
     const endpoint = buildClaudeMessagesEndpoint(baseUrl ?? '');
     if (!endpoint) {

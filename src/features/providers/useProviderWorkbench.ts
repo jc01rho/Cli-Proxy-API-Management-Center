@@ -7,7 +7,7 @@ import {
   withDisableAllModelsRule,
   withoutDisableAllModelsRule,
 } from '@/components/providers/utils';
-import type { GeminiKeyConfig, ModelAlias, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
+import type { Config, GeminiKeyConfig, ModelAlias, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
 import {
   apiKeyFunToResource,
   claudeApiToResource,
@@ -408,6 +408,165 @@ const normalizeSponsorKeyEntries = (
 /* hook                                                                       */
 /* -------------------------------------------------------------------------- */
 
+export const buildProviderGroups = (config: Config): ProviderGroup[] => {
+  // Temporarily hidden sponsors keep their provider configs editable: their protocol groups own the display instead (see sponsorDefinitions.ts).
+  const code0QuickAccessRemoved = REMOVED_QUICK_ACCESS_BRANDS.has('code0');
+  const claudeApiQuickAccessRemoved = REMOVED_QUICK_ACCESS_BRANDS.has('claudeApi');
+  const fennoAIHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('fennoAI');
+  const qiniuCloudHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('qiniuCloud');
+  const infistarHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('infistar');
+  const lmuAIHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('lmuAI');
+  const groups: ProviderGroup[] = PROVIDER_BRAND_ORDER.map((brand) => {
+    let resources: ProviderResource[] = [];
+    switch (brand) {
+      case 'gemini':
+        resources = (config.geminiApiKeys ?? []).reduce<ProviderResource[]>(
+          (out, item, index) => {
+            if (
+              (code0QuickAccessRemoved || !isCode0GeminiProvider(item)) &&
+              (qiniuCloudHidden || !isQiniuCloudGeminiProvider(item)) &&
+              (lmuAIHidden || !isLmuAIGeminiProvider(item)) &&
+              (infistarHidden || !isInfistarGeminiProvider(item))
+            ) {
+              out.push(geminiToResource(item, index));
+            }
+            return out;
+          },
+          []
+        );
+        break;
+      case 'interactions':
+        resources = (config.interactionsApiKeys ?? []).map((item, index) =>
+          interactionsToResource(item, index)
+        );
+        break;
+      case 'codex':
+        resources = (config.codexApiKeys ?? []).reduce<ProviderResource[]>((out, item, index) => {
+          if (
+            !isApiKeyFunCodexProvider(item) &&
+            (code0QuickAccessRemoved || !isCode0CodexProvider(item)) &&
+            (fennoAIHidden || !isFennoAICodexProvider(item)) &&
+            (qiniuCloudHidden || !isQiniuCloudCodexProvider(item)) &&
+            (lmuAIHidden || !isLmuAICodexProvider(item)) &&
+            (infistarHidden || !isInfistarCodexProvider(item)) &&
+            !isKimiCodexProvider(item)
+          ) {
+            out.push(codexToResource(item, index));
+          }
+          return out;
+        }, []);
+        break;
+      case 'commandcode':
+        resources = (config.commandcodeApiKeys ?? []).map((c, i) => commandcodeToResource(c, i));
+        break;
+      case 'freebuff':
+        resources = (config.freebuffApiKeys ?? []).map((c, i) => freebuffToResource(c, i));
+        break;
+      case 'xai':
+        resources = (config.xaiApiKeys ?? []).map((item, index) => xaiToResource(item, index));
+        break;
+      case 'claude':
+        resources = (config.claudeApiKeys ?? []).reduce<ProviderResource[]>(
+          (out, item, index) => {
+            if (
+              !isApiKeyFunClaudeProvider(item) &&
+              (code0QuickAccessRemoved || !isCode0ClaudeProvider(item)) &&
+              (fennoAIHidden || !isFennoAIClaudeProvider(item)) &&
+              (qiniuCloudHidden || !isQiniuCloudClaudeProvider(item)) &&
+              (lmuAIHidden || !isLmuAIClaudeProvider(item)) &&
+              (infistarHidden || !isInfistarClaudeProvider(item)) &&
+              !isKimiClaudeProvider(item) &&
+              (claudeApiQuickAccessRemoved || !isClaudeApiProvider(item))
+            ) {
+              out.push(claudeToResource(item, index));
+            }
+            return out;
+          },
+          []
+        );
+        break;
+      case 'claudeApi':
+        resources = (config.claudeApiKeys ?? []).reduce<ProviderResource[]>(
+          (out, item, index) => {
+            if (isClaudeApiProvider(item)) {
+              out.push(claudeApiToResource(item, index));
+            }
+            return out;
+          },
+          []
+        );
+        break;
+      case 'vertex':
+        resources = (config.vertexApiKeys ?? []).map((c, i) => vertexToResource(c, i));
+        break;
+      case 'mistral':
+        resources = (config.mistralApiKeys ?? []).map((c, i) => mistralToResource(c, i));
+        break;
+      case 'openaiCompatibility':
+        resources = (config.openaiCompatibility ?? []).reduce<ProviderResource[]>(
+          (out, item, index) => {
+            if (
+              !isApiKeyFunOpenAIProvider(item) &&
+              (code0QuickAccessRemoved || !isCode0OpenAIProvider(item)) &&
+              (qiniuCloudHidden || !isQiniuCloudOpenAIProvider(item)) &&
+              (lmuAIHidden || !isLmuAIOpenAIProvider(item)) &&
+              (infistarHidden || !isInfistarOpenAIProvider(item)) &&
+              !isKimiOpenAIProvider(item)
+            ) {
+              out.push(openaiToResource(item, index));
+            }
+            return out;
+          },
+          []
+        );
+        break;
+      case 'apikeyFun': {
+        const sponsorResource = apiKeyFunToResource(buildApiKeyFunRaw(config));
+        resources = sponsorResource ? [sponsorResource] : [];
+        break;
+      }
+      case 'code0': {
+        const sponsorResource = code0ToResource(buildCode0Raw(config));
+        resources = sponsorResource ? [sponsorResource] : [];
+        break;
+      }
+      case 'fennoAI': {
+        const sponsorResource = fennoAIToResource(buildFennoAIRaw(config));
+        resources = sponsorResource ? [sponsorResource] : [];
+        break;
+      }
+      case 'qiniuCloud': {
+        const sponsorResource = qiniuCloudToResource(buildQiniuCloudRaw(config));
+        resources = sponsorResource ? [sponsorResource] : [];
+        break;
+      }
+      case 'lmuAI': {
+        const sponsorResource = lmuAIToResource(buildLmuAIRaw(config));
+        resources = sponsorResource ? [sponsorResource] : [];
+        break;
+      }
+      case 'infistar': {
+        const sponsorResource = infistarToResource(buildInfistarRaw(config));
+        resources = sponsorResource ? [sponsorResource] : [];
+        break;
+      }
+      case 'kimi': {
+        const sponsorResource = kimiToResource(buildKimiRaw(config));
+        resources = sponsorResource ? [sponsorResource] : [];
+        break;
+      }
+    }
+    return {
+      id: brand,
+      resources,
+    };
+  });
+  return groups.filter(
+    (group) =>
+      !REMOVED_QUICK_ACCESS_BRANDS.has(group.id) && !isTemporarilyHiddenSponsorBrand(group.id)
+  );
+};
+
 export function useProviderWorkbench(): UseProviderWorkbenchResult {
   const connectionStatus = useAuthStore((s) => s.connectionStatus);
   const config = useConfigStore((s) => s.config);
@@ -490,163 +649,9 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
 
   const snapshot = useMemo<ProviderSnapshot | null>(() => {
     if (!config) return null;
-    // 临时隐藏的赞助商：不排除其协议配置，让各协议分组接管显示（见 sponsorDefinitions.ts）
-    const code0QuickAccessRemoved = REMOVED_QUICK_ACCESS_BRANDS.has('code0');
-    const claudeApiQuickAccessRemoved = REMOVED_QUICK_ACCESS_BRANDS.has('claudeApi');
-    const fennoAIHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('fennoAI');
-    const qiniuCloudHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('qiniuCloud');
-    const infistarHidden = TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has('infistar');
-    const groups: ProviderGroup[] = PROVIDER_BRAND_ORDER.map((brand) => {
-      let resources: ProviderResource[] = [];
-      switch (brand) {
-        case 'gemini':
-          resources = (config.geminiApiKeys ?? []).reduce<ProviderResource[]>(
-            (out, item, index) => {
-              if (
-                (code0QuickAccessRemoved || !isCode0GeminiProvider(item)) &&
-                (qiniuCloudHidden || !isQiniuCloudGeminiProvider(item)) &&
-                !isLmuAIGeminiProvider(item) &&
-                (infistarHidden || !isInfistarGeminiProvider(item))
-              ) {
-                out.push(geminiToResource(item, index));
-              }
-              return out;
-            },
-            []
-          );
-          break;
-        case 'interactions':
-          resources = (config.interactionsApiKeys ?? []).map((item, index) =>
-            interactionsToResource(item, index)
-          );
-          break;
-        case 'codex':
-          resources = (config.codexApiKeys ?? []).reduce<ProviderResource[]>((out, item, index) => {
-            if (
-              !isApiKeyFunCodexProvider(item) &&
-              (code0QuickAccessRemoved || !isCode0CodexProvider(item)) &&
-              (fennoAIHidden || !isFennoAICodexProvider(item)) &&
-              (qiniuCloudHidden || !isQiniuCloudCodexProvider(item)) &&
-              !isLmuAICodexProvider(item) &&
-              (infistarHidden || !isInfistarCodexProvider(item)) &&
-              !isKimiCodexProvider(item)
-            ) {
-              out.push(codexToResource(item, index));
-            }
-            return out;
-          }, []);
-          break;
-        case 'commandcode':
-          resources = (config.commandcodeApiKeys ?? []).map((c, i) => commandcodeToResource(c, i));
-          break;
-        case 'freebuff':
-          resources = (config.freebuffApiKeys ?? []).map((c, i) => freebuffToResource(c, i));
-          break;
-        case 'xai':
-          resources = (config.xaiApiKeys ?? []).map((item, index) => xaiToResource(item, index));
-          break;
-        case 'claude':
-          resources = (config.claudeApiKeys ?? []).reduce<ProviderResource[]>(
-            (out, item, index) => {
-              if (
-                !isApiKeyFunClaudeProvider(item) &&
-                (code0QuickAccessRemoved || !isCode0ClaudeProvider(item)) &&
-                (fennoAIHidden || !isFennoAIClaudeProvider(item)) &&
-                (qiniuCloudHidden || !isQiniuCloudClaudeProvider(item)) &&
-                !isLmuAIClaudeProvider(item) &&
-                (infistarHidden || !isInfistarClaudeProvider(item)) &&
-                !isKimiClaudeProvider(item) &&
-                (claudeApiQuickAccessRemoved || !isClaudeApiProvider(item))
-              ) {
-                out.push(claudeToResource(item, index));
-              }
-              return out;
-            },
-            []
-          );
-          break;
-        case 'claudeApi':
-          resources = (config.claudeApiKeys ?? []).reduce<ProviderResource[]>(
-            (out, item, index) => {
-              if (isClaudeApiProvider(item)) {
-                out.push(claudeApiToResource(item, index));
-              }
-              return out;
-            },
-            []
-          );
-          break;
-        case 'vertex':
-          resources = (config.vertexApiKeys ?? []).map((c, i) => vertexToResource(c, i));
-          break;
-        case 'mistral':
-          resources = (config.mistralApiKeys ?? []).map((c, i) => mistralToResource(c, i));
-          break;
-        case 'openaiCompatibility':
-          resources = (config.openaiCompatibility ?? []).reduce<ProviderResource[]>(
-            (out, item, index) => {
-              if (
-                !isApiKeyFunOpenAIProvider(item) &&
-                (code0QuickAccessRemoved || !isCode0OpenAIProvider(item)) &&
-                (qiniuCloudHidden || !isQiniuCloudOpenAIProvider(item)) &&
-                !isLmuAIOpenAIProvider(item) &&
-                (infistarHidden || !isInfistarOpenAIProvider(item)) &&
-                !isKimiOpenAIProvider(item)
-              ) {
-                out.push(openaiToResource(item, index));
-              }
-              return out;
-            },
-            []
-          );
-          break;
-        case 'apikeyFun': {
-          const sponsorResource = apiKeyFunToResource(buildApiKeyFunRaw(config));
-          resources = sponsorResource ? [sponsorResource] : [];
-          break;
-        }
-        case 'code0': {
-          const sponsorResource = code0ToResource(buildCode0Raw(config));
-          resources = sponsorResource ? [sponsorResource] : [];
-          break;
-        }
-        case 'fennoAI': {
-          const sponsorResource = fennoAIToResource(buildFennoAIRaw(config));
-          resources = sponsorResource ? [sponsorResource] : [];
-          break;
-        }
-        case 'qiniuCloud': {
-          const sponsorResource = qiniuCloudToResource(buildQiniuCloudRaw(config));
-          resources = sponsorResource ? [sponsorResource] : [];
-          break;
-        }
-        case 'lmuAI': {
-          const sponsorResource = lmuAIToResource(buildLmuAIRaw(config));
-          resources = sponsorResource ? [sponsorResource] : [];
-          break;
-        }
-        case 'infistar': {
-          const sponsorResource = infistarToResource(buildInfistarRaw(config));
-          resources = sponsorResource ? [sponsorResource] : [];
-          break;
-        }
-        case 'kimi': {
-          const sponsorResource = kimiToResource(buildKimiRaw(config));
-          resources = sponsorResource ? [sponsorResource] : [];
-          break;
-        }
-      }
-      return {
-        id: brand,
-        resources,
-      };
-    });
     return {
       fetchedAt,
-      groups: groups.filter(
-        (group) =>
-          !REMOVED_QUICK_ACCESS_BRANDS.has(group.id) && !isTemporarilyHiddenSponsorBrand(group.id)
-      ),
+      groups: buildProviderGroups(config),
     };
   }, [config, fetchedAt]);
 

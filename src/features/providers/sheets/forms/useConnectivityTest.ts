@@ -127,14 +127,18 @@ const buildCommandCodeProbePayload = (model: string): string =>
       gitStatus: '',
       recentCommits: [],
     },
-    memory: '',
-    taste: '',
+    // The backend executor's Go struct fields are json.RawMessage, whose zero
+    // value marshals to null, not "". Mirror that exactly.
+    memory: null,
+    taste: null,
     skills: null,
     permissionMode: 'standard',
     mode: 'agent',
     params: {
       model,
-      messages: [{ role: 'user', content: 'Hi' }],
+      // The real executor always sends content as an array of typed blocks
+      // (commandCodeWireContentBlock), never a bare string; match that shape.
+      messages: [{ role: 'user', content: [{ type: 'text', text: 'Hi' }] }],
       max_tokens: 20,
       // The upstream /alpha/generate endpoint is CLI-only and rejects
       // stream:false with 400 "Proxy use detected" (a non-streaming request

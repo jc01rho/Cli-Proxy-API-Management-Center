@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useReducer } from 'react';
-import { isMap, parse as parseYaml, parseDocument } from 'yaml';
+import { isMap, isScalar, isSeq, parse as parseYaml, parseDocument } from 'yaml';
+import type { Node, Pair, YAMLMap, YAMLSeq } from 'yaml';
 import type {
   DisableImageGenerationMode,
   PluginStoreAuthApplyTo,
@@ -106,23 +107,9 @@ function deleteIfMapEmpty(doc: YamlDocument, path: YamlPath): void {
 }
 
 function setBooleanInDoc(doc: YamlDocument, path: YamlPath, value: boolean): void {
-  if (value) {
-    doc.setIn(path, true);
-    return;
-  }
-  if (docHas(doc, path)) doc.setIn(path, false);
-}
-
-function shouldWriteManagedField(
-  doc: YamlDocument,
-  path: YamlPath,
-  dirtyFields: Set<string>,
-  dirtyKey: string
-): boolean {
-  // Optional fields managed by the visual editor must not be created during unrelated saves.
-  // Only materialize them when the YAML already had the key or the user changed that field.
-  // Use this guard for future optional visual-editor fields instead of unconditional `setIn`.
-  return docHas(doc, path) || dirtyFields.has(dirtyKey);
+  // Callers only write dirty fields. Explicit false must override backend defaults
+  // even when the original document omitted the key (for example, ws-auth).
+  doc.setIn(path, value);
 }
 
 function setStringInDoc(doc: YamlDocument, path: YamlPath, value: unknown): void {
@@ -161,7 +148,7 @@ function setIntFromStringInDoc(doc: YamlDocument, path: YamlPath, value: unknown
   }
 
   const parsed = Number(trimmed);
-  if (Number.isFinite(parsed)) {
+  if (Number.isSafeInteger(parsed)) {
     doc.setIn(path, parsed);
     return;
   }
@@ -197,11 +184,15 @@ function hasPayloadDirtyFields(dirtyFields: Set<string>): boolean {
   return PAYLOAD_DIRTY_FIELDS.some((field) => dirtyFields.has(field));
 }
 
-function getNonNegativeIntegerError(value: string): 'non_negative_integer' | undefined {
+function getIntegerError(value: string): 'integer' | undefined {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
-  if (!/^-?\d+$/.test(trimmed)) return 'non_negative_integer';
-  return Number(trimmed) >= 0 ? undefined : 'non_negative_integer';
+  return /^-?\d+$/.test(trimmed) && Number.isSafeInteger(Number(trimmed)) ? undefined : 'integer';
+}
+
+function getNonNegativeIntegerError(value: string): 'non_negative_integer' | undefined {
+  if (getIntegerError(value)) return 'non_negative_integer';
+  return Number(value.trim()) >= 0 ? undefined : 'non_negative_integer';
 }
 
 function getPortError(value: string): 'port_range' | undefined {
@@ -389,12 +380,12 @@ export function getVisualConfigValidationErrors(
     logsMaxTotalSizeMb: getNonNegativeIntegerError(values.logsMaxTotalSizeMb),
     redisUsageQueueRetentionSeconds: getRedisRetentionError(values.redisUsageQueueRetentionSeconds),
     requestRetry: getNonNegativeIntegerError(values.requestRetry),
-    maxRetryCredentials: getNonNegativeIntegerError(values.maxRetryCredentials),
-    maxRetryInterval: getNonNegativeIntegerError(values.maxRetryInterval),
-    authAutoRefreshWorkers: getNonNegativeIntegerError(values.authAutoRefreshWorkers),
-    'streaming.keepaliveSeconds': getNonNegativeIntegerError(values.streaming.keepaliveSeconds),
-    'streaming.bootstrapRetries': getNonNegativeIntegerError(values.streaming.bootstrapRetries),
-    'streaming.nonstreamKeepaliveInterval': getNonNegativeIntegerError(
+    maxRetryCredentials: getIntegerError(values.maxRetryCredentials),
+    maxRetryInterval: getIntegerError(values.maxRetryInterval),
+    authAutoRefreshWorkers: getIntegerError(values.authAutoRefreshWorkers),
+    'streaming.keepaliveSeconds': getIntegerError(values.streaming.keepaliveSeconds),
+    'streaming.bootstrapRetries': getIntegerError(values.streaming.bootstrapRetries),
+    'streaming.nonstreamKeepaliveInterval': getIntegerError(
       values.streaming.nonstreamKeepaliveInterval
     ),
   };
@@ -999,27 +990,7 @@ function serializePayloadParamEntryValue(param: PayloadParamEntry): unknown {
   return param.value;
 }
 
-function serializePayloadHeadersForYaml(headers?: PayloadHeaderEntry[]): Record<string, string> {
-  const result: Record<string, string> = {};
-  for (const header of headers ?? []) {
-    const name = header.name.trim();
-    if (!name) continue;
-    result[name] = header.value;
-  }
-  return result;
-}
 
-function serializePayloadConditionsForYaml(
-  conditions?: PayloadParamEntry[]
-): Array<Record<string, unknown>> {
-  const result: Array<Record<string, unknown>> = [];
-  for (const condition of conditions ?? []) {
-    const path = condition.path.trim();
-    if (!path) continue;
-    result.push({ [path]: serializePayloadParamEntryValue(condition) });
-  }
-  return result;
-}
 
 function serializeStringListForYaml(items?: string[]): string[] {
   return (items ?? []).map((item) => item.trim()).filter(Boolean);
@@ -1049,82 +1020,6 @@ function serializePluginStoreAuthForYaml(
     .filter((rule): rule is Record<string, unknown> => Boolean(rule));
 }
 
-function serializePayloadModelsForYaml(
-  models: PayloadRule['models']
-): Array<Record<string, unknown>> {
-  return (models || [])
-    .filter((m) => m.name?.trim())
-    .map((m) => {
-      const obj: Record<string, unknown> = { name: m.name.trim() };
-      if (m.protocol) obj.protocol = m.protocol;
-      if (m.fromProtocol) obj['from-protocol'] = m.fromProtocol;
-
-      const headers = serializePayloadHeadersForYaml(m.headers);
-      if (Object.keys(headers).length) obj.headers = headers;
-
-      const match = serializePayloadConditionsForYaml(m.match);
-      if (match.length) obj.match = match;
-
-      const notMatch = serializePayloadConditionsForYaml(m.notMatch);
-      if (notMatch.length) obj['not-match'] = notMatch;
-
-      const exist = serializeStringListForYaml(m.exist);
-      if (exist.length) obj.exist = exist;
-
-      const notExist = serializeStringListForYaml(m.notExist);
-      if (notExist.length) obj['not-exist'] = notExist;
-
-      return obj;
-    });
-}
-
-function serializePayloadRulesForYaml(rules: PayloadRule[]): Array<Record<string, unknown>> {
-  return rules
-    .map((rule) => {
-      const models = serializePayloadModelsForYaml(rule.models);
-
-      const params: Record<string, unknown> = {};
-      for (const param of rule.params || []) {
-        if (!param.path?.trim()) continue;
-        params[param.path.trim()] = serializePayloadParamEntryValue(param);
-      }
-
-      return { models, params };
-    })
-    .filter((rule) => rule.models.length > 0);
-}
-
-function serializePayloadFilterRulesForYaml(
-  rules: PayloadFilterRule[]
-): Array<Record<string, unknown>> {
-  return rules
-    .map((rule) => {
-      const models = serializePayloadModelsForYaml(rule.models);
-
-      const params = (Array.isArray(rule.params) ? rule.params : [])
-        .map((path) => String(path).trim())
-        .filter(Boolean);
-
-      return { models, params };
-    })
-    .filter((rule) => rule.models.length > 0);
-}
-
-function serializeRawPayloadRulesForYaml(rules: PayloadRule[]): Array<Record<string, unknown>> {
-  return rules
-    .map((rule) => {
-      const models = serializePayloadModelsForYaml(rule.models);
-
-      const params: Record<string, unknown> = {};
-      for (const param of rule.params || []) {
-        if (!param.path?.trim()) continue;
-        params[param.path.trim()] = param.value;
-      }
-
-      return { models, params };
-    })
-    .filter((rule) => rule.models.length > 0);
-}
 
 type VisualConfigState = {
   visualValues: VisualConfigValues;
@@ -1146,6 +1041,302 @@ type VisualConfigAction =
       type: 'set_values';
       values: Partial<VisualConfigValues>;
     };
+
+function mapPair(map: YAMLMap, key: string): Pair | undefined {
+  return map.items.find((pair) => String(isScalar(pair.key) ? pair.key.value : pair.key) === key);
+}
+
+function preserveNodeComments(previous: Node | null | undefined, next: Node): Node {
+  if (!previous) return next;
+  next.comment = previous.comment;
+  next.commentBefore = previous.commentBefore;
+  next.spaceBefore = previous.spaceBefore;
+  return next;
+}
+
+function updatePairValue(doc: YamlDocument, pair: Pair, value: unknown): void {
+  if (isScalar(pair.value) && (value === null || typeof value !== 'object')) {
+    pair.value.value = value;
+    return;
+  }
+  const previous = pair.value && typeof pair.value === 'object' ? (pair.value as Node) : undefined;
+  pair.value = preserveNodeComments(previous, doc.createNode(value));
+}
+
+function setMapValue(doc: YamlDocument, map: YAMLMap, key: string, value: unknown): void {
+  const pair = mapPair(map, key);
+  if (pair) {
+    updatePairValue(doc, pair, value);
+  } else {
+    map.items.push(doc.createPair(key, value));
+  }
+}
+
+function deleteMapValue(map: YAMLMap, key: string): void {
+  const pair = mapPair(map, key);
+  if (pair) map.items.splice(map.items.indexOf(pair), 1);
+}
+
+function ensureMapValue(doc: YamlDocument, map: YAMLMap, key: string): YAMLMap {
+  const pair = mapPair(map, key);
+  if (pair && isMap(pair.value)) return pair.value;
+  const next = doc.createNode({});
+  if (!isMap(next)) throw new Error('Expected YAML map');
+  if (pair) {
+    pair.value = preserveNodeComments(
+      pair.value && typeof pair.value === 'object' ? (pair.value as Node) : undefined,
+      next
+    );
+  } else {
+    map.items.push(doc.createPair(key, next));
+  }
+  return next;
+}
+
+function ensureSeqValue(doc: YamlDocument, map: YAMLMap, key: string): YAMLSeq {
+  const pair = mapPair(map, key);
+  if (pair && isSeq(pair.value)) return pair.value;
+  const next = doc.createNode([]);
+  if (!isSeq(next)) throw new Error('Expected YAML sequence');
+  if (pair) {
+    pair.value = preserveNodeComments(
+      pair.value && typeof pair.value === 'object' ? (pair.value as Node) : undefined,
+      next
+    );
+  } else {
+    map.items.push(doc.createPair(key, next));
+  }
+  return next;
+}
+
+function replaceSequenceItems(seq: YAMLSeq, items: Node[]): void {
+  const originalItems = [...seq.items] as Node[];
+  const comments = new Map<Node, string | null | undefined>();
+  originalItems.forEach((item, index) => {
+    comments.set(item, index === 0 ? seq.commentBefore : item.commentBefore);
+  });
+
+  items.forEach((item) => {
+    item.commentBefore = comments.get(item);
+  });
+  seq.items = items;
+  seq.commentBefore = items.length > 0 ? items[0].commentBefore : undefined;
+  if (items[0]) items[0].commentBefore = undefined;
+}
+
+function syncStringSequence(
+  doc: YamlDocument,
+  map: YAMLMap,
+  key: string,
+  baseline: string[] | undefined,
+  desired: string[] | undefined
+): void {
+  const values = serializeStringListForYaml(desired);
+  if (values.length === 0) {
+    deleteMapValue(map, key);
+    return;
+  }
+
+  const seq = ensureSeqValue(doc, map, key);
+  const available = (baseline ?? []).map((value, index) => ({ value: value.trim(), index }));
+  const used = new Set<number>();
+  const items = values.map((value) => {
+    const match = available.find((item) => item.value === value && !used.has(item.index));
+    const existing = match ? seq.items[match.index] : undefined;
+    if (match) used.add(match.index);
+    if (isScalar(existing)) {
+      existing.value = value;
+      return existing;
+    }
+    return doc.createNode(value);
+  });
+  replaceSequenceItems(seq, items);
+}
+
+function replaceMapItems(map: YAMLMap, items: Pair[]): void {
+  const originalItems = [...map.items];
+  const comments = new Map<Pair, string | null | undefined>();
+  originalItems.forEach((pair, index) => {
+    const key = pair.key && typeof pair.key === 'object' ? (pair.key as Node) : undefined;
+    comments.set(pair, index === 0 ? map.commentBefore : key?.commentBefore);
+  });
+
+  items.forEach((pair) => {
+    const key = pair.key && typeof pair.key === 'object' ? (pair.key as Node) : undefined;
+    if (key) key.commentBefore = comments.get(pair);
+  });
+  map.items = items;
+  const firstKey = items[0]?.key;
+  const firstKeyNode = firstKey && typeof firstKey === 'object' ? (firstKey as Node) : undefined;
+  map.commentBefore = firstKeyNode?.commentBefore;
+  if (firstKeyNode) firstKeyNode.commentBefore = undefined;
+}
+
+function syncEntryMap<T extends { id: string }>(
+  doc: YamlDocument,
+  map: YAMLMap,
+  baseline: T[],
+  desired: T[],
+  getKey: (entry: T) => string,
+  getValue: (entry: T) => unknown
+): void {
+  const pairsById = new Map<string, Pair>();
+  baseline.forEach((entry) => {
+    const pair = mapPair(map, getKey(entry));
+    if (pair) pairsById.set(entry.id, pair);
+  });
+
+  const managedKeys = new Set(baseline.map((entry) => getKey(entry)));
+  const entries = desired.filter((entry) => getKey(entry).trim());
+  const desiredKeys = new Set(entries.map((entry) => getKey(entry).trim()));
+  const items = entries.map((entry) => {
+    const key = getKey(entry).trim();
+    const pair = pairsById.get(entry.id) ?? doc.createPair(key, getValue(entry));
+    if (isScalar(pair.key)) pair.key.value = key;
+    else pair.key = doc.createNode(key);
+    updatePairValue(doc, pair, getValue(entry));
+    return pair;
+  });
+  const unmanagedItems = map.items.filter((pair) => {
+    const key = String(isScalar(pair.key) ? pair.key.value : pair.key);
+    return !managedKeys.has(key) && !desiredKeys.has(key);
+  });
+  replaceMapItems(map, [...items, ...unmanagedItems]);
+}
+
+function syncConditionSequence(
+  doc: YamlDocument,
+  modelMap: YAMLMap,
+  key: string,
+  baseline: PayloadParamEntry[] | undefined,
+  desired: PayloadParamEntry[] | undefined
+): void {
+  const entries = (desired ?? []).filter((entry) => entry.path.trim());
+  if (entries.length === 0) {
+    deleteMapValue(modelMap, key);
+    return;
+  }
+  const seq = ensureSeqValue(doc, modelMap, key);
+  const nodesById = new Map((baseline ?? []).map((entry, index) => [entry.id, seq.items[index]]));
+  const items = entries.map((entry) => {
+    const existing = nodesById.get(entry.id);
+    const item = isMap(existing) ? existing : (doc.createNode({}) as YAMLMap);
+    const prior = baseline?.find((candidate) => candidate.id === entry.id);
+    syncEntryMap(
+      doc,
+      item,
+      prior ? [prior] : [],
+      [entry],
+      (value) => value.path,
+      (value) => serializePayloadParamEntryValue(value)
+    );
+    return item;
+  });
+  replaceSequenceItems(seq, items);
+}
+
+function syncPayloadModels(
+  doc: YamlDocument,
+  ruleMap: YAMLMap,
+  baseline: PayloadRule['models'],
+  desired: PayloadRule['models']
+): void {
+  const models = desired.filter((model) => model.name.trim());
+  const seq = ensureSeqValue(doc, ruleMap, 'models');
+  const nodesById = new Map(baseline.map((model, index) => [model.id, seq.items[index]]));
+  const items = models.map((model) => {
+    const existing = nodesById.get(model.id);
+    const modelMap = isMap(existing) ? existing : (doc.createNode({}) as YAMLMap);
+    const prior = baseline.find((candidate) => candidate.id === model.id);
+    setMapValue(doc, modelMap, 'name', model.name.trim());
+    if (model.protocol) setMapValue(doc, modelMap, 'protocol', model.protocol);
+    else deleteMapValue(modelMap, 'protocol');
+    if (model.fromProtocol) setMapValue(doc, modelMap, 'from-protocol', model.fromProtocol);
+    else deleteMapValue(modelMap, 'from-protocol');
+
+    const headers = model.headers?.filter((header) => header.name.trim()) ?? [];
+    if (headers.length) {
+      const headersMap = ensureMapValue(doc, modelMap, 'headers');
+      syncEntryMap(
+        doc,
+        headersMap,
+        prior?.headers ?? [],
+        headers,
+        (header) => header.name,
+        (header) => header.value
+      );
+    } else deleteMapValue(modelMap, 'headers');
+
+    syncConditionSequence(doc, modelMap, 'match', prior?.match, model.match);
+    syncConditionSequence(doc, modelMap, 'not-match', prior?.notMatch, model.notMatch);
+    syncStringSequence(doc, modelMap, 'exist', prior?.exist, model.exist);
+    syncStringSequence(doc, modelMap, 'not-exist', prior?.notExist, model.notExist);
+    return modelMap;
+  });
+  replaceSequenceItems(seq, items);
+}
+
+function syncPayloadRuleSequence(
+  doc: YamlDocument,
+  section: string,
+  baseline: PayloadRule[],
+  desired: PayloadRule[],
+  rawValues: boolean
+): void {
+  const payload = doc.getIn(['payload'], true);
+  if (!isMap(payload)) throw new Error('Expected payload map');
+  const rules = desired.filter((rule) => rule.models.some((model) => model.name.trim()));
+  if (rules.length === 0) {
+    deleteMapValue(payload, section);
+    return;
+  }
+
+  const seq = ensureSeqValue(doc, payload, section);
+  const nodesById = new Map(baseline.map((rule, index) => [rule.id, seq.items[index]]));
+  const items = rules.map((rule) => {
+    const existing = nodesById.get(rule.id);
+    const ruleMap = isMap(existing) ? existing : (doc.createNode({}) as YAMLMap);
+    const prior = baseline.find((candidate) => candidate.id === rule.id);
+    syncPayloadModels(doc, ruleMap, prior?.models ?? [], rule.models);
+    const params = ensureMapValue(doc, ruleMap, 'params');
+    syncEntryMap(
+      doc,
+      params,
+      prior?.params ?? [],
+      rule.params,
+      (param) => param.path,
+      (param) => (rawValues ? param.value : serializePayloadParamEntryValue(param))
+    );
+    return ruleMap;
+  });
+  replaceSequenceItems(seq, items);
+}
+
+function syncPayloadFilterSequence(
+  doc: YamlDocument,
+  baseline: PayloadFilterRule[],
+  desired: PayloadFilterRule[]
+): void {
+  const payload = doc.getIn(['payload'], true);
+  if (!isMap(payload)) throw new Error('Expected payload map');
+  const rules = desired.filter((rule) => rule.models.some((model) => model.name.trim()));
+  if (rules.length === 0) {
+    deleteMapValue(payload, 'filter');
+    return;
+  }
+
+  const seq = ensureSeqValue(doc, payload, 'filter');
+  const nodesById = new Map(baseline.map((rule, index) => [rule.id, seq.items[index]]));
+  const items = rules.map((rule) => {
+    const existing = nodesById.get(rule.id);
+    const ruleMap = isMap(existing) ? existing : (doc.createNode({}) as YAMLMap);
+    const prior = baseline.find((candidate) => candidate.id === rule.id);
+    syncPayloadModels(doc, ruleMap, prior?.models ?? [], rule.models);
+    syncStringSequence(doc, ruleMap, 'params', prior?.params, rule.params);
+    return ruleMap;
+  });
+  replaceSequenceItems(seq, items);
+}
 
 function createInitialVisualConfigState(): VisualConfigState {
   const initialValues = deepClone(DEFAULT_VISUAL_VALUES);
@@ -1468,7 +1659,7 @@ export function useVisualConfig() {
     undefined,
     createInitialVisualConfigState
   );
-  const { visualValues, visualParseError, dirtyFields } = state;
+  const { visualValues, visualParseError, dirtyFields, baselineValues } = state;
   const visualDirty = dirtyFields.size > 0;
   const visualValidationErrors = useMemo(
     () => getVisualConfigValidationErrors(visualValues),
@@ -1574,7 +1765,7 @@ export function useVisualConfig() {
             ? parsed['gpt-image-2-base-model']
             : '',
         authAutoRefreshWorkers: String(parsed['auth-auto-refresh-workers'] ?? ''),
-        wsAuth: Boolean(parsed['ws-auth']),
+        wsAuth: Boolean(parsed['ws-auth'] ?? DEFAULT_VISUAL_VALUES.wsAuth),
         apiKeyIpBlacklistFailureThreshold: String(
           asRecord(parsed['api-key-ip-blacklist'])?.['failure-threshold'] ?? ''
         ),
@@ -1623,8 +1814,12 @@ export function useVisualConfig() {
             ? codexHeaderDefaults['beta-features']
             : '',
 
-        quotaSwitchProject: Boolean(quotaExceeded?.['switch-project'] ?? true),
-        quotaSwitchPreviewModel: Boolean(quotaExceeded?.['switch-preview-model'] ?? true),
+        quotaSwitchProject: Boolean(
+          quotaExceeded?.['switch-project'] ?? DEFAULT_VISUAL_VALUES.quotaSwitchProject
+        ),
+        quotaSwitchPreviewModel: Boolean(
+          quotaExceeded?.['switch-preview-model'] ?? DEFAULT_VISUAL_VALUES.quotaSwitchPreviewModel
+        ),
         quotaAntigravityCredits: Boolean(quotaExceeded?.['antigravity-credits'] ?? false),
 
         routingStrategy: parseRoutingStrategy(routing?.strategy),
@@ -1694,96 +1889,86 @@ export function useVisualConfig() {
         const values = visualValues;
         const shouldWritePluginStoreAuth = dirtyFields.has('pluginStoreAuth');
 
-        setStringInDoc(doc, ['host'], values.host);
-        setIntFromStringInDoc(doc, ['port'], values.port);
+        if (dirtyFields.has('host')) setStringInDoc(doc, ['host'], values.host);
+        if (dirtyFields.has('port')) setIntFromStringInDoc(doc, ['port'], values.port);
 
-        if (
-          docHas(doc, ['tls']) ||
-          values.tlsEnable ||
-          values.tlsCert.trim() ||
-          values.tlsKey.trim()
-        ) {
+        const tlsDirty =
+          dirtyFields.has('tlsEnable') || dirtyFields.has('tlsCert') || dirtyFields.has('tlsKey');
+        if (tlsDirty) {
           ensureMapInDoc(doc, ['tls']);
-          setBooleanInDoc(doc, ['tls', 'enable'], values.tlsEnable);
-          setStringInDoc(doc, ['tls', 'cert'], values.tlsCert);
-          setStringInDoc(doc, ['tls', 'key'], values.tlsKey);
+          if (dirtyFields.has('tlsEnable')) {
+            setBooleanInDoc(doc, ['tls', 'enable'], values.tlsEnable);
+          }
+          if (dirtyFields.has('tlsCert')) setStringInDoc(doc, ['tls', 'cert'], values.tlsCert);
+          if (dirtyFields.has('tlsKey')) setStringInDoc(doc, ['tls', 'key'], values.tlsKey);
           deleteIfMapEmpty(doc, ['tls']);
         }
 
-        if (
-          docHas(doc, ['remote-management']) ||
-          values.rmAllowRemote ||
-          values.rmSecretKey.trim() ||
-          values.rmDisableControlPanel ||
-          values.rmDisableAutoUpdatePanel ||
-          values.rmPanelRepo.trim()
-        ) {
+        const remoteManagementDirty =
+          dirtyFields.has('rmAllowRemote') ||
+          dirtyFields.has('rmSecretKey') ||
+          dirtyFields.has('rmDisableControlPanel') ||
+          dirtyFields.has('rmDisableAutoUpdatePanel') ||
+          dirtyFields.has('rmPanelRepo');
+        if (remoteManagementDirty) {
           ensureMapInDoc(doc, ['remote-management']);
-          setBooleanInDoc(doc, ['remote-management', 'allow-remote'], values.rmAllowRemote);
-          setStringInDoc(doc, ['remote-management', 'secret-key'], values.rmSecretKey);
-          setBooleanInDoc(
-            doc,
-            ['remote-management', 'disable-control-panel'],
-            values.rmDisableControlPanel
-          );
-          setBooleanInDoc(
-            doc,
-            ['remote-management', 'disable-auto-update-panel'],
-            values.rmDisableAutoUpdatePanel
-          );
-          setStringInDoc(doc, ['remote-management', 'panel-github-repository'], values.rmPanelRepo);
-          if (docHas(doc, ['remote-management', 'panel-repo'])) {
+          if (dirtyFields.has('rmAllowRemote')) {
+            setBooleanInDoc(doc, ['remote-management', 'allow-remote'], values.rmAllowRemote);
+          }
+          if (dirtyFields.has('rmSecretKey')) {
+            setStringInDoc(doc, ['remote-management', 'secret-key'], values.rmSecretKey);
+          }
+          if (dirtyFields.has('rmDisableControlPanel')) {
+            setBooleanInDoc(
+              doc,
+              ['remote-management', 'disable-control-panel'],
+              values.rmDisableControlPanel
+            );
+          }
+          if (dirtyFields.has('rmDisableAutoUpdatePanel')) {
+            setBooleanInDoc(
+              doc,
+              ['remote-management', 'disable-auto-update-panel'],
+              values.rmDisableAutoUpdatePanel
+            );
+          }
+          if (dirtyFields.has('rmPanelRepo')) {
+            setStringInDoc(
+              doc,
+              ['remote-management', 'panel-github-repository'],
+              values.rmPanelRepo
+            );
+          }
+          if (dirtyFields.has('rmPanelRepo') && docHas(doc, ['remote-management', 'panel-repo'])) {
             doc.deleteIn(['remote-management', 'panel-repo']);
           }
           deleteIfMapEmpty(doc, ['remote-management']);
         }
 
-        setStringInDoc(doc, ['auth-dir'], values.authDir);
-        const apiKeys = values.apiKeysText
-          .split('\n')
-          .map((key) => key.trim())
-          .filter(Boolean);
-        if (apiKeys.length > 0) {
-          doc.setIn(['api-keys'], apiKeys);
-        } else if (docHas(doc, ['api-keys'])) {
-          doc.deleteIn(['api-keys']);
+        if (dirtyFields.has('authDir')) setStringInDoc(doc, ['auth-dir'], values.authDir);
+        if (dirtyFields.has('apiKeysText')) {
+          const apiKeys = values.apiKeysText
+            .split('\n')
+            .map((key) => key.trim())
+            .filter(Boolean);
+          if (apiKeys.length > 0) {
+            doc.setIn(['api-keys'], apiKeys);
+          } else if (docHas(doc, ['api-keys'])) {
+            doc.deleteIn(['api-keys']);
+          }
+          deleteLegacyApiKeysProvider(doc);
         }
-        const apiKeyModelWhitelists = normalizeApiKeyModelWhitelists(
-          values.apiKeyModelWhitelists,
-          apiKeys
-        );
-        if (Object.keys(apiKeyModelWhitelists).length > 0) {
-          doc.setIn(['api-key-model-whitelists'], apiKeyModelWhitelists);
-        } else if (docHas(doc, ['api-key-model-whitelists'])) {
-          doc.deleteIn(['api-key-model-whitelists']);
-        }
-        deleteLegacyApiKeysProvider(doc);
 
-        if (
-          docHas(doc, ['plugins']) ||
-          values.pluginsEnabled ||
-          values.pluginStoreSources.length > 0 ||
-          shouldWritePluginStoreAuth ||
-          shouldWriteManagedField(doc, ['plugins', 'enabled'], dirtyFields, 'pluginsEnabled') ||
-          shouldWriteManagedField(
-            doc,
-            ['plugins', 'store-sources'],
-            dirtyFields,
-            'pluginStoreSources'
-          ) ||
-          shouldWriteManagedField(doc, ['plugins', 'store-auth'], dirtyFields, 'pluginStoreAuth')
-        ) {
+        const pluginsDirty =
+          dirtyFields.has('pluginsEnabled') ||
+          dirtyFields.has('pluginStoreSources') ||
+          shouldWritePluginStoreAuth;
+        if (pluginsDirty) {
           ensureMapInDoc(doc, ['plugins']);
-          setBooleanInDoc(doc, ['plugins', 'enabled'], values.pluginsEnabled);
-          if (
-            values.pluginStoreSources.length > 0 ||
-            shouldWriteManagedField(
-              doc,
-              ['plugins', 'store-sources'],
-              dirtyFields,
-              'pluginStoreSources'
-            )
-          ) {
+          if (dirtyFields.has('pluginsEnabled')) {
+            setBooleanInDoc(doc, ['plugins', 'enabled'], values.pluginsEnabled);
+          }
+          if (dirtyFields.has('pluginStoreSources')) {
             setStringListInDoc(doc, ['plugins', 'store-sources'], values.pluginStoreSources);
           }
           if (shouldWritePluginStoreAuth) {
@@ -1798,51 +1983,57 @@ export function useVisualConfig() {
         }
 
         if (dirtyFields.has('debug')) setBooleanInDoc(doc, ['debug'], values.debug);
-
-        setBooleanInDoc(doc, ['commercial-mode'], values.commercialMode);
-        setBooleanInDoc(doc, ['logging-to-file'], values.loggingToFile);
-        setIntFromStringInDoc(doc, ['logs-max-total-size-mb'], values.logsMaxTotalSizeMb);
-        setIntFromStringInDoc(doc, ['error-logs-max-files'], values.errorLogsMaxFiles);
-        setBooleanInDoc(doc, ['usage-statistics-enabled'], values.usageStatisticsEnabled);
-        setIntFromStringInDoc(
-          doc,
-          ['redis-usage-queue-retention-seconds'],
-          values.redisUsageQueueRetentionSeconds
-        );
-
-        setStringInDoc(doc, ['proxy-url'], values.proxyUrl);
-        setBooleanInDoc(doc, ['force-model-prefix'], values.forceModelPrefix);
-        setBooleanInDoc(doc, ['passthrough-headers'], values.passthroughHeaders);
-        setIntFromStringInDoc(doc, ['request-retry'], values.requestRetry);
-        setIntFromStringInDoc(doc, ['max-retry-credentials'], values.maxRetryCredentials);
-        setIntFromStringInDoc(doc, ['max-retry-interval'], values.maxRetryInterval);
-        setBooleanInDoc(doc, ['disable-cooling'], values.disableCooling);
-        setDisableImageGenerationInDoc(
-          doc,
-          ['disable-image-generation'],
-          values.disableImageGeneration
-        );
-        if (
-          values.gptImage2BaseModel.trim() ||
-          shouldWriteManagedField(
-            doc,
-            ['gpt-image-2-base-model'],
-            dirtyFields,
-            'gptImage2BaseModel'
-          )
-        ) {
-          setStringInDoc(doc, ['gpt-image-2-base-model'], values.gptImage2BaseModel);
+        if (dirtyFields.has('commercialMode')) {
+          setBooleanInDoc(doc, ['commercial-mode'], values.commercialMode);
         }
-        setIntFromStringInDoc(doc, ['auth-auto-refresh-workers'], values.authAutoRefreshWorkers);
-        setBooleanInDoc(doc, ['ws-auth'], values.wsAuth);
-        if (
-          docHas(doc, ['antigravity-signature-cache-enabled']) ||
-          !values.antigravitySignatureCacheEnabled
-        ) {
-          doc.setIn(
-            ['antigravity-signature-cache-enabled'],
-            values.antigravitySignatureCacheEnabled
+        if (dirtyFields.has('loggingToFile')) {
+          setBooleanInDoc(doc, ['logging-to-file'], values.loggingToFile);
+        }
+        if (dirtyFields.has('logsMaxTotalSizeMb')) {
+          setIntFromStringInDoc(doc, ['logs-max-total-size-mb'], values.logsMaxTotalSizeMb);
+        }
+        if (dirtyFields.has('errorLogsMaxFiles')) {
+          setIntFromStringInDoc(doc, ['error-logs-max-files'], values.errorLogsMaxFiles);
+        }
+        if (dirtyFields.has('usageStatisticsEnabled')) {
+          setBooleanInDoc(doc, ['usage-statistics-enabled'], values.usageStatisticsEnabled);
+        }
+        if (dirtyFields.has('redisUsageQueueRetentionSeconds')) {
+          setIntFromStringInDoc(
+            doc,
+            ['redis-usage-queue-retention-seconds'],
+            values.redisUsageQueueRetentionSeconds
           );
+        }
+
+        if (dirtyFields.has('proxyUrl')) setStringInDoc(doc, ['proxy-url'], values.proxyUrl);
+        if (dirtyFields.has('forceModelPrefix')) {
+          setBooleanInDoc(doc, ['force-model-prefix'], values.forceModelPrefix);
+        }
+        if (dirtyFields.has('passthroughHeaders')) {
+          setBooleanInDoc(doc, ['passthrough-headers'], values.passthroughHeaders);
+        }
+        if (dirtyFields.has('requestRetry')) {
+          setIntFromStringInDoc(doc, ['request-retry'], values.requestRetry);
+        }
+        if (dirtyFields.has('maxRetryCredentials')) {
+          setIntFromStringInDoc(doc, ['max-retry-credentials'], values.maxRetryCredentials);
+        }
+        if (dirtyFields.has('maxRetryInterval')) {
+          setIntFromStringInDoc(doc, ['max-retry-interval'], values.maxRetryInterval);
+        }
+        if (dirtyFields.has('disableCooling')) {
+          setBooleanInDoc(doc, ['disable-cooling'], values.disableCooling);
+        }
+        if (dirtyFields.has('disableImageGeneration')) {
+          setDisableImageGenerationInDoc(
+            doc,
+            ['disable-image-generation'],
+            values.disableImageGeneration
+          );
+        }
+        if (dirtyFields.has('gptImage2BaseModel')) {
+          setStringInDoc(doc, ['gpt-image-2-base-model'], values.gptImage2BaseModel);
         }
         if (dirtyFields.has('authAutoRefreshWorkers')) {
           setIntFromStringInDoc(doc, ['auth-auto-refresh-workers'], values.authAutoRefreshWorkers);
@@ -1875,69 +2066,231 @@ export function useVisualConfig() {
             values.antigravitySignatureBypassStrict
           );
         }
-        setBooleanInDoc(
-          doc,
-          ['antigravity-signature-bypass-strict'],
-          values.antigravitySignatureBypassStrict
-        );
 
-        if (
-          docHas(doc, ['claude-header-defaults']) ||
-          values.claudeHeaderUserAgent.trim() ||
-          values.claudeHeaderPackageVersion.trim() ||
-          values.claudeHeaderRuntimeVersion.trim() ||
-          values.claudeHeaderOs.trim() ||
-          values.claudeHeaderArch.trim() ||
-          values.claudeHeaderTimeout.trim() ||
-          values.claudeHeaderStabilizeDeviceProfile
-        ) {
+        const claudeHeadersDirty =
+          dirtyFields.has('claudeHeaderUserAgent') ||
+          dirtyFields.has('claudeHeaderPackageVersion') ||
+          dirtyFields.has('claudeHeaderRuntimeVersion') ||
+          dirtyFields.has('claudeHeaderOs') ||
+          dirtyFields.has('claudeHeaderArch') ||
+          dirtyFields.has('claudeHeaderTimeout') ||
+          dirtyFields.has('claudeHeaderStabilizeDeviceProfile');
+        if (claudeHeadersDirty) {
           ensureMapInDoc(doc, ['claude-header-defaults']);
-          setStringInDoc(
-            doc,
-            ['claude-header-defaults', 'user-agent'],
-            values.claudeHeaderUserAgent
-          );
-          setStringInDoc(
-            doc,
-            ['claude-header-defaults', 'package-version'],
-            values.claudeHeaderPackageVersion
-          );
-          setStringInDoc(
-            doc,
-            ['claude-header-defaults', 'runtime-version'],
-            values.claudeHeaderRuntimeVersion
-          );
-          setStringInDoc(doc, ['claude-header-defaults', 'os'], values.claudeHeaderOs);
-          setStringInDoc(doc, ['claude-header-defaults', 'arch'], values.claudeHeaderArch);
-          setStringInDoc(doc, ['claude-header-defaults', 'timeout'], values.claudeHeaderTimeout);
-          setBooleanInDoc(
-            doc,
-            ['claude-header-defaults', 'stabilize-device-profile'],
-            values.claudeHeaderStabilizeDeviceProfile
-          );
+          if (dirtyFields.has('claudeHeaderUserAgent')) {
+            setStringInDoc(
+              doc,
+              ['claude-header-defaults', 'user-agent'],
+              values.claudeHeaderUserAgent
+            );
+          }
+          if (dirtyFields.has('claudeHeaderPackageVersion')) {
+            setStringInDoc(
+              doc,
+              ['claude-header-defaults', 'package-version'],
+              values.claudeHeaderPackageVersion
+            );
+          }
+          if (dirtyFields.has('claudeHeaderRuntimeVersion')) {
+            setStringInDoc(
+              doc,
+              ['claude-header-defaults', 'runtime-version'],
+              values.claudeHeaderRuntimeVersion
+            );
+          }
+          if (dirtyFields.has('claudeHeaderOs')) {
+            setStringInDoc(doc, ['claude-header-defaults', 'os'], values.claudeHeaderOs);
+          }
+          if (dirtyFields.has('claudeHeaderArch')) {
+            setStringInDoc(doc, ['claude-header-defaults', 'arch'], values.claudeHeaderArch);
+          }
+          if (dirtyFields.has('claudeHeaderTimeout')) {
+            setStringInDoc(doc, ['claude-header-defaults', 'timeout'], values.claudeHeaderTimeout);
+          }
+          if (dirtyFields.has('claudeHeaderStabilizeDeviceProfile')) {
+            setBooleanInDoc(
+              doc,
+              ['claude-header-defaults', 'stabilize-device-profile'],
+              values.claudeHeaderStabilizeDeviceProfile
+            );
+          }
           deleteIfMapEmpty(doc, ['claude-header-defaults']);
         }
 
-        if (
-          docHas(doc, ['codex-header-defaults']) ||
-          values.codexHeaderUserAgent.trim() ||
-          values.codexHeaderBetaFeatures.trim()
-        ) {
+        const codexHeadersDirty =
+          dirtyFields.has('codexHeaderUserAgent') || dirtyFields.has('codexHeaderBetaFeatures');
+        if (codexHeadersDirty) {
           ensureMapInDoc(doc, ['codex-header-defaults']);
-          setStringInDoc(doc, ['codex-header-defaults', 'user-agent'], values.codexHeaderUserAgent);
-          setStringInDoc(
-            doc,
-            ['codex-header-defaults', 'beta-features'],
-            values.codexHeaderBetaFeatures
-          );
+          if (dirtyFields.has('codexHeaderUserAgent')) {
+            setStringInDoc(
+              doc,
+              ['codex-header-defaults', 'user-agent'],
+              values.codexHeaderUserAgent
+            );
+          }
+          if (dirtyFields.has('codexHeaderBetaFeatures')) {
+            setStringInDoc(
+              doc,
+              ['codex-header-defaults', 'beta-features'],
+              values.codexHeaderBetaFeatures
+            );
+          }
           deleteIfMapEmpty(doc, ['codex-header-defaults']);
         }
 
+        const quotaDirty =
+          dirtyFields.has('quotaSwitchProject') ||
+          dirtyFields.has('quotaSwitchPreviewModel') ||
+          dirtyFields.has('quotaAntigravityCredits');
+        if (quotaDirty) {
+          ensureMapInDoc(doc, ['quota-exceeded']);
+          if (dirtyFields.has('quotaSwitchProject')) {
+            doc.setIn(['quota-exceeded', 'switch-project'], values.quotaSwitchProject);
+          }
+          if (dirtyFields.has('quotaSwitchPreviewModel')) {
+            doc.setIn(['quota-exceeded', 'switch-preview-model'], values.quotaSwitchPreviewModel);
+          }
+          if (dirtyFields.has('quotaAntigravityCredits')) {
+            doc.setIn(['quota-exceeded', 'antigravity-credits'], values.quotaAntigravityCredits);
+          }
+          deleteIfMapEmpty(doc, ['quota-exceeded']);
+        }
+
+        const routingDirty =
+          dirtyFields.has('routingStrategy') ||
+          dirtyFields.has('routingSessionAffinity') ||
+          dirtyFields.has('routingSessionAffinityTTL');
+        if (routingDirty) {
+          ensureMapInDoc(doc, ['routing']);
+          if (dirtyFields.has('routingStrategy')) {
+            doc.setIn(['routing', 'strategy'], values.routingStrategy);
+          }
+          if (dirtyFields.has('routingSessionAffinity')) {
+            setBooleanInDoc(doc, ['routing', 'session-affinity'], values.routingSessionAffinity);
+          }
+          if (dirtyFields.has('routingSessionAffinityTTL')) {
+            setStringInDoc(
+              doc,
+              ['routing', 'session-affinity-ttl'],
+              values.routingSessionAffinityTTL
+            );
+          }
+          deleteIfMapEmpty(doc, ['routing']);
+        }
+
+        const keepaliveSeconds =
+          typeof values.streaming?.keepaliveSeconds === 'string'
+            ? values.streaming.keepaliveSeconds
+            : '';
+        const bootstrapRetries =
+          typeof values.streaming?.bootstrapRetries === 'string'
+            ? values.streaming.bootstrapRetries
+            : '';
+        const nonstreamKeepaliveInterval =
+          typeof values.streaming?.nonstreamKeepaliveInterval === 'string'
+            ? values.streaming.nonstreamKeepaliveInterval
+            : '';
+
+        const streamingDirty =
+          dirtyFields.has('streaming.keepaliveSeconds') ||
+          dirtyFields.has('streaming.bootstrapRetries');
+        if (streamingDirty) {
+          ensureMapInDoc(doc, ['streaming']);
+          if (dirtyFields.has('streaming.keepaliveSeconds')) {
+            setIntFromStringInDoc(doc, ['streaming', 'keepalive-seconds'], keepaliveSeconds);
+          }
+          if (dirtyFields.has('streaming.bootstrapRetries')) {
+            setIntFromStringInDoc(doc, ['streaming', 'bootstrap-retries'], bootstrapRetries);
+          }
+          deleteIfMapEmpty(doc, ['streaming']);
+        }
+
+        if (dirtyFields.has('streaming.nonstreamKeepaliveInterval')) {
+          setIntFromStringInDoc(doc, ['nonstream-keepalive-interval'], nonstreamKeepaliveInterval);
+        }
+
+        if (hasPayloadDirtyFields(dirtyFields)) {
+          ensureMapInDoc(doc, ['payload']);
+          if (dirtyFields.has('payloadDefaultRules')) {
+            syncPayloadRuleSequence(
+              doc,
+              'default',
+              baselineValues.payloadDefaultRules,
+              values.payloadDefaultRules,
+              false
+            );
+          }
+          if (dirtyFields.has('payloadDefaultRawRules')) {
+            syncPayloadRuleSequence(
+              doc,
+              'default-raw',
+              baselineValues.payloadDefaultRawRules,
+              values.payloadDefaultRawRules,
+              true
+            );
+          }
+          if (dirtyFields.has('payloadOverrideRules')) {
+            syncPayloadRuleSequence(
+              doc,
+              'override',
+              baselineValues.payloadOverrideRules,
+              values.payloadOverrideRules,
+              false
+            );
+          }
+          if (dirtyFields.has('payloadOverrideRawRules')) {
+            syncPayloadRuleSequence(
+              doc,
+              'override-raw',
+              baselineValues.payloadOverrideRawRules,
+              values.payloadOverrideRawRules,
+              true
+            );
+          }
+          if (dirtyFields.has('payloadFilterRules')) {
+            syncPayloadFilterSequence(
+              doc,
+              baselineValues.payloadFilterRules,
+              values.payloadFilterRules
+            );
+          }
+          deleteIfMapEmpty(doc, ['payload']);
+        }
+        if (dirtyFields.has('apiKeyModelWhitelists')) {
+          const whitelistApiKeys = values.apiKeysText
+            .split('\n')
+            .map((key) => key.trim())
+            .filter(Boolean);
+          const apiKeyModelWhitelists = normalizeApiKeyModelWhitelists(
+            values.apiKeyModelWhitelists,
+            whitelistApiKeys
+          );
+          if (Object.keys(apiKeyModelWhitelists).length > 0) {
+            doc.setIn(['api-key-model-whitelists'], apiKeyModelWhitelists);
+          } else if (docHas(doc, ['api-key-model-whitelists'])) {
+            doc.deleteIn(['api-key-model-whitelists']);
+          }
+        }
+
+        if (dirtyFields.has('oauthEndpointOverrides')) {
+          const oauthEndpointOverrides = serializeOauthEndpointOverrides(
+            values.oauthEndpointOverrides
+          );
+          if (Object.keys(oauthEndpointOverrides).length > 0) {
+            doc.setIn(['oauth-endpoint-overrides'], oauthEndpointOverrides);
+          } else if (docHas(doc, ['oauth-endpoint-overrides'])) {
+            doc.deleteIn(['oauth-endpoint-overrides']);
+          }
+        }
+
+        if (dirtyFields.has('enableGeminiCliEndpoint')) {
+          setBooleanInDoc(doc, ['enable-gemini-cli-endpoint'], values.enableGeminiCliEndpoint);
+        }
+
         if (
-          docHas(doc, ['api-key-ip-blacklist']) ||
-          values.apiKeyIpBlacklistFailureThreshold.trim() ||
-          values.apiKeyIpBlacklistFailureWindow.trim() ||
-          values.apiKeyIpBlacklistBlockDuration.trim()
+          dirtyFields.has('apiKeyIpBlacklistFailureThreshold') ||
+          dirtyFields.has('apiKeyIpBlacklistFailureWindow') ||
+          dirtyFields.has('apiKeyIpBlacklistBlockDuration')
         ) {
           ensureMapInDoc(doc, ['api-key-ip-blacklist']);
           setIntFromStringInDoc(
@@ -1958,161 +2311,74 @@ export function useVisualConfig() {
           deleteIfMapEmpty(doc, ['api-key-ip-blacklist']);
         }
 
-        const quotaDirty =
-          dirtyFields.has('quotaSwitchProject') ||
-          dirtyFields.has('quotaSwitchPreviewModel') ||
-          dirtyFields.has('quotaAntigravityCredits');
-        if (quotaDirty) {
-          ensureMapInDoc(doc, ['quota-exceeded']);
-          const writeQuotaAntigravityCredits = shouldWriteManagedField(
-            doc,
-            ['quota-exceeded', 'antigravity-credits'],
-            dirtyFields,
-            'quotaAntigravityCredits'
-          );
-          doc.setIn(['quota-exceeded', 'switch-project'], values.quotaSwitchProject);
-          doc.setIn(['quota-exceeded', 'switch-preview-model'], values.quotaSwitchPreviewModel);
-          if (writeQuotaAntigravityCredits) {
-            doc.setIn(['quota-exceeded', 'antigravity-credits'], values.quotaAntigravityCredits);
-          }
-          deleteIfMapEmpty(doc, ['quota-exceeded']);
-        }
-
+        const writeRoutingMode =
+          dirtyFields.has('routingMode') ||
+          dirtyFields.has('routingStrategy') ||
+          docHas(doc, ['routing', 'mode']);
+        const writeTokenThresholdRules =
+          dirtyFields.has('tokenThresholdRules') ||
+          docHas(doc, ['routing', 'token-threshold-rules']);
+        const writeModelTimeGates =
+          dirtyFields.has('modelTimeGates') || docHas(doc, ['routing', 'model-time-gates']);
+        const writeFallbackModels =
+          dirtyFields.has('fallbackModels') || docHas(doc, ['routing', 'fallback-models']);
+        const writeFallbackChain =
+          dirtyFields.has('fallbackChain') || docHas(doc, ['routing', 'fallback-chain']);
+        const writeFallbackMaxDepth =
+          dirtyFields.has('fallbackMaxDepth') || docHas(doc, ['routing', 'fallback-max-depth']);
         if (
-          docHas(doc, ['routing']) ||
-          values.routingStrategy !== 'round-robin' ||
-          values.routingMode !== 'provider-based' ||
-          values.tokenThresholdRules.length > 0 ||
-          Object.keys(values.fallbackModels).length > 0 ||
-          values.fallbackChain.length > 0 ||
-          values.fallbackMaxDepth.trim() !== '' ||
-          values.routingSessionAffinity ||
-          values.routingSessionAffinityTTL.trim()
+          writeRoutingMode ||
+          writeTokenThresholdRules ||
+          writeModelTimeGates ||
+          writeFallbackModels ||
+          writeFallbackChain ||
+          writeFallbackMaxDepth
         ) {
           ensureMapInDoc(doc, ['routing']);
-          doc.setIn(['routing', 'strategy'], values.routingStrategy);
-          doc.setIn(['routing', 'mode'], values.routingMode);
-          setBooleanInDoc(doc, ['routing', 'session-affinity'], values.routingSessionAffinity);
-          setStringInDoc(
-            doc,
-            ['routing', 'session-affinity-ttl'],
-            values.routingSessionAffinityTTL
-          );
-
-          const tokenThresholdRules = serializeTokenThresholdRules(values.tokenThresholdRules);
-          if (tokenThresholdRules.length > 0) {
-            doc.setIn(['routing', 'token-threshold-rules'], tokenThresholdRules);
-          } else if (docHas(doc, ['routing', 'token-threshold-rules'])) {
-            doc.deleteIn(['routing', 'token-threshold-rules']);
+          if (writeRoutingMode) {
+            doc.setIn(['routing', 'mode'], values.routingMode);
           }
-
-          const modelTimeGates = serializeModelTimeGates(values.modelTimeGates);
-          if (modelTimeGates.length > 0) {
-            doc.setIn(['routing', 'model-time-gates'], modelTimeGates);
-          } else if (docHas(doc, ['routing', 'model-time-gates'])) {
-            doc.deleteIn(['routing', 'model-time-gates']);
+          if (writeTokenThresholdRules) {
+            const tokenThresholdRules = serializeTokenThresholdRules(values.tokenThresholdRules);
+            if (tokenThresholdRules.length > 0) {
+              doc.setIn(['routing', 'token-threshold-rules'], tokenThresholdRules);
+            } else if (docHas(doc, ['routing', 'token-threshold-rules'])) {
+              doc.deleteIn(['routing', 'token-threshold-rules']);
+            }
           }
-
-          const fallbackEntries = Object.entries(values.fallbackModels)
-            .map(([source, target]) => [source.trim(), target.trim()] as const)
-            .filter(([source, target]) => source && target);
-          if (fallbackEntries.length > 0) {
-            doc.setIn(['routing', 'fallback-models'], Object.fromEntries(fallbackEntries));
-          } else if (docHas(doc, ['routing', 'fallback-models'])) {
-            doc.deleteIn(['routing', 'fallback-models']);
+          if (writeModelTimeGates) {
+            const modelTimeGates = serializeModelTimeGates(values.modelTimeGates);
+            if (modelTimeGates.length > 0) {
+              doc.setIn(['routing', 'model-time-gates'], modelTimeGates);
+            } else if (docHas(doc, ['routing', 'model-time-gates'])) {
+              doc.deleteIn(['routing', 'model-time-gates']);
+            }
           }
-
-          const fallbackChain = (values.fallbackChain || [])
-            .map((entry) => String(entry ?? '').trim())
-            .filter(Boolean);
-          if (fallbackChain.length > 0) {
-            doc.setIn(['routing', 'fallback-chain'], fallbackChain);
-          } else if (docHas(doc, ['routing', 'fallback-chain'])) {
-            doc.deleteIn(['routing', 'fallback-chain']);
+          if (writeFallbackModels) {
+            const fallbackEntries = Object.entries(values.fallbackModels)
+              .map(([source, target]) => [source.trim(), target.trim()] as const)
+              .filter(([source, target]) => source && target);
+            if (fallbackEntries.length > 0) {
+              doc.setIn(['routing', 'fallback-models'], Object.fromEntries(fallbackEntries));
+            } else if (docHas(doc, ['routing', 'fallback-models'])) {
+              doc.deleteIn(['routing', 'fallback-models']);
+            }
           }
-
-          setIntFromStringInDoc(doc, ['routing', 'fallback-max-depth'], values.fallbackMaxDepth);
+          if (writeFallbackChain) {
+            const fallbackChain = (values.fallbackChain || [])
+              .map((entry) => String(entry ?? '').trim())
+              .filter(Boolean);
+            if (fallbackChain.length > 0) {
+              doc.setIn(['routing', 'fallback-chain'], fallbackChain);
+            } else if (docHas(doc, ['routing', 'fallback-chain'])) {
+              doc.deleteIn(['routing', 'fallback-chain']);
+            }
+          }
+          if (writeFallbackMaxDepth) {
+            setIntFromStringInDoc(doc, ['routing', 'fallback-max-depth'], values.fallbackMaxDepth);
+          }
           deleteIfMapEmpty(doc, ['routing']);
         }
-
-        const oauthEndpointOverrides = serializeOauthEndpointOverrides(
-          values.oauthEndpointOverrides
-        );
-        if (Object.keys(oauthEndpointOverrides).length > 0) {
-          doc.setIn(['oauth-endpoint-overrides'], oauthEndpointOverrides);
-        } else if (docHas(doc, ['oauth-endpoint-overrides'])) {
-          doc.deleteIn(['oauth-endpoint-overrides']);
-        }
-
-        const keepaliveSeconds =
-          typeof values.streaming?.keepaliveSeconds === 'string'
-            ? values.streaming.keepaliveSeconds
-            : '';
-        const bootstrapRetries =
-          typeof values.streaming?.bootstrapRetries === 'string'
-            ? values.streaming.bootstrapRetries
-            : '';
-        const nonstreamKeepaliveInterval =
-          typeof values.streaming?.nonstreamKeepaliveInterval === 'string'
-            ? values.streaming.nonstreamKeepaliveInterval
-            : '';
-
-        const streamingDefined =
-          docHas(doc, ['streaming']) || keepaliveSeconds.trim() || bootstrapRetries.trim();
-        if (streamingDefined) {
-          ensureMapInDoc(doc, ['streaming']);
-          setIntFromStringInDoc(doc, ['streaming', 'keepalive-seconds'], keepaliveSeconds);
-          setIntFromStringInDoc(doc, ['streaming', 'bootstrap-retries'], bootstrapRetries);
-          deleteIfMapEmpty(doc, ['streaming']);
-        }
-
-        setIntFromStringInDoc(doc, ['nonstream-keepalive-interval'], nonstreamKeepaliveInterval);
-
-        if (hasPayloadDirtyFields(dirtyFields)) {
-          ensureMapInDoc(doc, ['payload']);
-          if (values.payloadDefaultRules.length > 0) {
-            doc.setIn(
-              ['payload', 'default'],
-              serializePayloadRulesForYaml(values.payloadDefaultRules)
-            );
-          } else if (docHas(doc, ['payload', 'default'])) {
-            doc.deleteIn(['payload', 'default']);
-          }
-          if (values.payloadDefaultRawRules.length > 0) {
-            doc.setIn(
-              ['payload', 'default-raw'],
-              serializeRawPayloadRulesForYaml(values.payloadDefaultRawRules)
-            );
-          } else if (docHas(doc, ['payload', 'default-raw'])) {
-            doc.deleteIn(['payload', 'default-raw']);
-          }
-          if (values.payloadOverrideRules.length > 0) {
-            doc.setIn(
-              ['payload', 'override'],
-              serializePayloadRulesForYaml(values.payloadOverrideRules)
-            );
-          } else if (docHas(doc, ['payload', 'override'])) {
-            doc.deleteIn(['payload', 'override']);
-          }
-          if (values.payloadOverrideRawRules.length > 0) {
-            doc.setIn(
-              ['payload', 'override-raw'],
-              serializeRawPayloadRulesForYaml(values.payloadOverrideRawRules)
-            );
-          } else if (docHas(doc, ['payload', 'override-raw'])) {
-            doc.deleteIn(['payload', 'override-raw']);
-          }
-          if (values.payloadFilterRules.length > 0) {
-            doc.setIn(
-              ['payload', 'filter'],
-              serializePayloadFilterRulesForYaml(values.payloadFilterRules)
-            );
-          } else if (docHas(doc, ['payload', 'filter'])) {
-            doc.deleteIn(['payload', 'filter']);
-          }
-          deleteIfMapEmpty(doc, ['payload']);
-        }
-
         const nextYaml = doc.toString({ indent: 2, lineWidth: 120, minContentWidth: 0 });
         return dirtyFields.has('keeperExport')
           ? serializeKeeperExportYaml(nextYaml, values.keeperExport, true)
@@ -2121,7 +2387,7 @@ export function useVisualConfig() {
         return currentYaml;
       }
     },
-    [dirtyFields, visualValues]
+    [baselineValues, dirtyFields, visualValues]
   );
 
   const setVisualValues = useCallback((newValues: Partial<VisualConfigValues>) => {

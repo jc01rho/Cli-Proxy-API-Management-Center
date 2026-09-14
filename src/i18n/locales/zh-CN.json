@@ -1888,10 +1888,8 @@
       "apikeyFun": "APIKEY.FUN",
       "fennoAI": "FennoAI",
       "qiniuCloud": "七牛云",
-      "lmuAI": "LMU AI（灵眸AI）",
       "kimi": "Kimi",
-      "interactions": "Interactions API",
-      "infistar": "无限星河"
+      "interactions": "Interactions API"
     },
     "table": {
       "key": "密钥",
@@ -2217,3 +2215,4 @@
     "credits_used": "已用 {{used}} / {{limit}}"
   }
 }
+

@@ -1891,10 +1891,8 @@
       "apikeyFun": "APIKEY.FUN",
       "fennoAI": "FennoAI",
       "qiniuCloud": "Qiniu Cloud",
-      "lmuAI": "LMU AI (Lingmou AI)",
       "kimi": "Kimi",
-      "interactions": "Interactions API",
-      "infistar": "Infistar"
+      "interactions": "Interactions API"
     },
     "table": {
       "key": "Key",
@@ -2220,3 +2218,5 @@
     "credits_used": "{{used}} / {{limit}} used"
   }
 }
+
+

@@ -7,13 +7,9 @@ import mistralLogo from '@/assets/icons/mistral.svg';
 import openaiLightLogo from '@/assets/icons/openai-light.svg';
 import openaiDarkLogo from '@/assets/icons/openai-dark.svg';
 import vertexLogo from '@/assets/icons/vertex.svg';
-import claudeApiLogo from '@/assets/icons/claudeapi.png';
 import apikeyFunLogo from '@/assets/icons/apikey-fun.png';
-import code0Logo from '@/assets/icons/code0.png';
 import fennoAILogo from '@/assets/icons/fenno-ai.png';
 import qiniuCloudLogo from '@/assets/icons/qiniu-cloud.png';
-import lmuAILogo from '@/assets/icons/lmu-ai.png';
-import infistarLogo from '@/assets/icons/infistar.png';
 import xaiLightLogo from '@/assets/icons/grok.svg';
 import xaiDarkLogo from '@/assets/icons/grok-dark.svg';
 import kimiLightLogo from '@/assets/icons/kimi-light.svg';
@@ -32,7 +28,6 @@ export const PROVIDER_LOGOS: Record<ProviderBrand, ProviderBrandLogo> = {
   gemini: { src: geminiLogo },
   interactions: { src: geminiLogo },
   claude: { src: claudeLogo },
-  claudeApi: { src: claudeApiLogo },
   codex: { src: codexLogo },
   commandcode: { src: commandcodeLogo },
   freebuff: { src: freebuffLogo },
@@ -41,11 +36,8 @@ export const PROVIDER_LOGOS: Record<ProviderBrand, ProviderBrandLogo> = {
   vertex: { src: vertexLogo },
   openaiCompatibility: { src: openaiLightLogo, darkSrc: openaiDarkLogo, transparent: true },
   apikeyFun: { src: apikeyFunLogo },
-  code0: { src: code0Logo },
   fennoAI: { src: fennoAILogo, transparent: true },
   qiniuCloud: { src: qiniuCloudLogo, transparent: true },
-  lmuAI: { src: lmuAILogo, transparent: true },
-  infistar: { src: infistarLogo, transparent: true },
   kimi: {
     src: kimiDarkLogo,
     darkSrc: kimiLightLogo,

@@ -761,4 +761,62 @@ export const providersApi = {
 
   deleteMistralConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/mistral-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+
+  createCommandCodeConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('commandcode-api-key', (latestItems) => [
+      ...latestItems,
+      serializeProviderKey(config),
+    ]),
+
+  updateCommandCodeConfigByKey: (
+    apiKey: string,
+    baseUrl: string | undefined,
+    config: ProviderKeyConfig
+  ) =>
+    mutateLatestProviderList('commandcode-api-key', (latestItems) =>
+      latestItems.map((item) =>
+        matchesProviderKey(item as Record<string, unknown>, apiKey, baseUrl)
+          ? serializeProviderKey(config)
+          : item
+      )
+    ),
+
+  createFreebuffConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('freebuff-api-key', (latestItems) => [
+      ...latestItems,
+      serializeProviderKey(config),
+    ]),
+
+  updateFreebuffConfigByKey: (
+    apiKey: string,
+    baseUrl: string | undefined,
+    config: ProviderKeyConfig
+  ) =>
+    mutateLatestProviderList('freebuff-api-key', (latestItems) =>
+      latestItems.map((item) =>
+        matchesProviderKey(item as Record<string, unknown>, apiKey, baseUrl)
+          ? serializeProviderKey(config)
+          : item
+      )
+    ),
+
+  createMistralConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('mistral-api-key', (latestItems) => [
+      ...latestItems,
+      serializeProviderKey(config),
+    ]),
+
+  updateMistralConfigByKey: (
+    apiKey: string,
+    baseUrl: string | undefined,
+    config: ProviderKeyConfig
+  ) =>
+    mutateLatestProviderList('mistral-api-key', (latestItems) =>
+      latestItems.map((item) =>
+        matchesProviderKey(item as Record<string, unknown>, apiKey, baseUrl)
+          ? serializeProviderKey(config)
+          : item
+      )
+    ),
+
 };

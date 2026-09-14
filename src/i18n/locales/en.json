@@ -1488,6 +1488,7 @@
         "validation_blocked": "Fix validation errors before saving",
         "port_range": "Enter a valid port between 1 and 65535",
         "integer": "Enter a whole number",
+        "integer": "Enter a whole number",
         "non_negative_integer": "Enter a non-negative whole number",
         "integer_range_1_3600": "Enter a whole number between 1 and 3600",
         "payload_invalid_number": "Enter a valid number",

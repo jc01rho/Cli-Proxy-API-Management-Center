@@ -397,6 +397,14 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     keywords: ['antigravity', 'obfuscate', 'zero-width'],
   },
   {
+    fieldId: 'devinSensitiveWords',
+    sectionId: 'advanced',
+    labelKey: L('sections.system.devin_sensitive_words'),
+    hintKey: L('sections.system.devin_sensitive_words_desc'),
+    yamlKeys: ['devin', 'sensitive-words'],
+    keywords: ['devin', 'system prompt', 'remove line', 'obfuscate', 'zero-width'],
+  },
+  {
     fieldId: 'antigravitySignatureCacheEnabled',
     sectionId: 'advanced',
     labelKey: L('sections.system.antigravity_signature_cache'),
@@ -599,6 +607,13 @@ export function getVisualSearchTargetIndex(
   return direction === 'prev'
     ? (currentIndex - 1 + matchCount) % matchCount
     : (currentIndex + 1) % matchCount;
+}
+
+export function findConfigFieldById(
+  fieldId: string | null | undefined
+): ConfigFieldSearchEntry | undefined {
+  if (!fieldId) return undefined;
+  return CONFIG_FIELD_SEARCH_INDEX.find((entry) => entry.fieldId === fieldId);
 }
 
 /**

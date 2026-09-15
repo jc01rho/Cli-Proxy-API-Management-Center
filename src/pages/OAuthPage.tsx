@@ -15,6 +15,7 @@ import { getPluginTitle, resolvePluginAssetURL } from '@/features/plugins/plugin
 import { getKimiAffiliateUrl } from '@/features/providers/kimi';
 import type { PluginListEntry } from '@/types';
 import { createOAuthAttempts, type OAuthAttempt } from './oauthAttempts';
+import { validateDevinCallback } from './devinOAuth';
 import styles from './OAuthPage.module.scss';
 import iconCodex from '@/assets/icons/codex.svg';
 import iconClaude from '@/assets/icons/claude.svg';
@@ -31,6 +32,7 @@ import iconCursor from '@/assets/icons/cursor.svg';
 import iconKilo from '@/assets/icons/kilo.svg';
 import iconGlm from '@/assets/icons/glm.svg';
 import iconDevin from '@/assets/icons/devin.svg';
+import iconDevinDark from '@/assets/icons/devin-dark.svg';
 const iconKiro =
   'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg';
 
@@ -42,6 +44,8 @@ interface ProviderState {
   polling?: boolean;
   userCode?: string;
   expiresIn?: number;
+  cancelling?: boolean;
+  cancelError?: string;
   callbackUrl?: string;
   callbackSubmitting?: boolean;
   callbackStatus?: 'success' | 'error';
@@ -156,7 +160,7 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     kind: 'builtin',
     id: 'devin',
     titleKey: 'auth_login.devin_oauth_title',
-    icon: iconDevin,
+    icon: { light: iconDevin, dark: iconDevinDark },
   },
 ];
 
@@ -397,11 +401,23 @@ export function OAuthPage() {
   }, []);
 
   useEffect(() => {
-    setStates({});
+    // Invalidate synchronously on connection changes, including a new key on
+    // the same server. Never send cleanup requests through the new connection.
+    const unsubscribe = useAuthStore.subscribe((current, previous) => {
+      if (
+        current.apiBase !== previous.apiBase ||
+        current.managementKey !== previous.managementKey ||
+        current.isAuthenticated !== previous.isAuthenticated
+      ) {
+        clearTimers();
+        setStates({});
+      }
+    });
     return () => {
+      unsubscribe();
       clearTimers();
     };
-  }, [apiBase, clearTimers]);
+  }, [clearTimers]);
 
   useEffect(() => {
     let cancelled = false;
@@ -472,6 +488,8 @@ export function OAuthPage() {
       status: 'success',
       error: undefined,
       polling: false,
+      cancelling: false,
+      cancelError: undefined,
       callbackUrl: '',
       callbackSubmitting: false,
       callbackStatus: undefined,
@@ -486,12 +504,24 @@ export function OAuthPage() {
 
   const startPolling = (provider: string, state: string, attempt: OAuthAttempt) => {
     attempt.poll(
-      () => oauthApi.getAuthStatus(state),
+      () => oauthApi.getAuthStatus(state, attempt.signal),
       (res) => {
         if (res.status === 'ok') {
           completeProviderAuth(provider);
           showNotification(getProviderTextByID(provider, 'oauth_status_success'), 'success');
         } else if (res.status === 'error') {
+          if (provider === 'devin') {
+            // Expired, denied and cancelled states cannot accept another callback.
+            attempt.invalidate();
+            updateProviderState(provider, {
+              url: undefined,
+              state: undefined,
+              callbackUrl: '',
+              callbackSubmitting: false,
+              callbackStatus: undefined,
+              callbackError: undefined,
+            });
+          }
           updateProviderState(provider, { status: 'error', error: res.error, polling: false });
           showNotification(
             `${getProviderTextByID(provider, 'oauth_status_error')} ${res.error || ''}`,
@@ -511,7 +541,48 @@ export function OAuthPage() {
     );
   };
 
+  const cancelAuth = async (provider: string) => {
+    const state = states[provider]?.state;
+    if (provider !== 'devin' || !state || states[provider]?.cancelling) return;
+    // Replace the attempt before DELETE so late polls/callback submissions cannot
+    // overwrite the cancellation result or a subsequent login.
+    const attempt = attempts.current.begin(provider);
+    updateProviderState(provider, {
+      cancelling: true,
+      cancelError: undefined,
+      polling: true,
+      callbackSubmitting: false,
+      callbackStatus: undefined,
+      callbackError: undefined,
+    });
+    try {
+      const result = await oauthApi.cancelSession(state, attempt.signal);
+      if (!attempt.isCurrent()) return;
+      if (result.cancelled) {
+        resetProviderAttempt(provider);
+        showNotification(t('auth_login.devin_oauth_cancelled'), 'success');
+        return;
+      }
+      // A completed or expired session returns cancelled=false. Read its real
+      // status rather than claiming cancellation or losing a completed login.
+    } catch (err: unknown) {
+      if (!attempt.isCurrent()) return;
+      const message = getErrorMessage(err);
+      updateProviderState(provider, { cancelError: message });
+      showNotification(`${t('auth_login.devin_oauth_cancel_error')} ${message}`, 'error');
+    }
+    updateProviderState(provider, {
+      cancelling: false,
+      status: 'waiting',
+      error: undefined,
+    });
+    startPolling(provider, state, attempt);
+  };
+
   const startAuth = async (provider: string, extra?: Record<string, string>) => {
+    // A network error can stop polling while the server is still waiting. Require
+    // explicit cancellation before replacing that Devin session.
+    if (provider === 'devin' && states[provider]?.state) return;
     const attempt = attempts.current.begin(provider);
     updateProviderState(provider, {
       url: undefined,
@@ -520,6 +591,8 @@ export function OAuthPage() {
       expiresIn: undefined,
       status: 'waiting',
       polling: true,
+      cancelling: false,
+      cancelError: undefined,
       error: undefined,
       callbackStatus: undefined,
       callbackError: undefined,
@@ -527,7 +600,7 @@ export function OAuthPage() {
       callbackSubmitting: false,
     });
     try {
-      const res = await oauthApi.startAuth(provider, extra);
+      const res = await oauthApi.startAuth(provider, extra, attempt.signal);
       if (!attempt.isCurrent()) return;
       if (!res.state) {
         const message = t('auth_login.missing_state');
@@ -575,6 +648,12 @@ export function OAuthPage() {
   const submitCallback = async (provider: string) => {
     const attempt = attempts.current.get(provider);
     if (!attempt?.isCurrent()) return;
+    if (
+      provider === 'devin' &&
+      (states[provider]?.cancelling || states[provider]?.status !== 'waiting')
+    ) {
+      return;
+    }
     const callbackInput = (states[provider]?.callbackUrl || '').trim();
     if (!callbackInput) {
       showNotification(
@@ -586,6 +665,13 @@ export function OAuthPage() {
         'warning'
       );
       return;
+    }
+    if (provider === 'devin') {
+      const callbackError = validateDevinCallback(callbackInput, states[provider]?.state);
+      if (callbackError) {
+        showNotification(t(`auth_login.devin_callback_${callbackError}`), 'warning');
+        return;
+      }
     }
     const redirectUrl = resolveCallbackUrl(provider, callbackInput, states[provider]?.state);
     if (!redirectUrl) {
@@ -603,7 +689,7 @@ export function OAuthPage() {
       callbackError: undefined,
     });
     try {
-      await oauthApi.submitCallback(provider, redirectUrl);
+      await oauthApi.submitCallback(provider, redirectUrl, attempt.signal);
       if (!attempt.isCurrent()) return;
       updateProviderState(provider, { callbackSubmitting: false, callbackStatus: 'success' });
       showNotification(t('auth_login.oauth_callback_success'), 'success');
@@ -747,7 +833,11 @@ export function OAuthPage() {
               </Button>
             </div>
           ) : (
-            <Button onClick={() => startAuth(provider.id)} loading={state.polling}>
+            <Button
+              onClick={() => startAuth(provider.id)}
+              loading={state.polling}
+              disabled={provider.id === 'devin' && Boolean(state.state)}
+            >
               {loginButtonLabel}
             </Button>
           )
@@ -774,7 +864,27 @@ export function OAuthPage() {
                 >
                   {getProviderText(provider, 'open_link')}
                 </Button>
+                {provider.id === 'devin' && state.state && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => cancelAuth(provider.id)}
+                    loading={state.cancelling}
+                  >
+                    {t('auth_login.devin_oauth_cancel')}
+                  </Button>
+                )}
               </div>
+              {provider.id === 'devin' && state.state && state.status === 'error' && (
+                <div className={styles.cardHintSecondary}>
+                  {t('auth_login.devin_oauth_retry_hint')}
+                </div>
+              )}
+              {state.cancelError && (
+                <div className="status-badge error">
+                  {t('auth_login.devin_oauth_cancel_error')} {state.cancelError}
+                </div>
+              )}
             </div>
           )}
           {state.userCode && (
@@ -796,8 +906,13 @@ export function OAuthPage() {
                 hint={t(
                   provider.id === 'xai'
                     ? 'auth_login.xai_callback_hint'
-                    : 'auth_login.oauth_callback_hint'
+                    : provider.id === 'devin'
+                      ? 'auth_login.devin_callback_hint'
+                      : 'auth_login.oauth_callback_hint'
                 )}
+                disabled={
+                  provider.id === 'devin' && (state.cancelling || state.status !== 'waiting')
+                }
                 value={state.callbackUrl || ''}
                 onChange={(e) =>
                   updateProviderState(provider.id, {
@@ -809,7 +924,9 @@ export function OAuthPage() {
                 placeholder={t(
                   provider.id === 'xai'
                     ? 'auth_login.xai_callback_placeholder'
-                    : 'auth_login.oauth_callback_placeholder'
+                    : provider.id === 'devin'
+                      ? 'auth_login.devin_callback_placeholder'
+                      : 'auth_login.oauth_callback_placeholder'
                 )}
               />
               <div className={styles.callbackActions}>
@@ -818,6 +935,9 @@ export function OAuthPage() {
                   size="sm"
                   onClick={() => submitCallback(provider.id)}
                   loading={state.callbackSubmitting}
+                  disabled={
+                    provider.id === 'devin' && (state.cancelling || state.status !== 'waiting')
+                  }
                 >
                   {t('auth_login.oauth_callback_button')}
                 </Button>

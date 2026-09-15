@@ -33,6 +33,13 @@ export interface OAuthCallbackResponse {
   status: 'ok';
 }
 
+export interface OAuthCancelResponse {
+  status: 'ok';
+  cancelled: boolean;
+}
+
+// devin is intentionally excluded: its start-auth contract must not receive
+// is_webui, unlike the other WebUI-driven OAuth providers.
 export const WEBUI_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>([
   'codex',
   'anthropic',
@@ -50,7 +57,7 @@ const normalizeProviderForManagementPath = (provider: string): string => {
 };
 
 export const oauthApi = {
-  startAuth: (provider: string, extra?: Record<string, string>) => {
+  startAuth: (provider: string, extra?: Record<string, string>, signal?: AbortSignal) => {
     const providerKey = normalizeProviderForManagementPath(provider);
     const params: Record<string, string | boolean> = { ...(extra ?? {}) };
     if (WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(providerKey as BuiltInOAuthProvider)) {
@@ -58,19 +65,28 @@ export const oauthApi = {
     }
     return apiClient.get<OAuthStartResponse>(`/${providerKey}-auth-url`, {
       params: Object.keys(params).length ? params : undefined,
+      ...(signal ? { signal } : {}),
     });
   },
 
-  getAuthStatus: (state: string) =>
+  getAuthStatus: (state: string, signal?: AbortSignal) =>
     apiClient.get<{ status: 'ok' | 'wait' | 'error'; error?: string }>(`/get-auth-status`, {
       params: { state },
+      ...(signal ? { signal } : {}),
     }),
 
-  submitCallback: (provider: string, redirectUrl: string) => {
+  cancelSession: (state: string, signal?: AbortSignal) =>
+    apiClient.delete<OAuthCancelResponse>('/oauth-session', {
+      params: { state },
+      ...(signal ? { signal } : {}),
+    }),
+
+  submitCallback: (provider: string, redirectUrl: string, signal?: AbortSignal) => {
     const providerKey = normalizeProviderForManagementPath(provider);
-    return apiClient.post<OAuthCallbackResponse>('/oauth-callback', {
-      provider: providerKey,
-      redirect_url: redirectUrl,
-    });
+    return apiClient.post<OAuthCallbackResponse>(
+      '/oauth-callback',
+      { provider: providerKey, redirect_url: redirectUrl },
+      signal ? { signal } : undefined
+    );
   },
 };

@@ -1,23 +1,36 @@
 import { afterEach, describe, expect, test } from 'bun:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { MemoryRouter } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import { createInstance } from 'i18next';
 import {
   AUTH_FILE_ICONS,
   buildOAuthProviderOptions,
   getAuthFileIcon,
   getTypeLabel,
 } from '../src/features/authFiles/constants';
-import { CALLBACK_SUPPORTED_OAUTH_PROVIDERS } from '../src/pages/OAuthPage';
+import { CALLBACK_SUPPORTED_OAUTH_PROVIDERS, OAuthPage } from '../src/pages/OAuthPage';
+import { validateDevinCallback } from '../src/pages/devinOAuth';
 import { apiClient } from '../src/services/api/client';
 import {
   oauthApi,
   WEBUI_SUPPORTED_OAUTH_PROVIDERS,
   type BuiltInOAuthProvider,
 } from '../src/services/api/oauth';
+import en from '../src/i18n/locales/en.json';
+import zhCN from '../src/i18n/locales/zh-CN.json';
+import zhTW from '../src/i18n/locales/zh-TW.json';
+import ru from '../src/i18n/locales/ru.json';
 
 const originalGet = apiClient.get;
 
 afterEach(() => {
   apiClient.get = originalGet;
 });
+
+const i18n = createInstance();
+await i18n.init({ lng: 'en', resources: { en: { translation: en } } });
 
 describe('Devin OAuth UI support', () => {
   test('treats Devin as a callback-supported built-in OAuth provider', () => {
@@ -50,6 +63,85 @@ describe('Devin OAuth UI support', () => {
 
     const t = ((key: string) => key) as Parameters<typeof getTypeLabel>[0];
     expect(getTypeLabel(t, 'devin')).toBe('Devin');
-    expect(getAuthFileIcon('devin', 'light')).toBe(AUTH_FILE_ICONS.devin);
+    expect(getAuthFileIcon('devin', 'light')).toBeTruthy();
+    expect(getAuthFileIcon('devin', 'dark')).toBeTruthy();
+    expect(getAuthFileIcon('devin', 'dark')).not.toBe(getAuthFileIcon('devin', 'light'));
+  });
+});
+
+describe('Devin OAuth login UI', () => {
+  test('renders a built-in login card with version and expiry guidance', () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n },
+        createElement(MemoryRouter, null, createElement(OAuthPage))
+      )
+    );
+    expect(markup).toContain('Devin OAuth');
+    expect(markup).toContain('Start Devin Login');
+    expect(markup).toContain('v7.3.1');
+    expect(markup).toContain('five minutes');
+    expect(markup).not.toContain('auth_login.devin_');
+  });
+
+  test('supplies every Devin label and hint in all four languages', () => {
+    const keys = Object.keys(en.auth_login).filter((key) => key.startsWith('devin_'));
+    expect(keys.length).toBeGreaterThanOrEqual(14);
+    for (const locale of [en, zhCN, zhTW, ru]) {
+      for (const key of keys) {
+        expect((locale.auth_login as Record<string, string>)[key]?.trim()).toBeTruthy();
+      }
+      expect(locale.auth_login.devin_oauth_hint).toContain('v7.3.1');
+      expect(locale.auth_login.devin_callback_hint).toContain('/devin/callback');
+    }
+  });
+});
+
+describe('Devin remote callback attempt identity', () => {
+  test('accepts complete callbacks for the current attempt with arbitrary server port and TLS', () => {
+    for (const base of [
+      'http://127.0.0.1:8317',
+      'https://127.0.0.1:9443',
+      'http://localhost:1234',
+    ]) {
+      expect(
+        validateDevinCallback(` ${base}/devin/callback?code=fixture-code&state=current `, 'current')
+      ).toBeUndefined();
+    }
+  });
+
+  test('allows denial callbacks to reach the backend and terminate polling', () => {
+    for (const field of ['error', 'error_description']) {
+      expect(
+        validateDevinCallback(
+          `http://127.0.0.1:8317/devin/callback?${field}=denied&state=current`,
+          'current'
+        )
+      ).toBeUndefined();
+    }
+  });
+
+  test('rejects callbacks from another or expired login attempt without inferring a state', () => {
+    const callback = 'http://127.0.0.1:8317/devin/callback?code=fixture-code&state=old';
+    expect(validateDevinCallback(callback, 'current')).toBe('state_mismatch');
+    expect(validateDevinCallback(callback)).toBe('state_mismatch');
+  });
+
+  test('rejects incomplete URLs, non-web schemes, missing parameters and duplicate state', () => {
+    for (const callback of [
+      '',
+      'fixture-code',
+      '?code=fixture-code&state=current',
+      '/devin/callback?code=fixture-code&state=current',
+      'file:///devin/callback?code=fixture-code&state=current',
+      'javascript:alert(1)?code=fixture-code&state=current',
+      'http://127.0.0.1:8317/devin/callback?code=fixture-code',
+      'http://127.0.0.1:8317/devin/callback?state=current',
+      'http://127.0.0.1:8317/devin/callback?state=current&code=%20',
+      'http://127.0.0.1:8317/devin/callback?state=current&state=old&code=fixture-code',
+    ]) {
+      expect(validateDevinCallback(callback, 'current')).toBe('invalid');
+    }
   });
 });

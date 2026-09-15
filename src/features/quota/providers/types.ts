@@ -12,6 +12,7 @@ import type {
   ClaudeQuotaState,
   CodexQuotaState,
   CommandCodeQuotaState,
+  DevinQuotaState,
   KiroQuotaState,
   KimiQuotaState,
   MetaMuseQuotaState,
@@ -25,6 +26,7 @@ export type QuotaProviderType =
   | 'antigravity'
   | 'claude'
   | 'codex'
+  | 'devin'
   | 'kiro'
   | 'kimi'
   | 'xai'
@@ -37,6 +39,7 @@ export interface QuotaStore {
   antigravityQuota: Record<string, AntigravityQuotaState>;
   claudeQuota: Record<string, ClaudeQuotaState>;
   codexQuota: Record<string, CodexQuotaState>;
+  devinQuota: Record<string, DevinQuotaState>;
   kiroQuota: Record<string, KiroQuotaState>;
   kimiQuota: Record<string, KimiQuotaState>;
   xaiQuota: Record<string, XaiQuotaState>;
@@ -46,13 +49,17 @@ export interface QuotaStore {
   setAntigravityQuota: (updater: QuotaUpdater<Record<string, AntigravityQuotaState>>) => void;
   setClaudeQuota: (updater: QuotaUpdater<Record<string, ClaudeQuotaState>>) => void;
   setCodexQuota: (updater: QuotaUpdater<Record<string, CodexQuotaState>>) => void;
+  setDevinQuota: (updater: QuotaUpdater<Record<string, DevinQuotaState>>) => void;
   setKiroQuota: (updater: QuotaUpdater<Record<string, KiroQuotaState>>) => void;
   setKimiQuota: (updater: QuotaUpdater<Record<string, KimiQuotaState>>) => void;
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
   setZcodeQuota: (updater: QuotaUpdater<Record<string, ZcodeQuotaState>>) => void;
   setCommandCodeQuota: (updater: QuotaUpdater<Record<string, CommandCodeQuotaState>>) => void;
   setMetaMuseQuota: (updater: QuotaUpdater<Record<string, MetaMuseQuotaState>>) => void;
-  clearQuotaCache: () => void;
+  // Kept in sync with the real store: upstream's rework lets a refresh scope
+  // invalidation to specific file names instead of always bumping the whole
+  // session generation.
+  clearQuotaCache: (names?: string[]) => void;
 }
 
 export interface QuotaProviderData<TState, TData> {

@@ -119,7 +119,9 @@ export function useAuthFilesData(options?: UseAuthFilesDataOptions): UseAuthFile
     if (nextSelected.length === 0) return;
     setSelectedFiles((prev) => {
       const next = new Set(prev);
-      nextSelected.forEach((name) => next.add(name));
+      nextSelected.forEach((name) => {
+        next.add(name);
+      });
       return next;
     });
   }, []);

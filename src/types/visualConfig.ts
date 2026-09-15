@@ -188,6 +188,7 @@ export type VisualConfigValues = {
   apiKeyIpBlacklistBlockDuration: string;
   enableGeminiCliEndpoint: boolean;
   antigravitySensitiveWords: string[];
+  devinSensitiveWords: string[];
   antigravitySignatureCacheEnabled: boolean;
   antigravitySignatureBypassStrict: boolean;
   claudeHeaderUserAgent: string;
@@ -266,6 +267,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   apiKeyIpBlacklistBlockDuration: '',
   enableGeminiCliEndpoint: false,
   antigravitySensitiveWords: [],
+  devinSensitiveWords: [],
   antigravitySignatureCacheEnabled: true,
   antigravitySignatureBypassStrict: false,
   claudeHeaderUserAgent: '',

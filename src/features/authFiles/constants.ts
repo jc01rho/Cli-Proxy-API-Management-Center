@@ -4,6 +4,8 @@ import iconClaude from '@/assets/icons/claude.svg';
 import iconClineDark from '@/assets/icons/cline-dark.svg';
 import iconClineLight from '@/assets/icons/cline-light.svg';
 import iconCodex from '@/assets/icons/codex.svg';
+import iconDevin from '@/assets/icons/devin.svg';
+import iconDevinDark from '@/assets/icons/devin-dark.svg';
 import iconGemini from '@/assets/icons/gemini.svg';
 import iconGrok from '@/assets/icons/grok.svg';
 import iconGrokDark from '@/assets/icons/grok-dark.svg';
@@ -15,8 +17,8 @@ import iconQwen from '@/assets/icons/qwen.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import iconKilo from '@/assets/icons/kilo.svg';
-import iconDevin from '@/assets/icons/devin.svg';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
+import type { QuotaProviderType } from '@/features/quota/providers/types';
 import { normalizeOAuthProviderKey } from '@/utils/providerKeys';
 import { parseTimestamp } from '@/utils/timestamp';
 import { TYPE_COLORS } from '@/utils/quota';
@@ -30,26 +32,21 @@ export type AuthFileModelItem = {
 };
 export type AuthFileIconAsset = string | { light: string; dark: string };
 
-export type QuotaProviderType =
-  | 'antigravity'
-  | 'claude'
-  | 'codex'
-  | 'kiro'
-  | 'kimi'
-  | 'xai'
-  | 'zcode'
-  | 'commandcode';
+export type { QuotaProviderType };
+export type AuthFileQuotaFilter = QuotaProviderType | 'all' | null;
 export type OAuthConfigLoadError = 'loading' | 'unsupported' | 'load' | null;
 
 export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
   'antigravity',
   'claude',
   'codex',
+  'devin',
   'kiro',
   'kimi',
   'xai',
   'zcode',
   'commandcode',
+  'meta',
 ]);
 
 export const OAUTH_PROVIDER_PRESETS = [
@@ -63,9 +60,8 @@ export const OAUTH_PROVIDER_PRESETS = [
   'cursor',
   'kilo',
   'kiro',
-  'kimi',
-  'zcode',
   'devin',
+  'kimi',
 ];
 
 const OAUTH_PROVIDER_EXCLUDES = new Set(['all', 'unknown', 'empty']);
@@ -119,6 +115,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   cursor: iconCursor,
   kilo: iconKilo,
   codex: iconCodex,
+  devin: { light: iconDevin, dark: iconDevinDark },
   gemini: iconGemini,
   xai: { light: iconGrok, dark: iconGrokDark },
   kiro: 'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg',
@@ -128,7 +125,6 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   commandcode: iconGlm,
   qwen: iconQwen,
   vertex: iconVertex,
-  devin: iconDevin,
 };
 
 export const clampCardPageSize = (value: number) =>

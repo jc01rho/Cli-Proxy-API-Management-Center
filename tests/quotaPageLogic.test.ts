@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { QUOTA_PAGE_SIZE } from '@/features/quota/constants';
 import {
   buildTabCounts,
+  canRefreshQuotaAfterList,
   classifyQuotaFiles,
   filterEntriesByTab,
   isQuotaRefreshDisabled,
@@ -25,6 +26,17 @@ const FILES: AuthFileItem[] = [
   file('gemini-a.json', 'gemini'), // 不支持额度
   file('claude-off.json', 'claude', { disabled: true }), // 停用
 ];
+
+describe('refresh-all list handoff', () => {
+  test('requires a successful list from the same session as the user action', () => {
+    expect(canRefreshQuotaAfterList(1, 1, 1, false, false)).toBe(true);
+    expect(canRefreshQuotaAfterList(1, 1, 1, true, false)).toBe(false);
+    expect(canRefreshQuotaAfterList(1, 2, 2, false, false)).toBe(false);
+    expect(canRefreshQuotaAfterList(2, 2, 1, false, false)).toBe(false);
+    expect(canRefreshQuotaAfterList(1, 1, null, false, false)).toBe(false);
+    expect(canRefreshQuotaAfterList(1, 1, 1, false, true)).toBe(false);
+  });
+});
 
 describe('resolveQuotaProviderType', () => {
   test('maps provider aliases and rejects unsupported or disabled files', () => {
@@ -74,6 +86,7 @@ describe('buildTabCounts', () => {
       xai: 1,
       kiro: 1,
       kimi: 1,
+      devin: 0,
       zcode: 0,
       commandcode: 0,
       meta: 0,

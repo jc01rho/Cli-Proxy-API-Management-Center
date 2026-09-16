@@ -15,6 +15,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   qwen: 'Qwen',
   kimi: 'Kimi',
   workbuddy: 'WorkBuddy',
+  codebuddy: 'CodeBuddy',
   iflow: 'iFlow',
   antigravity: 'Antigravity',
 };

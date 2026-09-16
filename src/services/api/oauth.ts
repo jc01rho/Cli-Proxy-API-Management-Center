@@ -20,7 +20,8 @@ export type BuiltInOAuthProvider =
   | 'kilo'
   | 'kiro'
   | 'zcode'
-  | 'devin';
+  | 'devin'
+  | 'workbuddy';
 
 export interface OAuthStartResponse {
   url: string;

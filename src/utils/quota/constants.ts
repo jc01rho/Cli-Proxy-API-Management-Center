@@ -50,6 +50,10 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#e6f7f1', text: '#0f7a5a' },
     dark: { bg: '#0b4534', text: '#6fd9b6' },
   },
+  codebuddy: {
+    light: { bg: '#e6f0fb', text: '#1d4ed8' },
+    dark: { bg: '#1e3a8a', text: '#93c5fd' },
+  },
   zcode: {
     light: { bg: '#e6f0ff', text: '#1d4ed8' },
     dark: { bg: '#1e3a8a', text: '#93c5fd' },

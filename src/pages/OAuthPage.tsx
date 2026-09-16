@@ -33,6 +33,7 @@ import iconKilo from '@/assets/icons/kilo.svg';
 import iconGlm from '@/assets/icons/glm.svg';
 import iconDevin from '@/assets/icons/devin.svg';
 import iconDevinDark from '@/assets/icons/devin-dark.svg';
+import iconWorkBuddy from '@/assets/icons/workbuddy.svg';
 const iconKiro =
   'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg';
 
@@ -161,6 +162,12 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     id: 'devin',
     titleKey: 'auth_login.devin_oauth_title',
     icon: { light: iconDevin, dark: iconDevinDark },
+  },
+  {
+    kind: 'builtin',
+    id: 'workbuddy',
+    titleKey: 'auth_login.workbuddy_oauth_title',
+    icon: iconWorkBuddy,
   },
 ];
 

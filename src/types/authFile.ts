@@ -19,6 +19,7 @@ export type AuthFileType =
   | 'kiro'
   | 'xai'
   | 'iflow'
+  | 'codebuddy'
   | 'vertex'
   | 'empty'
   | 'unknown';

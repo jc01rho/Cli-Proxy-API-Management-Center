@@ -396,6 +396,7 @@
     "filter_xai": "xAI",
     "filter_iflow": "iFlow",
     "filter_vertex": "Vertex",
+    "filter_workbuddy": "WorkBuddy",
     "filter_empty": "Пусто",
     "filter_unknown": "Другое",
     "type_virtual": "Виртуальный файл авторизации",

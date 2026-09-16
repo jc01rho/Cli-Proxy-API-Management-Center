@@ -388,6 +388,7 @@
     "filter_xai": "xAI",
     "filter_iflow": "iFlow",
     "filter_vertex": "Vertex",
+    "filter_workbuddy": "WorkBuddy",
     "filter_empty": "空檔案",
     "filter_unknown": "其他",
     "type_virtual": "虛擬驗證檔案",

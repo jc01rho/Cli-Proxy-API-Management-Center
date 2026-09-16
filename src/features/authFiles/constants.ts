@@ -17,6 +17,7 @@ import iconQwen from '@/assets/icons/qwen.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import iconKilo from '@/assets/icons/kilo.svg';
+import iconWorkBuddy from '@/assets/icons/workbuddy.svg';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import type { QuotaProviderType } from '@/features/quota/providers/types';
 import { normalizeOAuthProviderKey } from '@/utils/providerKeys';
@@ -62,6 +63,7 @@ export const OAUTH_PROVIDER_PRESETS = [
   'kiro',
   'devin',
   'kimi',
+  'workbuddy',
 ];
 
 const OAUTH_PROVIDER_EXCLUDES = new Set(['all', 'unknown', 'empty']);
@@ -99,6 +101,7 @@ export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
   'kilo',
   'kiro',
   'kimi',
+  'workbuddy',
   'xai',
   'zcode',
   'commandcode',
@@ -116,6 +119,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   kilo: iconKilo,
   codex: iconCodex,
   devin: { light: iconDevin, dark: iconDevinDark },
+  workbuddy: iconWorkBuddy,
   gemini: iconGemini,
   xai: { light: iconGrok, dark: iconGrokDark },
   kiro: 'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg',

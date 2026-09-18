@@ -128,6 +128,7 @@ export function QuotaPage() {
   const devinQuota = useQuotaStore((state) => state.devinQuota);
   const kiroQuota = useQuotaStore((state) => state.kiroQuota);
   const kimiQuota = useQuotaStore((state) => state.kimiQuota);
+  const metaQuota = useQuotaStore((state) => state.metaQuota);
   const xaiQuota = useQuotaStore((state) => state.xaiQuota);
   const zcodeQuota = useQuotaStore((state) => state.zcodeQuota);
   const commandcodeQuota = useQuotaStore((state) => state.commandcodeQuota);
@@ -142,10 +143,10 @@ export function QuotaPage() {
         devin: devinQuota,
         kiro: kiroQuota,
         kimi: kimiQuota,
+        meta: { ...metaQuota, ...metaMuseQuota },
         xai: xaiQuota,
         zcode: zcodeQuota,
         commandcode: commandcodeQuota,
-        meta: metaMuseQuota,
       }) as unknown as Record<QuotaProviderType, Record<string, QuotaCardState>>,
     [
       antigravityQuota,
@@ -154,6 +155,7 @@ export function QuotaPage() {
       devinQuota,
       kiroQuota,
       kimiQuota,
+      metaQuota,
       xaiQuota,
       zcodeQuota,
       commandcodeQuota,

@@ -17,6 +17,7 @@ import {
   fennoAIToResource,
   geminiToResource,
   interactionsToResource,
+  metaToResource,
   mistralToResource,
   openaiToResource,
   qiniuCloudToResource,
@@ -159,6 +160,7 @@ const buildProviderKeyConfig = (
     | 'codex'
     | 'commandcode'
     | 'freebuff'
+    | 'meta'
     | 'xai'
     | 'claude'
     | 'vertex'
@@ -405,6 +407,9 @@ export const buildProviderGroups = (config: Config): ProviderGroup[] => {
         break;
       case 'freebuff':
         resources = (config.freebuffApiKeys ?? []).map((c, i) => freebuffToResource(c, i));
+        break;
+      case 'meta':
+        resources = (config.metaApiKeys ?? []).map((item, index) => metaToResource(item, index));
         break;
       case 'xai':
         resources = (config.xaiApiKeys ?? []).map((item, index) => xaiToResource(item, index));
@@ -752,6 +757,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           await providersApi.createMistralConfig(
             buildProviderKeyConfig('mistral', input) as ProviderKeyConfig
           );
+        } else if (brand === 'meta') {
+          await providersApi.createMetaConfig(
+            buildProviderKeyConfig('meta', input) as ProviderKeyConfig
+          );
         } else if (brand === 'xai') {
           await providersApi.createXAIConfig(
             buildProviderKeyConfig('xai', input) as ProviderKeyConfig
@@ -830,6 +839,13 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             selector.baseUrl,
             buildProviderKeyConfig('mistral', input, existing) as ProviderKeyConfig
           );
+        } else if (brand === 'meta' && selector.brand === 'meta') {
+          const existing = resource.raw as ProviderKeyConfig;
+          await providersApi.updateMetaConfig(
+            selector.apiKey,
+            selector.baseUrl,
+            buildProviderKeyConfig('meta', input, existing) as ProviderKeyConfig
+          );
         } else if (brand === 'xai' && selector.brand === 'xai') {
           const existing = resource.raw as ProviderKeyConfig;
           await providersApi.updateXAIConfig(
@@ -900,6 +916,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = (config?.freebuffApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('freebuff-api-key', next);
           clearCache('freebuff-api-key');
+        } else if (sel.brand === 'meta') {
+          await providersApi.deleteMetaConfig(sel.apiKey, sel.baseUrl);
+          const next = (config?.metaApiKeys ?? []).filter((_, i) => i !== sel.index);
+          updateConfigValue('meta-api-key', next);
         } else if (sel.brand === 'xai') {
           await providersApi.deleteXAIConfig(sel.apiKey, sel.baseUrl);
           const next = (config?.xaiApiKeys ?? []).filter((_, i) => i !== sel.index);
@@ -987,6 +1007,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           (brand === 'commandcode' && selector.brand === 'commandcode') ||
           (brand === 'freebuff' && selector.brand === 'freebuff') ||
           (brand === 'mistral' && selector.brand === 'mistral') ||
+          (brand === 'meta' && selector.brand === 'meta') ||
           (brand === 'xai' && selector.brand === 'xai') ||
           (brand === 'claude' && selector.brand === 'claude') ||
           (brand === 'vertex' && selector.brand === 'vertex')
@@ -1004,6 +1025,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             await providersApi.updateFreebuffConfigByKey(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'mistral') {
             await providersApi.updateMistralConfigByKey(selector.apiKey, selector.baseUrl, next);
+          } else if (selector.brand === 'meta') {
+            await providersApi.updateMetaConfig(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'xai') {
             await providersApi.updateXAIConfig(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'claude') {

@@ -16,6 +16,7 @@ import type {
   KiroQuotaState,
   KimiQuotaState,
   MetaMuseQuotaState,
+  MetaQuotaState,
   XaiQuotaState,
   ZcodeQuotaState,
 } from '@/types';
@@ -42,6 +43,7 @@ export interface QuotaStore {
   devinQuota: Record<string, DevinQuotaState>;
   kiroQuota: Record<string, KiroQuotaState>;
   kimiQuota: Record<string, KimiQuotaState>;
+  metaQuota: Record<string, MetaQuotaState>;
   xaiQuota: Record<string, XaiQuotaState>;
   zcodeQuota: Record<string, ZcodeQuotaState>;
   commandcodeQuota: Record<string, CommandCodeQuotaState>;
@@ -52,6 +54,7 @@ export interface QuotaStore {
   setDevinQuota: (updater: QuotaUpdater<Record<string, DevinQuotaState>>) => void;
   setKiroQuota: (updater: QuotaUpdater<Record<string, KiroQuotaState>>) => void;
   setKimiQuota: (updater: QuotaUpdater<Record<string, KimiQuotaState>>) => void;
+  setMetaQuota: (updater: QuotaUpdater<Record<string, MetaQuotaState>>) => void;
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
   setZcodeQuota: (updater: QuotaUpdater<Record<string, ZcodeQuotaState>>) => void;
   setCommandCodeQuota: (updater: QuotaUpdater<Record<string, CommandCodeQuotaState>>) => void;

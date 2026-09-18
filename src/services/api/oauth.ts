@@ -27,6 +27,7 @@ export interface OAuthStartResponse {
   url: string;
   state?: string;
   user_code?: string;
+  flow?: string;
   expires_in?: number;
 }
 
@@ -58,15 +59,21 @@ const normalizeProviderForManagementPath = (provider: string): string => {
 };
 
 export const oauthApi = {
-  startAuth: (provider: string, extra?: Record<string, string>, signal?: AbortSignal) => {
+  startAuth: (
+    provider: string,
+    extraOrSignal?: Record<string, string> | AbortSignal,
+    signal?: AbortSignal
+  ) => {
     const providerKey = normalizeProviderForManagementPath(provider);
+    const extra = extraOrSignal instanceof AbortSignal ? undefined : extraOrSignal;
+    const requestSignal = extraOrSignal instanceof AbortSignal ? extraOrSignal : signal;
     const params: Record<string, string | boolean> = { ...(extra ?? {}) };
     if (WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(providerKey as BuiltInOAuthProvider)) {
       params.is_webui = true;
     }
     return apiClient.get<OAuthStartResponse>(`/${providerKey}-auth-url`, {
       params: Object.keys(params).length ? params : undefined,
-      ...(signal ? { signal } : {}),
+      ...(requestSignal ? { signal: requestSignal } : {}),
     });
   },
 

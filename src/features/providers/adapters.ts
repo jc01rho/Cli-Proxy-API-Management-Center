@@ -59,7 +59,17 @@ const truncateForId = (value: string | undefined | null): string => {
 };
 
 function providerKeyToResource(
-  brand: 'gemini' | 'interactions' | 'codex' | 'commandcode' | 'freebuff' | 'xai' | 'claude' | 'vertex' | 'mistral',
+  brand:
+    | 'gemini'
+    | 'interactions'
+    | 'codex'
+    | 'commandcode'
+    | 'freebuff'
+    | 'meta'
+    | 'xai'
+    | 'claude'
+    | 'vertex'
+    | 'mistral',
   config: GeminiKeyConfig | ProviderKeyConfig,
   index: number
 ): ProviderResource {
@@ -138,8 +148,6 @@ export function commandcodeToResource(config: ProviderKeyConfig, index: number):
   };
 }
 
-
-
 export function freebuffToResource(config: ProviderKeyConfig, index: number): ProviderResource {
   const resource = providerKeyToResource('freebuff', config, index);
   const entries = config.apiKeyEntries ?? [];
@@ -156,6 +164,10 @@ export function freebuffToResource(config: ProviderKeyConfig, index: number): Pr
       apiKey: firstKey,
     } as ProviderResourceSelector,
   };
+}
+
+export function metaToResource(config: ProviderKeyConfig, index: number): ProviderResource {
+  return providerKeyToResource('meta', config, index);
 }
 
 export function xaiToResource(config: ProviderKeyConfig, index: number): ProviderResource {

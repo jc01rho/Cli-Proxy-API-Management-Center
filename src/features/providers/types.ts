@@ -11,6 +11,7 @@ export type ProviderBrand =
   | 'codex'
   | 'commandcode'
   | 'freebuff'
+  | 'meta'
   | 'xai'
   | 'claude'
   | 'vertex'
@@ -35,6 +36,7 @@ export type ProviderResourceSelector =
   | { brand: 'codex'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'commandcode'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'freebuff'; apiKey: string; baseUrl?: string; index: number }
+  | { brand: 'meta'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'xai'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'claude'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'vertex'; apiKey: string; baseUrl?: string; index: number }

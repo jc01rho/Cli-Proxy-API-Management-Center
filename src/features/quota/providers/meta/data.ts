@@ -1,7 +1,16 @@
 import type { TFunction } from 'i18next';
-import type { ApiError, AuthFileItem, MetaMuseQuotaData, MetaMuseQuotaState } from '@/types';
+import type {
+  ApiError,
+  AuthFileItem,
+  MetaMuseQuotaData,
+  MetaMuseQuotaState,
+  MetaQuotaData,
+  MetaQuotaState,
+} from '@/types';
 import { authFilesApi } from '@/services/api';
-import { isDisabledAuthFile } from '@/utils/quota';
+import { apiCallApi } from '@/services/api/apiCall';
+import { captureQuotaCacheGeneration, commitIfQuotaCacheCurrent } from '@/stores/useQuotaStore';
+import { isDisabledAuthFile, resolveAuthProvider } from '@/utils/quota';
 import { normalizeAuthIndex } from '@/utils/authIndex';
 import {
   emptyMetaMuseQuotaData,
@@ -9,6 +18,7 @@ import {
   selectMetaMuseQuota,
 } from './parse';
 import type { QuotaProviderData } from '../types';
+import { createMetaQuotaFetcher, MetaQuotaError } from './requests';
 
 /**
  * Read one string field from an axios-style error payload without letting a
@@ -64,6 +74,7 @@ export const resolveMetaMuseQuotaError = (err: unknown, t: TFunction): never => 
   }
   throw mapped;
 };
+
 const META_MUSE_PROVIDER = 'openai-compatible-meta';
 
 export const isMetaMuseFile = (file: AuthFileItem): boolean =>
@@ -105,5 +116,39 @@ export const META_MUSE_CONFIG: QuotaProviderData<MetaMuseQuotaState, MetaMuseQuo
     ...emptyMetaMuseQuotaData(),
     error: message,
     errorStatus: status,
+  }),
+};
+
+const fetchMetaQuota = createMetaQuotaFetcher({
+  request: (payload) => apiCallApi.request(payload),
+  downloadText: (name) => authFilesApi.downloadText(name),
+  captureCurrent: (name) => {
+    const generation = captureQuotaCacheGeneration(name);
+    return () => commitIfQuotaCacheCurrent(generation, () => {});
+  },
+});
+
+export const META_CONFIG: QuotaProviderData<MetaQuotaState, MetaQuotaData> = {
+  type: 'meta',
+  i18nPrefix: 'meta_quota',
+  filterFn: (file) => resolveAuthProvider(file) === 'meta' && !isDisabledAuthFile(file),
+  fetchQuota: async (file, t: TFunction) => {
+    try {
+      return await fetchMetaQuota(file);
+    } catch (error: unknown) {
+      if (error instanceof MetaQuotaError) {
+        error.message = t(`meta_quota.${error.code}`, { status: error.status });
+      }
+      throw error;
+    }
+  },
+  storeSelector: (state) => state.metaQuota,
+  storeSetter: 'setMetaQuota',
+  buildLoadingState: () => ({ status: 'loading' }),
+  buildSuccessState: (data) => ({ status: 'success', data }),
+  buildErrorState: (error, errorStatus) => ({
+    status: 'error',
+    error,
+    errorStatus,
   }),
 };

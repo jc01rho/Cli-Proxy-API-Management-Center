@@ -17,6 +17,7 @@ import type { PluginListEntry } from '@/types';
 import { createOAuthAttempts, type OAuthAttempt } from './oauthAttempts';
 import { validateDevinCallback } from './devinOAuth';
 import styles from './OAuthPage.module.scss';
+import iconMeta from '@/assets/icons/meta.svg';
 import iconCodex from '@/assets/icons/codex.svg';
 import iconClaude from '@/assets/icons/claude.svg';
 import iconAntigravity from '@/assets/icons/antigravity.svg';
@@ -25,7 +26,6 @@ import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import iconGrok from '@/assets/icons/grok.svg';
 import iconGrokDark from '@/assets/icons/grok-dark.svg';
-import iconMeta from '@/assets/icons/meta.svg';
 import iconClineLight from '@/assets/icons/cline-light.svg';
 import iconClineDark from '@/assets/icons/cline-dark.svg';
 import iconCursor from '@/assets/icons/cursor.svg';
@@ -39,11 +39,11 @@ const iconKiro =
 
 interface ProviderState {
   url?: string;
+  userCode?: string;
   state?: string;
   status?: 'idle' | 'waiting' | 'success' | 'error';
   error?: string;
   polling?: boolean;
-  userCode?: string;
   expiresIn?: number;
   cancelling?: boolean;
   cancelError?: string;
@@ -93,6 +93,12 @@ function getErrorStatus(error: unknown): number | undefined {
 const PROVIDERS: BuiltInOAuthProviderCard[] = [
   {
     kind: 'builtin',
+    id: 'meta',
+    titleKey: 'auth_login.meta_oauth_title',
+    icon: iconMeta,
+  },
+  {
+    kind: 'builtin',
     id: 'kimi',
     titleKey: 'auth_login.kimi_oauth_title',
     icon: { light: iconKimiDark, dark: iconKimiLight },
@@ -120,12 +126,6 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     id: 'xai',
     titleKey: 'auth_login.xai_oauth_title',
     icon: { light: iconGrok, dark: iconGrokDark },
-  },
-  {
-    kind: 'builtin',
-    id: 'meta',
-    titleKey: 'auth_login.meta_oauth_title',
-    icon: iconMeta,
   },
   {
     kind: 'builtin',
@@ -593,8 +593,8 @@ export function OAuthPage() {
     const attempt = attempts.current.begin(provider);
     updateProviderState(provider, {
       url: undefined,
-      state: undefined,
       userCode: undefined,
+      state: undefined,
       expiresIn: undefined,
       status: 'waiting',
       polling: true,
@@ -625,8 +625,8 @@ export function OAuthPage() {
       }
       updateProviderState(provider, {
         url: res.url,
-        state: res.state,
         userCode: res.user_code,
+        state: res.state,
         expiresIn: res.expires_in,
         status: 'waiting',
         polling: true,
@@ -860,6 +860,15 @@ export function OAuthPage() {
                 {getProviderText(provider, 'oauth_url_label')}
               </div>
               <div className={styles.authUrlValue}>{state.url}</div>
+              {state.userCode && (
+                <div>
+                  <div className={styles.authUrlLabel}>{t('auth_login.device_code_label')}</div>
+                  <div className={styles.authUrlValue}>{state.userCode}</div>
+                  <Button variant="secondary" size="sm" onClick={() => copyLink(state.userCode)}>
+                    {t('auth_login.device_code_copy')}
+                  </Button>
+                </div>
+              )}
               <div className={styles.authUrlActions}>
                 <Button variant="secondary" size="sm" onClick={() => copyLink(state.url!)}>
                   {getProviderText(provider, 'copy_link')}

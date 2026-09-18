@@ -10,10 +10,10 @@ import { CODEX_CONFIG } from './providers/codex/data';
 import { DEVIN_CONFIG } from './providers/devin/data';
 import { KIRO_CONFIG } from './providers/kiro/data';
 import { KIMI_CONFIG } from './providers/kimi/data';
+import { META_CONFIG, META_MUSE_CONFIG } from './providers/meta/data';
 import { XAI_CONFIG } from './providers/xai/data';
 import { ZCODE_CONFIG } from './providers/zcode/data';
 import { COMMANDCODE_CONFIG } from './providers/commandcode/data';
-import { META_MUSE_CONFIG } from './providers/meta/data';
 import type { QuotaProviderType } from './providers/types';
 import { QUOTA_TAB_ORDER, type QuotaSortMode, type QuotaTabId } from './constants';
 
@@ -24,10 +24,10 @@ const QUOTA_FILTER_MAP: Record<QuotaProviderType, (file: AuthFileItem) => boolea
   devin: DEVIN_CONFIG.filterFn,
   kiro: KIRO_CONFIG.filterFn,
   kimi: KIMI_CONFIG.filterFn,
+  meta: (file) => META_CONFIG.filterFn(file) || META_MUSE_CONFIG.filterFn(file),
   xai: XAI_CONFIG.filterFn,
   zcode: ZCODE_CONFIG.filterFn,
   commandcode: COMMANDCODE_CONFIG.filterFn,
-  meta: META_MUSE_CONFIG.filterFn,
 };
 
 export interface QuotaFileEntry {

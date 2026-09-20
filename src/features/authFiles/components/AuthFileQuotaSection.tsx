@@ -55,7 +55,6 @@ export function AuthFileQuotaSection(props: AuthFileQuotaSectionProps) {
     if (quotaType === 'zcode') return state.zcodeQuota[cacheKey] as QuotaCardState | undefined;
     if (quotaType === 'commandcode')
       return state.commandcodeQuota[cacheKey] as QuotaCardState | undefined;
-    if (quotaType === 'meta') return state.metaMuseQuota[cacheKey] as QuotaCardState | undefined;
     return assertNever(quotaType);
   });
   const quota = storedQuota;

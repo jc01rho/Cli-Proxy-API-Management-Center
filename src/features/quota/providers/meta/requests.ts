@@ -3,7 +3,7 @@ import type { ApiCallRequest, ApiCallResult } from '@/services/api/apiCall';
 import { parseMetaQuotaPayload } from '@/services/api/metaQuota';
 import { normalizeAuthIndex } from '@/utils/authIndex';
 
-export const META_MUSE_QUOTA_URL = 'https://api.meta.ai/muse-code/key';
+export const META_QUOTA_URL = 'https://api.meta.ai/muse-code/key';
 
 export type MetaQuotaErrorCode =
   | 'missing_auth_index'
@@ -85,7 +85,7 @@ export function createMetaQuotaFetcher(deps: MetaQuotaDependencies) {
       response = await deps.request({
         authIndex,
         method: 'POST',
-        url: META_MUSE_QUOTA_URL,
+        url: META_QUOTA_URL,
         header: {
           Accept: 'application/json',
           'Content-Type': 'application/json',

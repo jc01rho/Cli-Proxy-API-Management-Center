@@ -15,7 +15,6 @@ import type {
   DevinQuotaState,
   KiroQuotaState,
   KimiQuotaState,
-  MetaMuseQuotaState,
   MetaQuotaState,
   XaiQuotaState,
   ZcodeQuotaState,
@@ -47,7 +46,6 @@ export interface QuotaStore {
   xaiQuota: Record<string, XaiQuotaState>;
   zcodeQuota: Record<string, ZcodeQuotaState>;
   commandcodeQuota: Record<string, CommandCodeQuotaState>;
-  metaMuseQuota: Record<string, MetaMuseQuotaState>;
   setAntigravityQuota: (updater: QuotaUpdater<Record<string, AntigravityQuotaState>>) => void;
   setClaudeQuota: (updater: QuotaUpdater<Record<string, ClaudeQuotaState>>) => void;
   setCodexQuota: (updater: QuotaUpdater<Record<string, CodexQuotaState>>) => void;
@@ -58,7 +56,6 @@ export interface QuotaStore {
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
   setZcodeQuota: (updater: QuotaUpdater<Record<string, ZcodeQuotaState>>) => void;
   setCommandCodeQuota: (updater: QuotaUpdater<Record<string, CommandCodeQuotaState>>) => void;
-  setMetaMuseQuota: (updater: QuotaUpdater<Record<string, MetaMuseQuotaState>>) => void;
   // Kept in sync with the real store: upstream's rework lets a refresh scope
   // invalidation to specific file names instead of always bumping the whole
   // session generation.

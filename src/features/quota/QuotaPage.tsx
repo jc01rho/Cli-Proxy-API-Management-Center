@@ -132,7 +132,6 @@ export function QuotaPage() {
   const xaiQuota = useQuotaStore((state) => state.xaiQuota);
   const zcodeQuota = useQuotaStore((state) => state.zcodeQuota);
   const commandcodeQuota = useQuotaStore((state) => state.commandcodeQuota);
-  const metaMuseQuota = useQuotaStore((state) => state.metaMuseQuota ?? {});
 
   const quotaByType = useMemo<Record<QuotaProviderType, Record<string, QuotaCardState>>>(
     () =>
@@ -143,7 +142,7 @@ export function QuotaPage() {
         devin: devinQuota,
         kiro: kiroQuota,
         kimi: kimiQuota,
-        meta: { ...metaQuota, ...metaMuseQuota },
+        meta: metaQuota,
         xai: xaiQuota,
         zcode: zcodeQuota,
         commandcode: commandcodeQuota,
@@ -159,7 +158,6 @@ export function QuotaPage() {
       xaiQuota,
       zcodeQuota,
       commandcodeQuota,
-      metaMuseQuota,
     ]
   );
 

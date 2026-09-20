@@ -12,7 +12,6 @@ import type {
   DevinQuotaState,
   KiroQuotaState,
   KimiQuotaState,
-  MetaMuseQuotaState,
   MetaQuotaState,
   XaiQuotaState,
   ZcodeQuotaState,
@@ -33,7 +32,6 @@ interface QuotaStoreState {
   xaiQuota: Record<string, XaiQuotaState>;
   zcodeQuota: Record<string, ZcodeQuotaState>;
   commandcodeQuota: Record<string, CommandCodeQuotaState>;
-  metaMuseQuota: Record<string, MetaMuseQuotaState>;
   setAntigravityQuota: (updater: QuotaUpdater<Record<string, AntigravityQuotaState>>) => void;
   setClaudeQuota: (updater: QuotaUpdater<Record<string, ClaudeQuotaState>>) => void;
   setCodexQuota: (updater: QuotaUpdater<Record<string, CodexQuotaState>>) => void;
@@ -44,7 +42,6 @@ interface QuotaStoreState {
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
   setZcodeQuota: (updater: QuotaUpdater<Record<string, ZcodeQuotaState>>) => void;
   setCommandCodeQuota: (updater: QuotaUpdater<Record<string, CommandCodeQuotaState>>) => void;
-  setMetaMuseQuota: (updater: QuotaUpdater<Record<string, MetaMuseQuotaState>>) => void;
   clearQuotaCache: (names?: string[]) => void;
 }
 
@@ -68,7 +65,6 @@ export const useQuotaStore = create<QuotaStoreState>((set) => ({
   xaiQuota: {},
   zcodeQuota: {},
   commandcodeQuota: {},
-  metaMuseQuota: {},
   setAntigravityQuota: (updater) =>
     set((state) => ({
       antigravityQuota: resolveUpdater(updater, state.antigravityQuota),
@@ -107,10 +103,6 @@ export const useQuotaStore = create<QuotaStoreState>((set) => ({
     set((state) => ({
       commandcodeQuota: resolveUpdater(updater, state.commandcodeQuota),
     })),
-  setMetaMuseQuota: (updater) =>
-    set((state) => ({
-      metaMuseQuota: resolveUpdater(updater, state.metaMuseQuota ?? {}),
-    })),
   // Merge note: upstream reworked clearQuotaCache to optionally invalidate a
   // scoped set of file names (per-file generation bump) instead of always
   // bumping the whole-session cacheGeneration. Local's zcode/commandcode/meta
@@ -146,7 +138,6 @@ export const useQuotaStore = create<QuotaStoreState>((set) => ({
           xaiQuota: omitNames(state.xaiQuota),
           zcodeQuota: omitNames(state.zcodeQuota),
           commandcodeQuota: omitNames(state.commandcodeQuota),
-          metaMuseQuota: omitNames(state.metaMuseQuota ?? {}),
         };
       }
       return {
@@ -162,7 +153,6 @@ export const useQuotaStore = create<QuotaStoreState>((set) => ({
         xaiQuota: {},
         zcodeQuota: {},
         commandcodeQuota: {},
-        metaMuseQuota: {},
       };
     }),
 }));

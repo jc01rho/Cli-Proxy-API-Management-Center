@@ -31,8 +31,6 @@ import { ZCODE_CONFIG } from './zcode/data';
 import { ZcodeQuotaBody } from './zcode/ZcodeQuotaBody';
 import { COMMANDCODE_CONFIG } from './commandcode/data';
 import { CommandCodeQuotaBody } from './commandcode/CommandCodeQuotaBody';
-import { META_MUSE_CONFIG } from './meta/data';
-import { MetaMuseQuotaBody } from './meta/MetaMuseQuotaBody';
 
 /** 所有 provider 额度状态的公共骨架（各 *QuotaState 的结构子集）。 */
 export interface QuotaCardState {
@@ -55,11 +53,6 @@ export interface QuotaAdapter {
   buildErrorState: (message: string, status?: number) => QuotaCardState;
   Body: ComponentType<QuotaBodyProps<QuotaCardState>>;
 }
-
-export const META_MUSE_ADAPTER = {
-  ...META_MUSE_CONFIG,
-  Body: MetaMuseQuotaBody,
-} as unknown as QuotaAdapter;
 
 export const QUOTA_ADAPTERS: Record<QuotaProviderType, QuotaAdapter> = {
   antigravity: {

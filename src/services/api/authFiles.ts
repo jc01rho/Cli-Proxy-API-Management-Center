@@ -459,9 +459,6 @@ export const authFilesApi = {
       )
     ),
 
-  getMetaMuseQuota: (authIndex: string) =>
-    apiClient.get<unknown>('/meta-muse-quota', { params: { auth_index: authIndex } }),
-
   setStatus: (name: string, disabled: boolean) =>
     apiClient.patch<AuthFileStatusResponse>('/auth-files/status', { name, disabled }),
 

@@ -19,6 +19,7 @@ import {
   interactionsToResource,
   metaToResource,
   mistralToResource,
+  opencodeToResource,
   openaiToResource,
   qiniuCloudToResource,
   kimiToResource,
@@ -164,7 +165,8 @@ const buildProviderKeyConfig = (
     | 'xai'
     | 'claude'
     | 'vertex'
-    | 'mistral',
+    | 'mistral'
+    | 'opencode',
   input: ProviderEntryFormInput,
   existing?: ProviderKeyConfig | GeminiKeyConfig | null
 ): ProviderKeyConfig | GeminiKeyConfig => {
@@ -436,6 +438,9 @@ export const buildProviderGroups = (config: Config): ProviderGroup[] => {
       case 'mistral':
         resources = (config.mistralApiKeys ?? []).map((c, i) => mistralToResource(c, i));
         break;
+      case 'opencode':
+        resources = (config.opencodeApiKeys ?? []).map((c, i) => opencodeToResource(c, i));
+        break;
       case 'openaiCompatibility':
         resources = (config.openaiCompatibility ?? []).reduce<ProviderResource[]>(
           (out, item, index) => {
@@ -509,6 +514,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         commandcodeResult,
         freebuffResult,
         mistralResult,
+        opencodeResult,
       ] = await Promise.allSettled([
         fetchConfig(true),
         providersApi.getVertexConfigs(),
@@ -516,6 +522,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         providersApi.getCommandCodeConfigs(),
         providersApi.getFreebuffConfigs(),
         providersApi.getMistralConfigs(),
+        providersApi.getOpenCodeConfigs(),
       ]);
       if (configResult.status !== 'fulfilled') {
         throw configResult.reason;
@@ -537,6 +544,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       if (mistralResult.status === 'fulfilled') {
         updateConfigValue('mistral-api-key', mistralResult.value || []);
         clearCache('mistral-api-key');
+      }
+      if (opencodeResult.status === 'fulfilled') {
+        updateConfigValue('opencode-api-key', opencodeResult.value || []);
+        clearCache('opencode-api-key');
       }
       setFetchedAt(new Date().toISOString());
     } catch (err) {
@@ -757,6 +768,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           await providersApi.createMistralConfig(
             buildProviderKeyConfig('mistral', input) as ProviderKeyConfig
           );
+        } else if (brand === 'opencode') {
+          await providersApi.createOpenCodeConfig(
+            buildProviderKeyConfig('opencode', input) as ProviderKeyConfig
+          );
         } else if (brand === 'meta') {
           await providersApi.createMetaConfig(
             buildProviderKeyConfig('meta', input) as ProviderKeyConfig
@@ -838,6 +853,13 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             selector.apiKey,
             selector.baseUrl,
             buildProviderKeyConfig('mistral', input, existing) as ProviderKeyConfig
+          );
+        } else if (brand === 'opencode' && selector.brand === 'opencode') {
+          const existing = resource.raw as ProviderKeyConfig;
+          await providersApi.updateOpenCodeConfigByKey(
+            selector.apiKey,
+            selector.baseUrl,
+            buildProviderKeyConfig('opencode', input, existing) as ProviderKeyConfig
           );
         } else if (brand === 'meta' && selector.brand === 'meta') {
           const existing = resource.raw as ProviderKeyConfig;
@@ -939,6 +961,11 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = (config?.mistralApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('mistral-api-key', next);
           clearCache('mistral-api-key');
+        } else if (sel.brand === 'opencode') {
+          await providersApi.deleteOpenCodeConfig(sel.apiKey, sel.baseUrl);
+          const next = (config?.opencodeApiKeys ?? []).filter((_, i) => i !== sel.index);
+          updateConfigValue('opencode-api-key', next);
+          clearCache('opencode-api-key');
         } else if (sel.brand === 'openaiCompatibility') {
           await providersApi.deleteOpenAIProvider(sel.index);
           const next = (config?.openaiCompatibility ?? []).filter(
@@ -1007,6 +1034,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           (brand === 'commandcode' && selector.brand === 'commandcode') ||
           (brand === 'freebuff' && selector.brand === 'freebuff') ||
           (brand === 'mistral' && selector.brand === 'mistral') ||
+          (brand === 'opencode' && selector.brand === 'opencode') ||
           (brand === 'meta' && selector.brand === 'meta') ||
           (brand === 'xai' && selector.brand === 'xai') ||
           (brand === 'claude' && selector.brand === 'claude') ||
@@ -1025,6 +1053,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             await providersApi.updateFreebuffConfigByKey(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'mistral') {
             await providersApi.updateMistralConfigByKey(selector.apiKey, selector.baseUrl, next);
+          } else if (selector.brand === 'opencode') {
+            await providersApi.updateOpenCodeConfigByKey(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'meta') {
             await providersApi.updateMetaConfig(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'xai') {

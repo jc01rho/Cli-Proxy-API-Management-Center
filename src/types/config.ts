@@ -47,6 +47,7 @@ export interface Config {
   commandcodeApiKeys?: ProviderKeyConfig[];
   freebuffApiKeys?: ProviderKeyConfig[];
   mistralApiKeys?: ProviderKeyConfig[];
+  opencodeApiKeys?: ProviderKeyConfig[];
    oauthExcludedModels?: Record<string, string[]>;
    oauthEndpointOverrides?: Record<string, Record<string, string>>;
    raw?: Record<string, unknown>;
@@ -78,6 +79,7 @@ export type RawConfigSection =
   | 'commandcode-api-key'
   | 'freebuff-api-key'
   | 'mistral-api-key'
+  | 'opencode-api-key'
   | 'oauth-excluded-models'
   | 'oauth-endpoint-overrides';
 

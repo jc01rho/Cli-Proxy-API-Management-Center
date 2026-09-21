@@ -16,6 +16,7 @@ export type ProviderBrand =
   | 'claude'
   | 'vertex'
   | 'mistral'
+  | 'opencode'
   | 'openaiCompatibility'
   | 'apikeyFun'
   | 'fennoAI'
@@ -41,6 +42,7 @@ export type ProviderResourceSelector =
   | { brand: 'claude'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'vertex'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'mistral'; apiKey: string; baseUrl?: string; index: number }
+  | { brand: 'opencode'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'openaiCompatibility'; name: string; index: number }
   | {
       brand: 'apikeyFun';

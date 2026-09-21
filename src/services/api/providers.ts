@@ -782,14 +782,29 @@ export const providersApi = {
     return list.map((item) => normalizeProviderKeyConfig(item)).filter(Boolean) as ProviderKeyConfig[];
   },
 
+  async getOpenCodeConfigs(): Promise<ProviderKeyConfig[]> {
+    const data = await apiClient.get('/opencode-api-key');
+    const list = extractArrayPayload(data, 'opencode-api-key');
+    return list.map((item) => normalizeProviderKeyConfig(item)).filter(Boolean) as ProviderKeyConfig[];
+  },
+
   saveMistralConfigs: (configs: ProviderKeyConfig[]) =>
     apiClient.put('/mistral-api-key', configs.map((item) => serializeProviderKey(item))),
+
+  saveOpenCodeConfigs: (configs: ProviderKeyConfig[]) =>
+    apiClient.put('/opencode-api-key', configs.map((item) => serializeProviderKey(item))),
 
   updateMistralConfig: (index: number, value: ProviderKeyConfig) =>
     apiClient.patch('/mistral-api-key', { index, value: serializeProviderKey(value) }),
 
+  updateOpenCodeConfig: (index: number, value: ProviderKeyConfig) =>
+    apiClient.patch('/opencode-api-key', { index, value: serializeProviderKey(value) }),
+
   deleteMistralConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(`/mistral-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+
+  deleteOpenCodeConfig: (apiKey: string, baseUrl?: string) =>
+    apiClient.delete(`/opencode-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 
   createCommandCodeConfig: (config: ProviderKeyConfig) =>
     mutateLatestProviderList('commandcode-api-key', (latestItems) => [
@@ -835,12 +850,31 @@ export const providersApi = {
       serializeProviderKey(config),
     ]),
 
+  createOpenCodeConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('opencode-api-key', (latestItems) => [
+      ...latestItems,
+      serializeProviderKey(config),
+    ]),
+
   updateMistralConfigByKey: (
     apiKey: string,
     baseUrl: string | undefined,
     config: ProviderKeyConfig
   ) =>
     mutateLatestProviderList('mistral-api-key', (latestItems) =>
+      latestItems.map((item) =>
+        matchesProviderKey(item as Record<string, unknown>, apiKey, baseUrl)
+          ? serializeProviderKey(config)
+          : item
+      )
+    ),
+
+  updateOpenCodeConfigByKey: (
+    apiKey: string,
+    baseUrl: string | undefined,
+    config: ProviderKeyConfig
+  ) =>
+    mutateLatestProviderList('opencode-api-key', (latestItems) =>
       latestItems.map((item) =>
         matchesProviderKey(item as Record<string, unknown>, apiKey, baseUrl)
           ? serializeProviderKey(config)

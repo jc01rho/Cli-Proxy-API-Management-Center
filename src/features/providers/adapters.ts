@@ -69,7 +69,8 @@ function providerKeyToResource(
     | 'xai'
     | 'claude'
     | 'vertex'
-    | 'mistral',
+    | 'mistral'
+    | 'opencode',
   config: GeminiKeyConfig | ProviderKeyConfig,
   index: number
 ): ProviderResource {
@@ -184,6 +185,10 @@ export function vertexToResource(config: ProviderKeyConfig, index: number): Prov
 
 export function mistralToResource(config: ProviderKeyConfig, index: number): ProviderResource {
   return providerKeyToResource('mistral', config, index);
+}
+
+export function opencodeToResource(config: ProviderKeyConfig, index: number): ProviderResource {
+  return providerKeyToResource('opencode', config, index);
 }
 
 export function openaiToResource(config: OpenAIProviderConfig, index: number): ProviderResource {

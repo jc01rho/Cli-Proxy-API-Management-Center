@@ -148,6 +148,9 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
         case 'mistral-api-key':
           nextConfig.mistralApiKeys = value as Config['mistralApiKeys'];
           break;
+        case 'opencode-api-key':
+          nextConfig.opencodeApiKeys = value as Config['opencodeApiKeys'];
+          break;
         case 'oauth-excluded-models':
           nextConfig.oauthExcludedModels = value as Config['oauthExcludedModels'];
           break;

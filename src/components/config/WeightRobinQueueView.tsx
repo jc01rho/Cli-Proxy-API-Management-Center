@@ -12,6 +12,7 @@ const PROVIDER_COLORS: Record<string, string> = {
   commandcode: '#e97a2b',
   freebuff: '#16a34a',
   mistral: '#ff6f00',
+  opencode: '#e87040',
 
   kiro: '#00bcd4',
   antigravity: '#607d8b',

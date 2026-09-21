@@ -1998,6 +1998,7 @@
       "claude": "Claude",
       "vertex": "Vertex",
       "mistral": "Mistral AI",
+      "opencode": "OpenCode",
       "openaiCompatibility": "OpenAI Compatible",
       "ampcode": "Amp CLI",
       "commandcode": "CommandCode",

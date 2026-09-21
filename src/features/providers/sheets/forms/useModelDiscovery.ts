@@ -15,6 +15,7 @@ export const MODEL_DISCOVERY_BRANDS: ReadonlyArray<ProviderBrand> = [
   'openaiCompatibility',
   'commandcode',
   'freebuff',
+  'opencode',
 ];
 
 export const isModelDiscoveryBrand = (brand: ProviderBrand): boolean =>
@@ -122,6 +123,15 @@ export function useModelDiscovery(args: UseModelDiscoveryArgs): UseModelDiscover
           entryKey,
           baseHeaders,
           entryAuthIndex
+        );
+      } else if (brand === 'opencode') {
+        const key =
+          (apiKey ?? '').trim() || (fallbackApiKey ?? '').trim() || 'public';
+        next = await modelsApi.fetchOpenCodeModelsViaApiCall(
+          baseUrl,
+          key,
+          baseHeaders,
+          resolvedAuthIndex
         );
       } else if (brand === 'freebuff') {
         const firstEntry = (apiKeyEntries ?? []).find(

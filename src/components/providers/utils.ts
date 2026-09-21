@@ -108,6 +108,23 @@ export const buildCommandCodeGenerateEndpoint = (baseUrl: string): string =>
 export const buildCommandCodeModelsEndpoint = (baseUrl: string): string =>
   `${normalizeCommandCodeHost(baseUrl)}/provider/v1/models`;
 
+export const DEFAULT_OPENCODE_BASE_URL = 'https://opencode.ai/zen/v1';
+
+// OpenCode exposes its catalog at <base-url>/models for both the Zen
+// (/zen/v1) and Go (/zen/go/v1) tiers. Accept base URLs that already carry
+// the catalog path or a trailing slash.
+const normalizeOpenCodeBase = (baseUrl: string): string => {
+  let trimmed = normalizeUpstreamBaseUrl(baseUrl, DEFAULT_OPENCODE_BASE_URL);
+  if (!trimmed) return DEFAULT_OPENCODE_BASE_URL;
+  trimmed = trimmed.replace(/\/chat\/completions$/i, '');
+  trimmed = trimmed.replace(/\/models$/i, '');
+  trimmed = trimmed.replace(/\/+$/, '');
+  return trimmed || DEFAULT_OPENCODE_BASE_URL;
+};
+
+export const buildOpenCodeModelsEndpoint = (baseUrl: string): string =>
+  `${normalizeOpenCodeBase(baseUrl)}/models`;
+
 export const DEFAULT_FREEBUFF_BASE_URL = 'https://www.codebuff.com';
 export const DEFAULT_FREEBUFF_PROBE_MODEL = 'base2';
 

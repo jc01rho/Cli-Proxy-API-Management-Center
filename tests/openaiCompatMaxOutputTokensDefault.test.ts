@@ -1,10 +1,10 @@
-// openaiCompatibility 的 maxOutputTokens 默认值守卫。
+// openaiCompatibility / opencode 的 maxOutputTokens 默认值守卫。
 //
-// 该字段是 /#/ai-providers 里 OpenAI 兼容 provider 的连通性测试 max_tokens。
-// 默认值 5 太小，会让带 reasoning 的模型在首字之前就被截断，测试假失败；
-// 现固定为 20。三处必须同步，漏改任何一处都会让默认值退回旧值：
-//   ① buildInitialForm 新建分支（brand === 'openaiCompatibility'）
-//   ② buildInitialForm 载入既有配置分支（OpenAIProviderConfig）
+// 该字段是 /#/ai-providers 里 OpenAI 兼容 provider 和 opencode provider 的连通性
+// 测试 max_tokens。默认值 5 太小，会让带 reasoning 的模型在首字之前就被截断，
+// 测试假失败；现固定为 20。三处必须同步，漏改任何一处都会让默认值退回旧值：
+//   ① buildInitialForm 新建分支（brand === 'openaiCompatibility' || 'opencode'）
+//   ② buildInitialForm 载入既有配置分支（OpenAIProviderConfig / opencode）
 //   ③ useConnectivityTest 的 max_tokens 兜底（表单未提供时）
 //
 // 用源码扫描而非直接调用：buildInitialForm 未导出，且兜底值嵌在请求体构造里。
@@ -24,7 +24,7 @@ const OPENAI_COMPAT_DEFAULT = 20;
 describe('openaiCompatibility maxOutputTokens default', () => {
   test('new-provider branch defaults to 20', () => {
     const branch = baseProviderForm.match(
-      /maxOutputTokens:\s*\n?\s*brand === 'openaiCompatibility'\s*\n?\s*\?\s*(\d+)/
+      /maxOutputTokens:\s*\n?\s*brand === 'openaiCompatibility' \|\| brand === 'opencode'\s*\n?\s*\?\s*(\d+)/
     );
     expect(branch).not.toBeNull();
     expect(Number(branch![1])).toBe(OPENAI_COMPAT_DEFAULT);
@@ -46,6 +46,17 @@ describe('openaiCompatibility maxOutputTokens default', () => {
   });
 
   test('claude-like and gemini branches keep their own default of 8', () => {
-    expect(baseProviderForm).toContain("isClaudeLikeBrand(brand) || brand === 'gemini' ? 8 : undefined");
+    expect(baseProviderForm).toContain("isClaudeLikeBrand(brand) || brand === 'gemini'\n        ? 8\n        : brand === 'opencode'\n          ? 20\n          : undefined");
+  });
+
+  test('opencode branch defaults to 20 in both new and existing-config paths', () => {
+    const assignments = Array.from(
+      baseProviderForm.matchAll(/brand === 'opencode'\s*\n?\s*\?\s*(\d+)/g),
+      (match) => Number(match[1])
+    );
+    expect(assignments.length).toBeGreaterThanOrEqual(2);
+    for (const value of assignments) {
+      expect(value).toBe(OPENAI_COMPAT_DEFAULT);
+    }
   });
 });

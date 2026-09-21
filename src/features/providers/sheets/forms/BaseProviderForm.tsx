@@ -118,11 +118,12 @@ function buildInitialForm(
         brand === 'xai' ||
         isClaudeLikeBrand(brand) ||
         brand === 'gemini' ||
-        brand === 'interactions'
+        brand === 'interactions' ||
+        brand === 'opencode'
           ? ''
           : undefined,
       maxOutputTokens:
-        brand === 'openaiCompatibility'
+        brand === 'openaiCompatibility' || brand === 'opencode'
           ? 20
           : isClaudeLikeBrand(brand) || brand === 'gemini'
             ? 8
@@ -229,11 +230,16 @@ function buildInitialForm(
       brand === 'xai' ||
       isClaudeLikeBrand(brand) ||
       brand === 'gemini' ||
-      brand === 'interactions'
+      brand === 'interactions' ||
+      brand === 'opencode'
         ? ''
         : undefined,
     maxOutputTokens:
-      isClaudeLikeBrand(brand) || brand === 'gemini' ? 8 : undefined,
+      isClaudeLikeBrand(brand) || brand === 'gemini'
+        ? 8
+        : brand === 'opencode'
+          ? 20
+          : undefined,
     comment: cfg.comment ?? '',
     apiKeyEntries:
       brand === 'commandcode' || brand === 'freebuff'
@@ -557,7 +563,9 @@ export function BaseProviderForm({
         ? { status: connectivity.geminiStatus, run: connectivity.runGemini }
         : isClaudeLikeBrand(brand)
           ? { status: connectivity.claudeStatus, run: connectivity.runClaude }
-          : null;
+          : brand === 'opencode'
+            ? { status: connectivity.opencodeStatus, run: connectivity.runOpenCode }
+            : null;
 
   const updateModelEntry = (idx: number, patch: Partial<ModelEntryInput>) => {
     updateField(
@@ -807,7 +815,8 @@ export function BaseProviderForm({
               brand === 'xai' ||
               isClaudeLikeBrand(brand) ||
               brand === 'gemini' ||
-              brand === 'interactions' ? (
+              brand === 'interactions' ||
+              brand === 'opencode' ? (
                 <span className={styles.labelHint}>
                   {' '}
                   · {t('providersPage.form.testModelClaudeHint')}

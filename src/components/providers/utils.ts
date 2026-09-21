@@ -125,6 +125,9 @@ const normalizeOpenCodeBase = (baseUrl: string): string => {
 export const buildOpenCodeModelsEndpoint = (baseUrl: string): string =>
   `${normalizeOpenCodeBase(baseUrl)}/models`;
 
+export const buildOpenCodeChatCompletionsEndpoint = (baseUrl: string): string =>
+  `${normalizeOpenCodeBase(baseUrl)}/chat/completions`;
+
 export const DEFAULT_FREEBUFF_BASE_URL = 'https://www.codebuff.com';
 export const DEFAULT_FREEBUFF_PROBE_MODEL = 'base2';
 

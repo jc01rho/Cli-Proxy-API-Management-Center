@@ -13,7 +13,10 @@ import {
   buildInteractionsProbePayload,
   INTERACTIONS_API_REVISION,
   buildOpenAIChatCompletionsEndpoint,
+  buildOpenCodeChatCompletionsEndpoint,
 } from '@/components/providers/utils';
+
+const OPENCODE_ANONYMOUS_API_KEY = 'public';
 import { buildHeaderObject, hasHeader } from '@/utils/headers';
 import { getErrorMessage } from '@/utils/helpers';
 import type { ApiKeyEntryInput, ModelEntryInput, ProviderBrand } from '../../types';
@@ -193,12 +196,14 @@ export interface UseConnectivityTestResult {
   claudeStatus: ConnectivityStatus;
   commandcodeStatus: ConnectivityStatus;
   freebuffStatus: ConnectivityStatus;
+  opencodeStatus: ConnectivityStatus;
   isTestingAny: boolean;
   runOpenAIKey: (idx: number) => Promise<boolean>;
   runOpenAIAllKeys: () => Promise<void>;
   runCodex: () => Promise<void>;
   runGemini: () => Promise<void>;
   runClaude: () => Promise<void>;
+  runOpenCode: () => Promise<void>;
   runCommandCode: () => Promise<void>;
   runCommandCodeKey: (idx: number) => Promise<boolean>;
   runCommandCodeAllKeys: () => Promise<void>;
@@ -234,6 +239,7 @@ export function useConnectivityTest(
   const [claudeStatus, setClaudeStatus] = useState<ConnectivityStatus>(IDLE);
   const [commandcodeStatus, setCommandcodeStatus] = useState<ConnectivityStatus>(IDLE);
   const [freebuffStatus, setFreebuffStatus] = useState<ConnectivityStatus>(IDLE);
+  const [opencodeStatus, setOpencodeStatus] = useState<ConnectivityStatus>(IDLE);
   const [inFlight, setInFlight] = useState(0);
 
   const entrySignatures = useMemo(
@@ -294,6 +300,7 @@ export function useConnectivityTest(
     setClaudeStatus(IDLE);
     setCommandcodeStatus(IDLE);
     setFreebuffStatus(IDLE);
+    setOpencodeStatus(IDLE);
   }, [signature]);
 
   const updateOpenaiStatus = useCallback((idx: number, value: ConnectivityStatus) => {
@@ -637,6 +644,77 @@ export function useConnectivityTest(
     }
   }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, maxOutputTokens, messages, models, testModel]);
 
+  const runOpenCode = useCallback(async (): Promise<void> => {
+    if (brand !== 'opencode') return;
+
+    const trimmedBase = baseUrl.trim();
+    const endpoint = buildOpenCodeChatCompletionsEndpoint(trimmedBase);
+    if (!endpoint) {
+      setOpencodeStatus({ state: 'error', message: messages.endpointInvalid });
+      return;
+    }
+
+    const model = pickModel(testModel, models);
+    if (!model) {
+      setOpencodeStatus({ state: 'error', message: messages.modelRequired });
+      return;
+    }
+
+    const customHeaders = buildHeaderObject(formHeaders);
+    const explicitKey = (apiKey ?? '').trim();
+    const persistedKey = (fallbackApiKey ?? '').trim();
+    const hasAuthorization = hasHeader(customHeaders, 'authorization');
+    const resolvedKey = explicitKey || persistedKey;
+    const resolvedAuthIndex = (authIndex ?? '').trim() || undefined;
+
+    const headerObj: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...customHeaders,
+    };
+    if (!hasAuthorization) {
+      if (resolvedKey) {
+        headerObj.Authorization = `Bearer ${resolvedKey}`;
+      } else if (resolvedAuthIndex) {
+        headerObj.Authorization = 'Bearer $TOKEN$';
+      } else {
+        // OpenCode's free tier accepts the anonymous "public" key, so an unset
+        // key is not an error the way it is for other OpenAI-compatible brands.
+        headerObj.Authorization = `Bearer ${OPENCODE_ANONYMOUS_API_KEY}`;
+      }
+    }
+
+    setOpencodeStatus({ state: 'loading', message: '' });
+    setInFlight((n) => n + 1);
+    try {
+      const result = await apiCallApi.request(
+        {
+          authIndex: resolvedKey ? undefined : resolvedAuthIndex,
+          method: 'POST',
+          url: endpoint,
+          header: headerObj,
+          data: JSON.stringify({
+            model,
+            messages: [{ role: 'user', content: 'Hi' }],
+            stream: false,
+            max_tokens: maxOutputTokens ?? 20,
+          }),
+        },
+        { timeout: DEFAULT_TIMEOUT_MS }
+      );
+      if (result.statusCode < 200 || result.statusCode >= 300) {
+        throw new Error(getApiCallErrorMessage(result));
+      }
+      setOpencodeStatus({ state: 'success', message: '' });
+    } catch (err) {
+      setOpencodeStatus({
+        state: 'error',
+        message: requestFailureMessage(err, messages),
+      });
+    } finally {
+      setInFlight((n) => n - 1);
+    }
+  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, maxOutputTokens, messages, models, testModel]);
+
   const runCommandCode = useCallback(async (): Promise<void> => {
     if (brand !== 'commandcode') return;
 
@@ -898,12 +976,14 @@ export function useConnectivityTest(
     claudeStatus,
     commandcodeStatus,
     freebuffStatus,
+    opencodeStatus,
     isTestingAny: inFlight > 0,
     runOpenAIKey,
     runOpenAIAllKeys,
     runCodex,
     runGemini,
     runClaude,
+    runOpenCode,
     runCommandCode,
     runCommandCodeKey,
     runCommandCodeAllKeys,

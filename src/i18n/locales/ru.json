@@ -2000,6 +2000,7 @@
       "claude": "Claude",
       "vertex": "Vertex",
       "mistral": "Mistral AI",
+      "opencode": "OpenCode",
       "openaiCompatibility": "OpenAI-совместимый",
       "ampcode": "Amp CLI",
       "apikeyFun": "APIKEY.FUN",

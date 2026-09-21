@@ -7,6 +7,7 @@ import devinLightLogo from '@/assets/icons/devin.svg';
 import devinDarkLogo from '@/assets/icons/devin-dark.svg';
 import geminiLogo from '@/assets/icons/gemini.svg';
 import mistralLogo from '@/assets/icons/mistral.svg';
+import opencodeLogo from '@/assets/icons/codex.svg';
 import openaiLightLogo from '@/assets/icons/openai-light.svg';
 import openaiDarkLogo from '@/assets/icons/openai-dark.svg';
 import vertexLogo from '@/assets/icons/vertex.svg';
@@ -38,6 +39,7 @@ export const PROVIDER_LOGOS: Record<ProviderBrandLogoKey, ProviderBrandLogo> = {
   freebuff: { src: freebuffLogo },
   meta: { src: metaLogo, transparent: true },
   mistral: { src: mistralLogo },
+  opencode: { src: opencodeLogo },
   devin: { src: devinLightLogo, darkSrc: devinDarkLogo, transparent: true },
   xai: { src: xaiLightLogo, darkSrc: xaiDarkLogo, transparent: true },
   vertex: { src: vertexLogo },

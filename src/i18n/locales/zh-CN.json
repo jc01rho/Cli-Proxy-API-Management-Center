@@ -1995,6 +1995,7 @@
       "claude": "Claude",
       "vertex": "Vertex",
       "mistral": "Mistral AI",
+      "opencode": "OpenCode",
       "openaiCompatibility": "OpenAI 兼容",
       "ampcode": "Amp CLI",
       "apikeyFun": "APIKEY.FUN",

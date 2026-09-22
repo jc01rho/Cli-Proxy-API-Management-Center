@@ -23,6 +23,8 @@ const makeEditor = (json: Record<string, unknown>, weight: string): PrefixProxyE
   weightError: null,
   disableCooling: false,
   disableCoolingTouched: false,
+  cloaking: true,
+  cloakingTouched: false,
   websockets: false,
   websocketsTouched: false,
   usingApi: false,
@@ -150,5 +152,40 @@ describe('auth-file excluded models patch', () => {
         resolveError
       )
     ).toEqual({ excluded_models: [] });
+  });
+});
+
+describe('auth-file cloaking patch', () => {
+  test('writes cloak_mode never only for a touched Claude credential', () => {
+    const editor = {
+      ...makeEditor({}, ''),
+      providerKey: 'claude',
+      baseUrl: '',
+      quotaUrl: '',
+      cloaking: false,
+      cloakingTouched: true,
+    };
+    expect(buildAuthFileFieldsPatch(editor, resolveError)).toEqual({ cloak_mode: 'never' });
+  });
+
+  test('clears cloak_mode when cloaking is turned back on', () => {
+    const editor = {
+      ...makeEditor({ cloak_mode: 'never' }, ''),
+      providerKey: 'claude',
+      baseUrl: '',
+      quotaUrl: '',
+      cloaking: true,
+      cloakingTouched: true,
+    };
+    expect(buildAuthFileFieldsPatch(editor, resolveError)).toEqual({ cloak_mode: null });
+  });
+
+  test('ignores the toggle for non-Claude credentials', () => {
+    const editor = {
+      ...makeEditor({}, ''),
+      cloaking: false,
+      cloakingTouched: true,
+    };
+    expect(buildAuthFileFieldsPatch(editor, resolveError)).toEqual({});
   });
 });

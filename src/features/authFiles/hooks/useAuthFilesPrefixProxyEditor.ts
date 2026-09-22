@@ -10,11 +10,13 @@ import {
   normalizeProviderKey,
   parsePriorityValue,
   readAuthFileBaseUrl,
+  readAuthFileCloaking,
   readAuthFileQuotaUrl,
   readAuthFileDisableCooling,
   readAuthFileWebsockets,
   readAuthFileUsingApi,
   supportsAuthFileBaseUrl,
+  supportsAuthFileCloaking,
   supportsAuthFileModelAlias,
   supportsAuthFileWebsockets,
   supportsAuthFileUsingApi,
@@ -53,6 +55,7 @@ export type PrefixProxyEditorField =
   | 'priority'
   | 'weight'
   | 'disableCooling'
+  | 'cloaking'
   | 'websockets'
   | 'usingApi'
   | 'note'
@@ -82,6 +85,8 @@ export type PrefixProxyEditorState = {
   weightError: string | null;
   disableCooling: boolean;
   disableCoolingTouched: boolean;
+  cloaking: boolean;
+  cloakingTouched: boolean;
   websockets: boolean;
   websocketsTouched: boolean;
   usingApi: boolean;
@@ -364,6 +369,14 @@ export const buildAuthFileFieldsPatch = (
     }
   }
 
+  if (
+    supportsAuthFileCloaking(editor.providerKey) &&
+    editor.cloakingTouched &&
+    readAuthFileCloaking(original) !== Boolean(editor.cloaking)
+  ) {
+    patch.cloak_mode = editor.cloaking ? null : 'never';
+  }
+
   if (editor.noteTouched) {
     const originalNote = normalizeTextField(original.note);
     const nextNote = editor.note.trim();
@@ -483,6 +496,11 @@ const buildPrefixProxyUpdatedText = (
   if (patch['disable-cooling'] !== undefined) {
     next['disable-cooling'] = patch['disable-cooling'];
   }
+  if (patch.cloak_mode === null) {
+    delete next.cloak_mode;
+  } else if (patch.cloak_mode !== undefined) {
+    next.cloak_mode = patch.cloak_mode;
+  }
 
   if (patch.note !== undefined) {
     if (patch.note) {
@@ -576,6 +594,8 @@ export function useAuthFilesPrefixProxyEditor(
       weightError: null,
       disableCooling: false,
       disableCoolingTouched: false,
+      cloaking: true,
+      cloakingTouched: false,
       websockets: false,
       websocketsTouched: false,
       usingApi: false,
@@ -633,6 +653,7 @@ export function useAuthFilesPrefixProxyEditor(
       const priority = parsePriorityValue(json.priority);
       const weight = readCredentialWeight(json.weight);
       const disableCooling = readAuthFileDisableCooling(json);
+      const cloaking = readAuthFileCloaking(json);
       const websockets = supportsAuthFileWebsockets(providerKey)
         ? readAuthFileWebsockets(json)
         : false;
@@ -668,6 +689,8 @@ export function useAuthFilesPrefixProxyEditor(
           weightError: null,
           disableCooling,
           disableCoolingTouched: false,
+          cloaking,
+          cloakingTouched: false,
           websockets,
           websocketsTouched: false,
           usingApi,
@@ -720,6 +743,13 @@ export function useAuthFilesPrefixProxyEditor(
           ...prev,
           disableCooling: Boolean(value),
           disableCoolingTouched: true,
+        };
+      }
+      if (field === 'cloaking') {
+        return {
+          ...prev,
+          cloaking: Boolean(value),
+          cloakingTouched: true,
         };
       }
       if (field === 'websockets') {

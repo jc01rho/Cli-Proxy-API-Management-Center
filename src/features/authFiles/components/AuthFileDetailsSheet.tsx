@@ -14,6 +14,7 @@ import type {
 } from '@/features/authFiles/hooks/useAuthFilesPrefixProxyEditor';
 import {
   supportsAuthFileBaseUrl,
+  supportsAuthFileCloaking,
   supportsAuthFileModelAlias,
   supportsAuthFileUsingApi,
   supportsAuthFileWebsockets,
@@ -268,6 +269,18 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                     />
                     <div className="hint">{t('auth_files.disable_cooling_hint')}</div>
                   </div>
+                  {supportsAuthFileCloaking(editor.providerKey) && (
+                    <div className="form-group">
+                      <label>{t('auth_files.cloaking_label')}</label>
+                      <ToggleSwitch
+                        checked={editor.cloaking}
+                        onChange={(value) => onChange('cloaking', value)}
+                        disabled={disableControls || editor.saving || !editor.json}
+                        ariaLabel={t('auth_files.cloaking_label')}
+                      />
+                      <div className="hint">{t('auth_files.cloaking_hint')}</div>
+                    </div>
+                  )}
                   {supportsAuthFileWebsockets(editor.providerKey) && (
                     <div className="form-group">
                       <label>{t('auth_files.websockets_label')}</label>

@@ -261,6 +261,15 @@ export const readAuthFileDisableCooling = (value: Record<string, unknown>): bool
   return parseDisableCoolingValue(value['disable-cooling']) ?? false;
 };
 
+/** Cloaking stays on unless this credential explicitly sets cloak_mode to never. */
+export const readAuthFileCloaking = (value: Record<string, unknown>): boolean => {
+  const raw = value.cloak_mode ?? value['cloak-mode'];
+  return typeof raw !== 'string' || raw.trim().toLowerCase() !== 'never';
+};
+
+export const supportsAuthFileCloaking = (providerKey: string): boolean =>
+  normalizeProviderKey(providerKey) === 'claude';
+
 export const supportsAuthFileWebsockets = (providerKey: string): boolean =>
   AUTH_FILE_WEBSOCKET_PROVIDERS.has(normalizeProviderKey(providerKey));
 

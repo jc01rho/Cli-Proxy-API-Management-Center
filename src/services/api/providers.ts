@@ -228,9 +228,35 @@ const mutateLatestProviderList = async (
   await apiClient.put(`/${section}`, mutate(latestItems));
 };
 
-const matchesProviderKey = (record: Record<string, unknown>, apiKey: string, baseUrl?: string) =>
-  getStringField(record, ['api-key']) === apiKey.trim() &&
-  getStringField(record, ['base-url']) === (baseUrl ?? '').trim();
+/**
+ * commandcode/freebuff records can carry their credential only inside
+ * `api-key-entries` — once a legacy single-key config is saved through the
+ * entries-aware builder, `serializeProviderKey` moves the key into the first
+ * entry and clears the top-level `api-key` (it is "the source of truth" once
+ * entries exist). The UI resource's selector still uses that original key
+ * (see `commandcodeToResource`/`freebuffToResource`), so a plain top-level
+ * comparison stops matching the record on every save after the first one:
+ * the update silently no-ops (map finds nothing to replace), the PUT
+ * round-trips the list unchanged, the backend returns 200, and the UI shows
+ * a success toast while nothing actually changed. Fall back to scanning
+ * `api-key-entries` for the same key before giving up.
+ */
+const recordHasApiKeyEntry = (record: Record<string, unknown>, apiKey: string): boolean => {
+  const entries = record['api-key-entries'];
+  if (!Array.isArray(entries)) return false;
+  return entries.some(
+    (entry) => isRecord(entry) && getStringField(entry, ['api-key']) === apiKey
+  );
+};
+
+const matchesProviderKey = (record: Record<string, unknown>, apiKey: string, baseUrl?: string) => {
+  const trimmedKey = apiKey.trim();
+  const baseUrlMatches = getStringField(record, ['base-url']) === (baseUrl ?? '').trim();
+  if (!baseUrlMatches) return false;
+  const topLevelKey = getStringField(record, ['api-key']);
+  if (topLevelKey) return topLevelKey === trimmedKey;
+  return recordHasApiKeyEntry(record, trimmedKey);
+};
 
 const mergeModelPayloads = (
   raw: unknown,

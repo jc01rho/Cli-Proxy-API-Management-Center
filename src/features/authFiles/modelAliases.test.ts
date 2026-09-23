@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { serializeOauthModelAliases } from '../../services/api/authFiles';
+import { toRows } from './components/modelAliasRows';
 import {
   applyModelAliases,
   readModelAliases,
@@ -25,6 +26,21 @@ describe('serializeOauthModelAliases', () => {
     expect(serializeOauthModelAliases([{ name: 'a', alias: 'b', fork: false }])).toEqual([
       { name: 'a', alias: 'b' },
     ]);
+  });
+});
+
+describe('model alias editor rows', () => {
+  test('keeps the input row identity when the parent echoes an edited alias', () => {
+    const initial = toRows([{ name: 'source', alias: 'alias', fork: true }]);
+    const updated = toRows([{ name: 'source', alias: 'aliasx', fork: true }], initial);
+
+    expect(updated[0]?.id).toBe(initial[0]?.id);
+    expect(updated[0]?.alias).toBe('aliasx');
+  });
+
+  test('keeps the empty input row identity when the parent still has no aliases', () => {
+    const initial = toRows([]);
+    expect(toRows([], initial)[0]?.id).toBe(initial[0]?.id);
   });
 });
 

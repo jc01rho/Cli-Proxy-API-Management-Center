@@ -5,23 +5,8 @@ import { Input } from '@/components/ui/Input';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import { IconX } from '@/components/ui/icons';
 import type { OAuthModelAliasEntry } from '@/types';
-import { generateId } from '@/utils/helpers';
+import { buildEmptyRow, toRows, type ModelAliasRow } from './modelAliasRows';
 import styles from './ModelAliasEditorSection.module.scss';
-
-type ModelAliasRow = OAuthModelAliasEntry & { id: string };
-
-const buildEmptyRow = (): ModelAliasRow => ({ id: generateId(), name: '', alias: '', fork: true });
-
-const toRows = (entries: OAuthModelAliasEntry[]): ModelAliasRow[] =>
-  entries.length === 0
-    ? [buildEmptyRow()]
-    : entries.map((entry) => ({
-        id: generateId(),
-        name: entry.name ?? '',
-        alias: entry.alias ?? '',
-        fork: Boolean(entry.fork),
-        forceMapping: entry.forceMapping,
-      }));
 
 const toEntries = (rows: ModelAliasRow[]): OAuthModelAliasEntry[] =>
   rows.map(({ id: _id, ...entry }) => entry);
@@ -48,31 +33,26 @@ export function ModelAliasEditorSection({
   const [rows, setRows] = useState<ModelAliasRow[]>(() => toRows(value));
 
   useEffect(() => {
-    setRows(toRows(value));
+    setRows((previousRows) => toRows(value, previousRows));
   }, [value]);
 
+  const commitRows = (next: ModelAliasRow[]) => {
+    setRows(next);
+    onChange(toEntries(next));
+  };
+
   const updateRow = (index: number, patch: Partial<ModelAliasRow>) => {
-    setRows((prev) => {
-      const next = prev.map((row, rowIndex) => (rowIndex === index ? { ...row, ...patch } : row));
-      onChange(toEntries(next));
-      return next;
-    });
+    commitRows(rows.map((row, rowIndex) => (rowIndex === index ? { ...row, ...patch } : row)));
   };
 
   const addRow = () => {
-    setRows((prev) => {
-      const next = [...prev, buildEmptyRow()];
-      onChange(toEntries(next));
-      return next;
-    });
+    commitRows([...rows, buildEmptyRow()]);
   };
 
   const removeRow = (index: number) => {
-    setRows((prev) => {
-      const next = prev.length <= 1 ? prev : prev.filter((_, rowIndex) => rowIndex !== index);
-      onChange(toEntries(next));
-      return next;
-    });
+    if (rows.length > 1) {
+      commitRows(rows.filter((_, rowIndex) => rowIndex !== index));
+    }
   };
 
   return (

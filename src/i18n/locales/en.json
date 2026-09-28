@@ -2157,6 +2157,8 @@
       "disabled": "Disable this entry",
       "disabledHint": "Disabled entries won't be used by the gateway",
       "websockets": "Enable WebSockets",
+      "systemContentAsString": "Send system content as a string",
+      "systemContentAsStringHint": "For this provider, convert system message text arrays to strings. Off by default; enable for gateways that require string content.",
       "testModel": "Test model",
       "testModelClaudeHint": "Used for connectivity testing only; not saved",
       "maxOutputTokens": "Max output tokens",

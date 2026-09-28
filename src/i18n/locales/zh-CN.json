@@ -2152,6 +2152,8 @@
       "disabled": "停用此条目",
       "disabledHint": "停用后不会被网关使用",
       "websockets": "启用 WebSockets",
+      "systemContentAsString": "将 system 内容作为字符串发送",
+      "systemContentAsStringHint": "将此提供商的 system 消息文本数组转换为字符串。默认关闭；仅在网关要求字符串内容时启用。",
       "testModel": "测试模型",
       "testModelClaudeHint": "仅用于连通性测试,不会被保存",
       "maxOutputTokens": "最大输出令牌数",

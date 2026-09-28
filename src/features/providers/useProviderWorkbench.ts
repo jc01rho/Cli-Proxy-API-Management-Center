@@ -229,7 +229,7 @@ const buildProviderKeyConfig = (
   return next;
 };
 
-const buildOpenAIConfig = (
+export const buildOpenAIConfig = (
   input: ProviderEntryFormInput,
   existing?: OpenAIProviderConfig | null
 ): OpenAIProviderConfig => {
@@ -258,6 +258,7 @@ const buildOpenAIConfig = (
     apiKeyEntries,
     disabled: input.disabled,
     disableCooling: input.disableCooling === true,
+    systemContentAsString: input.systemContentAsString === true,
     headers: Object.keys(headers).length ? headers : undefined,
     models: models.length ? models : undefined,
     priority: input.priority,

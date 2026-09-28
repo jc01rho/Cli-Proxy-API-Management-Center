@@ -78,5 +78,6 @@ export interface OpenAIProviderConfig {
   authIndex?: string;
   /** Original index in the backend openai-compatibility array. */
   sourceIndex?: number;
+  systemContentAsString?: boolean;
   [key: string]: unknown;
 }

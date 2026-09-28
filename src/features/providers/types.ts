@@ -211,6 +211,8 @@ export interface ProviderEntryFormInput {
   fingerprintProfile?: string;
   /** OpenAI persists this; Gemini/Claude use it for one-off connectivity tests. */
   testModel?: string;
+  /** OpenAI-compatible provider request format override. */
+  systemContentAsString?: boolean;
   /** Max output tokens for the connectivity test probe (not persisted). */
   maxOutputTokens?: number;
   apiKeyEntries?: ApiKeyEntryInput[];

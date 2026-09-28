@@ -65,6 +65,7 @@ const OPENAI_PROVIDER_FIELDS = [
   'headers',
   'models',
   'test-model',
+  'system-content-as-string',
   'disable-cooling',
 ] as const;
 
@@ -492,6 +493,9 @@ const serializeOpenAIProvider = (provider: OpenAIProviderConfig) => {
   if (provider.prefix?.trim()) payload.prefix = provider.prefix.trim();
   if (provider.billingClass) payload['billing-class'] = provider.billingClass;
   if (provider.disabled !== undefined) payload.disabled = provider.disabled;
+  if (provider.systemContentAsString !== undefined) {
+    payload['system-content-as-string'] = provider.systemContentAsString;
+  }
   const headers = serializeHeaders(provider.headers);
   if (headers) payload.headers = headers;
   const models = serializeModelAliases(provider.models, true);

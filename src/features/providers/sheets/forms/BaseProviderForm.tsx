@@ -100,6 +100,7 @@ function buildInitialForm(
       prefix: '',
       disabled: false,
       disableCooling: false,
+      systemContentAsString: brand === 'openaiCompatibility' ? false : undefined,
       priority: undefined,
       weight: undefined,
       comment: '',
@@ -146,6 +147,7 @@ function buildInitialForm(
       prefix: cfg.prefix ?? '',
       disabled: cfg.disabled === true,
       disableCooling: cfg.disableCooling === true,
+      systemContentAsString: cfg.systemContentAsString === true,
       priority: cfg.priority,
       models: cfg.models?.length
         ? cfg.models.map((m) => ({
@@ -876,6 +878,29 @@ export function BaseProviderForm({
               <div className={styles.connectivityError}>{singleConnectivity.status.message}</div>
             ) : null}
           </div>
+        ) : null}
+
+        {descriptor.supportsSystemContentAsString ? (
+          <label className={styles.checkboxRow}>
+            <input
+              type="checkbox"
+              name="systemContentAsString"
+              className={styles.checkboxBox}
+              checked={form.systemContentAsString ?? false}
+              disabled={mutating}
+              aria-labelledby={`${fid}-system-content-label`}
+              aria-describedby={`${fid}-system-content-hint`}
+              onChange={(e) => updateField('systemContentAsString', e.target.checked)}
+            />
+            <span className={styles.checkboxText}>
+              <span id={`${fid}-system-content-label`}>
+                {t('providersPage.form.systemContentAsString')}
+              </span>
+              <small id={`${fid}-system-content-hint`}>
+                {t('providersPage.form.systemContentAsStringHint')}
+              </small>
+            </span>
+          </label>
         ) : null}
 
         {descriptor.supportsWebsockets ? (

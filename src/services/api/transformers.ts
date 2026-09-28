@@ -305,6 +305,10 @@ const normalizeOpenAIProvider = (
 
   const disabled = normalizeBoolean(provider.disabled ?? provider['disabled']);
   if (disabled !== undefined) result.disabled = disabled;
+  const systemContentAsString = normalizeBoolean(
+    provider['system-content-as-string'] ?? provider.systemContentAsString
+  );
+  if (systemContentAsString !== undefined) result.systemContentAsString = systemContentAsString;
   const disableCooling = normalizeBoolean(provider['disable-cooling']);
   if (disableCooling !== undefined) result.disableCooling = disableCooling;
   const prefix = normalizePrefix(provider.prefix ?? provider['prefix']);

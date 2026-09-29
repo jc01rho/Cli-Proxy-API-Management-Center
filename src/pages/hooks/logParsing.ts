@@ -6,7 +6,9 @@ const LOG_TIMESTAMP_REGEX = /^\[?(\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d{
 const LOG_LEVEL_REGEX = /^\[?(trace|debug|info|warn|warning|error|fatal)\s*\]?(?=\s|\[|$)\s*/i;
 const LOG_SOURCE_REGEX = /^\[([^\]]+)\]/;
 const LOG_LATENCY_REGEX =
-  /\b(?:\d+(?:\.\d+)?\s*(?:µs|us|ms|s|m))(?:\s*\d+(?:\.\d+)?\s*(?:µs|us|ms|s|m))*\b/i;
+  /^(?:\d+(?:\.\d+)?\s*(?:µs|us|ms|s|m))(?:\s*\d+(?:\.\d+)?\s*(?:µs|us|ms|s|m))*$/i;
+const STRUCTURED_REQUEST_LOG_REGEX =
+  /^(?:(?:\[GIN\]\s*)?\d{4}\/\d{2}\/\d{2}\s*-\s*\d{2}:\d{2}:\d{2}\s*\|\s*)?(?:(?:[a-f0-9]{8}|--------|request[_-]?id=[A-Za-z0-9._:-]+)\s*\|\s*)?[1-5]\d{2}\s*\|/i;
 const LOG_IPV4_REGEX = /\b(?:\d{1,3}\.){3}\d{1,3}\b/;
 const LOG_IPV6_REGEX = /\b(?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}\b/i;
 const LOG_REQUEST_ID_REGEX = /^([a-f0-9]{8}|--------)$/i;
@@ -148,7 +150,7 @@ export const parseLogLine = (raw: string): ParsedLogLine => {
   let path: string | undefined;
   let message = remaining;
 
-  if (remaining.includes('|')) {
+  if (STRUCTURED_REQUEST_LOG_REGEX.test(remaining)) {
     const segments = remaining
       .split('|')
       .map((segment) => segment.trim())
@@ -207,8 +209,8 @@ export const parseLogLine = (raw: string): ParsedLogLine => {
     }
 
     // latency
-    const latencyIndex = segments.findIndex((segment) => LOG_LATENCY_REGEX.test(segment));
-    if (latencyIndex >= 0) {
+    const latencyIndex = statusIndex + 1;
+    if (statusIndex >= 0 && latencyIndex < segments.length) {
       const extracted = extractLatency(segments[latencyIndex]);
       if (extracted) {
         latency = extracted;
@@ -252,8 +254,10 @@ export const parseLogLine = (raw: string): ParsedLogLine => {
   } else {
     statusCode = detectHttpStatusCode(remaining);
 
-    const extracted = extractLatency(remaining);
-    if (extracted) latency = extracted;
+    const durationField = remaining.match(
+      /^upstream execution failed: provider=\S+ model=\S+ auth=\S+ duration=(\S+) err=/
+    );
+    if (durationField) latency = extractLatency(durationField[1]);
 
     ip = extractIp(remaining);
 

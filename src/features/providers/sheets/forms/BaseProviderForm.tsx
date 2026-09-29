@@ -156,6 +156,7 @@ function buildInitialForm(
             priority: m.priority,
             testModel: m.testModel,
             image: m.image === true,
+            supportedEndpoints: m.supportedEndpoints,
             thinkingJson: formatJsonObject(m.thinking),
             thinkingLevels: readThinkingLevels(m.thinking),
           }))
@@ -1110,6 +1111,7 @@ export function BaseProviderForm({
             <ModelEntriesEditor
               models={modelsList}
               supportsImage={supportsModelImage}
+              supportsEndpoints={descriptor.supportsModelEndpoints}
               supportsThinking
               mutating={mutating}
               removeDisabled={modelsList.length <= 1}

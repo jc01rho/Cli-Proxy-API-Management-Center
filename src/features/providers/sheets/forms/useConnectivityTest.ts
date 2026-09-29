@@ -278,7 +278,9 @@ export function useConnectivityTest(
 
   const signature = useMemo(() => {
     const h = formHeaders.map((it) => `${it.key}:${it.value}`).join('|');
-    const m = models.map((it) => `${it.name}:${it.alias ?? ''}`).join('|');
+    const m = models
+      .map((it) => `${it.name}:${it.alias ?? ''}:${it.supportedEndpoints?.join(',') ?? ''}`)
+      .join('|');
     return [
       baseUrl,
       (testModel ?? '').trim(),
@@ -323,7 +325,17 @@ export function useConnectivityTest(
         });
         return false;
       }
-      const endpoint = buildOpenAIChatCompletionsEndpoint(trimmedBase);
+      const model = pickModel(testModel, models);
+      const selectedModel = models?.find((entry) => entry.name.trim() === model);
+      const endpoints = selectedModel?.supportedEndpoints?.map((value) =>
+        `/${value.trim().replace(/^\/+/, '')}`
+      );
+      const responses = endpoints?.length
+        ? endpoints.includes('/responses') && !endpoints.includes('/chat/completions')
+        : /^https?:\/\/(?:[^/]+\.)?opencode\.ai(?:[/:]|$)/i.test(trimmedBase);
+      const endpoint = responses
+        ? `${trimmedBase.replace(/\/+$/, '')}/responses`
+        : buildOpenAIChatCompletionsEndpoint(trimmedBase);
       if (!endpoint) {
         updateOpenaiStatus(idx, {
           state: 'error',
@@ -342,7 +354,6 @@ export function useConnectivityTest(
         });
         return false;
       }
-      const model = pickModel(testModel, models);
       if (!model) {
         updateOpenaiStatus(idx, {
           state: 'error',
@@ -372,7 +383,12 @@ export function useConnectivityTest(
             method: 'POST',
             url: endpoint,
             header: headerObj,
-            data: JSON.stringify({
+            data: JSON.stringify(responses ? {
+              model,
+              input: 'Hi',
+              stream: false,
+              max_output_tokens: maxOutputTokens ?? 20,
+            } : {
               model,
               messages: [{ role: 'user', content: 'Hi' }],
               stream: false,

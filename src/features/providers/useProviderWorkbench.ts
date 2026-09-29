@@ -149,6 +149,7 @@ const buildModelAliases = (
       };
       if (includeImage) {
         entry.image = m.image === true;
+        entry.supportedEndpoints = m.supportedEndpoints;
       }
       return entry;
     })

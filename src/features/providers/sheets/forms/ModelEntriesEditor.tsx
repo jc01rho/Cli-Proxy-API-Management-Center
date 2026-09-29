@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconChevronDown, IconPlus, IconX } from '@/components/ui/icons';
 import { SelectionCheckbox } from '@/components/ui/SelectionCheckbox';
+import { Select } from '@/components/ui/Select';
 import { THINKING_LEVELS, type ThinkingLevel } from '../../thinkingLevels';
 import type { ModelEntryInput } from '../../types';
 import styles from './sharedForm.module.scss';
@@ -12,6 +13,7 @@ interface ModelEntriesEditorProps {
   models: ModelEntryInput[];
   /** Only OpenAI-compatible entries can expose the image-generation capability. */
   supportsImage: boolean;
+  supportsEndpoints?: boolean;
   /** Every backend provider model can override its thinking capability. */
   supportsThinking: boolean;
   mutating: boolean;
@@ -24,6 +26,7 @@ interface ModelEntriesEditorProps {
 export function ModelEntriesEditor({
   models,
   supportsImage,
+  supportsEndpoints = false,
   supportsThinking,
   mutating,
   removeDisabled,
@@ -32,6 +35,7 @@ export function ModelEntriesEditor({
   onRemove,
 }: ModelEntriesEditorProps) {
   const { t } = useTranslation();
+  const fid = useId();
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const [showAll, setShowAll] = useState(false);
 
@@ -59,6 +63,19 @@ export function ModelEntriesEditor({
         const hasExtendedOptions = supportsImage || supportsThinking;
         const expanded = hasExtendedOptions && expandedIdx === idx;
         const thinkingLevels = entry.thinkingLevels ?? [];
+        const endpoints = entry.supportedEndpoints ?? [];
+        const automatic = endpoints.length === 0 ||
+          (endpoints.length === 2 && endpoints.includes('/responses') &&
+            endpoints.includes('/chat/completions'));
+        const endpointValue = automatic ? '' : JSON.stringify(endpoints);
+        const endpointOptions = [
+          { value: '', label: t('providersPage.form.modelEndpointsAutomatic') },
+          { value: '["/responses"]', label: t('providersPage.form.modelEndpointsResponses') },
+          { value: '["/chat/completions"]', label: t('providersPage.form.modelEndpointsChat') },
+        ];
+        if (!endpointOptions.some((option) => option.value === endpointValue)) {
+          endpointOptions.push({ value: endpointValue, label: endpoints.join(', ') });
+        }
         const hasThinking = entry.thinkingLevelsTouched
           ? thinkingLevels.length > 0
           : (entry.thinkingJson ?? '').trim().length > 0;
@@ -126,6 +143,29 @@ export function ModelEntriesEditor({
                 </button>
               </div>
             </div>
+            {supportsEndpoints ? (
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor={`${fid}-model-endpoints-${idx}`}>
+                  {t('providersPage.form.modelEndpoints')}
+                </label>
+                <Select
+                  id={`${fid}-model-endpoints-${idx}`}
+                  value={endpointValue}
+                  options={endpointOptions}
+                  onChange={(value) => onUpdate(idx, {
+                    supportedEndpoints: value === '' ? undefined : JSON.parse(value) as string[],
+                  })}
+                  disabled={mutating}
+                  ariaLabel={t('providersPage.form.modelEndpointsLabel', {
+                    model: entry.name || String(idx + 1),
+                  })}
+                  ariaDescribedBy={`${fid}-model-endpoints-hint-${idx}`}
+                />
+                <small id={`${fid}-model-endpoints-hint-${idx}`} className={styles.labelHint}>
+                  {t('providersPage.form.modelEndpointsHint')}
+                </small>
+              </div>
+            ) : null}
             {expanded ? (
               <div className={styles.modelEntryDetails}>
                 {supportsImage ? (

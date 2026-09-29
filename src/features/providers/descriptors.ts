@@ -16,6 +16,7 @@ export interface ProviderDescriptor {
   supportsTestModel: boolean;
   supportsWebsockets: boolean;
   supportsSystemContentAsString?: boolean;
+  supportsModelEndpoints?: boolean;
   supportsCloak: boolean;
   supportsApiKeyEntries: boolean;
   /** Sheet 默认宽度 */
@@ -235,6 +236,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   openaiCompatibility: {
     id: 'openaiCompatibility',
     supportsSystemContentAsString: true,
+    supportsModelEndpoints: true,
     supportsName: true,
     supportsApiKey: false,
     supportsDisabled: true,

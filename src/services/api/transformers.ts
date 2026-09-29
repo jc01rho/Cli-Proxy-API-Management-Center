@@ -43,6 +43,7 @@ const normalizeModelAliases = (models: unknown): ModelAlias[] => {
       const priority = item.priority ?? item['priority'];
       const testModel = item['test-model'] ?? item.testModel;
       const image = normalizeBoolean(item.image);
+      const supportedEndpoints = item['supported-endpoints'] ?? item.supportedEndpoints;
       const thinking = normalizeRecord(item.thinking);
       const entry: ModelAlias = { name: String(name) };
       if (alias && alias !== name) {
@@ -62,6 +63,11 @@ const normalizeModelAliases = (models: unknown): ModelAlias[] => {
       }
       if (thinking) {
         entry.thinking = thinking;
+      }
+      if (Array.isArray(supportedEndpoints)) {
+        entry.supportedEndpoints = supportedEndpoints.filter(
+          (endpoint): endpoint is string => typeof endpoint === 'string'
+        );
       }
       return entry;
     })

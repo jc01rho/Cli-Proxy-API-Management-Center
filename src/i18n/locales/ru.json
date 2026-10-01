@@ -1612,8 +1612,6 @@
           "session_affinity": "Маршрутизация с привязкой к сессии",
           "ws_auth": "Аутентификация WebSocket",
           "ws_auth_desc": "Аутентификация WebSocket AI Studio (oauth.providers.aistudio.ws-auth)",
-          "enable_gemini_cli_endpoint": "Включить внутренний endpoint Gemini CLI",
-          "enable_gemini_cli_endpoint_desc": "Включить совместимые endpoints /v1internal:*",
           "token_threshold_rules_title": "Правила пороговых значений токенов",
           "token_threshold_rules_desc": "Определите лимиты токенов для каждого паттерна модели для маршрутизации класса биллинга",
           "model_time_gates_title": "Временные ограничения моделей",

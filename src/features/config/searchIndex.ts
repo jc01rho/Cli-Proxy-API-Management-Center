@@ -460,13 +460,6 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['oauth', 'endpoint-overrides'],
   },
   {
-    fieldId: 'enableGeminiCliEndpoint',
-    sectionId: 'advanced',
-    labelKey: L('sections.network.enable_gemini_cli_endpoint'),
-    hintKey: L('sections.network.enable_gemini_cli_endpoint_desc'),
-    yamlKeys: ['enable-gemini-cli-endpoint'],
-  },
-  {
     fieldId: 'disableImageGeneration',
     sectionId: 'network',
     labelKey: L('sections.network.disable_image_generation'),

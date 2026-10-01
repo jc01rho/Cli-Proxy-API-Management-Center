@@ -1635,8 +1635,6 @@
           "session_affinity": "會話黏性路由",
           "ws_auth": "WebSocket 驗證",
           "ws_auth_desc": "啟用 AI Studio WebSocket 連線驗證（oauth.providers.aistudio.ws-auth）",
-          "enable_gemini_cli_endpoint": "啟用 Gemini CLI 內部端點",
-          "enable_gemini_cli_endpoint_desc": "啟用 /v1internal:* 相容端點",
           "token_threshold_rules_title": "Token 閾值規則",
           "token_threshold_rules_desc": "為每個模型模式定義 Token 限制以進行計費類別路由",
           "model_time_gates_title": "模型時間門控",

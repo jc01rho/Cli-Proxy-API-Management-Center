@@ -291,18 +291,6 @@ export function ForkOnlyFields({ values, disabled, onChange }: SharedFieldProps)
         </FieldGroup>
       </FieldAnchor>
 
-      <FieldAnchor fieldId="enableGeminiCliEndpoint">
-        <ToggleRow
-          title={t('config_management.visual.sections.network.enable_gemini_cli_endpoint')}
-          description={t(
-            'config_management.visual.sections.network.enable_gemini_cli_endpoint_desc'
-          )}
-          checked={values.enableGeminiCliEndpoint}
-          disabled={disabled}
-          onChange={(enableGeminiCliEndpoint) => onChange({ enableGeminiCliEndpoint })}
-        />
-      </FieldAnchor>
-
       <FieldAnchor fieldId="apiKeyIpBlacklist">
         <FieldGroup title={t('config_management.visual.sections.auth.ip_blacklist_blocked_title')}>
           <Input

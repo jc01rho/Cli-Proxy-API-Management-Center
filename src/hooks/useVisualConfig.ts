@@ -1627,7 +1627,6 @@ function getNextDirtyFields(
       'apiKeyIpBlacklistFailureThreshold',
       'apiKeyIpBlacklistFailureWindow',
       'apiKeyIpBlacklistBlockDuration',
-      'enableGeminiCliEndpoint',
     ] as Array<keyof VisualConfigValues>
   ).forEach(updateScalarDirty);
 
@@ -1975,7 +1974,6 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
       typeof asRecord(asRecord(parsed.access)?.['api-key-ip-blacklist'])?.['block-duration'] === 'string'
         ? String(asRecord(asRecord(parsed.access)?.['api-key-ip-blacklist'])?.['block-duration'])
         : '',
-    enableGeminiCliEndpoint: Boolean(parsed['enable-gemini-cli-endpoint']),
     // Fork routing extensions keep their legacy key names under routing.* in the v8 tree.
     routingMode: routing?.mode === 'key-based' ? 'key-based' : 'provider-based',
     tokenThresholdRules: parseTokenThresholdRules(routing?.['token-threshold-rules']),
@@ -2594,10 +2592,6 @@ export function useVisualConfig() {
           } else if (docHas(doc, ['oauth', 'endpoint-overrides'])) {
             doc.deleteIn(['oauth', 'endpoint-overrides']);
           }
-        }
-
-        if (dirtyFields.has('enableGeminiCliEndpoint')) {
-          setBooleanInDoc(doc, ['enable-gemini-cli-endpoint'], values.enableGeminiCliEndpoint);
         }
 
         if (

@@ -1610,8 +1610,6 @@
           "session_affinity": "Session Affinity Routing",
           "ws_auth": "WebSocket Authentication",
           "ws_auth_desc": "Require authentication for AI Studio WebSocket connections (oauth.providers.aistudio.ws-auth)",
-          "enable_gemini_cli_endpoint": "Enable Gemini CLI Internal Endpoint",
-          "enable_gemini_cli_endpoint_desc": "Enable /v1internal:* compatibility endpoints",
           "token_threshold_rules_title": "Token Threshold Rules",
           "token_threshold_rules_desc": "Define token limits per model pattern for billing class routing",
           "model_time_gates_title": "Model Time Gates",

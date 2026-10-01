@@ -65,10 +65,9 @@ describe('visual config dirty tracking', () => {
           fallbackModels: { 'gpt-4o': 'gpt-4o-mini' },
           fallbackMaxDepth: '5',
           routingMode: 'key-based',
-          enableGeminiCliEndpoint: true,
         },
       ])
-    ).toEqual(['enableGeminiCliEndpoint', 'fallbackMaxDepth', 'fallbackModels', 'routingMode']);
+    ).toEqual(['fallbackMaxDepth', 'fallbackModels', 'routingMode']);
   });
 
   test('clears api key model whitelist dirt when the value returns to the baseline', () => {

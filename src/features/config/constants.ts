@@ -179,7 +179,6 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   fallbackChain: ['fallbackChain'],
   fallbackMaxDepth: ['fallbackMaxDepth'],
   oauthEndpointOverrides: ['oauthEndpointOverrides'],
-  enableGeminiCliEndpoint: ['enableGeminiCliEndpoint'],
   disableImageGeneration: ['disableImageGeneration'],
   gptImage2BaseModel: ['gptImage2BaseModel'],
   routingSessionAffinityTTL: ['routingSessionAffinityTTL'],

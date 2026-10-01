@@ -53,8 +53,8 @@ describe('Devin OAuth UI support', () => {
       url: 'https://app.devin.ai/auth/cli/continue?state=x&cli_pkce_marker=1',
       state: 'x',
     });
-    expect(requestedPath).toBe('/devin-auth-url');
-    expect(requestedParams).toBeUndefined();
+    expect(requestedPath).toBe('/oauth/auth-url');
+    expect(requestedParams).toEqual({ provider: 'devin' });
   });
 
   test('includes Devin in auth-file provider presets with a branded icon and label', () => {

@@ -17,7 +17,7 @@ import '../src/i18n';
 const provider = {
   name: 'string-system-fixture',
   'base-url': 'https://example.invalid/v1',
-  'api-key-entries': [{ 'api-key': 'fixture-key' }],
+  keys: [{ 'api-key': 'fixture-key' }],
   models: [{ name: 'fixture-model' }],
 };
 
@@ -60,7 +60,7 @@ describe('OpenAI provider system content as string', () => {
       test(`normalizes ${field}=${value} at provider level`, () => {
         const normalized = normalizeOpenAIProvider({ ...provider, [field]: value });
         expect(normalized?.systemContentAsString).toBe(value);
-        expect(normalized?.models).toEqual([{ name: 'fixture-model' }]);
+        expect(normalized?.models).toMatchObject([{ name: 'fixture-model' }]);
       });
     }
 
@@ -81,16 +81,13 @@ describe('OpenAI provider system content as string', () => {
         hostname: '127.0.0.1',
         async fetch(request) {
           const path = new URL(request.url).pathname;
-          if (request.method === 'PUT' && path === '/v0/management/openai-compatibility') {
+          if (request.method === 'PUT' && path === '/v8/management/config/api-keys/openai-compatibility') {
             stored = await request.json();
             writes.push(stored);
             return Response.json({ status: 'ok' });
           }
-          if (
-            request.method === 'GET' &&
-            (path === '/v0/management/config' || path === '/v0/management/openai-compatibility')
-          ) {
-            return Response.json({ 'openai-compatibility': stored });
+          if (request.method === 'GET' && path === '/v8/management/config') {
+            return Response.json({ 'api-keys': { 'openai-compatibility': stored } });
           }
           return new Response('Unexpected management request', { status: 404 });
         },
@@ -102,7 +99,7 @@ describe('OpenAI provider system content as string', () => {
         expect(existing?.systemContentAsString).toBe(!value);
         const next = buildOpenAIConfig({ ...formInput, systemContentAsString: value }, existing);
 
-        await providersApi.saveOpenAIProviders([next]);
+        await providersApi.updateOpenAIProvider(next.name, 0, next);
         useConfigStore.getState().updateConfigValue('openai-compatibility', [next]);
 
         expect(writes).toHaveLength(1);
@@ -116,7 +113,8 @@ describe('OpenAI provider system content as string', () => {
         expect((await providersApi.getOpenAIProviders())[0].systemContentAsString).toBe(value);
 
         // Disabling a provider uses another serializer path and must retain the override.
-        await providersApi.updateOpenAIProviderDisabled(0, true);
+        const current = (await providersApi.getOpenAIProviders())[0];
+        await providersApi.updateOpenAIProviderDisabled(0, true, current.source);
         expect((await providersApi.getOpenAIProviders())[0].systemContentAsString).toBe(value);
       } finally {
         useConfigStore.getState().clearCache();
@@ -126,10 +124,15 @@ describe('OpenAI provider system content as string', () => {
     });
 
     test(`preserves ${value} when saving unrelated visual YAML settings`, () => {
-      const document = { 'openai-compatibility': [{ ...provider, 'system-content-as-string': value }] };
+      const document = {
+        'api-keys': { 'openai-compatibility': [{ ...provider, 'system-content-as-string': value }] },
+      };
       const yaml = stringifyYaml(document);
       const visual = runVisualConfig(yaml, [{ debug: true }]);
-      expect(parseYaml(visual.applyVisualChangesToYaml(yaml))).toEqual({ ...document, debug: true });
+      expect(parseYaml(visual.applyVisualChangesToYaml(yaml))).toEqual({
+        ...document,
+        observability: { logs: { debug: true } },
+      });
     });
   }
 

@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, legacyManagementPath } from './client';
 import type { APIKeyBlacklistEntry } from '@/types/visualConfig';
 
 type APIKeyIpBlacklistResponse = {
@@ -26,17 +26,17 @@ function normalizeBlockedIpEntry(raw: BlockedIpWireEntry | undefined): APIKeyBla
 
 export const apiKeyIpBlacklistApi = {
   async listBlockedIps(): Promise<APIKeyBlacklistEntry[]> {
-    const response = await apiClient.get<APIKeyIpBlacklistResponse>('/api-key-ip-blacklist');
+    const response = await apiClient.get<APIKeyIpBlacklistResponse>(legacyManagementPath('/api-key-ip-blacklist'));
     return (response['blocked-ips'] ?? [])
       .map((entry) => normalizeBlockedIpEntry(entry))
       .filter(Boolean) as APIKeyBlacklistEntry[];
   },
 
   async ban(ip: string): Promise<void> {
-    await apiClient.post('/api-key-ip-blacklist', { ip });
+    await apiClient.post(legacyManagementPath('/api-key-ip-blacklist'), { ip });
   },
 
   async unban(ip: string): Promise<void> {
-    await apiClient.delete(`/api-key-ip-blacklist?ip=${encodeURIComponent(ip)}`);
+    await apiClient.delete(legacyManagementPath(`/api-key-ip-blacklist?ip=${encodeURIComponent(ip)}`));
   },
 };

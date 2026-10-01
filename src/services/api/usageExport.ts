@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, legacyManagementPath } from './client';
 import {
   buildUsageExportSettingsPutBody,
   decodeConnectionTestResponse,
@@ -50,22 +50,22 @@ async function call<T>(request: () => Promise<T>): Promise<T> {
 
 export const usageExportApi = {
   async getSettings(): Promise<UsageExportSettingsResponse> {
-    const response = await call(() => apiClient.getRaw(SETTINGS_PATH, { headers: { Accept: 'application/json' }, transformResponse: [(data: unknown) => data] }));
+    const response = await call(() => apiClient.getRaw(legacyManagementPath(SETTINGS_PATH), { headers: { Accept: 'application/json' }, transformResponse: [(data: unknown) => data] }));
     return decodeJson(response.data, decodeUsageExportSettingsResponse);
   },
 
   async putSettings(settings: UsageExportSettings): Promise<UsageExportSettingsResponse> {
-    const response = await call(() => apiClient.putRaw(SETTINGS_PATH, buildUsageExportSettingsPutBody(settings), { headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, transformResponse: [(data: unknown) => data] }));
+    const response = await call(() => apiClient.putRaw(legacyManagementPath(SETTINGS_PATH), buildUsageExportSettingsPutBody(settings), { headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, transformResponse: [(data: unknown) => data] }));
     return decodeJson(response.data, decodeUsageExportSettingsResponse);
   },
 
   async testConnection(settings: UsageExportSettings | null): Promise<ConnectionTestResponse> {
-    const response = await call(() => apiClient.postRaw(TEST_PATH, { protocolVersion: 'keeper-export/v1', settings }, { headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, transformResponse: [(data: unknown) => data] }));
+    const response = await call(() => apiClient.postRaw(legacyManagementPath(TEST_PATH), { protocolVersion: 'keeper-export/v1', settings }, { headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, transformResponse: [(data: unknown) => data] }));
     return decodeJson(response.data, decodeConnectionTestResponse);
   },
 
   async getStatus(): Promise<UsageExportStatusResponse> {
-    const response = await call(() => apiClient.getRaw(STATUS_PATH, { headers: { Accept: 'application/json' }, transformResponse: [(data: unknown) => data] }));
+    const response = await call(() => apiClient.getRaw(legacyManagementPath(STATUS_PATH), { headers: { Accept: 'application/json' }, transformResponse: [(data: unknown) => data] }));
     return decodeJson(response.data, decodeUsageExportStatusResponse);
   },
 };

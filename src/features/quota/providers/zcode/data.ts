@@ -9,7 +9,7 @@
 
 import type { TFunction } from 'i18next';
 import type { AuthFileItem, ZcodeQuotaData, ZcodeQuotaState } from '@/types';
-import { apiClient } from '@/services/api';
+import { apiClient, legacyManagementPath } from '@/services/api/client';
 import { isDisabledAuthFile, isZcodeFile } from '@/utils/quota';
 import { normalizeAuthIndex } from '@/utils/authIndex';
 import type { QuotaProviderData } from '../types';
@@ -72,7 +72,7 @@ export const fetchZcodeQuota = async (
     throw new Error(t('zcode_quota.missing_auth_index'));
   }
 
-  const payload = await apiClient.get<unknown>('/zcode-quota', {
+  const payload = await apiClient.get<unknown>(legacyManagementPath('/zcode-quota'), {
     params: { auth_index: authIndex },
   });
 

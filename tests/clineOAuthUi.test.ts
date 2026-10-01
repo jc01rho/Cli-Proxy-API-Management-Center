@@ -43,7 +43,7 @@ describe('Cline OAuth UI support', () => {
       url: 'https://cline.example/authorize',
       state: 'cline-state',
     });
-    expect(requestedPath).toBe('/cline-auth-url');
+    expect(requestedPath).toBe('/v0/management/cline-auth-url');
     expect(requestedParams).toEqual({ is_webui: true });
   });
 
@@ -64,7 +64,7 @@ describe('Cline OAuth UI support', () => {
       oauthApi.submitCallback('cline', 'http://localhost:1455/auth/callback?code=code&state=cline-state')
     ).resolves.toEqual({ status: 'ok' });
 
-    expect(getCalls).toEqual([{ path: '/get-auth-status', params: { state: 'cline-state' } }]);
+    expect(getCalls).toEqual([{ path: '/oauth/status', params: { state: 'cline-state' } }]);
     expect(callbackPayload).toEqual({
       provider: 'cline',
       redirect_url: 'http://localhost:1455/auth/callback?code=code&state=cline-state',

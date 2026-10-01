@@ -38,7 +38,7 @@ describe('visual config weighted routing strategy', () => {
     const result = markup.slice('<pre>'.length, -'</pre>'.length);
 
     expect(parseYaml(result)).toEqual({
-      routing: { strategy: 'weighted-round-robin', mode: 'provider-based' },
+      routing: { strategy: 'weighted-round-robin' },
     });
   });
 });

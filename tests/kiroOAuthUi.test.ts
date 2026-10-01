@@ -48,7 +48,7 @@ describe('Kiro OAuth UI support', () => {
       user_code: 'ABCD-EFGH',
       expires_in: 600,
     });
-    expect(requestedPath).toBe('/kiro-auth-url');
+    expect(requestedPath).toBe('/v0/management/kiro-auth-url');
     expect(requestedParams).toEqual({ provider: 'google' });
   });
 

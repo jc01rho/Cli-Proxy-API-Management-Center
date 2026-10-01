@@ -41,7 +41,7 @@ describe('Kilo OAuth UI support', () => {
       url: 'https://kilo.ai/device?code=x',
       state: 'kilo-1',
     });
-    expect(requestedPath).toBe('/kilo-auth-url');
+    expect(requestedPath).toBe('/v0/management/kilo-auth-url');
     expect(requestedParams).toBeUndefined();
   });
 

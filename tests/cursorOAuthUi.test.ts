@@ -41,7 +41,7 @@ describe('Cursor OAuth UI support', () => {
       url: 'https://cursor.com/loginDeepControl?challenge=x&uuid=y',
       state: 'csr-1',
     });
-    expect(requestedPath).toBe('/cursor-auth-url');
+    expect(requestedPath).toBe('/v0/management/cursor-auth-url');
     expect(requestedParams).toBeUndefined();
   });
 

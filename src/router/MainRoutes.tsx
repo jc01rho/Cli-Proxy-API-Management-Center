@@ -10,7 +10,7 @@ import { PluginResourcePage } from '@/features/plugins/PluginResourcePage';
 import { PluginsPage } from '@/features/plugins/PluginsPage';
 import { PluginStorePage } from '@/features/plugins/PluginStorePage';
 import { ConfigPage } from '@/pages/ConfigPage';
-import { LogsPage } from '@/pages/LogsPage';
+import { LogsPage } from '@/features/logs/LogsPage';
 import { SystemPage } from '@/pages/SystemPage';
 import { WeightRobinQueuePage } from '@/pages/WeightRobinQueuePage';
 import { useAuthStore } from '@/stores';

@@ -2,7 +2,7 @@
  * 配置相关 API
  */
 
-import { apiClient } from './client';
+import { apiClient, legacyManagementPath } from './client';
 import type { Config } from '@/types';
 import { normalizeConfigResponse } from './transformers';
 
@@ -18,19 +18,20 @@ export const configApi = {
   /**
    * 请求日志开关
    */
-  updateRequestLog: (enabled: boolean) => apiClient.put('/request-log', { value: enabled }),
+  updateRequestLog: (enabled: boolean) =>
+    apiClient.put('/config/observability/logs/request-log', enabled),
 
   /**
    * 成功请求 body 日志开关
    */
   updateRequestLogSuccessBody: (enabled: boolean) =>
-    apiClient.put('/request-log-success-body', { value: enabled }),
+    apiClient.put(legacyManagementPath('/request-log-success-body'), { value: enabled }),
 
   /**
    * 获取详细 API 错误 body 截断限制
    */
   async getDetailedAPIErrorBodyLogLimit(): Promise<number> {
-    const data = await apiClient.get<Record<string, unknown>>('/detailed-api-error-body-log-limit');
+    const data = await apiClient.get<Record<string, unknown>>(legacyManagementPath('/detailed-api-error-body-log-limit'));
     const value = data?.['detailed-api-error-body-log-limit'] ?? data?.detailedAPIErrorBodyLogLimit ?? 0;
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : 0;
@@ -40,18 +41,18 @@ export const configApi = {
    * 更新详细 API 错误 body 截断限制
    */
   updateDetailedAPIErrorBodyLogLimit: (value: number) =>
-    apiClient.put('/detailed-api-error-body-log-limit', { value }),
+    apiClient.put(legacyManagementPath('/detailed-api-error-body-log-limit'), { value }),
 
   /**
    * 写日志到文件开关
    */
-  updateLoggingToFile: (enabled: boolean) => apiClient.put('/logging-to-file', { value: enabled }),
+  updateLoggingToFile: (enabled: boolean) => apiClient.put(legacyManagementPath('/logging-to-file'), { value: enabled }),
 
   /**
    * 获取日志总大小上限（MB）
    */
   async getLogsMaxTotalSizeMb(): Promise<number> {
-    const data = await apiClient.get<Record<string, unknown>>('/logs-max-total-size-mb');
+    const data = await apiClient.get<Record<string, unknown>>(legacyManagementPath('/logs-max-total-size-mb'));
     const value = data?.['logs-max-total-size-mb'] ?? 0;
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : 0;
@@ -60,18 +61,18 @@ export const configApi = {
   /**
    * 更新日志总大小上限（MB）
    */
-  updateLogsMaxTotalSizeMb: (value: number) => apiClient.put('/logs-max-total-size-mb', { value }),
+  updateLogsMaxTotalSizeMb: (value: number) => apiClient.put(legacyManagementPath('/logs-max-total-size-mb'), { value }),
 
   /**
    * WebSocket 鉴权开关
    */
-  updateWsAuth: (enabled: boolean) => apiClient.put('/ws-auth', { value: enabled }),
+  updateWsAuth: (enabled: boolean) => apiClient.put(legacyManagementPath('/ws-auth'), { value: enabled }),
 
   /**
    * 获取强制模型前缀开关
    */
   async getForceModelPrefix(): Promise<boolean> {
-    const data = await apiClient.get<Record<string, unknown>>('/force-model-prefix');
+    const data = await apiClient.get<Record<string, unknown>>(legacyManagementPath('/force-model-prefix'));
     return Boolean(data?.['force-model-prefix'] ?? false);
   },
 
@@ -79,13 +80,13 @@ export const configApi = {
    * 更新强制模型前缀开关
    */
   updateForceModelPrefix: (enabled: boolean) =>
-    apiClient.put('/force-model-prefix', { value: enabled }),
+    apiClient.put(legacyManagementPath('/force-model-prefix'), { value: enabled }),
 
   /**
    * 获取路由策略
    */
   async getRoutingStrategy(): Promise<string> {
-    const data = await apiClient.get<Record<string, unknown>>('/routing/strategy');
+    const data = await apiClient.get<Record<string, unknown>>(legacyManagementPath('/routing/strategy'));
     const strategy = data?.strategy;
     return typeof strategy === 'string' ? strategy : 'round-robin';
   },
@@ -94,10 +95,10 @@ export const configApi = {
    * 更新路由策略
    */
   updateRoutingStrategy: (strategy: string) =>
-    apiClient.put('/routing/strategy', { value: strategy }),
+    apiClient.put(legacyManagementPath('/routing/strategy'), { value: strategy }),
 
   getWeightRobinQueue: (model?: string) =>
-    apiClient.get<WeightRobinQueueSnapshot>('/weight-robin-queue', {
+    apiClient.get<WeightRobinQueueSnapshot>(legacyManagementPath('/weight-robin-queue'), {
       params: model ? { model } : undefined,
     }),
 };

@@ -15,7 +15,7 @@ import '../src/i18n';
 const provider = {
   name: 'endpoints-fixture',
   'base-url': 'https://example.invalid/v1',
-  'api-key-entries': [{ 'api-key': 'fixture-key' }],
+  keys: [{ 'api-key': 'fixture-key' }],
   models: [{ name: 'model-a' }, { name: 'model-b' }],
 };
 
@@ -90,13 +90,13 @@ describe('per-model supported-endpoints', () => {
         hostname: '127.0.0.1',
         async fetch(request) {
           const path = new URL(request.url).pathname;
-          if (request.method === 'PUT' && path === '/v0/management/openai-compatibility') {
+          if (request.method === 'PUT' && path === '/v8/management/config/api-keys/openai-compatibility') {
             stored = await request.json();
             writes.push(stored);
             return Response.json({ status: 'ok' });
           }
-          if (request.method === 'GET' && (path === '/v0/management/config' || path === '/v0/management/openai-compatibility')) {
-            return Response.json({ 'openai-compatibility': stored });
+          if (request.method === 'GET' && path === '/v8/management/config') {
+            return Response.json({ 'api-keys': { 'openai-compatibility': stored } });
           }
           return new Response('Unexpected management request', { status: 404 });
         },
@@ -106,7 +106,7 @@ describe('per-model supported-endpoints', () => {
       try {
         const existing = (await useConfigStore.getState().fetchConfig()).openaiCompatibility?.[0];
         const next = buildOpenAIConfig(formInput(endpoints), existing);
-        await providersApi.saveOpenAIProviders([next]);
+        await providersApi.updateOpenAIProvider(next.name, 0, next);
         useConfigStore.getState().updateConfigValue('openai-compatibility', [next]);
 
         const savedModels = (writes[0] as Array<{ models: Array<Record<string, unknown>> }>)[0].models;
@@ -143,13 +143,13 @@ describe('per-model supported-endpoints', () => {
       hostname: '127.0.0.1',
       async fetch(request) {
         const path = new URL(request.url).pathname;
-        if (request.method === 'PUT' && path === '/v0/management/openai-compatibility') {
+        if (request.method === 'PUT' && path === '/v8/management/config/api-keys/openai-compatibility') {
           stored = await request.json();
           writes.push(stored);
           return Response.json({ status: 'ok' });
         }
-        if (request.method === 'GET' && (path === '/v0/management/config' || path === '/v0/management/openai-compatibility')) {
-          return Response.json({ 'openai-compatibility': stored });
+        if (request.method === 'GET' && path === '/v8/management/config') {
+          return Response.json({ 'api-keys': { 'openai-compatibility': stored } });
         }
         return new Response('Unexpected management request', { status: 404 });
       },
@@ -160,7 +160,7 @@ describe('per-model supported-endpoints', () => {
       const existing = (await useConfigStore.getState().fetchConfig()).openaiCompatibility?.[0];
       expect(existing?.models?.[0].supportedEndpoints).toEqual(['/responses']);
       const next = buildOpenAIConfig(formInput(undefined), existing);
-      await providersApi.saveOpenAIProviders([next]);
+      await providersApi.updateOpenAIProvider(next.name, 0, next);
       const savedModels = (writes[0] as Array<{ models: Array<Record<string, unknown>> }>)[0].models;
       expect(savedModels[0]['supported-endpoints']).toBeUndefined();
       expect(savedModels[1]['supported-endpoints']).toBeUndefined();

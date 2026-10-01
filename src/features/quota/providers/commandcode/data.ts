@@ -9,7 +9,7 @@
 
 import type { TFunction } from 'i18next';
 import type { AuthFileItem, CommandCodeQuotaData, CommandCodeQuotaState } from '@/types';
-import { apiClient } from '@/services/api';
+import { apiClient, legacyManagementPath } from '@/services/api/client';
 import { isCommandCodeFile, isDisabledAuthFile } from '@/utils/quota';
 import { normalizeAuthIndex } from '@/utils/authIndex';
 import type { QuotaProviderData } from '../types';
@@ -81,7 +81,7 @@ export const fetchCommandCodeQuota = async (
     throw new Error(t('commandcode_quota.missing_auth_index'));
   }
 
-  const payload = await apiClient.get<unknown>('/commandcode-quota', {
+  const payload = await apiClient.get<unknown>(legacyManagementPath('/commandcode-quota'), {
     params: { auth_index: authIndex },
   });
 

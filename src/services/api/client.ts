@@ -10,6 +10,8 @@ import {
   CPA_BUILD_DATE_HEADER_KEYS,
   CPA_SUPPORT_PLUGIN_HEADER_KEYS,
   CPA_VERSION_HEADER_KEYS,
+  LEGACY_MANAGEMENT_API_PREFIX,
+  MANAGEMENT_API_PREFIX,
   REQUEST_TIMEOUT_MS,
   VERSION_HEADER_KEYS,
 } from '@/utils/constants';
@@ -20,6 +22,7 @@ class ApiClient {
   private instance: AxiosInstance;
   private apiBase: string = '';
   private managementKey: string = '';
+  private connectionRevision = 0;
 
   constructor() {
     this.instance = axios.create({
@@ -36,7 +39,11 @@ class ApiClient {
    * 设置 API 配置
    */
   setConfig(config: ApiClientConfig): void {
-    this.apiBase = computeApiUrl(config.apiBase);
+    const apiBase = computeApiUrl(config.apiBase);
+    if (apiBase !== this.apiBase || config.managementKey !== this.managementKey) {
+      this.connectionRevision += 1;
+    }
+    this.apiBase = apiBase;
     this.managementKey = config.managementKey;
 
     if (config.timeout) {
@@ -44,6 +51,19 @@ class ApiClient {
     } else {
       this.instance.defaults.timeout = REQUEST_TIMEOUT_MS;
     }
+  }
+
+  /** Absolute URL of a fork-only endpoint that the backend serves only on the v0 management API. */
+  legacyUrl(path: string): string {
+    const root = this.apiBase.endsWith(MANAGEMENT_API_PREFIX)
+      ? this.apiBase.slice(0, -MANAGEMENT_API_PREFIX.length)
+      : this.apiBase;
+    return `${root}${LEGACY_MANAGEMENT_API_PREFIX}${path}`;
+  }
+
+  /** Guards read/modify/write operations across connection changes, including ABA switches. */
+  getConnectionRevision(): number {
+    return this.connectionRevision;
   }
 
   private readHeader(headers: Record<string, unknown> | undefined, keys: string[]): string | null {
@@ -260,3 +280,5 @@ class ApiClient {
 
 // 导出单例
 export const apiClient = new ApiClient();
+
+export const legacyManagementPath = (path: string): string => apiClient.legacyUrl(path);

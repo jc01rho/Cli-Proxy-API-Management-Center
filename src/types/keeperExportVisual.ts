@@ -75,6 +75,9 @@ export const DEFAULT_KEEPER_EXPORT_VISUAL_VALUES: KeeperExportVisualValues = {
 
 type YamlRecord = Record<string, unknown>;
 
+// Management v8 nests usage-export under observability.usage.
+const USAGE_EXPORT_PATH = ['observability', 'usage', 'usage-export'];
+
 function asRecord(value: unknown): YamlRecord | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
   return value as YamlRecord;
@@ -98,7 +101,8 @@ export function parseKeeperExportYaml(yamlContent: string): {
   readonly present: boolean;
 } {
   const parsed = asRecord(parseYaml(yamlContent) || {});
-  const section = asRecord(parsed?.['usage-export']);
+  const v8Usage = asRecord(asRecord(parsed?.['observability'])?.['usage']);
+  const section = asRecord(v8Usage?.['usage-export'] ?? parsed?.['usage-export']);
   const keeper = asRecord(section?.keeper);
   const outbox = asRecord(section?.outbox);
   const delivery = asRecord(section?.delivery);
@@ -159,27 +163,27 @@ function setKeeperExportFields(
   doc: ReturnType<typeof parseDocument>,
   values: KeeperExportVisualValues
 ): void {
-  setIfPresent(doc, ['usage-export', 'enabled'], values.enabled);
-  setIfPresent(doc, ['usage-export', 'mode'], values.mode);
-  setIfPresent(doc, ['usage-export', 'keeper', 'url'], values.keeper.url);
-  setIfPresent(doc, ['usage-export', 'keeper', 'token-env'], values.keeper.tokenEnv);
-  setIfPresent(doc, ['usage-export', 'keeper', 'ca-file'], values.keeper.caFile || null);
-  setIfPresent(doc, ['usage-export', 'keeper', 'client-cert-file'], values.keeper.clientCertFile || null);
-  setIfPresent(doc, ['usage-export', 'keeper', 'client-key-file'], values.keeper.clientKeyFile || null);
-  setIfPresent(doc, ['usage-export', 'outbox', 'path'], values.outbox.path);
-  setIfPresent(doc, ['usage-export', 'outbox', 'max-bytes'], Number(values.outbox.maxBytes));
-  setIfPresent(doc, ['usage-export', 'delivery', 'max-batch-events'], Number(values.delivery.maxBatchEvents));
-  setIfPresent(doc, ['usage-export', 'delivery', 'max-batch-bytes'], Number(values.delivery.maxBatchBytes));
-  setIfPresent(doc, ['usage-export', 'delivery', 'flush-interval-ms'], Number(values.delivery.flushIntervalMs));
-  setIfPresent(doc, ['usage-export', 'delivery', 'request-timeout-ms'], Number(values.delivery.requestTimeoutMs));
-  setIfPresent(doc, ['usage-export', 'delivery', 'initial-backoff-ms'], Number(values.delivery.initialBackoffMs));
-  setIfPresent(doc, ['usage-export', 'delivery', 'max-backoff-ms'], Number(values.delivery.maxBackoffMs));
-  setIfPresent(doc, ['usage-export', 'metadata', 'enabled'], values.metadata.enabled);
-  setIfPresent(doc, ['usage-export', 'metadata', 'interval-ms'], Number(values.metadata.intervalMs));
-  setIfPresent(doc, ['usage-export', 'metadata', 'categories'], [...values.metadata.categories]);
-  setIfPresent(doc, ['usage-export', 'privacy', 'include-client-ip'], values.privacy.includeClientIp);
-  setIfPresent(doc, ['usage-export', 'privacy', 'include-forwarded-for'], values.privacy.includeForwardedFor);
-  setIfPresent(doc, ['usage-export', 'privacy', 'include-user-agent'], values.privacy.includeUserAgent);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'enabled'], values.enabled);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'mode'], values.mode);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'keeper', 'url'], values.keeper.url);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'keeper', 'token-env'], values.keeper.tokenEnv);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'keeper', 'ca-file'], values.keeper.caFile || null);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'keeper', 'client-cert-file'], values.keeper.clientCertFile || null);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'keeper', 'client-key-file'], values.keeper.clientKeyFile || null);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'outbox', 'path'], values.outbox.path);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'outbox', 'max-bytes'], Number(values.outbox.maxBytes));
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'delivery', 'max-batch-events'], Number(values.delivery.maxBatchEvents));
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'delivery', 'max-batch-bytes'], Number(values.delivery.maxBatchBytes));
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'delivery', 'flush-interval-ms'], Number(values.delivery.flushIntervalMs));
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'delivery', 'request-timeout-ms'], Number(values.delivery.requestTimeoutMs));
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'delivery', 'initial-backoff-ms'], Number(values.delivery.initialBackoffMs));
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'delivery', 'max-backoff-ms'], Number(values.delivery.maxBackoffMs));
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'metadata', 'enabled'], values.metadata.enabled);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'metadata', 'interval-ms'], Number(values.metadata.intervalMs));
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'metadata', 'categories'], [...values.metadata.categories]);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'privacy', 'include-client-ip'], values.privacy.includeClientIp);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'privacy', 'include-forwarded-for'], values.privacy.includeForwardedFor);
+  setIfPresent(doc, [...USAGE_EXPORT_PATH, 'privacy', 'include-user-agent'], values.privacy.includeUserAgent);
 }
 
 export function serializeKeeperExportYaml(
@@ -190,11 +194,13 @@ export function serializeKeeperExportYaml(
   if (!dirty) return currentYaml;
   const doc = parseDocument(currentYaml);
   if (doc.errors.length > 0) return currentYaml;
+  // A legacy root section was read as a fallback; the v8 path now owns the values.
+  if (doc.hasIn(['usage-export'])) doc.deleteIn(['usage-export']);
   if (!values.enabled && values.mode === 'disabled') {
-    if (doc.hasIn(['usage-export'])) doc.deleteIn(['usage-export']);
+    if (doc.hasIn([...USAGE_EXPORT_PATH])) doc.deleteIn([...USAGE_EXPORT_PATH]);
     return doc.toString({ indent: 2, lineWidth: 120, minContentWidth: 0 });
   }
-  if (!hasMap(doc, ['usage-export'])) doc.setIn(['usage-export'], doc.createNode({}));
+  if (!hasMap(doc, [...USAGE_EXPORT_PATH])) doc.setIn([...USAGE_EXPORT_PATH], doc.createNode({}));
   setKeeperExportFields(doc, values);
   return doc.toString({ indent: 2, lineWidth: 120, minContentWidth: 0 });
 }

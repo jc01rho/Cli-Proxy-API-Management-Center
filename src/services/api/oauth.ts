@@ -2,7 +2,7 @@
  * OAuth 与设备码登录相关 API
  */
 
-import { apiClient } from './client';
+import { apiClient, legacyManagementPath } from './client';
 import {
   isManagementOAuthProviderKey,
   normalizeManagementOAuthProviderKey,
@@ -51,12 +51,23 @@ export const WEBUI_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>([
   'cline',
 ]);
 
+// Fork-only built-in logins are registered by the fork backend on v0 only; the v8 dispatcher
+// covers upstream providers and plugin logins.
+const LEGACY_OAUTH_START_PROVIDERS = new Set<string>([
+  'cline',
+  'cursor',
+  'kilo',
+  'kiro',
+  'zcode',
+  'workbuddy',
+]);
+
 const normalizeProviderForManagementPath = (provider: string): string => {
   const key = normalizeManagementOAuthProviderKey(provider);
   if (!isManagementOAuthProviderKey(key)) {
     throw new Error('Invalid OAuth provider');
   }
-  return key;
+  return key === 'anthropic' ? 'claude' : key;
 };
 
 export const oauthApi = {
@@ -69,23 +80,30 @@ export const oauthApi = {
     const extra = extraOrSignal instanceof AbortSignal ? undefined : extraOrSignal;
     const requestSignal = extraOrSignal instanceof AbortSignal ? extraOrSignal : signal;
     const params: Record<string, string | boolean> = { ...(extra ?? {}) };
-    if (WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(providerKey as BuiltInOAuthProvider)) {
+    const webUIKey = providerKey === 'claude' ? 'anthropic' : providerKey;
+    if (WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(webUIKey as BuiltInOAuthProvider)) {
       params.is_webui = true;
     }
-    return apiClient.get<OAuthStartResponse>(`/${providerKey}-auth-url`, {
+    if (!LEGACY_OAUTH_START_PROVIDERS.has(providerKey)) {
+      return apiClient.get<OAuthStartResponse>('/oauth/auth-url', {
+        params: { provider: providerKey, ...params },
+        ...(requestSignal ? { signal: requestSignal } : {}),
+      });
+    }
+    return apiClient.get<OAuthStartResponse>(legacyManagementPath(`/${providerKey}-auth-url`), {
       params: Object.keys(params).length ? params : undefined,
       ...(requestSignal ? { signal: requestSignal } : {}),
     });
   },
 
   getAuthStatus: (state: string, signal?: AbortSignal) =>
-    apiClient.get<{ status: 'ok' | 'wait' | 'error'; error?: string }>(`/get-auth-status`, {
+    apiClient.get<{ status: 'ok' | 'wait' | 'error'; error?: string }>(`/oauth/status`, {
       params: { state },
       ...(signal ? { signal } : {}),
     }),
 
   cancelSession: (state: string, signal?: AbortSignal) =>
-    apiClient.delete<OAuthCancelResponse>('/oauth-session', {
+    apiClient.delete<OAuthCancelResponse>('/oauth/session', {
       params: { state },
       ...(signal ? { signal } : {}),
     }),
@@ -93,7 +111,7 @@ export const oauthApi = {
   submitCallback: (provider: string, redirectUrl: string, signal?: AbortSignal) => {
     const providerKey = normalizeProviderForManagementPath(provider);
     return apiClient.post<OAuthCallbackResponse>(
-      '/oauth-callback',
+      '/oauth/callback',
       { provider: providerKey, redirect_url: redirectUrl },
       signal ? { signal } : undefined
     );

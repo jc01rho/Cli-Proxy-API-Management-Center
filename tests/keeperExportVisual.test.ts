@@ -27,7 +27,7 @@ describe('keeper export visual configuration', () => {
 
     const roundTrip = serializeKeeperExportYaml(source, parsed.values, true);
     const output = parseDocument(roundTrip).toJSON() as Record<string, unknown>;
-    expect(output['usage-export']).toEqual({
+    expect((output.observability as { usage: Record<string, unknown> }).usage['usage-export']).toEqual({
       enabled: true,
       mode: 'push',
       keeper: {

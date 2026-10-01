@@ -72,7 +72,8 @@ describe('visual config dirty tracking', () => {
   });
 
   test('clears api key model whitelist dirt when the value returns to the baseline', () => {
-    const yaml = 'api-keys:\n  - sk-test\napi-key-model-whitelists:\n  sk-test:\n    - gpt-4o\n';
+    const yaml =
+      'access:\n  api-keys:\n    - sk-test\n  api-key-model-whitelists:\n    sk-test:\n      - gpt-4o\n';
 
     expect(
       finalDirtyFields(yaml, [{ apiKeyModelWhitelists: { 'sk-test': ['gpt-4o', 'gpt-4o-mini'] } }])

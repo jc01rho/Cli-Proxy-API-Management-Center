@@ -782,19 +782,21 @@ export function BaseProviderForm({
           </div>
         ) : null}
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor={`${fid}-comment`}>
-            {t('providersPage.form.comment')}
-          </label>
-          <input
-            id={`${fid}-comment`}
-            className={styles.input}
-            value={form.comment}
-            onChange={(e) => updateField('comment', e.target.value)}
-            placeholder={t('providersPage.form.commentPlaceholder')}
-            disabled={mutating}
-          />
-        </div>
+        {descriptor.supportsComment ? (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor={`${fid}-comment`}>
+              {t('providersPage.form.comment')}
+            </label>
+            <input
+              id={`${fid}-comment`}
+              className={styles.input}
+              value={form.comment}
+              onChange={(e) => updateField('comment', e.target.value)}
+              placeholder={t('providersPage.form.commentPlaceholder')}
+              disabled={mutating}
+            />
+          </div>
+        ) : null}
 
         {descriptor.supportsTestModel ? (
           <div className={styles.field}>

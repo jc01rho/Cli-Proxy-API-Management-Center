@@ -18,6 +18,8 @@ export interface ProviderDescriptor {
   supportsWebsockets: boolean;
   supportsSystemContentAsString?: boolean;
   supportsModelEndpoints?: boolean;
+  /** Backend persists a provider-level comment only for these key families. */
+  supportsComment?: boolean;
   supportsCloak: boolean;
   supportsApiKeyEntries: boolean;
   /** Sheet 默认宽度 */
@@ -87,6 +89,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   commandcode: {
     id: 'commandcode',
+    supportsComment: true,
     supportsRequestScopedErrors: false,
     supportsName: false,
     supportsApiKey: false,
@@ -107,6 +110,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   freebuff: {
     id: 'freebuff',
+    supportsComment: true,
     supportsRequestScopedErrors: false,
     supportsName: false,
     supportsApiKey: true,
@@ -207,6 +211,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   mistral: {
     id: 'mistral',
+    supportsComment: true,
     supportsRequestScopedErrors: false,
     supportsName: false,
     supportsApiKey: true,
@@ -227,6 +232,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   opencode: {
     id: 'opencode',
+    supportsComment: true,
     supportsRequestScopedErrors: false,
     supportsName: false,
     supportsApiKey: true,

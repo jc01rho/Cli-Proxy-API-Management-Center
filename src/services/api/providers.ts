@@ -133,7 +133,6 @@ const serializeProviderKey = (config: ProviderKeyConfig, family: ProviderFamily)
     payload['fingerprint-profile'] = config.fingerprintProfile.trim();
   }
   if (config.billingClass) payload['billing-class'] = config.billingClass;
-  if (config.comment?.trim()) payload.comment = config.comment.trim();
   return payload;
 };
 

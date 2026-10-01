@@ -33,6 +33,14 @@ function getProviderColor(provider: string): string {
   return PROVIDER_COLORS[provider.toLowerCase()] || '#888';
 }
 
+export function authDisplayName(provider: string, name: string): string {
+  const p = provider.trim();
+  const n = (name || '').trim();
+  if (p === '' || n === '') return n || p;
+  if (n === p || n.startsWith(`${p}-`) || n.startsWith(`${p}:`) || n.startsWith(`${p} `)) return n;
+  return `${p}:${n}`;
+}
+
 interface ModelGroup {
   model: string;
   entries: WeightRobinQueueEntry[];
@@ -402,7 +410,7 @@ function ModelGroupCard({
                 width: `${segmentPct}%`,
                 background: `linear-gradient(180deg, ${entryColor}, color-mix(in srgb, ${entryColor} 60%, transparent))`,
               }}
-              title={`${entry.name} (w:${entry.weight})`}
+              title={`${authDisplayName(entry.provider, entry.name || entry.authId)} (w:${entry.weight})`}
             />
           );
         })}
@@ -410,18 +418,19 @@ function ModelGroupCard({
       <div className={styles.contributorList}>
         {group.entries.map((entry) => {
           const entryColor = getProviderColor(entry.provider);
+          const authName = authDisplayName(entry.provider, entry.name || entry.authId);
           return (
                <span
                  key={entry.authId}
                  className={`${styles.contributorChip} ${entry.inCycle ? '' : styles.contributorOutOfCycle}`}
-                 title={entry.inCycle ? entry.name : `${entry.name} (not in active cycle)`}
+                 title={entry.inCycle ? authName : `${authName} (not in active cycle)`}
                >
               <span
                 className={styles.contributorDot}
                 style={{ background: entryColor }}
               />
-              <span className={styles.contributorName} title={entry.name}>
-                {entry.name}
+              <span className={styles.contributorName} title={authName}>
+                {authName}
               </span>
               <span className={styles.contributorWeight}>
                 {entry.weight}
@@ -444,6 +453,7 @@ function CycleChip({
   isCurrent: boolean;
 }) {
   const color = getProviderColor(entry.provider);
+  const authName = authDisplayName(entry.provider, entry.name || entry.authId);
   const modelDisplay = entry.model ? `[${entry.model}] ` : '';
   return (
     <span
@@ -453,10 +463,10 @@ function CycleChip({
         color: isCurrent ? '#fff' : color,
         background: isCurrent ? color : `color-mix(in srgb, ${color} 12%, transparent)`,
       }}
-      title={`${index}. ${modelDisplay}${entry.name} (${entry.provider})`}
+      title={`${index}. ${modelDisplay}${authName}`}
     >
       <span className={styles.cycleIndex}>{index}</span>
-      <span className={styles.cycleName}>{modelDisplay}{entry.name}</span>
+      <span className={styles.cycleName}>{modelDisplay}{authName}</span>
     </span>
   );
 }

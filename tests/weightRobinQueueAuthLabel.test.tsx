@@ -1,7 +1,8 @@
-import { describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
+import i18n from '@/i18n';
 import { WeightRobinQueuePage, authDisplayName } from '@/pages/WeightRobinQueuePage';
 
 describe('authDisplayName', () => {
@@ -21,6 +22,17 @@ describe('authDisplayName', () => {
 });
 
 describe('WeightRobinQueuePage rendering', () => {
+  // bun test shares one i18n instance across files; pin English instead of
+  // relying on whichever language another file left behind.
+  let originalLanguage = i18n.language;
+  beforeAll(async () => {
+    originalLanguage = i18n.language;
+    await i18n.changeLanguage('en');
+  });
+  afterAll(async () => {
+    await i18n.changeLanguage(originalLanguage);
+  });
+
   test('renders page shell without router errors', () => {
     const markup = renderToStaticMarkup(
       createElement(MemoryRouter, { initialEntries: ['/'] }, createElement(WeightRobinQueuePage))

@@ -1,5 +1,6 @@
-import { describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { createElement } from 'react';
+import i18n from '@/i18n';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
   readModelOptions,
@@ -17,6 +18,18 @@ const draft = (model: ModelAlias): ModelEntryInput => ({
 });
 
 describe('provider model options', () => {
+  // The capability assertions below compare raw translation keys. bun test
+  // shares one initialized i18n instance across files, so pin i18next's
+  // key-echo mode instead of depending on test file order.
+  let originalLanguage = i18n.language;
+  beforeAll(async () => {
+    originalLanguage = i18n.language;
+    await i18n.changeLanguage('cimode');
+  });
+  afterAll(async () => {
+    await i18n.changeLanguage(originalLanguage);
+  });
+
   test('editing hybrid levels preserves budgets, explicit booleans and future fields', () => {
     const thinking = {
       min: 128,

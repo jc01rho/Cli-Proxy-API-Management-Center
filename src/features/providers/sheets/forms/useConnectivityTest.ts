@@ -13,6 +13,7 @@ import {
   buildInteractionsProbePayload,
   INTERACTIONS_API_REVISION,
   buildOpenAIChatCompletionsEndpoint,
+  buildMistralChatCompletionsEndpoint,
   buildOpenCodeChatCompletionsEndpoint,
 } from '@/components/providers/utils';
 
@@ -193,6 +194,7 @@ const buildCommandCodeHeaderObj = (
 export interface UseConnectivityTestResult {
   openaiStatuses: ConnectivityStatus[];
   codexStatus: ConnectivityStatus;
+  mistralStatus: ConnectivityStatus;
   geminiStatus: ConnectivityStatus;
   claudeStatus: ConnectivityStatus;
   commandcodeStatus: ConnectivityStatus;
@@ -202,6 +204,7 @@ export interface UseConnectivityTestResult {
   runOpenAIKey: (idx: number) => Promise<boolean>;
   runOpenAIAllKeys: () => Promise<void>;
   runCodex: () => Promise<void>;
+  runMistral: () => Promise<void>;
   runGemini: () => Promise<void>;
   runClaude: () => Promise<void>;
   runOpenCode: () => Promise<void>;
@@ -237,6 +240,7 @@ export function useConnectivityTest(
     Array.from({ length: entriesCount }, () => IDLE)
   );
   const [codexStatus, setCodexStatus] = useState<ConnectivityStatus>(IDLE);
+  const [mistralStatus, setMistralStatus] = useState<ConnectivityStatus>(IDLE);
   const [geminiStatus, setGeminiStatus] = useState<ConnectivityStatus>(IDLE);
   const [claudeStatus, setClaudeStatus] = useState<ConnectivityStatus>(IDLE);
   const [commandcodeStatus, setCommandcodeStatus] = useState<ConnectivityStatus>(IDLE);
@@ -301,6 +305,7 @@ export function useConnectivityTest(
     lastSignatureRef.current = signature;
     setOpenaiStatuses((prev) => prev.map(() => IDLE));
     setCodexStatus(IDLE);
+    setMistralStatus(IDLE);
     setGeminiStatus(IDLE);
     setClaudeStatus(IDLE);
     setCommandcodeStatus(IDLE);
@@ -1028,9 +1033,100 @@ export function useConnectivityTest(
   }, [apiKeyEntries, brand, runFreebuffKey]);
 
 
+  const runMistral = useCallback(async (): Promise<void> => {
+    if (brand !== 'mistral') return;
+
+    const trimmedBase = baseUrl.trim();
+    if (!trimmedBase) {
+      setMistralStatus({ state: 'error', message: messages.baseUrlRequired });
+      return;
+    }
+
+    const endpoint = buildMistralChatCompletionsEndpoint(trimmedBase);
+    if (!endpoint) {
+      setMistralStatus({ state: 'error', message: messages.endpointInvalid });
+      return;
+    }
+
+    const model = pickModel(testModel, models);
+    if (!model) {
+      setMistralStatus({ state: 'error', message: messages.modelRequired });
+      return;
+    }
+
+    const customHeaders = buildHeaderObject(formHeaders);
+    const explicitKey = (apiKey ?? '').trim();
+    const persistedKey = (fallbackApiKey ?? '').trim();
+    const hasAuthorization = hasHeader(customHeaders, 'authorization');
+    const resolvedKey = explicitKey || persistedKey;
+    const resolvedAuthIndex = (authIndex ?? '').trim() || undefined;
+
+    if (!resolvedKey && !hasAuthorization && !resolvedAuthIndex) {
+      setMistralStatus({ state: 'error', message: messages.apiKeyRequired });
+      return;
+    }
+
+    const headerObj: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...customHeaders,
+    };
+    if (!hasHeader(headerObj, 'authorization')) {
+      if (resolvedKey) {
+        headerObj.Authorization = `Bearer ${resolvedKey}`;
+      } else if (resolvedAuthIndex) {
+        headerObj.Authorization = 'Bearer $TOKEN$';
+      }
+    }
+
+    setMistralStatus({ state: 'loading', message: '' });
+    setInFlight((n) => n + 1);
+    try {
+      const result = await apiCallApi.request(
+        {
+          authIndex: resolvedAuthIndex,
+          proxy_url: proxyUrl?.trim() || undefined,
+          method: 'POST',
+          url: endpoint,
+          header: headerObj,
+          data: JSON.stringify({
+            model,
+            messages: [{ role: 'user', content: 'Hi' }],
+            stream: false,
+            max_tokens: maxOutputTokens ?? 20,
+          }),
+        },
+        { timeout: DEFAULT_TIMEOUT_MS }
+      );
+      if (result.statusCode < 200 || result.statusCode >= 300) {
+        throw new Error(getApiCallErrorMessage(result));
+      }
+      setMistralStatus({ state: 'success', message: '' });
+    } catch (err) {
+      setMistralStatus({
+        state: 'error',
+        message: requestFailureMessage(err, messages),
+      });
+    } finally {
+      setInFlight((n) => n - 1);
+    }
+  }, [
+    apiKey,
+    authIndex,
+    baseUrl,
+    brand,
+    fallbackApiKey,
+    formHeaders,
+    maxOutputTokens,
+    messages,
+    models,
+    testModel,
+    proxyUrl,
+  ]);
+
   return {
     openaiStatuses,
     codexStatus,
+    mistralStatus,
     geminiStatus,
     claudeStatus,
     commandcodeStatus,
@@ -1040,6 +1136,7 @@ export function useConnectivityTest(
     runOpenAIKey,
     runOpenAIAllKeys,
     runCodex,
+    runMistral,
     runGemini,
     runClaude,
     runOpenCode,

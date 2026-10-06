@@ -549,6 +549,8 @@ export function BaseProviderForm({
   const singleConnectivity =
     brand === 'codex' || brand === 'meta' || brand === 'xai'
       ? { status: connectivity.codexStatus, run: connectivity.runCodex }
+      : brand === 'mistral'
+        ? { status: connectivity.mistralStatus, run: connectivity.runMistral }
       : brand === 'gemini' || brand === 'interactions'
         ? { status: connectivity.geminiStatus, run: connectivity.runGemini }
         : isClaudeLikeBrand(brand)
@@ -805,6 +807,7 @@ export function BaseProviderForm({
               {brand === 'codex' ||
               brand === 'meta' ||
               brand === 'xai' ||
+              brand === 'mistral' ||
               isClaudeLikeBrand(brand) ||
               brand === 'gemini' ||
               brand === 'interactions' ||

@@ -64,6 +64,15 @@ export const buildOpenAIChatCompletionsEndpoint = (baseUrl: string): string => {
   return `${trimmed}/chat/completions`;
 };
 
+export const buildMistralChatCompletionsEndpoint = (baseUrl: string): string => {
+  const trimmed = normalizeUpstreamBaseUrl(baseUrl);
+  if (!trimmed) return '';
+  if (/\/chat\/completions$/i.test(trimmed)) return trimmed;
+  if (/\/v1\/models$/i.test(trimmed)) return trimmed.replace(/\/models$/i, '/chat/completions');
+  if (/\/v1$/i.test(trimmed)) return `${trimmed}/chat/completions`;
+  return `${trimmed}/v1/chat/completions`;
+};
+
 export const buildCodexResponsesEndpoint = (baseUrl: string): string => {
   const trimmed = normalizeUpstreamBaseUrl(baseUrl);
   if (!trimmed) return '';

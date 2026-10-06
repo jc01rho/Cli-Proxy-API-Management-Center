@@ -44,13 +44,14 @@ const args: UseConnectivityTestArgs = {
 };
 
 describe('provider probe proxy forwarding', () => {
-  test.each(['codex', 'meta', 'xai', 'gemini', 'interactions', 'claude'] as const)(
+  test.each(['codex', 'meta', 'xai', 'gemini', 'interactions', 'claude', 'mistral'] as const)(
     '%s connectivity uses the current form proxy',
     async (brand) => {
       requestSpy = spyOn(apiCallApi, 'request').mockResolvedValue(success);
       const hook = captureHook(() => useConnectivityTest({ ...args, brand }, messages));
       if (brand === 'claude') await hook.runClaude();
       else if (brand === 'gemini' || brand === 'interactions') await hook.runGemini();
+      else if (brand === 'mistral') await hook.runMistral();
       else await hook.runCodex();
       expect(requestSpy.mock.calls[0][0].proxy_url).toBe('socks5://proxy.example:1080');
     }
@@ -79,7 +80,7 @@ describe('provider probe proxy forwarding', () => {
     ]);
   });
 
-  test.each(['codex', 'meta', 'xai', 'gemini', 'interactions', 'claude'] as const)(
+  test.each(['codex', 'meta', 'xai', 'gemini', 'interactions', 'claude', 'mistral'] as const)(
     '%s discovery forwards the effective inherited proxy',
     async (brand) => {
       requestSpy = spyOn(apiCallApi, 'request').mockResolvedValue(success);

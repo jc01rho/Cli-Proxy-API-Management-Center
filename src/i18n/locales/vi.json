@@ -688,6 +688,7 @@
     "used_percent": "Đã dùng {{percent}}",
     "reset_at": "Đặt lại lúc {{time}}",
     "product_usage": "Mức sử dụng {{product}}",
+    "usage_breakdown": "Chi tiết sử dụng (hạn mức dùng chung)",
     "plan_label": "Gói",
     "plan_supergrok": "SuperGrok",
     "plan_supergrok_heavy": "SuperGrok Heavy",
@@ -2154,7 +2155,8 @@
     "chinese_tw": "繁體中文（台灣）",
     "english": "English",
     "russian": "Русский",
-    "vietnamese": "Tiếng Việt"
+    "vietnamese": "Tiếng Việt",
+    "korean": "한국어"
   },
   "theme": {
     "switch": "Giao diện",

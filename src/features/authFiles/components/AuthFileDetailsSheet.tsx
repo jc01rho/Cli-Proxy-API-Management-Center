@@ -15,13 +15,11 @@ import type {
 import {
   supportsAuthFileBaseUrl,
   supportsAuthFileCloaking,
-  supportsAuthFileModelAlias,
   supportsAuthFileUsingApi,
   supportsAuthFileWebsockets,
 } from '@/features/authFiles/constants';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 import { AuthFileExcludedModelsField } from './AuthFileExcludedModelsField';
-import { ModelAliasEditorSection } from './ModelAliasEditorSection';
 import { AuthFilePolicyFields } from './AuthFilePolicyFields';
 import { credentialPolicyError, readCredentialPolicy } from '../credentialPolicy';
 import styles from './AuthFileDetailsSheet.module.scss';
@@ -314,14 +312,6 @@ export function AuthFileDetailsSheet(props: AuthFileDetailsSheetProps) {
                     disabled={disableControls || editor.saving || !editor.json}
                     onChange={(value) => onChange('excludedModelsText', value)}
                   />
-                  {supportsAuthFileModelAlias(editor.providerKey) && (
-                    <ModelAliasEditorSection
-                      value={editor.modelAliases}
-                      disabled={disableControls || editor.saving || !editor.json}
-                      error={editor.modelAliasesError}
-                      onChange={(value) => onChange('modelAliases', value)}
-                    />
-                  )}
                   <div className="form-group">
                     <label>{t('auth_files.headers_label')}</label>
                     <textarea

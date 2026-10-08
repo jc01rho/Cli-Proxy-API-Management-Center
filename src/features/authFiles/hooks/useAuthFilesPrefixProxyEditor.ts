@@ -10,9 +10,8 @@ import {
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient, authFilesApi, type AuthFileFieldsPatch } from '@/services/api';
-import { serializeOauthModelAliases } from '@/services/api/authFiles';
 import { notifyAuthFilesChanged } from '@/features/authFiles/authFilesEvents';
-import type { AuthFileItem, OAuthModelAliasEntry } from '@/types';
+import type { AuthFileItem } from '@/types';
 import { useNotificationStore } from '@/stores';
 import {
   applyAuthFileWebsockets,
@@ -27,16 +26,9 @@ import {
   readAuthFileUsingApi,
   supportsAuthFileBaseUrl,
   supportsAuthFileCloaking,
-  supportsAuthFileModelAlias,
   supportsAuthFileWebsockets,
   supportsAuthFileUsingApi,
 } from '@/features/authFiles/constants';
-import {
-  applyModelAliases,
-  readModelAliases,
-  validateModelAliasRows,
-  type ModelAliasValidationErrorKey,
-} from '@/features/authFiles/modelAliases';
 import {
   parseCredentialWeightText,
   readCredentialWeight,
@@ -52,10 +44,7 @@ type AuthFileHeadersErrorKey =
 type AuthFileContentErrorKey =
   'auth_files.prefix_proxy_invalid_json' | 'auth_files.prefix_proxy_html_challenge';
 type AuthFileWeightErrorKey = 'auth_files.weight_invalid_integer' | 'auth_files.weight_invalid_max';
-type AuthFileEditorErrorKey =
-  | AuthFileHeadersErrorKey
-  | AuthFileWeightErrorKey
-  | ModelAliasValidationErrorKey;
+type AuthFileEditorErrorKey = AuthFileHeadersErrorKey | AuthFileWeightErrorKey;
 
 export type PrefixProxyEditorField =
   | CredentialPolicyField
@@ -71,14 +60,9 @@ export type PrefixProxyEditorField =
   | 'usingApi'
   | 'note'
   | 'excludedModelsText'
-  | 'headersText'
-  | 'modelAliases';
+  | 'headersText';
 
-export type PrefixProxyEditorFieldValue =
-  | string
-  | boolean
-  | OAuthModelAliasEntry[]
-  | CredentialPolicyValue;
+export type PrefixProxyEditorFieldValue = string | boolean | CredentialPolicyValue;
 
 export type PrefixProxyEditorState = {
   policy?: CredentialPolicyDraft;
@@ -114,9 +98,6 @@ export type PrefixProxyEditorState = {
   headersText: string;
   headersTouched: boolean;
   headersError: string | null;
-  modelAliases: OAuthModelAliasEntry[];
-  modelAliasesTouched: boolean;
-  modelAliasesError: string | null;
 };
 
 export type UseAuthFilesPrefixProxyEditorOptions = {
@@ -440,17 +421,6 @@ export const buildAuthFileFieldsPatch = (
     }
   }
 
-  if (editor.modelAliasesTouched) {
-    const aliasErrorKey = validateModelAliasRows(editor.modelAliases);
-    if (aliasErrorKey) {
-      throw new Error(resolveError(aliasErrorKey));
-    }
-    const originalAliases = readModelAliases(original);
-    if (JSON.stringify(editor.modelAliases) !== JSON.stringify(originalAliases)) {
-      patch.model_aliases = serializeOauthModelAliases(editor.modelAliases);
-    }
-  }
-
   Object.assign(patch, buildCredentialPolicyPatch(original, editor.policy));
   return patch;
 };
@@ -546,12 +516,16 @@ const buildPrefixProxyUpdatedText = (
     next = applyAuthFileUsingApi(next, patch.using_api);
   }
 
-  if (editor.modelAliasesTouched) {
-    next = applyModelAliases(next, editor.modelAliases);
-  }
-
   return JSON.stringify(next);
 };
+
+export const isPolicyField = (field: PrefixProxyEditorField): field is CredentialPolicyField =>
+  field === 'requestRetry' || field === 'modelAliases' || field === 'errorRules';
+
+export const isPolicyDraftValue = (
+  value: PrefixProxyEditorFieldValue
+): value is CredentialPolicyValue =>
+  typeof value === 'object' && value !== null && !Array.isArray(value) && 'mode' in value;
 
 export function useAuthFilesPrefixProxyEditor(
   options: UseAuthFilesPrefixProxyEditorOptions
@@ -567,7 +541,6 @@ export function useAuthFilesPrefixProxyEditor(
   const hasBlockingValidationError = Boolean(
     (prefixProxyEditor?.headersTouched && prefixProxyEditor.headersError) ||
     prefixProxyEditor?.weightError ||
-    (prefixProxyEditor?.modelAliasesTouched && prefixProxyEditor.modelAliasesError) ||
     credentialPolicyError(prefixProxyEditor?.policy)
   );
   const prefixProxyUpdatedText =
@@ -636,9 +609,6 @@ export function useAuthFilesPrefixProxyEditor(
       headersText: '',
       headersTouched: false,
       headersError: null,
-      modelAliases: [],
-      modelAliasesTouched: false,
-      modelAliasesError: null,
     });
 
     try {
@@ -698,8 +668,6 @@ export function useAuthFilesPrefixProxyEditor(
         const { errorKey } = parseHeadersText(headersText);
         headersError = errorKey ? t(errorKey) : null;
       }
-      const modelAliases = supportsAuthFileModelAlias(providerKey) ? readModelAliases(json) : [];
-
       setPrefixProxyEditor((prev) => {
         if (!prev || prev.fileName !== name) return prev;
         return {
@@ -733,9 +701,6 @@ export function useAuthFilesPrefixProxyEditor(
           headersText,
           headersTouched: false,
           headersError,
-          modelAliases,
-          modelAliasesTouched: false,
-          modelAliasesError: null,
           error: null,
         };
       });
@@ -756,7 +721,11 @@ export function useAuthFilesPrefixProxyEditor(
   ) => {
     setPrefixProxyEditor((prev) => {
       if (!prev) return prev;
-      if (field === 'requestRetry' || field === 'modelAliases' || field === 'errorRules') {
+      if (isPolicyField(field)) {
+        // Only a well-formed policy draft may reach the policy slot. A bare
+        // alias array used to land here, corrupting policy.modelAliases and
+        // crashing the sheet on the next render.
+        if (!isPolicyDraftValue(value)) return prev;
         const policy = prev.policy ?? readCredentialPolicy(prev.json ?? {});
         return {
           ...prev,
@@ -817,16 +786,6 @@ export function useAuthFilesPrefixProxyEditor(
           headersText,
           headersTouched: true,
           headersError: errorKey ? t(errorKey) : null,
-        };
-      }
-      if (field === 'modelAliases') {
-        const modelAliases = Array.isArray(value) ? value : [];
-        const errorKey = validateModelAliasRows(modelAliases);
-        return {
-          ...prev,
-          modelAliases,
-          modelAliasesTouched: true,
-          modelAliasesError: errorKey ? t(errorKey) : null,
         };
       }
       return prev;

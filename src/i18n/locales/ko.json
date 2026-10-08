@@ -87,7 +87,9 @@
     "error_legacy_backend": "이 백엔드는 v0 관리 API를 허용하지만 v8을 제공하지 않습니다. 이 관리 페이지를 사용하려면 CLIProxyAPI를 v8 이상으로 업그레이드하세요.",
     "error_server": "백엔드에서 관리 요청을 처리하는 동안 오류가 발생했습니다. 서버 로그를 확인하세요",
     "error_cors": "교차 출처 요청(CORS)이 차단되었습니다. 서버 설정을 확인하세요",
-    "error_ssl": "SSL/TLS 인증서 확인에 실패했습니다"
+    "error_ssl": "SSL/TLS 인증서 확인에 실패했습니다",
+    "show_key": "키 표시",
+    "hide_key": "키 숨기기"
   },
   "header": {
     "refresh_all": "모두 새로 고침",
@@ -107,7 +109,8 @@
     "plugin_store": "플러그인 스토어",
     "config_management": "설정 패널",
     "logs": "로그 뷰어",
-    "system_info": "관리 센터 정보"
+    "system_info": "관리 센터 정보",
+    "weight_robin_queue": "Weight-Robin 큐"
   },
   "nav_groups": {
     "operate": "운영",
@@ -127,7 +130,8 @@
     "plugin_store": "플러그인 탐색 및 설치",
     "logs": "요청 추적",
     "config_management": "게이트웨이 설정",
-    "system_info": "런타임 및 진단"
+    "system_info": "런타임 및 진단",
+    "weight_robin_queue": "가중치 기반 순환 분배"
   },
   "dashboard": {
     "hero_verdict_good": "모든 시스템 정상",
@@ -214,7 +218,15 @@
     "ws_auth_enable": "/ws/* 경로에 인증 요구",
     "routing_strategy_round_robin": "round-robin (순환)",
     "routing_strategy_weighted_round_robin": "weighted-round-robin (가중 순환)",
-    "routing_strategy_fill_first": "fill-first (우선 채우기)"
+    "routing_strategy_fill_first": "fill-first (우선 채우기)",
+    "routing_title": "라우팅 전략",
+    "routing_strategy_label": "라우팅 전략:",
+    "routing_strategy_hint": "round-robin은 키를 순환하고, fill-first는 사용 가능한 첫 번째 키를 우선하며, weight-robin은 우선순위 가중치에 따라 분배합니다.",
+    "routing_strategy_update": "업데이트",
+    "routing_strategy_weight_robin": "weight-robin (가중치 분배)",
+    "request_log_success_body_enable": "성공 시 응답 본문 기록",
+    "detailed_api_error_body_log_limit_label": "오류 본문 로그 제한 (바이트):",
+    "detailed_api_error_body_log_limit_hint": "오류 발생 시 기록할 요청/응답 본문의 최대 바이트 수입니다. 0으로 설정하면 전체 본문을 기록합니다."
   },
   "auth_files": {
     "title": "인증 파일 관리",
@@ -433,7 +445,26 @@
     "quota_refresh_single": "할당량 새로 고침",
     "quota_refresh_hint": "이 자격 증명의 할당량만 새로 고침합니다",
     "quota_refresh_success": "\"{{name}}\"의 할당량을 새로 고쳤습니다",
-    "quota_refresh_failed": "\"{{name}}\"의 할당량 새로 고침 실패: {{message}}"
+    "quota_refresh_failed": "\"{{name}}\"의 할당량 새로 고침 실패: {{message}}",
+    "delete_all_title": "모든 파일 삭제",
+    "delete_title": "파일 삭제",
+    "search_placeholder_short": "이름, 계정, 유형 또는 제공자 검색",
+    "filter_cline": "Cline",
+    "filter_cursor": "Cursor",
+    "filter_kilo": "Kilo",
+    "filter_kiro": "Kiro",
+    "filter_zcode": "Zcode",
+    "filter_workbuddy": "WorkBuddy",
+    "filter_codebuddy": "CodeBuddy",
+    "base_url_label": "API 기본 URL (base_url)",
+    "base_url_placeholder": "예: https://your-proxy.example.com/anthropic",
+    "base_url_hint": "자격 증명별 엔드포인트 재정의를 지원하는 OAuth 제공자(예: Claude)에서만 적용됩니다. 비워 두면 제공자 기본값을 사용합니다.",
+    "quota_url_label": "할당량 확인 URL (quota_url)",
+    "quota_url_placeholder": "예: https://your-proxy.example.com/anthropic/v1/usage/self",
+    "quota_url_hint": "할당량 페이지에서 사용하는 사용량/할당량 엔드포인트를 재정의합니다(nekos 같은 Claude 호환 서드파티 미러용). 비워 두면 base_url에서 자동으로 도출합니다.",
+    "cloaking_label": "클로킹 (cloak_mode)",
+    "cloaking_hint": "Claude 자격 증명에서는 기본으로 켜져 있습니다. 끄면 요청을 그대로 전송하며, 일부 서드파티 게이트웨이가 거부하는 Fable 5.1 fallbacks 필드도 생략합니다.",
+    "filter_commandcode": "Command Code"
   },
   "antigravity_subscription": {
     "plan_unknown": "알 수 없음",
@@ -499,7 +530,9 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "three_hour": "3시간 한도",
+    "daily": "일일 한도"
   },
   "codex_quota": {
     "title": "Codex 할당량",
@@ -682,7 +715,8 @@
     "provider_required": "먼저 공급자를 입력하세요.",
     "upgrade_required": "현재 CPA 버전에서는 OAuth 모델 비활성화를 지원하지 않습니다. 업그레이드하세요.",
     "upgrade_required_title": "CLI Proxy API를 업그레이드하세요",
-    "upgrade_required_desc": "현재 서버 버전은 OAuth 모델 비활성화 조회를 지원하지 않습니다. 최신 CPA(CLI Proxy API) 버전으로 업그레이드한 후 다시 시도하세요."
+    "upgrade_required_desc": "현재 서버 버전은 OAuth 모델 비활성화 조회를 지원하지 않습니다. 최신 CPA(CLI Proxy API) 버전으로 업그레이드한 후 다시 시도하세요.",
+    "delete_title": "제외 항목 삭제"
   },
   "excluded_models": {
     "trigger_summary": "{{excluded}}개 제외됨 · {{available}}개 사용 가능",
@@ -781,7 +815,8 @@
     "provider_required": "먼저 공급자를 입력하세요",
     "upgrade_required": "이 기능은 최신 버전의 CLI Proxy API(CPA)가 필요합니다. 업그레이드하세요.",
     "upgrade_required_title": "CLI Proxy API를 업그레이드하세요",
-    "upgrade_required_desc": "현재 서버는 OAuth 모델 별칭 API를 지원하지 않습니다. 최신 버전의 CLI Proxy API(CPA)로 업그레이드하세요."
+    "upgrade_required_desc": "현재 서버는 OAuth 모델 별칭 API를 지원하지 않습니다. 최신 버전의 CLI Proxy API(CPA)로 업그레이드하세요.",
+    "delete_title": "매핑 삭제"
   },
   "auth_login": {
     "devin_oauth_cancel": "Devin 로그인 취소",
@@ -925,7 +960,70 @@
     "iflow_oauth_status_error": "인증 실패:",
     "iflow_oauth_start_error": "iFlow OAuth 시작 실패:",
     "iflow_oauth_polling_error": "인증 상태 확인 실패:",
-    "remote_access_disabled": "원격 접속에서는 이 로그인 방식을 사용할 수 없습니다. 로컬(localhost)에서 접속하세요."
+    "remote_access_disabled": "원격 접속에서는 이 로그인 방식을 사용할 수 없습니다. 로컬(localhost)에서 접속하세요.",
+    "workbuddy_oauth_title": "WorkBuddy OAuth",
+    "workbuddy_oauth_button": "WorkBuddy로 로그인",
+    "workbuddy_oauth_hint": "기기 인증을 통해 WorkBuddy에 빠르게 로그인합니다. 인증 파일은 자동으로 발급 및 저장됩니다.",
+    "workbuddy_oauth_url_label": "인증 URL:",
+    "workbuddy_copy_link": "링크 복사",
+    "workbuddy_open_link": "링크 열기",
+    "workbuddy_oauth_start_error": "WorkBuddy OAuth를 시작하지 못했습니다:",
+    "workbuddy_oauth_polling_error": "인증 상태를 확인하지 못했습니다:",
+    "workbuddy_oauth_status_success": "인증 성공!",
+    "workbuddy_oauth_status_error": "인증 실패:",
+    "workbuddy_oauth_status_waiting": "인증 대기 중...",
+    "cline_oauth_title": "Cline OAuth",
+    "cline_oauth_button": "Cline 로그인 시작",
+    "cline_oauth_hint": "OAuth 흐름을 통해 Cline에 로그인합니다. 인증 파일은 자동으로 발급 및 저장됩니다.",
+    "cline_oauth_url_label": "인증 URL:",
+    "cline_open_link": "링크 열기",
+    "cline_copy_link": "링크 복사",
+    "cline_oauth_status_waiting": "인증 대기 중...",
+    "cline_oauth_status_success": "인증에 성공했습니다!",
+    "cline_oauth_status_error": "인증 실패:",
+    "cline_oauth_start_error": "Cline OAuth 시작 실패:",
+    "cline_oauth_polling_error": "인증 상태 확인 실패:",
+    "cursor_oauth_title": "Cursor OAuth",
+    "cursor_oauth_button": "Cursor 로그인 시작",
+    "cursor_oauth_hint": "OAuth 흐름을 통해 Cursor에 로그인합니다. 인증 파일은 자동으로 가져와 저장됩니다.",
+    "cursor_oauth_url_label": "인증 URL:",
+    "cursor_open_link": "링크 열기",
+    "cursor_copy_link": "링크 복사",
+    "cursor_oauth_status_waiting": "인증 대기 중...",
+    "cursor_oauth_status_success": "인증에 성공했습니다!",
+    "cursor_oauth_status_error": "인증 실패:",
+    "cursor_oauth_start_error": "Cursor OAuth 시작 실패:",
+    "cursor_oauth_polling_error": "인증 상태 확인 실패:",
+    "kilo_oauth_title": "Kilo OAuth",
+    "kilo_oauth_button": "Kilo 로그인 시작",
+    "kilo_oauth_hint": "디바이스 코드 OAuth 흐름을 통해 Kilo에 로그인합니다. 인증 파일은 자동으로 가져와 저장됩니다. 무료 등급 모델은 로그인 없이도 사용할 수 있습니다.",
+    "kilo_oauth_url_label": "인증 URL:",
+    "kilo_open_link": "링크 열기",
+    "kilo_copy_link": "링크 복사",
+    "kilo_oauth_status_waiting": "인증 대기 중...",
+    "kilo_oauth_status_success": "인증에 성공했습니다!",
+    "kilo_oauth_status_error": "인증 실패:",
+    "kilo_oauth_start_error": "Kilo OAuth 시작 실패:",
+    "kilo_oauth_polling_error": "인증 상태 확인 실패:",
+    "kiro_oauth_title": "Kiro OAuth",
+    "zcode_oauth_title": "GLM ZCode OAuth",
+    "zcode_oauth_button": "GLM ZCode 로그인 시작",
+    "zcode_oauth_hint": "OAuth 흐름을 통해 GLM ZCode에 로그인합니다. 인증 URL을 열어 승인한 후 기다리면 API 키가 자동으로 발급됩니다.",
+    "zcode_oauth_url_label": "인증 URL:",
+    "kiro_oauth_button": "Kiro 로그인 시작",
+    "kiro_oauth_hint": "디바이스 코드 OAuth 흐름을 통해 Kiro에 로그인합니다. Builder ID, Google 또는 GitHub 중에서 선택하세요. 인증 파일은 자동으로 가져와 저장됩니다.",
+    "kiro_oauth_url_label": "인증 URL:",
+    "kiro_open_link": "링크 열기",
+    "kiro_copy_link": "링크 복사",
+    "kiro_oauth_status_waiting": "인증 대기 중...",
+    "kiro_oauth_status_success": "인증에 성공했습니다!",
+    "kiro_oauth_status_error": "인증 실패:",
+    "kiro_oauth_start_error": "Kiro OAuth 시작 실패:",
+    "kiro_oauth_polling_error": "인증 상태 확인 실패:",
+    "kiro_oauth_method_builder_id": "Builder ID",
+    "kiro_oauth_method_google": "Google",
+    "kiro_oauth_method_github": "GitHub",
+    "kiro_oauth_user_code_label": "사용자 코드:"
   },
   "stats": {
     "success": "성공",
@@ -1021,7 +1119,8 @@
     "search_empty_desc": "다른 키워드를 시도하거나 필터를 초기화하세요.",
     "double_click_copy_hint": "더블클릭하여 원본 로그 줄을 복사하세요",
     "copy_success": "로그를 클립보드에 복사했습니다",
-    "copy_failed": "복사에 실패했습니다"
+    "copy_failed": "복사에 실패했습니다",
+    "clear_confirm_title": "로그 지우기"
   },
   "config_management": {
     "title": "설정 패널",
@@ -1240,7 +1339,10 @@
       },
       "search": {
         "placeholder": "설정 검색 (라벨 또는 YAML 키)",
-        "no_results": "일치하는 설정이 없습니다"
+        "no_results": "일치하는 설정이 없습니다",
+        "label": "시각적 구성 필드 검색",
+        "previous": "이전 일치 필드",
+        "next": "다음 일치 필드"
       },
       "sections": {
         "common": {
@@ -1267,7 +1369,9 @@
           "github_token": "전역 GitHub 토큰",
           "github_token_hint": "패널 업데이트, 플러그인 다운로드 등의 서버 측 GitHub 요청에 사용됩니다. GITHUB_TOKEN보다 우선 적용됩니다. 비워 두면 환경 자격 증명을 사용하며, 설정된 자격 증명이 없으면 인증되지 않은 요청을 수행합니다. 일치하는 플러그인 스토어 인증 규칙이 우선 적용됩니다.",
           "host": "호스트 주소",
-          "port": "포트"
+          "port": "포트",
+          "title": "서버 설정",
+          "description": "수신 주소, 포트 및 보안 연결 설정"
         },
         "tls": {
           "title": "TLS/SSL 설정",
@@ -1292,7 +1396,20 @@
         },
         "auth": {
           "auth_dir": "OAuth 자격 증명 디렉터리 (oauth.auth-dir)",
-          "auth_dir_hint": "인증 파일 디렉터리 경로 (~ 지원)"
+          "auth_dir_hint": "인증 파일 디렉터리 경로 (~ 지원)",
+          "title": "액세스 및 인증",
+          "description": "API 키, 인증 파일 및 차단된 클라이언트 주소",
+          "ip_blacklist_blocked_title": "IP 블랙리스트",
+          "ip_blacklist_blocked_desc": "실패 임계값을 초과하여 차단된 IP 주소 관리",
+          "ip_blacklist_blocked_hint": "설정된 기간 내에 실패 임계값을 초과한 IP",
+          "ip_blacklist_refresh": "새로고침",
+          "ip_blacklist_input_placeholder": "차단할 IP 주소 입력",
+          "ip_blacklist_add": "IP 차단",
+          "ip_blacklist_empty": "차단된 IP 없음",
+          "ip_blacklist_until": "{{value}}까지 차단됨",
+          "ip_blacklist_remaining": "{{value}} 남음",
+          "ip_blacklist_attempts": "실패 시도 {{count}}회",
+          "ip_blacklist_unban": "차단 해제"
         },
         "system": {
           "debug": "디버그 모드",
@@ -1351,7 +1468,9 @@
           "antigravity_signature_cache": "Antigravity 서명 캐시 활성화",
           "antigravity_signature_cache_desc": "캐시된 사고 블록 서명을 우선 사용하고 검증합니다.",
           "antigravity_signature_strict": "엄격한 바이패스 서명 검증",
-          "antigravity_signature_strict_desc": "서명 캐시가 비활성화된 경우에만 적용되며, 전체 Claude protobuf 트리를 검증합니다."
+          "antigravity_signature_strict_desc": "서명 캐시가 비활성화된 경우에만 적용되며, 전체 Claude protobuf 트리를 검증합니다.",
+          "title": "시스템 설정",
+          "description": "로깅, 재시도 동작, 플러그인 및 런타임 설정"
         },
         "headers": {
           "title": "헤더 기본값",
@@ -1402,7 +1521,42 @@
           "disable_cooling_desc": "실패 후 인증/모델 쿨다운 기간을 전역적으로 비활성화합니다.",
           "session_affinity": "세션 어피니티 라우팅",
           "ws_auth": "WebSocket 인증",
-          "ws_auth_desc": "AI Studio WebSocket 연결에 인증을 요구합니다 (oauth.providers.aistudio.ws-auth)"
+          "ws_auth_desc": "AI Studio WebSocket 연결에 인증을 요구합니다 (oauth.providers.aistudio.ws-auth)",
+          "routing_mode": "라우팅 모드",
+          "routing_mode_hint": "프로바이더별 또는 API 키별 라우팅 방식 선택",
+          "mode_provider_based": "프로바이더 기반",
+          "mode_key_based": "키 기반",
+          "strategy_weight_robin": "Weight Robin",
+          "weight_robin_queue_title": "가중치 대기열",
+          "weight_robin_empty": "활성 인증 항목 없음",
+          "weight_robin_total": "총 가중치: {{weight}} • 활성 항목 {{count}}개",
+          "token_threshold_rules_title": "토큰 임계값 규칙",
+          "token_threshold_rules_desc": "과금 클래스 라우팅을 위한 모델 패턴별 토큰 한도 정의",
+          "model_time_gates_title": "모델 시간 게이트",
+          "model_time_gates_desc": "cron 기간(UTC) 동안 provider/auth/model 선택을 제외하며, 제외된 요청은 조용히 페일오버됩니다",
+          "add_time_gate": "시간 게이트 추가",
+          "time_gate_name": "이름",
+          "time_gate_schedule": "Cron (min hour dom month dow, UTC)",
+          "time_gate_duration": "지속 시간 (예: 3h)",
+          "time_gate_provider": "프로바이더 (비워두면 전체)",
+          "time_gate_auth_id": "Auth ID (비워두면 전체)",
+          "time_gate_mode": "모드",
+          "time_gate_mode_exclude": "목록의 모델 제외",
+          "time_gate_mode_allow": "목록의 모델만 허용",
+          "time_gate_models": "모델, 쉼표로 구분 (제외: 비워두면 전체, 허용: 비워두면 없음)",
+          "add_token_rule": "토큰 규칙 추가",
+          "billing_class_metered": "종량제 과금 클래스",
+          "billing_class_per_request": "요청당 과금 클래스",
+          "token_rule_model_pattern": "토큰 규칙 모델 패턴",
+          "token_rule_min_tokens": "토큰 규칙 최소 토큰",
+          "token_rule_max_tokens": "토큰 규칙 최대 토큰",
+          "ip_blacklist_title": "IP 블랙리스트",
+          "ip_blacklist_desc": "실패 임계값을 초과한 IP 자동 차단",
+          "ip_blacklist_threshold": "실패 임계값",
+          "ip_blacklist_window": "기간",
+          "ip_blacklist_window_hint": "실패 횟수를 집계할 기간 (예: 10m, 1h)",
+          "ip_blacklist_duration": "차단 기간",
+          "ip_blacklist_duration_hint": "IP가 차단 상태로 유지되는 기간 (예: 24h, 7d)"
         },
         "quota": {
           "title": "할당량 폴백",
@@ -1437,6 +1591,83 @@
           "override_raw_rules_desc": "매개변수 값을 항상 원시 JSON 조각으로 덮어씁니다. response_format, 스키마 및 기타 복잡한 필드에 유용합니다.",
           "filter_rules": "필터 규칙",
           "filter_rules_desc": "JSON Path를 통해 업스트림 요청 본문을 사전 필터링하고 규격에 맞지 않거나 중복된 매개변수를 자동으로 제거합니다 (Request Sanitization)."
+        },
+        "fallback": {
+          "title": "모델 폴백 체인",
+          "description": "기본 모델 실패 시 자동 페일오버를 위한 폴백 모델 및 체인 설정",
+          "models_title": "폴백 모델 매핑",
+          "models_hint": "모델별 폴백 매핑을 정의합니다. 모델이 실패하면 매핑된 폴백 모델을 먼저 시도합니다.",
+          "chain_title": "폴백 체인",
+          "chain_hint": "기본 모델과 모델별 폴백이 모두 실패할 때 순서대로 시도할 폴백 모델 목록",
+          "add_model": "폴백 모델 추가",
+          "add_chain": "체인 항목 추가",
+          "source_placeholder": "원본 모델",
+          "target_placeholder": "폴백 모델",
+          "chain_placeholder": "폴백 모델",
+          "chain_max_error": "폴백 체인은 최대 20개 모델까지 지원합니다",
+          "max_depth_title": "폴백 최대 깊이",
+          "max_depth_hint": "체인에서 시도할 최대 폴백 모델 수입니다(기본값: 3). 폴백 체인이 길면 더 높게(예: 10) 설정하세요.",
+          "max_depth_placeholder": "3"
+        },
+        "keeper_export": {
+          "title": "Keeper 내보내기",
+          "description": "브라우저에 토큰을 저장하지 않고, 민감 정보가 제거된 사용량과 메타데이터를 Keeper 인스턴스로 안정적으로 전송합니다.",
+          "fields": {
+            "enabled": "Keeper 내보내기 활성화",
+            "keeper_url": "Keeper URL",
+            "token_env": "토큰 환경 변수",
+            "token_env_hint": "환경 변수 이름만 입력하세요. 소유자 전용 CPA YAML 파일에 토큰을 직접 설정한 경우 비워 두세요. 토큰 값은 이 양식이나 브라우저 저장소에 절대 입력되지 않습니다.",
+            "outbox_path": "영구 아웃박스 경로",
+            "outbox_quota": "아웃박스 할당량(바이트)",
+            "delivery": "전송",
+            "max_batch_events": "최대 배치 이벤트 수",
+            "max_batch_bytes": "최대 배치 바이트",
+            "flush_interval": "플러시 간격(ms)",
+            "request_timeout": "요청 타임아웃(ms)",
+            "initial_backoff": "초기 백오프(ms)",
+            "max_backoff": "최대 백오프(ms)",
+            "metadata": "메타데이터 스냅샷",
+            "metadata_enabled": "전체 메타데이터 스냅샷 전송",
+            "metadata_interval": "메타데이터 간격(ms)",
+            "metadata_categories": "메타데이터 카테고리",
+            "auth_files": "인증 파일",
+            "api_keys": "API 키",
+            "provider_identities": "공급자 ID",
+            "privacy": "개인정보 보호 설정",
+            "include_client_ip": "클라이언트 IP 포함",
+            "include_forwarded_for": "forwarded-for 포함",
+            "include_user_agent": "User-Agent 포함",
+            "tls": "TLS 및 클라이언트 인증서",
+            "ca_file": "CA 번들 경로",
+            "client_cert_file": "클라이언트 인증서 경로",
+            "client_key_file": "클라이언트 키 경로"
+          },
+          "test_success": "연결 확인됨",
+          "token_configured": "토큰 설정됨",
+          "token_not_configured": "토큰 미설정",
+          "token_status_unknown": "토큰 상태를 확인할 수 없음",
+          "actions": {
+            "refresh_status": "상태 새로고침",
+            "test_connection": "연결 테스트"
+          },
+          "status": {
+            "disabled": "비활성화됨",
+            "starting": "시작 중",
+            "connected": "연결됨",
+            "retrying": "재시도 중",
+            "degraded": "성능 저하",
+            "blocked": "차단됨",
+            "backlog": "대기 이벤트",
+            "acknowledged": "ACK 완료 지점",
+            "next": "다음 예상",
+            "revisions": "리비전"
+          },
+          "eyebrow": "KEEPER EXPORT / V1",
+          "search_placeholder": "시각 필드 검색",
+          "search_label": "시각 필드 검색",
+          "search_previous": "이전 시각 필드",
+          "search_next": "다음 시각 필드",
+          "test_failed": "연결 테스트 실패"
         }
       },
       "api_keys": {
@@ -1463,7 +1694,12 @@
           "fair": "보통",
           "good": "좋음",
           "strong": "강함"
-        }
+        },
+        "models_label": "허용된 모델 패턴",
+        "models_placeholder": "gpt-*\ngpt-5.2",
+        "models_hint": "한 줄에 하나의 패턴을 입력하세요. 비워 두면 모든 모델이 허용됩니다. *를 와일드카드로 사용할 수 있습니다.",
+        "model_all": "모델: 모두 허용",
+        "model_restricted": "모델: {{patterns}}"
       },
       "payload_rules": {
         "rule": "규칙",
@@ -1533,15 +1769,48 @@
         "integer_range_1_3600": "1에서 3600 사이의 정수를 입력하세요",
         "payload_invalid_number": "유효한 숫자를 입력하세요",
         "payload_invalid_boolean": "true 또는 false를 선택하세요",
-        "payload_invalid_json": "유효한 JSON을 입력하세요"
+        "payload_invalid_json": "유효한 JSON을 입력하세요",
+        "usage_statistics_required": "Keeper Export를 활성화하려면 먼저 사용량 통계를 활성화하세요",
+        "keeper_url_required": "Keeper URL을 입력하세요",
+        "keeper_url_scheme": "쿼리나 프래그먼트가 없는 HTTP 또는 HTTPS Keeper URL을 사용하세요",
+        "keeper_token_env": "대문자 환경 변수 이름을 사용하세요",
+        "keeper_outbox_path": "절대 경로의 outbox 경로를 사용하세요",
+        "keeper_outbox_bytes": "Outbox 할당량은 16 MiB에서 1 TiB 사이여야 합니다",
+        "keeper_batch_events": "배치 이벤트 수는 1에서 500 사이여야 합니다",
+        "keeper_batch_bytes": "배치 크기는 64 KiB에서 1 MiB 사이여야 합니다",
+        "keeper_flush_interval": "플러시 간격은 100 ms에서 60 s 사이여야 합니다",
+        "keeper_request_timeout": "요청 타임아웃은 1 s에서 120 s 사이여야 합니다",
+        "keeper_initial_backoff": "초기 백오프는 100 ms에서 60 s 사이여야 합니다",
+        "keeper_max_backoff": "최대 백오프는 초기 백오프 이상이어야 합니다",
+        "keeper_metadata_interval": "메타데이터 간격은 1분에서 24시간 사이여야 합니다",
+        "keeper_metadata_categories": "메타데이터 카테고리를 하나 이상 선택하세요"
       },
       "common": {
         "edit": "편집",
         "delete": "삭제",
         "cancel": "취소",
         "update": "업데이트",
-        "add": "추가"
+        "add": "추가",
+        "enabled": "활성화됨"
+      },
+      "quick_jump": "빠른 이동",
+      "validation_blocked_short": "오류 수정",
+      "oauth_endpoints": {
+        "title": "OAuth 엔드포인트 재정의",
+        "description": "OAuth 제공자별로 authorize, token, refresh, userinfo, 디바이스 인증 또는 API base URL을 재정의합니다.",
+        "add_override": "재정의 추가",
+        "provider_placeholder": "제공자 키 (예: claude)",
+        "api_base_url": "API base URL",
+        "authorize_url": "Authorize URL",
+        "token_url": "Token URL",
+        "refresh_url": "Refresh URL (선택 사항)",
+        "userinfo_url": "Userinfo URL (선택 사항)",
+        "device_authorize_url": "Device authorize URL (선택 사항)"
       }
+    },
+    "tabs": {
+      "visual": "비주얼 편집기",
+      "source": "소스 편집기"
     }
   },
   "quota_management": {
@@ -1589,7 +1858,12 @@
     "weekday_wed": "수",
     "weekday_thu": "목",
     "weekday_fri": "금",
-    "weekday_sat": "토"
+    "weekday_sat": "토",
+    "refresh_files": "인증 파일 새로고침",
+    "refresh_files_and_quota": "파일 및 할당량 새로고침",
+    "card_idle_hint": "상단의 \"모든 자격 증명 새로고침\" 버튼을 사용해 최신 할당량 데이터를 가져오세요.",
+    "primary_credential": "기본",
+    "standby_credential": "대기"
   },
   "plugin_management": {
     "title": "플러그인 관리",
@@ -1782,7 +2056,8 @@
     "clear_login_title": "로컬 로그인 데이터",
     "clear_login_desc": "로컬에 저장된 로그인 데이터를 지우고 로그아웃합니다.",
     "clear_login_button": "로그인 데이터 지우기",
-    "clear_login_confirm": "로컬 로그인 데이터를 지우고 지금 로그아웃하시겠습니까?"
+    "clear_login_confirm": "로컬 로그인 데이터를 지우고 지금 로그아웃하시겠습니까?",
+    "request_log_disabled": "요청 로깅 비활성화됨"
   },
   "notification": {
     "trusted_proxies_restart_required": "신뢰할 수 있는 프록시 설정이 저장되었습니다. 적용하려면 백엔드를 재시작하세요.",
@@ -1804,7 +2079,45 @@
     "login_failed": "로그인 실패",
     "commercial_mode_restart_required": "상업 모드 설정이 변경되었습니다. 적용하려면 서비스를 재시작하세요",
     "copy_failed": "복사 실패",
-    "link_copied": "링크가 클립보드에 복사되었습니다"
+    "link_copied": "링크가 클립보드에 복사되었습니다",
+    "api_key_ip_blacklist_banned": "IP {{ip}} 차단됨",
+    "api_key_ip_blacklist_unbanned": "IP {{ip}} 차단 해제됨",
+    "load_failed": "불러오기 실패",
+    "please_enter": "입력하세요",
+    "save_failed": "저장 실패",
+    "api_key_added": "API 키가 추가되었습니다",
+    "api_key_updated": "API 키가 업데이트되었습니다",
+    "api_key_deleted": "API 키가 삭제되었습니다",
+    "api_key_invalid_chars": "API 키에는 문자, 숫자, 기호만 사용할 수 있습니다",
+    "gemini_key_added": "Gemini 키가 추가되었습니다",
+    "gemini_key_updated": "Gemini 키가 업데이트되었습니다",
+    "gemini_key_deleted": "Gemini 키가 삭제되었습니다",
+    "gemini_multi_input_required": "Gemini 키를 하나 이상 입력하세요",
+    "gemini_multi_failed": "Gemini 일괄 추가 실패",
+    "gemini_multi_summary": "Gemini 일괄 추가 완료: {{success}}개 추가, {{skipped}}개 건너뜀, {{failed}}개 실패",
+    "codex_config_added": "Codex 구성이 추가되었습니다",
+    "codex_config_updated": "Codex 구성이 업데이트되었습니다",
+    "codex_config_deleted": "Codex 구성이 삭제되었습니다",
+    "codex_base_url_required": "Codex Base URL을 입력하세요",
+    "claude_config_added": "Claude 구성이 추가되었습니다",
+    "claude_config_updated": "Claude 구성이 업데이트되었습니다",
+    "claude_config_deleted": "Claude 구성이 삭제되었습니다",
+    "vertex_config_added": "Vertex 구성이 추가되었습니다",
+    "vertex_config_updated": "Vertex 구성이 업데이트되었습니다",
+    "vertex_config_deleted": "Vertex 구성이 삭제되었습니다",
+    "config_enabled": "구성이 활성화되었습니다",
+    "config_disabled": "구성이 비활성화되었습니다",
+    "field_required": "필수 항목은 비워 둘 수 없습니다",
+    "openai_provider_required": "제공자 이름과 Base URL을 입력하세요",
+    "openai_provider_added": "OpenAI 제공자가 추가되었습니다",
+    "openai_provider_updated": "OpenAI 제공자가 업데이트되었습니다",
+    "openai_provider_deleted": "OpenAI 제공자가 삭제되었습니다",
+    "ampcode_updated": "Ampcode 설정이 업데이트되었습니다",
+    "ampcode_upstream_api_key_cleared": "Ampcode 업스트림 API 키 재정의가 해제되었습니다",
+    "openai_model_name_required": "모델 이름은 필수입니다",
+    "openai_test_url_required": "테스트 전에 유효한 Base URL을 입력하세요",
+    "openai_test_key_required": "테스트 전에 API 키를 하나 이상 추가하세요",
+    "openai_test_model_required": "테스트할 모델을 선택하세요"
   },
   "language": {
     "switch": "언어",
@@ -1942,7 +2255,10 @@
     "categories": {
       "title": "공급자",
       "quickFill": "빠른 입력",
-      "activeCount": "활성 {{active}}/{{total}}"
+      "activeCount": "활성 {{active}}/{{total}}",
+      "ampcodeActive": "연결됨",
+      "ampcodeInactive": "구성되지 않음",
+      "sponsors": "스폰서"
     },
     "providerNames": {
       "meta": "Muse (Meta)",
@@ -1956,7 +2272,12 @@
       "apikeyFun": "APIKEY.FUN",
       "fennoAI": "FennoAI",
       "qiniuCloud": "Qiniu Cloud",
-      "kimi": "Kimi"
+      "kimi": "Kimi",
+      "mistral": "Mistral AI",
+      "opencode": "OpenCode",
+      "ampcode": "Amp CLI",
+      "commandcode": "CommandCode",
+      "freebuff": "Freebuff"
     },
     "table": {
       "key": "키",
@@ -1968,14 +2289,17 @@
       "metrics": {
         "models": "모델",
         "keys": "키",
-        "headers": "헤더"
+        "headers": "헤더",
+        "mappings": "매핑"
       },
       "websocketsTag": "WebSockets",
       "cloakTag": "Cloak",
       "cliProfileTag": "CLI 프로필",
       "empty": "아직 리소스가 없습니다. \"새로 만들기\"를 클릭하여 추가하세요.",
       "filterPlaceholder": "키, URL, 접두사 검색…",
-      "description": "{{route}}의 리소스를 관리합니다."
+      "description": "{{route}}의 리소스를 관리합니다.",
+      "priority": "우선순위",
+      "noFallbackKey": "대체 키 없음"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -2128,7 +2452,10 @@
         "high": "높음",
         "xhigh": "매우 높음",
         "max": "최대",
-        "auto": "자동"
+        "auto": "자동",
+        "enable": "thinking 활성화",
+        "disable": "thinking 비활성화",
+        "adaptive": "적응형 thinking"
       },
       "cloakCacheUserId": "user_id 캐시",
       "cloakCacheUserIdHint": "API 키별로 Claude cloak user_id를 재사용합니다.",
@@ -2142,11 +2469,26 @@
         "baseUrlRequired": "기본 URL은 필수입니다.",
         "weightInteger": "스케줄링 가중치는 정수여야 합니다.",
         "weightMax": "스케줄링 가중치는 {{max}}을(를) 초과할 수 없습니다."
-      }
+      },
+      "clientId": "Client ID",
+      "comment": "메모",
+      "commentPlaceholder": "이 자격 증명에 대한 선택적 메모",
+      "systemContentAsString": "system 콘텐츠를 문자열로 전송",
+      "systemContentAsStringHint": "이 제공자에 대해 system 메시지 텍스트 배열을 문자열로 변환합니다. 기본값은 꺼짐이며, 문자열 콘텐츠가 필요한 게이트웨이에서 활성화하세요.",
+      "maxOutputTokens": "최대 출력 토큰",
+      "maxOutputTokensPlaceholder": "예: 1024",
+      "modelEndpoints": "업스트림 엔드포인트",
+      "modelEndpointsLabel": "{{model}}의 업스트림 엔드포인트",
+      "modelEndpointsAutomatic": "자동 (제공자 기본값)",
+      "modelEndpointsResponses": "Responses만",
+      "modelEndpointsChat": "Chat Completions만",
+      "modelEndpointsHint": "이 모델이 업스트림에서 허용하는 엔드포인트를 선택하세요. 자동은 기본값을 유지하며, 단일 엔드포인트를 선택하면 프록시가 이 모델의 요청만 변환합니다."
     },
     "delete": {
       "title": "리소스 삭제",
-      "confirm": "{{name}}을(를) 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+      "confirm": "{{name}}을(를) 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+      "ampcodeTitle": "Amp CLI 설정 초기화",
+      "ampcodeConfirm": "Amp CLI 설정을 모두 초기화하시겠습니까? 업스트림 URL, 키, 모델 매핑이 삭제됩니다."
     },
     "toast": {
       "created": "생성됨",
@@ -2206,6 +2548,20 @@
     },
     "modelCatalog": {
       "notLoaded": "로드되지 않음"
+    },
+    "ampcode": {
+      "upstreamUrl": "업스트림 URL",
+      "upstreamApiKey": "업스트림 API 키 (대체)",
+      "upstreamApiKeyHint": "일치하는 키 매핑이 없을 때 사용됩니다",
+      "keyMappingsSection": "업스트림 키 매핑",
+      "mappingRow": "매핑 #{{index}}",
+      "clientKeys": "클라이언트 키",
+      "clientKeysHint": "한 줄에 하나씩 입력하세요. 일치하는 키는 위의 업스트림 키로 전달됩니다",
+      "addMapping": "키 매핑 추가",
+      "modelMappingsSection": "모델 매핑",
+      "addModelMapping": "모델 매핑 추가",
+      "forceModelMappings": "모델 매핑 강제",
+      "forceModelMappingsHint": "매핑과 일치하지 않는 요청은 거부됩니다"
     }
   },
   "claude_reset": {
@@ -2236,5 +2592,109 @@
     "unavailable": "현재 초기화를 사용할 수 없습니다.",
     "rate_limited": "요청 속도가 제한되었습니다.",
     "auth_error": "인증이 거부되었습니다."
+  },
+  "weight_robin_queue": {
+    "select_model": "모델/별칭 선택",
+    "all_models": "모든 모델",
+    "auto_refresh_on": "자동: 켜짐",
+    "auto_refresh_off": "자동: 꺼짐",
+    "current_position": "현재 위치",
+    "last_picked": "마지막 선택",
+    "total_picks": "총 선택 횟수",
+    "picks_delta": "선택 횟수 (최근 2초)",
+    "last_picked_at": "마지막 선택 시각",
+    "page_title": "Weight-Robin 큐",
+    "page_subtitle": "weight-robin 라우팅 전략에서 사용하는 가중치 순환의 상세 보기입니다.",
+    "back_to_config": "설정으로 돌아가기",
+    "refresh": "새로고침",
+    "refreshing": "새로고침 중...",
+    "last_updated": "마지막 업데이트",
+    "active_entries": "활성 항목",
+    "total_weight": "총 가중치",
+    "avg_weight": "평균 가중치",
+    "cycle_length": "순환 길이",
+    "distribution_title": "가중치 분포",
+    "table_title": "인증 파일 상세",
+    "cycle_title": "셔플된 순환 미리보기",
+    "cycle_hint": "각 인증은 가중치만큼 N번 나타나며, 이후 순환이 셔플됩니다. 현재 위치가 강조 표시됩니다.",
+    "cycle_hint_raw": "셔플된 순환 미리보기 — 백엔드에서 반환된 실제 순환입니다.",
+    "cycle_length_short": "길이",
+    "cycle_slots": "슬롯",
+    "cycle_empty": "이 순환에 활성 인증이 없습니다",
+    "no_entries": "활성 인증 항목이 없습니다. weight-robin을 사용하려면 음수가 아닌 우선순위를 가진 인증 파일을 하나 이상 활성화하세요.",
+    "alias_queue_title": "별칭 / 모델별 큐",
+    "no_alias_groups": "별칭 또는 모델 매핑이 없습니다. 별칭별 큐를 보려면 openai-compatibility 제공자에서 별칭을 설정하세요.",
+    "alias_groups": "별칭 / 모델 그룹",
+    "provider_group": "인증 {{count}}개",
+    "weight_unit": "w:",
+    "weight_normalized_format": "/ {{normalized}}",
+    "cycle_truncated": "간결한 표시를 위해 앞부분과 뒷부분만 표시합니다 ({{total}}개 슬롯 중 {{shown}}개).",
+    "col_provider": "제공자",
+    "col_name": "이름",
+    "col_priority": "우선순위",
+    "col_weight": "가중치",
+    "col_share": "비율"
+  },
+  "kiro_quota": {
+    "title": "Kiro 할당량",
+    "empty_title": "Kiro 인증 파일 없음",
+    "empty_desc": "구독 사용량을 보려면 Kiro 자격 증명을 연결하세요.",
+    "idle": "클릭하여 할당량 새로고침",
+    "loading": "할당량 불러오는 중...",
+    "load_failed": "할당량을 불러오지 못했습니다: {{message}}",
+    "missing_auth_index": "인증 파일에 auth_index가 없습니다",
+    "empty_data": "할당량 데이터가 없습니다",
+    "refresh_button": "할당량 새로고침",
+    "fetch_all": "모두 가져오기",
+    "plan_label": "플랜"
+  },
+  "zcode_quota": {
+    "title": "Zcode (Z.AI) 할당량",
+    "empty_title": "Zcode 자격 증명 없음",
+    "empty_desc": "Zcode (Z.AI) 자격 증명을 추가하면 여기에서 코딩 플랜 할당량을 볼 수 있습니다.",
+    "idle": "클릭하여 Zcode 할당량 불러오기",
+    "loading": "Zcode 할당량 불러오는 중…",
+    "load_failed": "Zcode 할당량을 불러오지 못했습니다: {{message}}",
+    "missing_auth_index": "Zcode 자격 증명에 auth index가 없습니다. 파일 목록을 새로고침하세요.",
+    "empty_data": "이 자격 증명에 대해 반환된 할당량 데이터가 없습니다.",
+    "refresh_button": "할당량 새로고침",
+    "fetch_all": "모두 가져오기",
+    "plan_label": "플랜 등급",
+    "window_five_hour": "5시간 구간",
+    "window_weekly": "주간 구간",
+    "window_mcp": "MCP / 시간 제한",
+    "window_monthly": "월간",
+    "used_of": "{{used}}% 사용됨"
+  },
+  "auth_file_details": {
+    "model_aliases": {
+      "label": "모델 별칭",
+      "name_placeholder": "원본 모델 이름",
+      "alias_placeholder": "별칭 (필수)",
+      "fork_label": "원본 유지",
+      "add": "별칭 추가",
+      "hint": "계정별 모델 별칭입니다. 원본 모델에 대한 요청이 별칭으로 라우팅됩니다.",
+      "error_empty_name": "별칭 행에는 원본 모델 이름이 필요합니다.",
+      "error_empty_alias": "별칭 행에는 별칭이 필요합니다.",
+      "error_name_equals_alias": "원본 모델과 별칭은 달라야 합니다.",
+      "error_duplicate_alias": "이 계정 내에 중복된 별칭이 있습니다."
+    }
+  },
+  "commandcode_quota": {
+    "title": "Command Code 할당량",
+    "empty_title": "Command Code 자격 증명 없음",
+    "empty_desc": "Command Code 자격 증명을 추가하면 여기에서 계정 할당량을 확인할 수 있습니다.",
+    "idle": "클릭하여 Command Code 할당량 불러오기",
+    "loading": "Command Code 할당량 불러오는 중…",
+    "load_failed": "Command Code 할당량을 불러오지 못했습니다: {{message}}",
+    "missing_auth_index": "Command Code 자격 증명에 auth index가 없습니다. 파일 목록을 새로고침하세요.",
+    "empty_data": "이 자격 증명에 대한 할당량 데이터가 없습니다.",
+    "refresh_button": "할당량 새로고침",
+    "fetch_all": "모두 가져오기",
+    "window_five_hour": "5시간 기간",
+    "window_weekly": "주간 기간",
+    "used_of": "{{used}}% 사용됨",
+    "credits_label": "구독 크레딧",
+    "credits_used": "{{used}} / {{limit}} 사용됨"
   }
 }

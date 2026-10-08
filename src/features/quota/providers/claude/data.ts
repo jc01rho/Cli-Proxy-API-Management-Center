@@ -10,6 +10,7 @@ import type {
   ClaudeProfileResponse,
   ClaudeQuotaState,
   ClaudeQuotaWindow,
+  ClaudeUsageWindow,
   ClaudeUsagePayload,
 } from '@/types';
 import { apiCallApi, getApiCallErrorMessage, type ApiCallResult } from '@/services/api';
@@ -112,6 +113,11 @@ const findFableUsageLimit = (payload: ClaudeUsagePayload) => {
   return candidates.find((limit) => limit.is_active === true) ?? candidates[0] ?? null;
 };
 
+const isDollarDenominatedWindow = (window: ClaudeUsageWindow) =>
+  normalizeNumberValue(window.limit_dollars) !== null ||
+  normalizeNumberValue(window.used_dollars) !== null ||
+  normalizeNumberValue(window.remaining_dollars) !== null;
+
 export const buildClaudeQuotaWindows = (
   payload: ClaudeUsagePayload & { limits?: unknown[] | null },
   t: TFunction
@@ -143,10 +149,23 @@ export const buildClaudeQuotaWindows = (
   const fableLimit = findFableUsageLimit(payload);
 
   for (const { key, id, labelKey } of CLAUDE_USAGE_WINDOW_KEYS) {
-    if (key === 'iguana_necktie' && fableLimit) continue;
     const window = payload[key as keyof ClaudeUsagePayload];
     if (!window || typeof window !== 'object' || !('utilization' in window)) continue;
-    const typedWindow = window as { utilization: number; resets_at: string | null };
+    const typedWindow = window as ClaudeUsageWindow;
+    const isCreditPool = key === 'iguana_necktie' && isDollarDenominatedWindow(typedWindow);
+    if (key === 'iguana_necktie' && fableLimit && !isCreditPool) continue;
+    if (isCreditPool) {
+      windows.push({
+        id: 'cloud-session-credits',
+        label: t('claude_quota.cloud_session_credits'),
+        labelKey: 'claude_quota.cloud_session_credits',
+        usedPercent: normalizeNumberValue(typedWindow.utilization),
+        resetLabel: formatQuotaResetTime(typedWindow.resets_at ?? undefined),
+        resetAtMs: resolveResetMs([typedWindow.resets_at]),
+        periodHours: null,
+      });
+      continue;
+    }
     const usedPercent = normalizeNumberValue(typedWindow.utilization);
     const resetLabel = formatQuotaResetTime(typedWindow.resets_at ?? undefined);
     windows.push({

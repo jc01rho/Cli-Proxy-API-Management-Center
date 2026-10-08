@@ -156,7 +156,6 @@ const modelsFromConfig = (models: ModelAlias[] | undefined): ModelEntryInput[] =
         name: model.name ?? '',
         alias: model.alias ?? '',
         priority: model.priority,
-        testModel: model.testModel,
         image: model.image === true,
         supportedEndpoints: model.supportedEndpoints,
         thinkingJson: model.thinking ? JSON.stringify(model.thinking, null, 2) : '',

@@ -171,6 +171,7 @@ import {
 /** UI draft keys; YAML persistence uses the v8 tree, not these flattened names. */
 export type VisualConfigValues = {
   keeperExport: KeeperExportVisualValues;
+  githubToken: string;
   trustedProxies: string[];
   discoveryEnabled: boolean;
   discoveryServiceName: string;
@@ -287,6 +288,7 @@ export const makeClientId = () => {
 
 export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   keeperExport: DEFAULT_KEEPER_EXPORT_VISUAL_VALUES,
+  githubToken: '',
   trustedProxies: [],
   discoveryEnabled: false,
   discoveryServiceName: '',

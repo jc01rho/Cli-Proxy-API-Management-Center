@@ -40,7 +40,6 @@ const normalizeModelAliases = (models: unknown): ModelAlias[] => {
       if (!name) return null;
       const alias = item.alias || item.display_name || item.displayName;
       const priority = item.priority ?? item['priority'];
-      const testModel = item['test-model'] ?? item.testModel;
       const image = normalizeBoolean(item.image);
       const supportedEndpoints = item['supported-endpoints'] ?? item.supportedEndpoints;
       const thinking = normalizeModelThinking(item.thinking);
@@ -53,9 +52,6 @@ const normalizeModelAliases = (models: unknown): ModelAlias[] => {
         if (Number.isFinite(parsed)) {
           entry.priority = parsed;
         }
-      }
-      if (testModel) {
-        entry.testModel = String(testModel);
       }
       if (image !== undefined) {
         entry.image = image;
@@ -337,7 +333,6 @@ const normalizeOpenAIProvider = (
   const models = normalizeModelAliases(provider.models);
   const priority = provider.priority ?? provider['priority'];
   const billingClass = provider['billing-class'] ?? provider.billingClass;
-  const testModel = provider['test-model'] ?? provider.testModel;
 
   const result: OpenAIProviderConfig = {
     name: String(name),
@@ -364,7 +359,6 @@ const normalizeOpenAIProvider = (
   if (billingClass === 'metered' || billingClass === 'per-request' || billingClass === 'per_request') {
     result.billingClass = billingClass === 'per_request' ? 'per-request' : billingClass;
   }
-  if (testModel) result.testModel = String(testModel);
   const authIndex = normalizeAuthIndex(
     provider['auth-index'] ?? provider.authIndex ?? provider['auth_index']
   );

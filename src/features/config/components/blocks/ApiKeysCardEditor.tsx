@@ -14,8 +14,10 @@ import styles from './Blocks.module.scss';
 
 interface ApiKeysCardEditorProps {
   value: string;
+  modelWhitelists?: Record<string, string[]>;
   disabled?: boolean;
   onChange: (nextValue: string) => void;
+  onModelWhitelistsChange?: (nextValue: Record<string, string[]>) => void;
 }
 
 export const ApiKeysCardEditor = memo(function ApiKeysCardEditor(props: ApiKeysCardEditorProps) {
@@ -25,8 +27,10 @@ export const ApiKeysCardEditor = memo(function ApiKeysCardEditor(props: ApiKeysC
 
 function ScopedApiKeysCardEditor({
   value,
+  modelWhitelists = {},
   disabled,
   onChange,
+  onModelWhitelistsChange,
   apiBase,
 }: ApiKeysCardEditorProps & { apiBase: string }) {
   const [names, setNames] = useState(() => readApiKeyNames(apiBase));
@@ -63,12 +67,14 @@ function ScopedApiKeysCardEditor({
   const [modalOpen, setModalOpen] = useState(false);
   const [editingApiKeyId, setEditingApiKeyId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [modelPatternsValue, setModelPatternsValue] = useState('');
   const [formError, setFormError] = useState('');
 
   const openAddModal = () => {
     setNameValue('');
     setEditingApiKeyId(null);
     setInputValue('');
+    setModelPatternsValue('');
     setFormError('');
     setModalOpen(true);
   };
@@ -80,6 +86,7 @@ function ScopedApiKeysCardEditor({
     setNameValue(latestNames[nameFingerprints[editingIndex]] ?? '');
     setEditingApiKeyId(apiKeyId);
     setInputValue(apiKeys[editingIndex] ?? '');
+    setModelPatternsValue((modelWhitelists[apiKeys[editingIndex] ?? ''] ?? []).join('\n'));
     setFormError('');
     setModalOpen(true);
   };
@@ -87,6 +94,7 @@ function ScopedApiKeysCardEditor({
   const closeModal = () => {
     setModalOpen(false);
     setInputValue('');
+    setModelPatternsValue('');
     setEditingApiKeyId(null);
     setFormError('');
   };
@@ -100,6 +108,9 @@ function ScopedApiKeysCardEditor({
     if (index < 0) return;
     setApiKeyIds(renderApiKeyIds.filter((id) => id !== apiKeyId));
     updateApiKeys(apiKeys.filter((_, i) => i !== index));
+    const nextWhitelists = { ...modelWhitelists };
+    delete nextWhitelists[apiKeys[index]];
+    onModelWhitelistsChange?.(nextWhitelists);
   };
 
   const handleSave = () => {
@@ -130,6 +141,25 @@ function ScopedApiKeysCardEditor({
       setApiKeyIds([...renderApiKeyIds, makeClientId()]);
     }
     if (nextKeys.join('\n') !== apiKeys.join('\n')) updateApiKeys(nextKeys);
+    const patterns = Array.from(
+      new Set(
+        modelPatternsValue
+          .split('\n')
+          .map((pattern) => pattern.trim())
+          .filter(Boolean)
+      )
+    );
+    const previousKey = editingIndex >= 0 ? apiKeys[editingIndex] : '';
+    const nextWhitelists = { ...modelWhitelists };
+    if (previousKey && previousKey !== trimmed) {
+      delete nextWhitelists[previousKey];
+    }
+    if (patterns.length > 0) {
+      nextWhitelists[trimmed] = patterns;
+    } else {
+      delete nextWhitelists[trimmed];
+    }
+    onModelWhitelistsChange?.(nextWhitelists);
     closeModal();
   };
 
@@ -147,9 +177,14 @@ function ScopedApiKeysCardEditor({
   };
 
   return (
-    <div className="form-group" style={{ marginBottom: 0 }}>
-      <div className={styles.blockHeaderRow}>
-        <label style={{ margin: 0 }}>{t('config_management.visual.api_keys.label')}</label>
+    <div className={styles.apiKeys}>
+      <div className={styles.apiKeysHeader}>
+        <div className={styles.apiKeysCopy}>
+          <span className={styles.apiKeysTitle}>
+            {t('config_management.visual.api_keys.label')}
+          </span>
+          <span className={styles.apiKeysHint}>{t('config_management.visual.api_keys.hint')}</span>
+        </div>
         <Button size="sm" onClick={openAddModal} disabled={disabled}>
           {t('config_management.visual.api_keys.add')}
         </Button>
@@ -158,20 +193,29 @@ function ScopedApiKeysCardEditor({
       {apiKeys.length === 0 ? (
         <div className={styles.emptyState}>{t('config_management.visual.api_keys.empty')}</div>
       ) : (
-        <div className="item-list" style={{ marginTop: 4 }}>
+        <ol className={styles.apiKeyList}>
           {apiKeys.map((key, index) => (
-            <div key={renderApiKeyIds[index] ?? `${key}-${index}`} className="item-row">
-              <div className="item-meta">
-                <div className="pill">#{index + 1}</div>
-                <div className="item-title">
+            <li key={renderApiKeyIds[index] ?? `${key}-${index}`} className={styles.apiKeyRow}>
+              <span className={styles.apiKeyIndex}>#{index + 1}</span>
+              <span className={styles.apiKeyMeta}>
+                <span className={styles.apiKeyName}>
                   {names[nameFingerprints[index]] ??
                     t('config_management.visual.api_keys.input_label')}
-                </div>
-                <div className="item-subtitle">{maskApiKey(String(key || ''))}</div>
-              </div>
-              <div className="item-actions">
+                </span>
+                <span className={styles.apiKeyValue}>{maskApiKey(String(key || ''))}</span>
+                {onModelWhitelistsChange ? (
+                  <span className={styles.apiKeyValue}>
+                    {(modelWhitelists[key] ?? []).length > 0
+                      ? t('config_management.visual.api_keys.model_restricted', {
+                          patterns: modelWhitelists[key].join(', '),
+                        })
+                      : t('config_management.visual.api_keys.model_all')}
+                  </span>
+                ) : null}
+              </span>
+              <span className={styles.apiKeyActions}>
                 <Button
-                  variant="secondary"
+                  variant="ghost"
                   size="sm"
                   onClick={() => handleCopy(key)}
                   disabled={disabled}
@@ -179,7 +223,7 @@ function ScopedApiKeysCardEditor({
                   {t('common.copy')}
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant="ghost"
                   size="sm"
                   onClick={() => openEditModal(renderApiKeyIds[index] ?? '')}
                   disabled={disabled}
@@ -187,20 +231,19 @@ function ScopedApiKeysCardEditor({
                   {t('config_management.visual.common.edit')}
                 </Button>
                 <Button
-                  variant="danger"
+                  variant="ghost"
                   size="sm"
+                  className={styles.apiKeyDelete}
                   onClick={() => handleDelete(renderApiKeyIds[index] ?? '')}
                   disabled={disabled}
                 >
                   {t('config_management.visual.common.delete')}
                 </Button>
-              </div>
-            </div>
+              </span>
+            </li>
           ))}
-        </div>
+        </ol>
       )}
-
-      <div className="hint">{t('config_management.visual.api_keys.hint')}</div>
 
       <Modal
         open={modalOpen}
@@ -273,6 +316,26 @@ function ScopedApiKeysCardEditor({
             </div>
           )}
         </div>
+        {onModelWhitelistsChange ? (
+          <div className="form-group">
+            <label htmlFor={`${apiKeyInputId}-models`}>
+              {t('config_management.visual.api_keys.models_label')}
+            </label>
+            <textarea
+              id={`${apiKeyInputId}-models`}
+              className="input"
+              rows={4}
+              placeholder={t('config_management.visual.api_keys.models_placeholder')}
+              value={modelPatternsValue}
+              onChange={(event) => setModelPatternsValue(event.target.value)}
+              aria-describedby={`${apiKeyInputId}-models-hint`}
+              disabled={disabled}
+            />
+            <div id={`${apiKeyInputId}-models-hint`} className="hint">
+              {t('config_management.visual.api_keys.models_hint')}
+            </div>
+          </div>
+        ) : null}
       </Modal>
     </div>
   );

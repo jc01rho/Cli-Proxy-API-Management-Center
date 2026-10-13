@@ -12,6 +12,7 @@ export const QUOTA_TAB_ORDER: readonly QuotaProviderType[] = [
   'devin',
   'zcode',
   'commandcode',
+  'plugin',
 ];
 
 export type QuotaTabId = 'all' | QuotaProviderType;

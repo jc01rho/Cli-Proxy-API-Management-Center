@@ -6,7 +6,7 @@ import {
   getTypeLabel,
   supportsAuthFileManualRefresh,
 } from '../src/features/authFiles/constants';
-import { CALLBACK_SUPPORTED_OAUTH_PROVIDERS } from '../src/pages/OAuthPage';
+import { CALLBACK_SUPPORTED } from '../src/features/oauth/providers';
 import { apiClient } from '../src/services/api/client';
 import {
   oauthApi,
@@ -25,7 +25,7 @@ describe('Kiro OAuth UI support', () => {
     const provider: BuiltInOAuthProvider = 'kiro';
 
     expect(WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(provider)).toBe(false);
-    expect(CALLBACK_SUPPORTED_OAUTH_PROVIDERS.has(provider)).toBe(false);
+    expect(CALLBACK_SUPPORTED.has(provider)).toBe(false);
   });
 
   test('uses Kiro’s management poll start-auth contract with provider query and without is_webui', async () => {

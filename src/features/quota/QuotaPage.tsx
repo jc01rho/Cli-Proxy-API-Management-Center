@@ -133,6 +133,7 @@ export function QuotaPage() {
   const kiroQuota = useQuotaStore((state) => state.kiroQuota);
   const kimiQuota = useQuotaStore((state) => state.kimiQuota);
   const metaQuota = useQuotaStore((state) => state.metaQuota);
+  const pluginQuota = useQuotaStore((state) => state.pluginQuota);
   const xaiQuota = useQuotaStore((state) => state.xaiQuota);
   const zcodeQuota = useQuotaStore((state) => state.zcodeQuota);
   const commandcodeQuota = useQuotaStore((state) => state.commandcodeQuota);
@@ -147,6 +148,7 @@ export function QuotaPage() {
         kiro: kiroQuota,
         kimi: kimiQuota,
         meta: metaQuota,
+        plugin: pluginQuota,
         xai: xaiQuota,
         zcode: zcodeQuota,
         commandcode: commandcodeQuota,
@@ -159,6 +161,7 @@ export function QuotaPage() {
       kiroQuota,
       kimiQuota,
       metaQuota,
+      pluginQuota,
       xaiQuota,
       zcodeQuota,
       commandcodeQuota,

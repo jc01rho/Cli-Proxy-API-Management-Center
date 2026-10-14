@@ -54,13 +54,13 @@ export const BUILT_IN_QUOTA_PROVIDERS: ReadonlySet<string> = new Set([
   'antigravity',
   'claude',
   'codex',
+  'commandcode',
   'devin',
-  'kiro',
   'kimi',
+  'kiro',
   'meta',
   'xai',
   'zcode',
-  'commandcode',
 ]);
 
 /**

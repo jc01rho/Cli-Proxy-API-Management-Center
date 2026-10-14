@@ -11,6 +11,8 @@ import ru from '@/i18n/locales/ru.json';
 import ko from '@/i18n/locales/ko.json';
 import vi from '@/i18n/locales/vi.json';
 import { OAuthPage } from '@/features/oauth/OAuthPage';
+import { OAuthFlowDialog } from '@/features/oauth/components/OAuthFlowDialog';
+import type { ProviderFlowState } from '@/features/oauth/hooks/useOAuthFlows';
 import {
   CLINE_CALLBACK_URL,
   resolveCallbackUrl,
@@ -19,6 +21,7 @@ import {
 import { resolveFlowView, splitAuthUrl } from '@/features/oauth/flowView';
 import {
   buildPluginOAuthProviderCards,
+  KIRO_DEVICE_METHODS,
   OAUTH_PROVIDERS,
   supportsManualCallback,
 } from '@/features/oauth/providers';
@@ -128,6 +131,51 @@ describe('manual callback input', () => {
     expect(resolveCallbackUrl('xai', 'code=abc123')).toBeNull();
     expect(resolveCallbackUrl('xai', '   ', 'st')).toBeNull();
   });
+
+  test('normalizes Cline raw codes, query codes, and redirects without losing attempt state', () => {
+    for (const input of ['fixture-code', '?code=fixture-code']) {
+      const url = new URL(resolveCallbackUrl('cline', input, 'attempt')!);
+      expect(url.origin + url.pathname).toBe('http://localhost:7829/callback');
+      expect(url.searchParams.get('code')).toBe('fixture-code');
+      expect(url.searchParams.get('state')).toBe('attempt');
+    }
+    const redirect = 'http://localhost:7829/callback?code=fixture-code';
+    expect(new URL(resolveCallbackUrl('cline', redirect, 'attempt')!).searchParams.get('state'))
+      .toBe('attempt');
+    expect(
+      new URL(resolveCallbackUrl('cline', `${redirect}&state=pasted`, 'attempt')!)
+        .searchParams.get('state')
+    ).toBe('pasted');
+    expect(resolveCallbackUrl('cline', 'fixture-code')).toBeNull();
+    expect(resolveCallbackUrl('cline', redirect)).toBeNull();
+    expect(resolveCallbackUrl('cline', ' ', 'attempt')).toBeNull();
+  });
+
+  test('preserves a validated Devin redirect including custom port, TLS, and denial fields', () => {
+    const redirect = 'https://localhost:9443/devin/callback?error=denied&state=attempt';
+    expect(resolveCallbackUrl('devin', redirect, 'attempt')).toBe(redirect);
+  });
+
+  test('normalizes Devin redirects and codes while preserving explicit callback state', () => {
+    const redirect = 'https://localhost:9443/devin/callback?code=fixture-code';
+    const built = new URL(resolveCallbackUrl('devin', redirect, 'attempt')!);
+    expect(built.origin + built.pathname).toBe('https://localhost:9443/devin/callback');
+    expect(built.searchParams.get('code')).toBe('fixture-code');
+    expect(built.searchParams.get('state')).toBe('attempt');
+    expect(
+      new URL(resolveCallbackUrl('devin', `${redirect}&state=pasted`, 'attempt')!)
+        .searchParams.get('state')
+    ).toBe('pasted');
+    for (const input of ['fixture-code', '?code=fixture-code']) {
+      const url = new URL(resolveCallbackUrl('devin', input, 'attempt')!);
+      expect(url.origin + url.pathname).toBe('http://localhost/oauth-callback');
+      expect(url.searchParams.get('code')).toBe('fixture-code');
+      expect(url.searchParams.get('state')).toBe('attempt');
+      expect(resolveCallbackUrl('devin', input)).toBeNull();
+    }
+    expect(resolveCallbackUrl('devin', redirect)).toBeNull();
+    expect(resolveCallbackUrl('devin', ' ', 'attempt')).toBeNull();
+  });
 });
 
 const plugin = (overrides: Partial<PluginListEntry>): PluginListEntry => ({
@@ -179,6 +227,20 @@ describe('OAuth provider gallery', () => {
 
   const locales = { en, 'zh-CN': zhCN, 'zh-TW': zhTW, ru, ko, vi } as const;
 
+  test('keeps all fork providers and their manual-callback capabilities', () => {
+    for (const id of ['cline', 'cursor', 'kilo', 'kiro', 'zcode', 'workbuddy']) {
+      const provider = OAUTH_PROVIDERS.find((card) => card.id === id);
+      expect(provider).toBeDefined();
+      expect(supportsManualCallback(provider!)).toBe(id === 'cline');
+      expect(
+        buildPluginOAuthProviderCards([plugin({ oauthProvider: id })], 'http://localhost:8317')
+      ).toEqual([]);
+    }
+    expect(KIRO_DEVICE_METHODS.map((method) => method.id)).toEqual([
+      'builder-id', 'google', 'github',
+    ]);
+  });
+
   for (const [lng, translation] of Object.entries(locales)) {
     test(`renders every provider tile without raw keys (${lng})`, async () => {
       const i18n = createInstance();
@@ -199,6 +261,52 @@ describe('OAuth provider gallery', () => {
       expect(markup).not.toMatch(/auth_login\.|vertex_import\./);
       // 每个磁贴都是打开对话框的按钮
       expect(markup.match(/aria-haspopup="dialog"/g)?.length).toBe(OAUTH_PROVIDERS.length + 1);
+    });
+
+    test(`renders Kiro method choices, device code, and retry states (${lng})`, async () => {
+      const i18n = createInstance();
+      await i18n.init({ lng, resources: { [lng]: { translation } } });
+      const renderDialog = (state: ProviderFlowState) =>
+        renderToStaticMarkup(
+          createElement(
+            I18nextProvider,
+            { i18n },
+            createElement(OAuthFlowDialog, {
+              open: true,
+              providerId: 'kiro',
+              heading: { title: i18n.t('auth_login.kiro_oauth_title'), caption: '', icon: '' },
+              state,
+              text: (suffix: string) => i18n.t(`auth_login.kiro_${suffix}`),
+              supportsCallback: false,
+              onStart: () => {},
+              onCancel: () => {},
+              onCallbackChange: () => {},
+              onCallbackSubmit: () => {},
+              onViewAuthFiles: () => {},
+              onClose: () => {},
+            })
+          )
+        );
+      for (const state of [
+        {},
+        { status: 'error' },
+        { status: 'error', url: 'https://aws.example/device' },
+        { status: 'success' },
+      ] satisfies ProviderFlowState[]) {
+        const markup = renderDialog(state);
+        for (const method of KIRO_DEVICE_METHODS) {
+          expect(markup).toContain(i18n.t(method.labelKey));
+        }
+        expect(markup).not.toContain('auth_login.');
+      }
+      const waiting = renderDialog({
+        status: 'waiting',
+        url: 'https://aws.example/device',
+        userCode: 'ABCD-EFGH',
+      });
+      expect(waiting).toContain('ABCD-EFGH');
+      expect(waiting).toContain(i18n.t('auth_login.device_code_copy'));
+      expect(waiting).not.toContain(i18n.t('auth_login.oauth_callback_label'));
     });
   }
 

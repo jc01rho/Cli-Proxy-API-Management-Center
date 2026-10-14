@@ -168,11 +168,11 @@ export function ForkOnlyFields({ values, disabled, onChange }: SharedFieldProps)
         value={values.routingMode}
         options={[
           {
-            value: 'provider',
+            value: 'provider-based',
             label: t('config_management.visual.sections.network.mode_provider_based'),
           },
           {
-            value: 'key',
+            value: 'key-based',
             label: t('config_management.visual.sections.network.mode_key_based'),
           },
         ]}

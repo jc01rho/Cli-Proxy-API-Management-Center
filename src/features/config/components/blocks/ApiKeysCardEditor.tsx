@@ -14,10 +14,10 @@ import styles from './Blocks.module.scss';
 
 interface ApiKeysCardEditorProps {
   value: string;
-  modelWhitelists: Record<string, string[]>;
+  modelWhitelists?: Record<string, string[]>;
   disabled?: boolean;
   onChange: (nextValue: string) => void;
-  onModelWhitelistsChange: (nextValue: Record<string, string[]>) => void;
+  onModelWhitelistsChange?: (nextValue: Record<string, string[]>) => void;
 }
 
 export const ApiKeysCardEditor = memo(function ApiKeysCardEditor(props: ApiKeysCardEditorProps) {
@@ -110,7 +110,7 @@ function ScopedApiKeysCardEditor({
     updateApiKeys(apiKeys.filter((_, i) => i !== index));
     const nextWhitelists = { ...modelWhitelists };
     delete nextWhitelists[apiKeys[index]];
-    onModelWhitelistsChange(nextWhitelists);
+    onModelWhitelistsChange?.(nextWhitelists);
   };
 
   const handleSave = () => {
@@ -151,13 +151,15 @@ function ScopedApiKeysCardEditor({
     );
     const previousKey = editingIndex >= 0 ? apiKeys[editingIndex] : '';
     const nextWhitelists = { ...modelWhitelists };
-    if (previousKey && previousKey !== trimmed) delete nextWhitelists[previousKey];
+    if (previousKey && previousKey !== trimmed) {
+      delete nextWhitelists[previousKey];
+    }
     if (patterns.length > 0) {
       nextWhitelists[trimmed] = patterns;
     } else {
       delete nextWhitelists[trimmed];
     }
-    onModelWhitelistsChange(nextWhitelists);
+    onModelWhitelistsChange?.(nextWhitelists);
     closeModal();
   };
 
@@ -201,13 +203,15 @@ function ScopedApiKeysCardEditor({
                     t('config_management.visual.api_keys.input_label')}
                 </span>
                 <span className={styles.apiKeyValue}>{maskApiKey(String(key || ''))}</span>
-                <span className={styles.apiKeyValue}>
-                  {(modelWhitelists[key] ?? []).length > 0
-                    ? t('config_management.visual.api_keys.model_restricted', {
-                        patterns: modelWhitelists[key].join(', '),
-                      })
-                    : t('config_management.visual.api_keys.model_all')}
-                </span>
+                {onModelWhitelistsChange ? (
+                  <span className={styles.apiKeyValue}>
+                    {(modelWhitelists[key] ?? []).length > 0
+                      ? t('config_management.visual.api_keys.model_restricted', {
+                          patterns: modelWhitelists[key].join(', '),
+                        })
+                      : t('config_management.visual.api_keys.model_all')}
+                  </span>
+                ) : null}
               </span>
               <span className={styles.apiKeyActions}>
                 <Button
@@ -312,21 +316,26 @@ function ScopedApiKeysCardEditor({
             </div>
           )}
         </div>
-        <div className="form-group">
-          <label htmlFor={`${apiKeyInputId}-models`}>
-            {t('config_management.visual.api_keys.models_label')}
-          </label>
-          <textarea
-            id={`${apiKeyInputId}-models`}
-            className="input"
-            rows={4}
-            placeholder={t('config_management.visual.api_keys.models_placeholder')}
-            value={modelPatternsValue}
-            onChange={(event) => setModelPatternsValue(event.target.value)}
-            disabled={disabled}
-          />
-          <div className="hint">{t('config_management.visual.api_keys.models_hint')}</div>
-        </div>
+        {onModelWhitelistsChange ? (
+          <div className="form-group">
+            <label htmlFor={`${apiKeyInputId}-models`}>
+              {t('config_management.visual.api_keys.models_label')}
+            </label>
+            <textarea
+              id={`${apiKeyInputId}-models`}
+              className="input"
+              rows={4}
+              placeholder={t('config_management.visual.api_keys.models_placeholder')}
+              value={modelPatternsValue}
+              onChange={(event) => setModelPatternsValue(event.target.value)}
+              aria-describedby={`${apiKeyInputId}-models-hint`}
+              disabled={disabled}
+            />
+            <div id={`${apiKeyInputId}-models-hint`} className="hint">
+              {t('config_management.visual.api_keys.models_hint')}
+            </div>
+          </div>
+        ) : null}
       </Modal>
     </div>
   );

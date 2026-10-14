@@ -51,7 +51,6 @@ export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
   'xai',
   'zcode',
   'commandcode',
-  'meta',
 ]);
 
 export const OAUTH_PROVIDER_PRESETS = [

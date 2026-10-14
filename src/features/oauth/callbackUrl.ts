@@ -2,11 +2,12 @@
  * 手动回调输入 → 提交给后端的 redirect_url。
  *
  * xAI 和 Cline 支持从 code 拼回固定的回环地址，Cline 还需补回未回传的 state。
- * 其余提供商原样提交（Devin 另有严格校验，见 devinOAuth.ts）。
+ * Devin 也可补全 state，但 OAuth 流程调用前仍有严格校验，见 devinOAuth.ts。
  */
 
 export const XAI_CALLBACK_URL = 'http://127.0.0.1:56121/callback';
 export const CLINE_CALLBACK_URL = 'http://localhost:7829/callback';
+const DEVIN_CALLBACK_URL = 'http://localhost/oauth-callback';
 
 // 只认 http(s)：`code: xyz` 这类页面展示文本也能被 URL 解析（`code:` 是合法 scheme）。
 const isAbsoluteHttpUrl = (value: string): boolean => {
@@ -96,6 +97,35 @@ const buildClineCallbackUrl = (input: string, state?: string): string | null => 
   return url.toString();
 };
 
+const buildDevinCallbackUrl = (input: string, state?: string): string | null => {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+
+  if (isAbsoluteHttpUrl(trimmed)) {
+    try {
+      const url = new URL(trimmed);
+      if (!url.searchParams.get('state')) {
+        const callbackState = state?.trim();
+        if (!callbackState) return null;
+        url.searchParams.set('state', callbackState);
+      }
+      return url.toString();
+    } catch {
+      return null;
+    }
+  }
+
+  const params = readQueryLikeCallbackInput(trimmed);
+  const callbackState = params?.get('state')?.trim() || state?.trim();
+  if (!callbackState) return null;
+
+  const url = new URL(DEVIN_CALLBACK_URL);
+  const code = params?.get('code')?.trim() || trimmed;
+  url.searchParams.set('code', code);
+  url.searchParams.set('state', callbackState);
+  return url.toString();
+};
+
 export const resolveCallbackUrl = (
   provider: string,
   input: string,
@@ -103,5 +133,6 @@ export const resolveCallbackUrl = (
 ): string | null => {
   if (provider === 'xai') return buildXaiCallbackUrl(input, state);
   if (provider === 'cline') return buildClineCallbackUrl(input, state);
+  if (provider === 'devin') return buildDevinCallbackUrl(input, state);
   return input.trim();
 };

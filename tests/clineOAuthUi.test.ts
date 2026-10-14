@@ -6,7 +6,7 @@ import {
   getTypeLabel,
   supportsAuthFileManualRefresh,
 } from '../src/features/authFiles/constants';
-import { CALLBACK_SUPPORTED_OAUTH_PROVIDERS } from '../src/pages/OAuthPage';
+import { CALLBACK_SUPPORTED } from '../src/features/oauth/providers';
 import { apiClient } from '../src/services/api/client';
 import {
   oauthApi,
@@ -27,7 +27,7 @@ describe('Cline OAuth UI support', () => {
     const provider: BuiltInOAuthProvider = 'cline';
 
     expect(WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(provider)).toBe(true);
-    expect(CALLBACK_SUPPORTED_OAUTH_PROVIDERS.has(provider)).toBe(true);
+    expect(CALLBACK_SUPPORTED.has(provider)).toBe(true);
   });
 
   test('uses Cline’s canonical generic management API start-auth contract', async () => {

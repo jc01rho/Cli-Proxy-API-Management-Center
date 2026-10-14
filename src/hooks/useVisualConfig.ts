@@ -1937,12 +1937,12 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
         ? codexHeaderDefaults['beta-features']
         : '',
 
-    quotaSwitchProject: Boolean(
-      quotaExceeded?.['switch-project'] ?? DEFAULT_VISUAL_VALUES.quotaSwitchProject
-    ),
-    quotaSwitchPreviewModel: Boolean(
-      quotaExceeded?.['switch-preview-model'] ?? DEFAULT_VISUAL_VALUES.quotaSwitchPreviewModel
-    ),
+    ...(quotaExceeded
+      ? {
+          quotaSwitchProject: Boolean(quotaExceeded['switch-project'] ?? false),
+          quotaSwitchPreviewModel: Boolean(quotaExceeded['switch-preview-model'] ?? false),
+        }
+      : {}),
     quotaAntigravityCredits: Boolean(antigravity?.['antigravity-credits'] ?? false),
 
     routingStrategy: parseRoutingStrategy(routing?.strategy),
@@ -2433,11 +2433,10 @@ export function useVisualConfig() {
           deleteIfMapEmpty(doc, ['oauth', 'providers', 'codex', 'header-defaults']);
         }
 
-        const quotaDirty =
+        if (
           dirtyFields.has('quotaSwitchProject') ||
-          dirtyFields.has('quotaSwitchPreviewModel') ||
-          dirtyFields.has('quotaAntigravityCredits');
-        if (quotaDirty) {
+          dirtyFields.has('quotaSwitchPreviewModel')
+        ) {
           ensureMapInDoc(doc, ['quota-exceeded']);
           if (dirtyFields.has('quotaSwitchProject')) {
             doc.setIn(['quota-exceeded', 'switch-project'], values.quotaSwitchProject);
@@ -2445,13 +2444,14 @@ export function useVisualConfig() {
           if (dirtyFields.has('quotaSwitchPreviewModel')) {
             doc.setIn(['quota-exceeded', 'switch-preview-model'], values.quotaSwitchPreviewModel);
           }
-          if (dirtyFields.has('quotaAntigravityCredits')) {
-            doc.setIn(
-              ['oauth', 'providers', 'antigravity', 'antigravity-credits'],
-              values.quotaAntigravityCredits
-            );
-          }
           deleteIfMapEmpty(doc, ['quota-exceeded']);
+        }
+        if (dirtyFields.has('quotaAntigravityCredits')) {
+          ensureMapInDoc(doc, ['oauth', 'providers', 'antigravity']);
+          doc.setIn(
+            ['oauth', 'providers', 'antigravity', 'antigravity-credits'],
+            values.quotaAntigravityCredits
+          );
         }
 
         const routingDirty =

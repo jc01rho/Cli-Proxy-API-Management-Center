@@ -45,6 +45,20 @@ describe('resolveQuotaProviderType', () => {
     expect(resolveQuotaProviderType(file('a', 'antigravity'))).toBe('antigravity');
     expect(resolveQuotaProviderType(file('a', 'gemini'))).toBeNull();
     expect(resolveQuotaProviderType(file('a', 'claude', { disabled: true }))).toBeNull();
+    expect(
+      resolveQuotaProviderType(
+        file('custom-a.json', 'custom-provider', {
+          supportsQuota: true,
+          quotaProvider: 'custom-provider',
+          authIndex: '1',
+        })
+      )
+    ).toBe('plugin');
+    expect(
+      resolveQuotaProviderType(
+        file('custom-probe.json', 'custom-provider', { supportsQuota: true })
+      )
+    ).toBe('plugin');
   });
 });
 
@@ -90,6 +104,7 @@ describe('buildTabCounts', () => {
       zcode: 0,
       commandcode: 0,
       meta: 0,
+      plugin: 0,
     });
   });
 });

@@ -1394,14 +1394,14 @@ export function VisualConfigEditor({
               <ToggleRow
                 title={t('config_management.visual.sections.quota.switch_project')}
                 description={t('config_management.visual.sections.quota.switch_project_desc')}
-                checked={values.quotaSwitchProject}
+                checked={values.quotaSwitchProject ?? false}
                 disabled={disabled}
                 onChange={(quotaSwitchProject) => onChange({ quotaSwitchProject })}
               />
               <ToggleRow
                 title={t('config_management.visual.sections.quota.switch_preview_model')}
                 description={t('config_management.visual.sections.quota.switch_preview_model_desc')}
-                checked={values.quotaSwitchPreviewModel}
+                checked={values.quotaSwitchPreviewModel ?? false}
                 disabled={disabled}
                 onChange={(quotaSwitchPreviewModel) => onChange({ quotaSwitchPreviewModel })}
               />

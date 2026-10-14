@@ -10,18 +10,25 @@ import {
   getAuthFileIcon,
   getTypeLabel,
 } from '../src/features/authFiles/constants';
-import { CALLBACK_SUPPORTED_OAUTH_PROVIDERS, OAuthPage } from '../src/pages/OAuthPage';
-import { validateDevinCallback } from '../src/pages/devinOAuth';
 import { apiClient } from '../src/services/api/client';
 import {
   oauthApi,
   WEBUI_SUPPORTED_OAUTH_PROVIDERS,
   type BuiltInOAuthProvider,
 } from '../src/services/api/oauth';
-import en from '../src/i18n/locales/en.json';
-import zhCN from '../src/i18n/locales/zh-CN.json';
-import zhTW from '../src/i18n/locales/zh-TW.json';
-import ru from '../src/i18n/locales/ru.json';
+import { OAuthPage } from '@/features/oauth/OAuthPage';
+import { OAuthFlowDialog } from '@/features/oauth/components/OAuthFlowDialog';
+import type { ProviderFlowState } from '@/features/oauth/hooks/useOAuthFlows';
+import {
+  CALLBACK_SUPPORTED,
+  OAUTH_PROVIDERS,
+  supportsManualCallback,
+} from '@/features/oauth/providers';
+import { validateDevinCallback } from '@/features/oauth/devinOAuth';
+import en from '@/i18n/locales/en.json';
+import zhCN from '@/i18n/locales/zh-CN.json';
+import zhTW from '@/i18n/locales/zh-TW.json';
+import ru from '@/i18n/locales/ru.json';
 
 const originalGet = apiClient.get;
 
@@ -37,7 +44,7 @@ describe('Devin OAuth UI support', () => {
     const provider: BuiltInOAuthProvider = 'devin';
 
     expect(WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(provider)).toBe(false);
-    expect(CALLBACK_SUPPORTED_OAUTH_PROVIDERS.has(provider)).toBe(true);
+    expect(CALLBACK_SUPPORTED.has(provider)).toBe(true);
   });
 
   test('uses Devin’s management start-auth contract without is_webui', async () => {
@@ -46,7 +53,10 @@ describe('Devin OAuth UI support', () => {
     apiClient.get = (async (path, config) => {
       requestedPath = path;
       requestedParams = config?.params;
-      return { url: 'https://app.devin.ai/auth/cli/continue?state=x&cli_pkce_marker=1', state: 'x' };
+      return {
+        url: 'https://app.devin.ai/auth/cli/continue?state=x&cli_pkce_marker=1',
+        state: 'x',
+      };
     }) as typeof apiClient.get;
 
     await expect(oauthApi.startAuth('devin')).resolves.toEqual({
@@ -70,19 +80,60 @@ describe('Devin OAuth UI support', () => {
 });
 
 describe('Devin OAuth login UI', () => {
-  test('renders a built-in login card with version and expiry guidance', () => {
-    const markup = renderToStaticMarkup(
+  test('renders a gallery tile and a dialog with version and expiry guidance', () => {
+    const page = renderToStaticMarkup(
       createElement(
         I18nextProvider,
         { i18n },
         createElement(MemoryRouter, null, createElement(OAuthPage))
       )
     );
-    expect(markup).toContain('Devin OAuth');
-    expect(markup).toContain('Start Devin Login');
-    expect(markup).toContain('v7.3.1');
-    expect(markup).toContain('five minutes');
-    expect(markup).not.toContain('auth_login.devin_');
+    expect(page).toContain('Devin');
+    expect(page).not.toContain('auth_login.');
+
+    const devin = OAUTH_PROVIDERS.find((provider) => provider.id === 'devin');
+    expect(devin && supportsManualCallback(devin)).toBe(true);
+    const renderDialog = (state: ProviderFlowState) =>
+      renderToStaticMarkup(
+        createElement(
+          I18nextProvider,
+          { i18n },
+          createElement(OAuthFlowDialog, {
+            open: true,
+            providerId: 'devin',
+            heading: { title: i18n.t(devin!.titleKey), caption: 'Browser sign-in', icon: '' },
+            state,
+            text: (suffix: string) => i18n.t(`auth_login.devin_${suffix}`),
+            supportsCallback: true,
+            onStart: () => {},
+            onCancel: () => {},
+            onCallbackChange: () => {},
+            onCallbackSubmit: () => {},
+            onViewAuthFiles: () => {},
+            onClose: () => {},
+          })
+        )
+      );
+
+    const idle = renderDialog({});
+    expect(idle).toContain('Devin OAuth');
+    expect(idle).toContain('Start Devin Login');
+    expect(idle).toContain('v7.3.1');
+    expect(idle).toContain('five minutes');
+    expect(idle).not.toContain('auth_login.devin_');
+
+    // 服务端会话还挂着（网络失败停了轮询）：必须先取消，回调输入锁定
+    const stalled = renderDialog({
+      status: 'error',
+      error: 'network',
+      url: 'https://devin.example/authorize',
+      state: 'st',
+    });
+    expect(stalled).toContain(en.auth_login.devin_oauth_retry_hint);
+    expect(stalled).toContain(en.auth_login.devin_oauth_cancel);
+    expect(stalled).not.toContain(en.auth_login.restart_login);
+    expect(stalled).toMatch(/<input[^>]*disabled/);
+    expect(stalled).toContain('/devin/callback');
   });
 
   test('supplies every Devin label and hint in all four languages', () => {

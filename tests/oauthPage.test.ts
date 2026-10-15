@@ -237,7 +237,7 @@ describe('OAuth provider gallery', () => {
       ).toEqual([]);
     }
     expect(KIRO_DEVICE_METHODS.map((method) => method.id)).toEqual([
-      'builder-id', 'google', 'github',
+      'builder-id', 'google', 'github', 'organization', 'apikey',
     ]);
   });
 
@@ -307,6 +307,22 @@ describe('OAuth provider gallery', () => {
       expect(waiting).toContain('ABCD-EFGH');
       expect(waiting).toContain(i18n.t('auth_login.device_code_copy'));
       expect(waiting).not.toContain(i18n.t('auth_login.oauth_callback_label'));
+
+      const apiKeyWaiting = renderDialog({
+        status: 'waiting',
+        state: 'apikey-test',
+        flow: 'apikey',
+      });
+      expect(apiKeyWaiting).not.toContain(i18n.t('auth_login.step_open_auth_page'));
+      expect(apiKeyWaiting).not.toContain(i18n.t('auth_login.generating_link'));
+      expect(apiKeyWaiting).toContain(i18n.t('auth_login.kiro_oauth_status_waiting'));
+
+      for (const method of KIRO_DEVICE_METHODS) {
+        for (const field of method.fields ?? []) {
+          expect(i18n.exists(field.labelKey)).toBe(true);
+          expect(i18n.exists(field.placeholderKey)).toBe(true);
+        }
+      }
     });
   }
 

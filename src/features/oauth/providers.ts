@@ -26,11 +26,78 @@ import iconWorkBuddy from '@/assets/icons/workbuddy.svg';
 const iconKiro =
   'https://assets.sso-portal.us-east-1.amazonaws.com/2026-04-23-22-28-30-834/dfdedec4059f625ed152.svg';
 
-export const KIRO_DEVICE_METHODS = [
+export interface KiroLoginMethod {
+  id: 'builder-id' | 'google' | 'github' | 'organization' | 'apikey';
+  labelKey: string;
+  fields?: readonly {
+    name: 'startUrl' | 'region' | 'apiKey';
+    labelKey: string;
+    placeholderKey: string;
+    required: boolean;
+    type: 'text' | 'password';
+  }[];
+}
+
+export const KIRO_DEVICE_METHODS: readonly KiroLoginMethod[] = [
   { id: 'builder-id', labelKey: 'auth_login.kiro_oauth_method_builder_id' },
   { id: 'google', labelKey: 'auth_login.kiro_oauth_method_google' },
   { id: 'github', labelKey: 'auth_login.kiro_oauth_method_github' },
+  {
+    id: 'organization',
+    labelKey: 'auth_login.kiro_oauth_method_organization',
+    fields: [
+      {
+        name: 'startUrl',
+        labelKey: 'auth_login.kiro_oauth_start_url_label',
+        placeholderKey: 'auth_login.kiro_oauth_start_url_placeholder',
+        required: true,
+        type: 'text',
+      },
+      {
+        name: 'region',
+        labelKey: 'auth_login.kiro_oauth_region_label',
+        placeholderKey: 'auth_login.kiro_oauth_region_placeholder',
+        required: false,
+        type: 'text',
+      },
+    ],
+  },
+  {
+    id: 'apikey',
+    labelKey: 'auth_login.kiro_oauth_method_apikey',
+    fields: [
+      {
+        name: 'apiKey',
+        labelKey: 'auth_login.kiro_oauth_api_key_label',
+        placeholderKey: 'auth_login.kiro_oauth_api_key_placeholder',
+        required: true,
+        type: 'password',
+      },
+    ],
+  },
 ] as const;
+
+export const buildKiroStartParams = (
+  method: KiroLoginMethod,
+  values: Record<string, string>
+): Record<string, string> | undefined => {
+  const params: Record<string, string> = { provider: method.id };
+  for (const field of method.fields ?? []) {
+    const value = (values[field.name] ?? '').trim();
+    if (field.required && !value) return undefined;
+    if (value) params[field.name] = value;
+  }
+  return params;
+};
+
+export const startKiroLogin = (
+  method: KiroLoginMethod,
+  values: Record<string, string>,
+  onStart: (params: Record<string, string>) => void
+): void => {
+  const params = buildKiroStartParams(method, values);
+  if (params) onStart(params);
+};
 
 export type ThemedIcon = string | { light: string; dark: string };
 

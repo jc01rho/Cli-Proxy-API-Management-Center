@@ -14,6 +14,7 @@ import {
 } from '../providers';
 
 export interface ProviderFlowState {
+  flow?: string;
   url?: string;
   userCode?: string;
   expiresIn?: number;
@@ -252,6 +253,7 @@ export function useOAuthFlows({ providerCards, isFocused }: UseOAuthFlowsOptions
     if (provider === 'devin' && states[provider]?.state) return;
     const attempt = attempts.current.begin(provider);
     updateProviderState(provider, {
+      flow: provider === 'kiro' && extra?.provider === 'apikey' ? 'apikey' : undefined,
       url: undefined,
       userCode: undefined,
       expiresIn: undefined,
@@ -285,6 +287,7 @@ export function useOAuthFlows({ providerCards, isFocused }: UseOAuthFlowsOptions
         return;
       }
       updateProviderState(provider, {
+        flow: res.flow,
         url: res.url,
         userCode: res.user_code,
         expiresIn: res.expires_in,

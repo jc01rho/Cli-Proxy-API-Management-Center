@@ -1,10 +1,15 @@
-import { useId, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { IconExternalLink, IconLoader2 } from '@/components/ui/icons';
 import type { ProviderFlowState } from '../hooks/useOAuthFlows';
 import { resolveFlowView, splitAuthUrl, type FlowView } from '../flowView';
-import { KIRO_DEVICE_METHODS } from '../providers';
+import {
+  buildKiroStartParams,
+  KIRO_DEVICE_METHODS,
+  startKiroLogin,
+  type KiroLoginMethod,
+} from '../providers';
 import { BrandGlyph } from './BrandGlyph';
 import { CopyButton } from './CopyButton';
 import styles from './OAuthFlowDialog.module.scss';
@@ -93,19 +98,68 @@ function ProviderHint({ text, sponsor }: Pick<OAuthFlowDialogProps, 'text' | 'sp
 
 function KiroMethods({ state, onStart }: Pick<OAuthFlowDialogProps, 'state' | 'onStart'>) {
   const { t } = useTranslation();
+  const inputId = useId();
+  const [selected, setSelected] = useState<KiroLoginMethod>();
+  const [values, setValues] = useState<Record<string, string>>({});
+  const params = selected ? buildKiroStartParams(selected, values) : undefined;
+
   return (
-    <div className={styles.codeRow}>
-      {KIRO_DEVICE_METHODS.map((method) => (
-        <button
-          key={method.id}
-          type="button"
-          className={styles.primary}
-          disabled={state.polling}
-          onClick={() => onStart({ provider: method.id })}
+    <div className={styles.stack}>
+      <div className={styles.codeRow}>
+        {KIRO_DEVICE_METHODS.map((method) => (
+          <button
+            key={method.id}
+            type="button"
+            className={selected?.id === method.id ? styles.secondary : styles.primary}
+            disabled={state.polling}
+            aria-pressed={method.fields ? selected?.id === method.id : undefined}
+            onClick={() => {
+              setValues({});
+              setSelected(method.fields ? method : undefined);
+              if (!method.fields) startKiroLogin(method, {}, onStart);
+            }}
+          >
+            {t(method.labelKey)}
+          </button>
+        ))}
+      </div>
+      {selected && (
+        <form
+          className={styles.stack}
+          onSubmit={(event) => {
+            event.preventDefault();
+            startKiroLogin(selected, values, onStart);
+          }}
         >
-          {t(method.labelKey)}
-        </button>
-      ))}
+          {selected.fields?.map((field) => (
+            <div className={styles.stepBody} key={field.name}>
+              <label className={styles.stepTitle} htmlFor={`${inputId}-${field.name}`}>
+                {t(field.labelKey)}{' '}
+                <span className={styles.optional}>
+                  {t(field.required ? 'common.required' : 'common.optional')}
+                </span>
+              </label>
+              <input
+                id={`${inputId}-${field.name}`}
+                className="input"
+                name={field.name}
+                type={field.type}
+                required={field.required}
+                value={values[field.name] ?? ''}
+                onChange={(event) =>
+                  setValues((current) => ({ ...current, [field.name]: event.target.value }))
+                }
+                placeholder={t(field.placeholderKey)}
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </div>
+          ))}
+          <button type="submit" className={styles.primary} disabled={state.polling || !params}>
+            {t('auth_login.kiro_oauth_button')}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
@@ -151,24 +205,26 @@ function FlowBody(props: OAuthFlowDialogProps & { view: Exclude<FlowView, 'succe
           {t('auth_login.devin_oauth_cancel_error')} {state.cancelError}
         </div>
       )}
-      <ol className={styles.steps}>
-        <OpenStep {...props} />
-        {state.userCode && (
-          <Step title={t('auth_login.step_enter_device_code')}>
-            <div className={styles.codeRow}>
-              <output className={styles.code} aria-label={t('auth_login.device_code_label')}>
-                {state.userCode}
-              </output>
-              <CopyButton
-                value={state.userCode}
-                label={t('auth_login.device_code_copy')}
-                showLabel
-              />
-            </div>
-          </Step>
-        )}
-        {props.supportsCallback && <CallbackStep {...props} />}
-      </ol>
+      {state.flow !== 'apikey' && (
+        <ol className={styles.steps}>
+          <OpenStep {...props} />
+          {state.userCode && (
+            <Step title={t('auth_login.step_enter_device_code')}>
+              <div className={styles.codeRow}>
+                <output className={styles.code} aria-label={t('auth_login.device_code_label')}>
+                  {state.userCode}
+                </output>
+                <CopyButton
+                  value={state.userCode}
+                  label={t('auth_login.device_code_copy')}
+                  showLabel
+                />
+              </div>
+            </Step>
+          )}
+          {props.supportsCallback && <CallbackStep {...props} />}
+        </ol>
+      )}
     </div>
   );
 }
@@ -328,7 +384,7 @@ function FlowStatusBar({ providerId, state, text, onStart, onCancel }: OAuthFlow
   const { t } = useTranslation();
   const isDevin = providerId === 'devin';
   const failed = state.status === 'error';
-  const generating = !failed && !state.url;
+  const generating = !failed && !state.url && state.flow !== 'apikey';
   // Devin 会话在服务端可能仍挂着：必须先取消才能重开
   const canCancel = isDevin && Boolean(state.state);
 

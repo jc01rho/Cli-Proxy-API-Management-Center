@@ -25,7 +25,7 @@ export type BuiltInOAuthProvider =
   | 'workbuddy';
 
 export interface OAuthStartResponse {
-  url: string;
+  url?: string;
   state?: string;
   user_code?: string;
   flow?: string;

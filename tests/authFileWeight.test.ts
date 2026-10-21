@@ -3,7 +3,11 @@ import {
   buildAuthFileFieldsPatch,
   type PrefixProxyEditorState,
 } from '../src/features/authFiles/hooks/useAuthFilesPrefixProxyEditor';
-import { readAuthFileDisableCooling } from '../src/features/authFiles/constants';
+import {
+  readAuthFileDisableCooling,
+  readAuthFileUseSiwc,
+  supportsAuthFileSiwc,
+} from '../src/features/authFiles/constants';
 
 const makeEditor = (json: Record<string, unknown>, weight: string): PrefixProxyEditorState => ({
   fileName: 'credential.json',
@@ -18,6 +22,8 @@ const makeEditor = (json: Record<string, unknown>, weight: string): PrefixProxyE
   providerKey: 'codex',
   prefix: '',
   proxyUrl: '',
+  baseUrl: '',
+  quotaUrl: '',
   priority: '',
   weight,
   weightError: null,
@@ -27,6 +33,8 @@ const makeEditor = (json: Record<string, unknown>, weight: string): PrefixProxyE
   cloakingTouched: false,
   websockets: false,
   websocketsTouched: false,
+  useSiwc: false,
+  useSiwcTouched: false,
   usingApi: false,
   usingApiTouched: false,
   note: '',
@@ -39,6 +47,34 @@ const makeEditor = (json: Record<string, unknown>, weight: string): PrefixProxyE
 });
 
 const resolveError = (key: string) => key;
+
+describe('auth-file SIWC toggle', () => {
+  test('is Codex-only and reads stored boolean-compatible values', () => {
+    expect(supportsAuthFileSiwc('codex')).toBe(true);
+    expect(supportsAuthFileSiwc('claude')).toBe(false);
+    expect(readAuthFileUseSiwc({})).toBe(false);
+    expect(readAuthFileUseSiwc({ use_siwc: false })).toBe(false);
+    expect(readAuthFileUseSiwc({ use_siwc: true })).toBe(true);
+    expect(readAuthFileUseSiwc({ use_siwc: 'true' })).toBe(true);
+  });
+
+  test('disables SIWC without touching binding data or outer credentials', () => {
+    const json = { use_siwc: true, siwc: { access_token: 'test-only' }, note: 'keep' };
+    const original = JSON.stringify(json);
+    const editor = { ...makeEditor(json, ''), useSiwcTouched: true };
+    expect(buildAuthFileFieldsPatch(editor, resolveError)).toEqual({ use_siwc: false });
+    expect(JSON.stringify(json)).toBe(original);
+  });
+
+  test('enables SIWC and ignores untouched, unchanged, or non-Codex state', () => {
+    const editor = { ...makeEditor({}, ''), useSiwc: true, useSiwcTouched: true };
+    expect(buildAuthFileFieldsPatch(editor, resolveError)).toEqual({ use_siwc: true });
+    expect(buildAuthFileFieldsPatch({ ...editor, useSiwcTouched: false }, resolveError)).toEqual({});
+    expect(buildAuthFileFieldsPatch({ ...editor, useSiwc: false }, resolveError)).toEqual({});
+    expect(buildAuthFileFieldsPatch({ ...editor, providerKey: 'claude' }, resolveError)).toEqual({});
+    expect(buildAuthFileFieldsPatch({ ...editor, json: { use_siwc: true } }, resolveError)).toEqual({});
+  });
+});
 
 describe('auth-file credential weight patch', () => {
   test('writes numeric weight and uses null to restore the default', () => {

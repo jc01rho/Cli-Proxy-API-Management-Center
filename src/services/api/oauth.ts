@@ -1,5 +1,5 @@
 /**
- * OAuth 与设备码登录相关 API
+ * OAuth and device-code login API
  */
 
 import { apiClient, legacyManagementPath } from './client';
@@ -70,7 +70,18 @@ const normalizeProviderForManagementPath = (provider: string): string => {
   return key === 'anthropic' ? 'claude' : key;
 };
 
+export interface SiwcBindResponse {
+  status: 'ok';
+  url: string;
+  state: string;
+  flow: 'siwc_bind';
+  expires_in: number;
+}
+
 export const oauthApi = {
+  startSiwcBind: (name: string, signal?: AbortSignal) =>
+    apiClient.post<SiwcBindResponse>('/oauth/siwc/bind', { name }, signal ? { signal } : undefined),
+
   startAuth: (
     provider: string,
     extraOrSignal?: Record<string, string> | AbortSignal,
@@ -117,3 +128,12 @@ export const oauthApi = {
     );
   },
 };
+
+/** Start and cleanup must use the same connection, even after the dialog closes. */
+export function captureSiwcBindingApi() {
+  const client = apiClient.captureConnection();
+  return {
+    start: (name: string) => client.post<SiwcBindResponse>('/oauth/siwc/bind', { name }),
+    cancel: (state: string) => client.delete('/oauth/session', { params: { state } }),
+  };
+}

@@ -36,6 +36,8 @@ The address is auto-detected from the current page URL; manual override is suppo
 
 ### Option B: Run the dev server
 
+Use **Bun 1.4.3** (pinned in `package.json` `packageManager`).
+
 ```bash
 bun install --frozen-lockfile
 bun run dev

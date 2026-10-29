@@ -1305,3 +1305,74 @@
     padding: 12px;
   }
 }
+
+.claudeWarmupRun {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.claudeWarmupRunHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.claudeWarmupRunHint {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.claudeWarmupResults {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.claudeWarmupSummary {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.claudeWarmupTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+
+  th,
+  td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td:nth-child(2),
+  td:nth-child(3) {
+    white-space: nowrap;
+  }
+}
+
+.claudeWarmupOk {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.claudeWarmupFail {
+  color: var(--error-color);
+  font-weight: 600;
+}
+
+.claudeWarmupDetail {
+  color: var(--text-secondary);
+  word-break: break-word;
+}

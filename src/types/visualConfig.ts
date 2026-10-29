@@ -50,6 +50,7 @@ export type VisualConfigFieldPath =
   | 'maxRetryCredentials'
   | 'maxRetryInterval'
   | 'authAutoRefreshWorkers'
+  | 'claudeWarmupMaxTokens'
   | 'streaming.keepaliveSeconds'
   | 'streaming.bootstrapRetries'
   | 'streaming.nonstreamKeepaliveInterval';
@@ -247,6 +248,13 @@ export type VisualConfigValues = {
   quotaSwitchPreviewModel?: boolean;
   /** OAuth-only: oauth.providers.antigravity.antigravity-credits. */
   quotaAntigravityCredits: boolean;
+  /** Fork-only root claude-warmup: scheduled Claude OAuth warmup. Empty strings use backend defaults. */
+  claudeWarmupEnabled: boolean;
+  claudeWarmupSchedule: string;
+  claudeWarmupTimezone: string;
+  claudeWarmupModel: string;
+  claudeWarmupMaxTokens: string;
+  claudeWarmupJitter: string;
   routingStrategy: RoutingStrategy;
   routingMode: 'provider-based' | 'key-based';
   tokenThresholdRules: TokenThresholdRule[];
@@ -360,6 +368,12 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   gptImage2BaseModel: '',
   authAutoRefreshWorkers: '',
   quotaAntigravityCredits: false,
+  claudeWarmupEnabled: false,
+  claudeWarmupSchedule: '',
+  claudeWarmupTimezone: '',
+  claudeWarmupModel: '',
+  claudeWarmupMaxTokens: '',
+  claudeWarmupJitter: '',
   routingStrategy: 'round-robin',
   routingMode: 'provider-based',
   tokenThresholdRules: [],

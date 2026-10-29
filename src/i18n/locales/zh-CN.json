@@ -1711,7 +1711,31 @@
           "switch_project_desc": "配额耗尽时自动切换到其他项目",
           "switch_preview_model": "切换预览模型",
           "switch_preview_model_desc": "配额耗尽时切换到预览版本模型",
-          "antigravity_credits": "使用Antigravity Credits"
+          "antigravity_credits": "使用Antigravity Credits",
+          "claude_warmup": {
+            "title": "Claude OAuth 预热",
+            "description": "按计划为每个 Claude OAuth 账号发送一次最小请求，使 5 小时用量窗口在固定时间开始。跳过已禁用和被 7 天限额封锁的账号；429 不重试，错过的时点会跳过。",
+            "enabled": "启用定时预热",
+            "enabled_desc": "按下方 cron 计划运行。默认关闭。",
+            "schedule": "计划 (cron)",
+            "schedule_hint": "五个字段：分 时 日 月 周。留空使用 50 7 * * 1-5（工作日 07:50）。",
+            "timezone": "时区",
+            "model": "模型",
+            "max_tokens": "最大 Token",
+            "jitter": "抖动",
+            "jitter_hint": "账号之间的最大随机延迟（Go duration，如 60s）。0s 表示不延迟。",
+            "run_now": "立即运行",
+            "run_hint": "使用已保存的设置立即运行，账号之间不延迟。",
+            "run_failed": "预热运行失败",
+            "run_summary": "{{succeeded}}/{{total}} 个账号成功（{{model}}）",
+            "run_empty": "没有符合条件的 Claude OAuth 账号。",
+            "col_account": "账号",
+            "col_result": "结果",
+            "col_attempts": "尝试次数",
+            "col_detail": "详情",
+            "result_ok": "成功",
+            "result_failed": "失败"
+          }
         },
         "fallback": {
           "title": "模型回退链",

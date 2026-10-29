@@ -373,6 +373,7 @@ export function getVisualConfigValidationErrors(
     maxRetryCredentials: getIntegerError(values.maxRetryCredentials),
     maxRetryInterval: getIntegerError(values.maxRetryInterval),
     authAutoRefreshWorkers: getIntegerError(values.authAutoRefreshWorkers),
+    claudeWarmupMaxTokens: getNonNegativeIntegerError(values.claudeWarmupMaxTokens),
     'streaming.keepaliveSeconds': getIntegerError(values.streaming.keepaliveSeconds),
     'streaming.bootstrapRetries': getIntegerError(values.streaming.bootstrapRetries),
     'streaming.nonstreamKeepaliveInterval': getIntegerError(
@@ -1619,6 +1620,12 @@ function getNextDirtyFields(
       'quotaSwitchProject',
       'quotaSwitchPreviewModel',
       'quotaAntigravityCredits',
+      'claudeWarmupEnabled',
+      'claudeWarmupSchedule',
+      'claudeWarmupTimezone',
+      'claudeWarmupModel',
+      'claudeWarmupMaxTokens',
+      'claudeWarmupJitter',
       'routingStrategy',
       'routingSessionAffinity',
       'routingSessionAffinityTTL',
@@ -1840,6 +1847,7 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
   const tls = asRecord(v8Server?.['tls']);
   const remoteManagement = asRecord(parsed['management']);
   const quotaExceeded = asRecord(parsed['quota-exceeded']);
+  const claudeWarmup = asRecord(parsed['claude-warmup']);
   const routing = asRecord(parsed.routing);
   const payload = asRecord(v8Requests?.['payload']);
   const streaming = asRecord(v8Requests?.['streaming']);
@@ -1944,6 +1952,15 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
         }
       : {}),
     quotaAntigravityCredits: Boolean(antigravity?.['antigravity-credits'] ?? false),
+    claudeWarmupEnabled: Boolean(claudeWarmup?.enabled ?? false),
+    claudeWarmupSchedule: typeof claudeWarmup?.schedule === 'string' ? claudeWarmup.schedule : '',
+    claudeWarmupTimezone: typeof claudeWarmup?.timezone === 'string' ? claudeWarmup.timezone : '',
+    claudeWarmupModel: typeof claudeWarmup?.model === 'string' ? claudeWarmup.model : '',
+    claudeWarmupMaxTokens:
+      claudeWarmup?.['max-tokens'] === undefined || claudeWarmup?.['max-tokens'] === null
+        ? ''
+        : String(claudeWarmup['max-tokens']),
+    claudeWarmupJitter: typeof claudeWarmup?.jitter === 'string' ? claudeWarmup.jitter : '',
 
     routingStrategy: parseRoutingStrategy(routing?.strategy),
     routingSessionAffinity: Boolean(routing?.['session-affinity']),
@@ -2452,6 +2469,37 @@ export function useVisualConfig() {
             ['oauth', 'providers', 'antigravity', 'antigravity-credits'],
             values.quotaAntigravityCredits
           );
+        }
+        if (
+          dirtyFields.has('claudeWarmupEnabled') ||
+          dirtyFields.has('claudeWarmupSchedule') ||
+          dirtyFields.has('claudeWarmupTimezone') ||
+          dirtyFields.has('claudeWarmupModel') ||
+          dirtyFields.has('claudeWarmupMaxTokens') ||
+          dirtyFields.has('claudeWarmupJitter')
+        ) {
+          // Empty text fields drop their key so the backend default applies.
+          ensureMapInDoc(doc, ['claude-warmup']);
+          if (dirtyFields.has('claudeWarmupEnabled')) {
+            setBooleanInDoc(doc, ['claude-warmup', 'enabled'], values.claudeWarmupEnabled);
+          }
+          const warmupStrings: Array<[keyof VisualConfigValues, string]> = [
+            ['claudeWarmupSchedule', 'schedule'],
+            ['claudeWarmupTimezone', 'timezone'],
+            ['claudeWarmupModel', 'model'],
+            ['claudeWarmupJitter', 'jitter'],
+          ];
+          for (const [field, key] of warmupStrings) {
+            if (!dirtyFields.has(field)) continue;
+            const raw = values[field];
+            const trimmed = typeof raw === 'string' ? raw.trim() : '';
+            if (trimmed) doc.setIn(['claude-warmup', key], trimmed);
+            else if (docHas(doc, ['claude-warmup', key])) doc.deleteIn(['claude-warmup', key]);
+          }
+          if (dirtyFields.has('claudeWarmupMaxTokens')) {
+            setIntFromStringInDoc(doc, ['claude-warmup', 'max-tokens'], values.claudeWarmupMaxTokens);
+          }
+          deleteIfMapEmpty(doc, ['claude-warmup']);
         }
 
         const routingDirty =

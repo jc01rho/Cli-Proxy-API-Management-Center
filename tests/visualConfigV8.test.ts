@@ -185,6 +185,7 @@ describe('v8 scalar read/write path parity', () => {
     // Fork-only numeric fields.
     'apiKeyIpBlacklistFailureThreshold',
     'fallbackMaxDepth',
+    'claudeWarmupMaxTokens',
   ]);
   for (const entry of CONFIG_FIELD_SEARCH_INDEX) {
     const field = FIELD_VALUE_KEYS[entry.fieldId][0];

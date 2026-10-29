@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/icons';
 import { ConfigSection } from '@/components/config/ConfigSection';
 import { KeeperExportSection } from '@/components/config/KeeperExportSection';
+import { ClaudeWarmupRunPanel } from '@/components/config/ClaudeWarmupRunPanel';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type {
   APIKeyBlacklistEntry,
@@ -276,6 +277,7 @@ export function VisualConfigEditor({
   const requestRetryError = getValidationMessage(t, validationErrors?.requestRetry);
   const maxRetryCredentialsError = getValidationMessage(t, validationErrors?.maxRetryCredentials);
   const maxRetryIntervalError = getValidationMessage(t, validationErrors?.maxRetryInterval);
+  const claudeWarmupMaxTokensError = getValidationMessage(t, validationErrors?.claudeWarmupMaxTokens);
   const authAutoRefreshWorkersError = getValidationMessage(
     t,
     validationErrors?.authAutoRefreshWorkers
@@ -439,7 +441,7 @@ export function VisualConfigEditor({
         id: 'quota',
         title: t('config_management.visual.sections.quota.title'),
         icon: IconTimer,
-        errorCount: 0,
+        errorCount: countErrors(['claudeWarmupMaxTokens']),
       },
       {
         id: 'streaming',
@@ -1412,6 +1414,74 @@ export function VisualConfigEditor({
                 onChange={(quotaAntigravityCredits) => onChange({ quotaAntigravityCredits })}
               />
             </SectionGrid>
+            <SectionSubsection
+              title={t('config_management.visual.sections.quota.claude_warmup.title')}
+              description={t('config_management.visual.sections.quota.claude_warmup.description')}
+            >
+              <SectionStack>
+                <FieldAnchor fieldId="claudeWarmupEnabled">
+                  <ToggleRow
+                    title={t('config_management.visual.sections.quota.claude_warmup.enabled')}
+                    description={t('config_management.visual.sections.quota.claude_warmup.enabled_desc')}
+                    checked={values.claudeWarmupEnabled}
+                    disabled={disabled}
+                    onChange={(claudeWarmupEnabled) => onChange({ claudeWarmupEnabled })}
+                  />
+                </FieldAnchor>
+                <SectionGrid>
+                  <FieldAnchor fieldId="claudeWarmupSchedule">
+                    <Input
+                      label={t('config_management.visual.sections.quota.claude_warmup.schedule')}
+                      hint={t('config_management.visual.sections.quota.claude_warmup.schedule_hint')}
+                      placeholder="50 7 * * 1-5"
+                      value={values.claudeWarmupSchedule}
+                      onChange={(e) => onChange({ claudeWarmupSchedule: e.target.value })}
+                      disabled={disabled}
+                    />
+                  </FieldAnchor>
+                  <FieldAnchor fieldId="claudeWarmupTimezone">
+                    <Input
+                      label={t('config_management.visual.sections.quota.claude_warmup.timezone')}
+                      placeholder="Asia/Seoul"
+                      value={values.claudeWarmupTimezone}
+                      onChange={(e) => onChange({ claudeWarmupTimezone: e.target.value })}
+                      disabled={disabled}
+                    />
+                  </FieldAnchor>
+                  <FieldAnchor fieldId="claudeWarmupModel">
+                    <Input
+                      label={t('config_management.visual.sections.quota.claude_warmup.model')}
+                      placeholder="claude-haiku-4-5-20251001"
+                      value={values.claudeWarmupModel}
+                      onChange={(e) => onChange({ claudeWarmupModel: e.target.value })}
+                      disabled={disabled}
+                    />
+                  </FieldAnchor>
+                  <FieldAnchor fieldId="claudeWarmupMaxTokens">
+                    <Input
+                      label={t('config_management.visual.sections.quota.claude_warmup.max_tokens')}
+                      type="number"
+                      placeholder="25"
+                      value={values.claudeWarmupMaxTokens}
+                      onChange={(e) => onChange({ claudeWarmupMaxTokens: e.target.value })}
+                      disabled={disabled}
+                      error={claudeWarmupMaxTokensError}
+                    />
+                  </FieldAnchor>
+                  <FieldAnchor fieldId="claudeWarmupJitter">
+                    <Input
+                      label={t('config_management.visual.sections.quota.claude_warmup.jitter')}
+                      hint={t('config_management.visual.sections.quota.claude_warmup.jitter_hint')}
+                      placeholder="60s"
+                      value={values.claudeWarmupJitter}
+                      onChange={(e) => onChange({ claudeWarmupJitter: e.target.value })}
+                      disabled={disabled}
+                    />
+                  </FieldAnchor>
+                </SectionGrid>
+                <ClaudeWarmupRunPanel disabled={disabled} />
+              </SectionStack>
+            </SectionSubsection>
           </ConfigSection>
 
           <ConfigSection

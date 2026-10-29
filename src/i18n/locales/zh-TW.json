@@ -1739,7 +1739,31 @@
           "switch_project_desc": "配額耗盡時自動切換到其他專案",
           "switch_preview_model": "切換預覽模型",
           "switch_preview_model_desc": "配額耗盡時切換到預覽版本模型",
-          "antigravity_credits": "使用Antigravity Credits"
+          "antigravity_credits": "使用Antigravity Credits",
+          "claude_warmup": {
+            "title": "Claude OAuth 預熱",
+            "description": "依排程為每個 Claude OAuth 帳號傳送一次最小請求，使 5 小時用量視窗在固定時間開始。略過已停用與被 7 天限額封鎖的帳號；429 不重試，錯過的時點會略過。",
+            "enabled": "啟用排程預熱",
+            "enabled_desc": "依下方 cron 排程執行。預設關閉。",
+            "schedule": "排程 (cron)",
+            "schedule_hint": "五個欄位：分 時 日 月 週。留空使用 50 7 * * 1-5（平日 07:50）。",
+            "timezone": "時區",
+            "model": "模型",
+            "max_tokens": "最大 Token",
+            "jitter": "抖動",
+            "jitter_hint": "帳號之間的最大隨機延遲（Go duration，如 60s）。0s 表示不延遲。",
+            "run_now": "立即執行",
+            "run_hint": "使用已儲存的設定立即執行，帳號之間不延遲。",
+            "run_failed": "預熱執行失敗",
+            "run_summary": "{{succeeded}}/{{total}} 個帳號成功（{{model}}）",
+            "run_empty": "沒有符合條件的 Claude OAuth 帳號。",
+            "col_account": "帳號",
+            "col_result": "結果",
+            "col_attempts": "嘗試次數",
+            "col_detail": "詳情",
+            "result_ok": "成功",
+            "result_failed": "失敗"
+          }
         },
         "fallback": {
           "title": "模型回退鏈",

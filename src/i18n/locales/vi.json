@@ -1506,7 +1506,31 @@
           "switch_project_desc": "Tự động chuyển sang project khác khi vượt quota",
           "switch_preview_model": "Chuyển sang model Preview",
           "switch_preview_model_desc": "Chuyển sang phiên bản model preview khi vượt quota",
-          "antigravity_credits": "Dùng credit Antigravity"
+          "antigravity_credits": "Dùng credit Antigravity",
+          "claude_warmup": {
+            "title": "Khởi động Claude OAuth",
+            "description": "Gửi một yêu cầu tối thiểu cho mỗi tài khoản Claude OAuth theo lịch để cửa sổ sử dụng 5 giờ bắt đầu vào thời điểm cố định. Bỏ qua tài khoản bị tắt và tài khoản bị chặn bởi giới hạn 7 ngày; 429 không thử lại và các lần bị lỡ sẽ bỏ qua.",
+            "enabled": "Bật khởi động theo lịch",
+            "enabled_desc": "Chạy theo lịch cron bên dưới. Mặc định tắt.",
+            "schedule": "Lịch (cron)",
+            "schedule_hint": "Năm trường: phút giờ ngày tháng thứ. Để trống dùng 50 7 * * 1-5 (ngày thường 07:50).",
+            "timezone": "Múi giờ",
+            "model": "Mô hình",
+            "max_tokens": "Token tối đa",
+            "jitter": "Độ trễ ngẫu nhiên",
+            "jitter_hint": "Độ trễ ngẫu nhiên tối đa giữa các tài khoản (Go duration, ví dụ 60s). 0s để tắt.",
+            "run_now": "Chạy ngay",
+            "run_hint": "Chạy ngay với cài đặt đã lưu, không trễ giữa các tài khoản.",
+            "run_failed": "Chạy khởi động thất bại",
+            "run_summary": "{{succeeded}}/{{total}} tài khoản thành công ({{model}})",
+            "run_empty": "Không có tài khoản Claude OAuth phù hợp.",
+            "col_account": "Tài khoản",
+            "col_result": "Kết quả",
+            "col_attempts": "Lần thử",
+            "col_detail": "Chi tiết",
+            "result_ok": "Thành công",
+            "result_failed": "Thất bại"
+          }
         },
         "fallback": {
           "title": "Chuỗi model dự phòng",

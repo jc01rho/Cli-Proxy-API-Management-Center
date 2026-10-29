@@ -1729,7 +1729,31 @@
           "switch_project_desc": "할당량이 초과되면 다른 프로젝트로 자동 전환합니다.",
           "switch_preview_model": "프리뷰 모델로 전환",
           "switch_preview_model_desc": "할당량이 초과되면 프리뷰 모델 버전으로 전환합니다.",
-          "antigravity_credits": "Antigravity 크레딧 사용"
+          "antigravity_credits": "Antigravity 크레딧 사용",
+          "claude_warmup": {
+            "title": "Claude OAuth 워밍업",
+            "description": "Claude OAuth 계정마다 예약 시각에 최소 요청을 1회 보내 5시간 사용 윈도우가 정해진 시각에 시작되게 합니다. 비활성 계정과 7일 한도로 막힌 계정은 건너뛰고, 429는 재시도하지 않으며 놓친 회차는 건너뜁니다.",
+            "enabled": "예약 워밍업 사용",
+            "enabled_desc": "아래 cron 일정대로 실행합니다. 기본값은 꺼짐입니다.",
+            "schedule": "일정 (cron)",
+            "schedule_hint": "분 시 일 월 요일의 5필드입니다. 비우면 50 7 * * 1-5(평일 07:50)를 씁니다.",
+            "timezone": "시간대",
+            "model": "모델",
+            "max_tokens": "최대 토큰",
+            "jitter": "지터",
+            "jitter_hint": "계정 사이 최대 무작위 지연(Go duration, 예: 60s). 0s면 지연 없음.",
+            "run_now": "지금 실행",
+            "run_hint": "저장된 설정으로 계정 간 지연 없이 즉시 실행합니다.",
+            "run_failed": "워밍업 실행 실패",
+            "run_summary": "{{total}}개 계정 중 {{succeeded}}개 성공 ({{model}})",
+            "run_empty": "대상 Claude OAuth 계정이 없습니다.",
+            "col_account": "계정",
+            "col_result": "결과",
+            "col_attempts": "시도",
+            "col_detail": "상세",
+            "result_ok": "성공",
+            "result_failed": "실패"
+          }
         }
       },
       "api_keys": {

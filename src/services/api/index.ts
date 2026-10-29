@@ -15,5 +15,6 @@ export * from './models';
 export * from './metaQuota';
 export * from './plugins';
 export * from './usageExport';
+export * from './claudeWarmup';
 export * from './transformers';
 export * from './vertex';

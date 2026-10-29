@@ -1714,7 +1714,31 @@
           "switch_project_desc": "Automatically switch to another project when quota is exceeded",
           "switch_preview_model": "Switch to Preview Model",
           "switch_preview_model_desc": "Switch to preview model version when quota is exceeded",
-          "antigravity_credits": "Use Antigravity Credits"
+          "antigravity_credits": "Use Antigravity Credits",
+          "claude_warmup": {
+            "title": "Claude OAuth warmup",
+            "description": "Sends one minimal request per Claude OAuth account on a schedule so each 5-hour usage window starts at a fixed time. Disabled accounts and accounts blocked by the 7-day limit are skipped; a 429 is not retried and missed fires are skipped.",
+            "enabled": "Enable scheduled warmup",
+            "enabled_desc": "Runs on the cron schedule below. Off by default.",
+            "schedule": "Schedule (cron)",
+            "schedule_hint": "Five fields: minute hour day-of-month month day-of-week. Empty uses 50 7 * * 1-5 (weekdays 07:50).",
+            "timezone": "Time zone",
+            "model": "Model",
+            "max_tokens": "Max tokens",
+            "jitter": "Jitter",
+            "jitter_hint": "Maximum random delay between accounts (Go duration, e.g. 60s). 0s disables it.",
+            "run_now": "Run now",
+            "run_hint": "Runs immediately with the saved settings, without delay between accounts.",
+            "run_failed": "Warmup run failed",
+            "run_summary": "{{succeeded}}/{{total}} accounts succeeded ({{model}})",
+            "run_empty": "No eligible Claude OAuth accounts.",
+            "col_account": "Account",
+            "col_result": "Result",
+            "col_attempts": "Attempts",
+            "col_detail": "Detail",
+            "result_ok": "OK",
+            "result_failed": "Failed"
+          }
         },
         "fallback": {
           "title": "Model Fallback Chain",

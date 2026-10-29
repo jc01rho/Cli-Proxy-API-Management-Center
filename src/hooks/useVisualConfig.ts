@@ -40,6 +40,7 @@ import {
   writeVisualAdditions,
   writeICEServers,
   validateVisualAdditions,
+  goDurationSeconds,
 } from '@/features/config/visualConfigAdditions';
 
 import {
@@ -180,6 +181,27 @@ function getIntegerError(value: string): 'integer' | undefined {
 function getNonNegativeIntegerError(value: string): 'non_negative_integer' | undefined {
   if (getIntegerError(value)) return 'non_negative_integer';
   return Number(value.trim()) >= 0 ? undefined : 'non_negative_integer';
+}
+
+/** Mirrors Go time.LoadLocation: IANA names and Local; empty uses the backend default. */
+function getTimezoneError(value: string): 'invalid_timezone' | undefined {
+  const timezone = value.trim();
+  if (!timezone || timezone === 'Local') return undefined;
+  try {
+    if (/^[+-]/.test(timezone)) return 'invalid_timezone';
+    new Intl.DateTimeFormat('en', { timeZone: timezone });
+    return undefined;
+  } catch {
+    return 'invalid_timezone';
+  }
+}
+
+/** Go duration such as 60s or 1m30s; empty uses the backend default. */
+function getNonNegativeDurationError(value: string): 'invalid_duration' | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const seconds = goDurationSeconds(trimmed);
+  return seconds === undefined || seconds < 0 ? 'invalid_duration' : undefined;
 }
 
 function getPortError(value: string): 'port_range' | undefined {
@@ -373,6 +395,9 @@ export function getVisualConfigValidationErrors(
     maxRetryCredentials: getIntegerError(values.maxRetryCredentials),
     maxRetryInterval: getIntegerError(values.maxRetryInterval),
     authAutoRefreshWorkers: getIntegerError(values.authAutoRefreshWorkers),
+    claudeWarmupMaxTokens: getNonNegativeIntegerError(values.claudeWarmupMaxTokens),
+    claudeWarmupTimezone: getTimezoneError(values.claudeWarmupTimezone),
+    claudeWarmupJitter: getNonNegativeDurationError(values.claudeWarmupJitter),
     'streaming.keepaliveSeconds': getIntegerError(values.streaming.keepaliveSeconds),
     'streaming.bootstrapRetries': getIntegerError(values.streaming.bootstrapRetries),
     'streaming.nonstreamKeepaliveInterval': getIntegerError(
@@ -1619,6 +1644,12 @@ function getNextDirtyFields(
       'quotaSwitchProject',
       'quotaSwitchPreviewModel',
       'quotaAntigravityCredits',
+      'claudeWarmupEnabled',
+      'claudeWarmupSchedule',
+      'claudeWarmupTimezone',
+      'claudeWarmupModel',
+      'claudeWarmupMaxTokens',
+      'claudeWarmupJitter',
       'routingStrategy',
       'routingSessionAffinity',
       'routingSessionAffinityTTL',
@@ -1840,6 +1871,7 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
   const tls = asRecord(v8Server?.['tls']);
   const remoteManagement = asRecord(parsed['management']);
   const quotaExceeded = asRecord(parsed['quota-exceeded']);
+  const claudeWarmup = asRecord(parsed['claude-warmup']);
   const routing = asRecord(parsed.routing);
   const payload = asRecord(v8Requests?.['payload']);
   const streaming = asRecord(v8Requests?.['streaming']);
@@ -1944,6 +1976,15 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
         }
       : {}),
     quotaAntigravityCredits: Boolean(antigravity?.['antigravity-credits'] ?? false),
+    claudeWarmupEnabled: Boolean(claudeWarmup?.enabled ?? false),
+    claudeWarmupSchedule: typeof claudeWarmup?.schedule === 'string' ? claudeWarmup.schedule : '',
+    claudeWarmupTimezone: typeof claudeWarmup?.timezone === 'string' ? claudeWarmup.timezone : '',
+    claudeWarmupModel: typeof claudeWarmup?.model === 'string' ? claudeWarmup.model : '',
+    claudeWarmupMaxTokens:
+      claudeWarmup?.['max-tokens'] === undefined || claudeWarmup?.['max-tokens'] === null
+        ? ''
+        : String(claudeWarmup['max-tokens']),
+    claudeWarmupJitter: typeof claudeWarmup?.jitter === 'string' ? claudeWarmup.jitter : '',
 
     routingStrategy: parseRoutingStrategy(routing?.strategy),
     routingSessionAffinity: Boolean(routing?.['session-affinity']),
@@ -2452,6 +2493,37 @@ export function useVisualConfig() {
             ['oauth', 'providers', 'antigravity', 'antigravity-credits'],
             values.quotaAntigravityCredits
           );
+        }
+        if (
+          dirtyFields.has('claudeWarmupEnabled') ||
+          dirtyFields.has('claudeWarmupSchedule') ||
+          dirtyFields.has('claudeWarmupTimezone') ||
+          dirtyFields.has('claudeWarmupModel') ||
+          dirtyFields.has('claudeWarmupMaxTokens') ||
+          dirtyFields.has('claudeWarmupJitter')
+        ) {
+          // Empty text fields drop their key so the backend default applies.
+          ensureMapInDoc(doc, ['claude-warmup']);
+          if (dirtyFields.has('claudeWarmupEnabled')) {
+            setBooleanInDoc(doc, ['claude-warmup', 'enabled'], values.claudeWarmupEnabled);
+          }
+          const warmupStrings: Array<[keyof VisualConfigValues, string]> = [
+            ['claudeWarmupSchedule', 'schedule'],
+            ['claudeWarmupTimezone', 'timezone'],
+            ['claudeWarmupModel', 'model'],
+            ['claudeWarmupJitter', 'jitter'],
+          ];
+          for (const [field, key] of warmupStrings) {
+            if (!dirtyFields.has(field)) continue;
+            const raw = values[field];
+            const trimmed = typeof raw === 'string' ? raw.trim() : '';
+            if (trimmed) doc.setIn(['claude-warmup', key], trimmed);
+            else if (docHas(doc, ['claude-warmup', key])) doc.deleteIn(['claude-warmup', key]);
+          }
+          if (dirtyFields.has('claudeWarmupMaxTokens')) {
+            setIntFromStringInDoc(doc, ['claude-warmup', 'max-tokens'], values.claudeWarmupMaxTokens);
+          }
+          deleteIfMapEmpty(doc, ['claude-warmup']);
         }
 
         const routingDirty =

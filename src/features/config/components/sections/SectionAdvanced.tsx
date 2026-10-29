@@ -19,6 +19,7 @@ import { StringListEditor } from '../blocks/StringListEditor';
 import { ForkOnlyFields } from '../fields/sharedFields';
 import { getValidationMessage } from '../blocks/shared';
 import { SectionOAuthBehavior } from './SectionOAuthBehavior';
+import { ClaudeWarmupRunPanel } from '@/components/config/ClaudeWarmupRunPanel';
 
 const Icon = CONFIG_TAB_ICONS.advanced;
 
@@ -121,6 +122,72 @@ export function SectionAdvanced({
               </FieldStack>
             </SettingCell>
           </SettingList>
+        </FieldStack>
+      </Collapsible>
+
+      <Collapsible label={t('config_management.visual.sections.quota.claude_warmup.title')} defaultOpen={false}>
+        <FieldStack>
+          <FieldHint>{t('config_management.visual.sections.quota.claude_warmup.description')}</FieldHint>
+          <SettingList>
+            <ToggleSetting
+              fieldId="claudeWarmupEnabled"
+              label={t('config_management.visual.sections.quota.claude_warmup.enabled')}
+              description={t('config_management.visual.sections.quota.claude_warmup.enabled_desc')}
+              checked={values.claudeWarmupEnabled}
+              disabled={disabled}
+              onChange={(claudeWarmupEnabled) => onChange({ claudeWarmupEnabled })}
+            />
+            <TextSetting
+              fieldId="claudeWarmupSchedule"
+              label={t('config_management.visual.sections.quota.claude_warmup.schedule')}
+              description={t('config_management.visual.sections.quota.claude_warmup.schedule_hint')}
+              placeholder="50 7 * * 1-5"
+              value={values.claudeWarmupSchedule}
+              disabled={disabled}
+              onChange={(claudeWarmupSchedule) => onChange({ claudeWarmupSchedule })}
+            />
+            <TextSetting
+              fieldId="claudeWarmupTimezone"
+              label={t('config_management.visual.sections.quota.claude_warmup.timezone')}
+              placeholder="Asia/Seoul"
+              value={values.claudeWarmupTimezone}
+              disabled={disabled}
+              error={getValidationMessage(t, validationErrors?.claudeWarmupTimezone)}
+              onChange={(claudeWarmupTimezone) => onChange({ claudeWarmupTimezone })}
+            />
+            <TextSetting
+              fieldId="claudeWarmupModel"
+              label={t('config_management.visual.sections.quota.claude_warmup.model')}
+              placeholder="claude-haiku-4-5-20251001"
+              size="lg"
+              value={values.claudeWarmupModel}
+              disabled={disabled}
+              onChange={(claudeWarmupModel) => onChange({ claudeWarmupModel })}
+            />
+            <TextSetting
+              fieldId="claudeWarmupMaxTokens"
+              label={t('config_management.visual.sections.quota.claude_warmup.max_tokens')}
+              type="number"
+              size="sm"
+              placeholder="25"
+              value={values.claudeWarmupMaxTokens}
+              disabled={disabled}
+              error={getValidationMessage(t, validationErrors?.claudeWarmupMaxTokens)}
+              onChange={(claudeWarmupMaxTokens) => onChange({ claudeWarmupMaxTokens })}
+            />
+            <TextSetting
+              fieldId="claudeWarmupJitter"
+              label={t('config_management.visual.sections.quota.claude_warmup.jitter')}
+              description={t('config_management.visual.sections.quota.claude_warmup.jitter_hint')}
+              size="sm"
+              placeholder="60s"
+              value={values.claudeWarmupJitter}
+              disabled={disabled}
+              error={getValidationMessage(t, validationErrors?.claudeWarmupJitter)}
+              onChange={(claudeWarmupJitter) => onChange({ claudeWarmupJitter })}
+            />
+          </SettingList>
+          <ClaudeWarmupRunPanel disabled={disabled} />
         </FieldStack>
       </Collapsible>
 

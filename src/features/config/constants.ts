@@ -85,6 +85,9 @@ export const SECTION_VALIDATION_FIELDS: Record<VisualSectionId, readonly VisualC
     ],
     advanced: [
       'claudeHeaderTimezone',
+      'claudeWarmupMaxTokens',
+      'claudeWarmupTimezone',
+      'claudeWarmupJitter',
       'codexStreamBootstrapTimeout',
       'antigravityConnectionPoolIdleTimeout',
       'antigravityConnectionPoolMaxIdleConnsPerHost',
@@ -195,6 +198,12 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   streamingNonstreamKeepalive: ['streaming.nonstreamKeepaliveInterval'],
   // ── advanced ──────────────────────────────────────────────────────────────
   quotaAntigravityCredits: ['quotaAntigravityCredits'],
+  claudeWarmupEnabled: ['claudeWarmupEnabled'],
+  claudeWarmupSchedule: ['claudeWarmupSchedule'],
+  claudeWarmupTimezone: ['claudeWarmupTimezone'],
+  claudeWarmupModel: ['claudeWarmupModel'],
+  claudeWarmupMaxTokens: ['claudeWarmupMaxTokens'],
+  claudeWarmupJitter: ['claudeWarmupJitter'],
   pluginsEnabled: ['pluginsEnabled'],
   pluginStoreSources: ['pluginStoreSources'],
   pluginStoreAuth: ['pluginStoreAuth'],

@@ -86,6 +86,8 @@ export const SECTION_VALIDATION_FIELDS: Record<VisualSectionId, readonly VisualC
     advanced: [
       'claudeHeaderTimezone',
       'claudeWarmupMaxTokens',
+      'claudeWarmupTimezone',
+      'claudeWarmupJitter',
       'codexStreamBootstrapTimeout',
       'antigravityConnectionPoolIdleTimeout',
       'antigravityConnectionPoolMaxIdleConnsPerHost',

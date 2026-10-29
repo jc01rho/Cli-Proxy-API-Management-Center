@@ -278,6 +278,8 @@ export function VisualConfigEditor({
   const maxRetryCredentialsError = getValidationMessage(t, validationErrors?.maxRetryCredentials);
   const maxRetryIntervalError = getValidationMessage(t, validationErrors?.maxRetryInterval);
   const claudeWarmupMaxTokensError = getValidationMessage(t, validationErrors?.claudeWarmupMaxTokens);
+  const claudeWarmupTimezoneError = getValidationMessage(t, validationErrors?.claudeWarmupTimezone);
+  const claudeWarmupJitterError = getValidationMessage(t, validationErrors?.claudeWarmupJitter);
   const authAutoRefreshWorkersError = getValidationMessage(
     t,
     validationErrors?.authAutoRefreshWorkers
@@ -441,7 +443,7 @@ export function VisualConfigEditor({
         id: 'quota',
         title: t('config_management.visual.sections.quota.title'),
         icon: IconTimer,
-        errorCount: countErrors(['claudeWarmupMaxTokens']),
+        errorCount: countErrors(['claudeWarmupMaxTokens', 'claudeWarmupTimezone', 'claudeWarmupJitter']),
       },
       {
         id: 'streaming',
@@ -1446,6 +1448,7 @@ export function VisualConfigEditor({
                       value={values.claudeWarmupTimezone}
                       onChange={(e) => onChange({ claudeWarmupTimezone: e.target.value })}
                       disabled={disabled}
+                      error={claudeWarmupTimezoneError}
                     />
                   </FieldAnchor>
                   <FieldAnchor fieldId="claudeWarmupModel">
@@ -1476,6 +1479,7 @@ export function VisualConfigEditor({
                       value={values.claudeWarmupJitter}
                       onChange={(e) => onChange({ claudeWarmupJitter: e.target.value })}
                       disabled={disabled}
+                      error={claudeWarmupJitterError}
                     />
                   </FieldAnchor>
                 </SectionGrid>

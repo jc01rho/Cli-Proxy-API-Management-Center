@@ -55,11 +55,15 @@ export function normalizeClaudeWarmupRunResult(raw: unknown): ClaudeWarmupRunRes
   };
 }
 
+/** The backend answers after every account ran; jitter alone can add a minute per account. */
+export const CLAUDE_WARMUP_RUN_TIMEOUT_MS = 600_000;
+
 export const claudeWarmupApi = {
   /** Runs immediately with the saved config. jitter=false skips the delay between accounts. */
   async run(options: { jitter?: boolean } = {}): Promise<ClaudeWarmupRunResult> {
     const raw = await apiClient.post<unknown>('/claude-warmup/run', undefined, {
       params: { jitter: options.jitter === true ? 'true' : 'false' },
+      timeout: CLAUDE_WARMUP_RUN_TIMEOUT_MS,
     });
     return normalizeClaudeWarmupRunResult(raw);
   },

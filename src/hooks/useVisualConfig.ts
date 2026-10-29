@@ -40,6 +40,7 @@ import {
   writeVisualAdditions,
   writeICEServers,
   validateVisualAdditions,
+  goDurationSeconds,
 } from '@/features/config/visualConfigAdditions';
 
 import {
@@ -180,6 +181,27 @@ function getIntegerError(value: string): 'integer' | undefined {
 function getNonNegativeIntegerError(value: string): 'non_negative_integer' | undefined {
   if (getIntegerError(value)) return 'non_negative_integer';
   return Number(value.trim()) >= 0 ? undefined : 'non_negative_integer';
+}
+
+/** Mirrors Go time.LoadLocation: IANA names and Local; empty uses the backend default. */
+function getTimezoneError(value: string): 'invalid_timezone' | undefined {
+  const timezone = value.trim();
+  if (!timezone || timezone === 'Local') return undefined;
+  try {
+    if (/^[+-]/.test(timezone)) return 'invalid_timezone';
+    new Intl.DateTimeFormat('en', { timeZone: timezone });
+    return undefined;
+  } catch {
+    return 'invalid_timezone';
+  }
+}
+
+/** Go duration such as 60s or 1m30s; empty uses the backend default. */
+function getNonNegativeDurationError(value: string): 'invalid_duration' | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const seconds = goDurationSeconds(trimmed);
+  return seconds === undefined || seconds < 0 ? 'invalid_duration' : undefined;
 }
 
 function getPortError(value: string): 'port_range' | undefined {
@@ -374,6 +396,8 @@ export function getVisualConfigValidationErrors(
     maxRetryInterval: getIntegerError(values.maxRetryInterval),
     authAutoRefreshWorkers: getIntegerError(values.authAutoRefreshWorkers),
     claudeWarmupMaxTokens: getNonNegativeIntegerError(values.claudeWarmupMaxTokens),
+    claudeWarmupTimezone: getTimezoneError(values.claudeWarmupTimezone),
+    claudeWarmupJitter: getNonNegativeDurationError(values.claudeWarmupJitter),
     'streaming.keepaliveSeconds': getIntegerError(values.streaming.keepaliveSeconds),
     'streaming.bootstrapRetries': getIntegerError(values.streaming.bootstrapRetries),
     'streaming.nonstreamKeepaliveInterval': getIntegerError(

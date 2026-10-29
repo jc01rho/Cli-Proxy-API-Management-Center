@@ -51,6 +51,8 @@ export type VisualConfigFieldPath =
   | 'maxRetryInterval'
   | 'authAutoRefreshWorkers'
   | 'claudeWarmupMaxTokens'
+  | 'claudeWarmupTimezone'
+  | 'claudeWarmupJitter'
   | 'streaming.keepaliveSeconds'
   | 'streaming.bootstrapRetries'
   | 'streaming.nonstreamKeepaliveInterval';

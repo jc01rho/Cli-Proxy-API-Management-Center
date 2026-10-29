@@ -30,7 +30,9 @@ export function ClaudeWarmupRunPanel({
       setResult(await runWarmup());
     } catch (err: unknown) {
       setResult(null);
-      setError(getErrorMessage(err, t('config_management.visual.sections.quota.claude_warmup.run_failed')));
+      setError(
+        getErrorMessage(err, t('config_management.visual.sections.quota.claude_warmup.run_failed'))
+      );
     } finally {
       setRunning(false);
     }
@@ -70,9 +72,11 @@ export function ClaudeWarmupRunPanel({
           </div>
           {result.error ? <div className="error-box">{result.error}</div> : null}
           {result.results.length === 0 ? (
-            <div className={styles.claudeWarmupRunHint}>
-              {t('config_management.visual.sections.quota.claude_warmup.run_empty')}
-            </div>
+            result.error ? null : (
+              <div className={styles.claudeWarmupRunHint}>
+                {t('config_management.visual.sections.quota.claude_warmup.run_empty')}
+              </div>
+            )
           ) : (
             <table className={styles.claudeWarmupTable}>
               <thead>

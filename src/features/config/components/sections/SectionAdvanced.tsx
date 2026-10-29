@@ -152,6 +152,7 @@ export function SectionAdvanced({
               placeholder="Asia/Seoul"
               value={values.claudeWarmupTimezone}
               disabled={disabled}
+              error={getValidationMessage(t, validationErrors?.claudeWarmupTimezone)}
               onChange={(claudeWarmupTimezone) => onChange({ claudeWarmupTimezone })}
             />
             <TextSetting
@@ -182,6 +183,7 @@ export function SectionAdvanced({
               placeholder="60s"
               value={values.claudeWarmupJitter}
               disabled={disabled}
+              error={getValidationMessage(t, validationErrors?.claudeWarmupJitter)}
               onChange={(claudeWarmupJitter) => onChange({ claudeWarmupJitter })}
             />
           </SettingList>

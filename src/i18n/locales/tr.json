@@ -90,7 +90,8 @@
     "error_legacy_backend": "Bu Arka Uç v0 Management API Kabul Ediyor ama v8 Sunmuyor. Bu Yönetim Sayfasını Kullanmak için CLIProxyAPI Sürümünü v8 veya Sonrasına Yükselt.",
     "error_server": "Arka Uç Yönetim İsteğini İşlerken Başarısız Oldu. Sunucu Günlüklerini Kontrol Et",
     "error_cors": "Çapraz Kökenli İstek Engellendi. Sunucu Yapılandırmasını Kontrol Et",
-    "error_ssl": "SSL/TLS Sertifika Doğrulaması Başarısız"
+    "error_ssl": "SSL/TLS Sertifika Doğrulaması Başarısız",
+    "subtitle": "Connect to CLI Proxy API v8 or later"
   },
   "header": {
     "refresh_all": "Tümünü Yenile",
@@ -111,7 +112,8 @@
     "plugin_store": "Eklenti Mağazası",
     "config_management": "Yapılandırma Paneli",
     "logs": "Günlük Görüntüleyici",
-    "system_info": "Yönetim Merkezi Bilgisi"
+    "system_info": "Yönetim Merkezi Bilgisi",
+    "weight_robin_queue": "Weight-Robin Queue"
   },
   "nav_groups": {
     "operate": "İşlet",
@@ -132,7 +134,8 @@
     "plugin_store": "Eklentileri Keşfet ve Kur",
     "logs": "İstek İzleme",
     "config_management": "Ağ Geçidi Yapılandırması",
-    "system_info": "Çalışma Zamanı ve Tanılama"
+    "system_info": "Çalışma Zamanı ve Tanılama",
+    "weight_robin_queue": "Weighted cycle distribution"
   },
   "dashboard": {
     "hero_verdict_good": "Tüm Sistemler Dengede",
@@ -219,7 +222,15 @@
     "ws_auth_enable": "/ws/* için Kimlik Doğrulama İste",
     "routing_strategy_round_robin": "Round-Robin (Döngü)",
     "routing_strategy_weighted_round_robin": "Weighted-Round-Robin (Ağırlıklı Döngü)",
-    "routing_strategy_fill_first": "Fill-First (Önceliklendir)"
+    "routing_strategy_fill_first": "Fill-First (Önceliklendir)",
+    "routing_title": "Routing Strategy",
+    "routing_strategy_label": "Routing strategy:",
+    "routing_strategy_hint": "round-robin cycles through keys; fill-first prioritizes the first available key; weight-robin distributes by priority weight.",
+    "routing_strategy_update": "Update",
+    "routing_strategy_weight_robin": "weight-robin (weighted distribution)",
+    "request_log_success_body_enable": "Log response body on success",
+    "detailed_api_error_body_log_limit_label": "Error body log limit (bytes):",
+    "detailed_api_error_body_log_limit_hint": "Max bytes of request/response body to log on error. Set to 0 to log the full body."
   },
   "auth_files": {
     "title": "Kimlik Dosyası Yönetimi",
@@ -440,7 +451,26 @@
     "quota_refresh_single": "Kotayı Yenile",
     "quota_refresh_hint": "Yalnızca Bu Kimlik Bilgisinin Kotasını Yenile",
     "quota_refresh_success": "“{{name}}” için Kota Yenilendi",
-    "quota_refresh_failed": "“{{name}}” için Kota Yenilenemedi: {{message}}"
+    "quota_refresh_failed": "“{{name}}” için Kota Yenilenemedi: {{message}}",
+    "delete_all_title": "Delete All Files",
+    "delete_title": "Delete File",
+    "search_placeholder_short": "Search name, account, type, or provider",
+    "filter_cline": "Cline",
+    "filter_cursor": "Cursor",
+    "filter_kilo": "Kilo",
+    "filter_kiro": "Kiro",
+    "filter_zcode": "Zcode",
+    "filter_workbuddy": "WorkBuddy",
+    "filter_codebuddy": "CodeBuddy",
+    "base_url_label": "API base URL (base_url)",
+    "base_url_placeholder": "e.g. https://your-proxy.example.com/anthropic",
+    "base_url_hint": "Only effective for OAuth providers that support per-credential endpoint overrides (e.g. Claude). Leave empty to use the provider's default.",
+    "quota_url_label": "Quota check URL (quota_url)",
+    "quota_url_placeholder": "e.g. https://your-proxy.example.com/anthropic/v1/usage/self",
+    "quota_url_hint": "Overrides the usage/quota endpoint used by the Quota page (for Claude-compatible third-party mirrors such as nekos). Leave empty to derive it from base_url.",
+    "cloaking_label": "Cloaking (cloak_mode)",
+    "cloaking_hint": "On by default for Claude credentials. Turn off to send the request as-is, including skipping the Fable 5.1 fallbacks field that some third-party gateways reject.",
+    "filter_commandcode": "Command Code"
   },
   "antigravity_subscription": {
     "plan_unknown": "Bilinmiyor",
@@ -530,7 +560,9 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "three_hour": "3-hour limit",
+    "daily": "Daily limit"
   },
   "codex_quota": {
     "title": "Codex Kotası",
@@ -691,7 +723,8 @@
     "result_location": "Bölge",
     "result_file": "Kalıcı Dosya",
     "drop_hint": "Bir JSON Dosyası Seç veya Bırak",
-    "import_another": "Bir Tane Daha İçe Aktar"
+    "import_another": "Bir Tane Daha İçe Aktar",
+    "file_placeholder": "No file selected"
   },
   "oauth_excluded": {
     "editor_description": "Bir Sağlayıcının Hangi Modelleri Açacağını Tekil Seçimler veya Joker Kurallarla Belirle.",
@@ -718,7 +751,8 @@
     "provider_required": "Lütfen Önce Bir Sağlayıcı Gir",
     "upgrade_required": "Geçerli CPA Sürümü OAuth Model Devre Dışı Bırakmayı Desteklemiyor. Lütfen Yükselt.",
     "upgrade_required_title": "Lütfen CLIProxyAPI Sürümünü Yükselt",
-    "upgrade_required_desc": "Geçerli Sunucu Sürümü OAuth Model Devre Dışı Bırakmayı Getirmeyi Desteklemiyor. En Son CPA (CLIProxyAPI) Sürümüne Yükselt ve Yeniden Dene."
+    "upgrade_required_desc": "Geçerli Sunucu Sürümü OAuth Model Devre Dışı Bırakmayı Getirmeyi Desteklemiyor. En Son CPA (CLIProxyAPI) Sürümüne Yükselt ve Yeniden Dene.",
+    "delete_title": "Delete Exclusion"
   },
   "excluded_models": {
     "trigger_summary": "{{excluded}} Hariç · {{available}} Kullanılabilir",
@@ -817,7 +851,8 @@
     "provider_required": "Lütfen Önce Bir Sağlayıcı Gir",
     "upgrade_required": "Bu Özellik Daha Yeni Bir CLIProxyAPI (CPA) Sürümü Gerektirir. Lütfen Yükselt.",
     "upgrade_required_title": "Lütfen CLIProxyAPI Sürümünü Yükselt",
-    "upgrade_required_desc": "Geçerli Sunucu OAuth Model Takma Adları API Değerini Desteklemiyor. En Son CLIProxyAPI (CPA) Sürümüne Yükselt."
+    "upgrade_required_desc": "Geçerli Sunucu OAuth Model Takma Adları API Değerini Desteklemiyor. En Son CLIProxyAPI (CPA) Sürümüne Yükselt.",
+    "delete_title": "Delete Mappings"
   },
   "auth_login": {
     "devin_oauth_cancel": "Devin Girişini İptal Et",
@@ -976,7 +1011,87 @@
     "restart_login": "Baştan Başla",
     "success_saved_hint": "Kimlik Bilgisi Kaydedildi. Kimlik Dosyalarında Yönet.",
     "sign_up_prompt": "Henüz Hesap Yok Mu?",
-    "copied": "Kopyalandı"
+    "copied": "Kopyalandı",
+    "workbuddy_oauth_title": "WorkBuddy OAuth",
+    "workbuddy_oauth_button": "Log in with WorkBuddy",
+    "workbuddy_oauth_hint": "Quickly log in to WorkBuddy through device authorization. Authentication files are obtained and saved automatically.",
+    "workbuddy_oauth_url_label": "Authorization URL:",
+    "workbuddy_copy_link": "Copy Link",
+    "workbuddy_open_link": "Open Link",
+    "workbuddy_oauth_start_error": "Failed to start WorkBuddy OAuth:",
+    "workbuddy_oauth_polling_error": "Failed to check authentication status:",
+    "workbuddy_oauth_status_success": "Authentication successful!",
+    "workbuddy_oauth_status_error": "Authentication failed:",
+    "workbuddy_oauth_status_waiting": "Waiting for authentication...",
+    "cline_oauth_title": "Cline OAuth",
+    "cline_oauth_button": "Start Cline Login",
+    "cline_oauth_hint": "Log in to Cline through the OAuth flow. Authentication files are obtained and saved automatically.",
+    "cline_oauth_url_label": "Authorization URL:",
+    "cline_open_link": "Open Link",
+    "cline_copy_link": "Copy Link",
+    "cline_oauth_status_waiting": "Waiting for authentication...",
+    "cline_oauth_status_success": "Authentication successful!",
+    "cline_oauth_status_error": "Authentication failed:",
+    "cline_oauth_start_error": "Failed to start Cline OAuth:",
+    "cline_oauth_polling_error": "Failed to check authentication status:",
+    "cursor_oauth_title": "Cursor OAuth",
+    "cursor_oauth_button": "Start Cursor Login",
+    "cursor_oauth_hint": "Log in to Cursor through the OAuth flow. Authentication files are obtained and saved automatically.",
+    "cursor_oauth_url_label": "Authorization URL:",
+    "cursor_open_link": "Open Link",
+    "cursor_copy_link": "Copy Link",
+    "cursor_oauth_status_waiting": "Waiting for authentication...",
+    "cursor_oauth_status_success": "Authentication successful!",
+    "cursor_oauth_status_error": "Authentication failed:",
+    "cursor_oauth_start_error": "Failed to start Cursor OAuth:",
+    "cursor_oauth_polling_error": "Failed to check authentication status:",
+    "kilo_oauth_title": "Kilo OAuth",
+    "kilo_oauth_button": "Start Kilo Login",
+    "kilo_oauth_hint": "Log in to Kilo through the device-code OAuth flow. Authentication files are obtained and saved automatically. Free-tier models remain available without login.",
+    "kilo_oauth_url_label": "Authorization URL:",
+    "kilo_open_link": "Open Link",
+    "kilo_copy_link": "Copy Link",
+    "kilo_oauth_status_waiting": "Waiting for authentication...",
+    "kilo_oauth_status_success": "Authentication successful!",
+    "kilo_oauth_status_error": "Authentication failed:",
+    "kilo_oauth_start_error": "Failed to start Kilo OAuth:",
+    "kilo_oauth_polling_error": "Failed to check authentication status:",
+    "kiro_oauth_title": "Kiro OAuth",
+    "zcode_oauth_title": "GLM ZCode OAuth",
+    "zcode_oauth_button": "Start GLM ZCode Login",
+    "zcode_oauth_hint": "Log in to GLM ZCode through the OAuth flow. Open the authorization URL, approve, and wait — the API key is provisioned automatically.",
+    "zcode_oauth_url_label": "Authorization URL:",
+    "kiro_oauth_button": "Start Kiro Login",
+    "kiro_oauth_hint": "Choose Builder ID, Google, GitHub, organization login, or a Kiro API key. Authentication files are obtained and saved automatically.",
+    "kiro_oauth_url_label": "Authorization URL:",
+    "kiro_open_link": "Open Link",
+    "kiro_copy_link": "Copy Link",
+    "kiro_oauth_status_waiting": "Waiting for authentication...",
+    "kiro_oauth_status_success": "Authentication successful!",
+    "kiro_oauth_status_error": "Authentication failed:",
+    "kiro_oauth_start_error": "Failed to start Kiro OAuth:",
+    "kiro_oauth_polling_error": "Failed to check authentication status:",
+    "kiro_oauth_method_builder_id": "Builder ID",
+    "kiro_oauth_method_google": "Google",
+    "kiro_oauth_method_github": "GitHub",
+    "kiro_oauth_method_organization": "Organization",
+    "kiro_oauth_method_apikey": "API key",
+    "kiro_oauth_start_url_label": "Start URL",
+    "kiro_oauth_start_url_placeholder": "https://example.awsapps.com/start",
+    "kiro_oauth_region_label": "Region",
+    "kiro_oauth_region_placeholder": "us-east-1",
+    "kiro_oauth_api_key_label": "Kiro API key",
+    "kiro_oauth_api_key_placeholder": "ksk_...",
+    "kiro_oauth_user_code_label": "User code:",
+    "devin_oauth_url_label": "Authorization URL:",
+    "codex_oauth_url_label": "Authorization URL:",
+    "anthropic_oauth_url_label": "Authorization URL:",
+    "antigravity_oauth_url_label": "Authorization URL:",
+    "meta_oauth_url_label": "Authorization URL:",
+    "kimi_ai_oauth_url_label": "Authorization URL:",
+    "kimi_oauth_url_label": "Authorization URL:",
+    "xai_oauth_url_label": "Authorization URL:",
+    "plugin_oauth_url_label": "Authorization URL:"
   },
   "stats": {
     "success": "Başarılı",
@@ -1072,7 +1187,8 @@
     "search_empty_desc": "Farklı Bir Anahtar Sözcük Dene veya Süzgeçleri Temizle.",
     "double_click_copy_hint": "Ham Günlük Satırını Kopyalamak için Çift Tıkla",
     "copy_success": "Günlük Panoya Kopyalandı",
-    "copy_failed": "Kopyalama Başarısız"
+    "copy_failed": "Kopyalama Başarısız",
+    "clear_confirm_title": "Clear Logs"
   },
   "config_management": {
     "title": "Yapılandırma Paneli",
@@ -1291,7 +1407,10 @@
       },
       "search": {
         "placeholder": "Ayar Ara (Etiket veya YAML Anahtarı)",
-        "no_results": "Eşleşen Ayar Yok"
+        "no_results": "Eşleşen Ayar Yok",
+        "label": "Search visual configuration fields",
+        "previous": "Previous matching field",
+        "next": "Next matching field"
       },
       "sections": {
         "common": {
@@ -1319,7 +1438,9 @@
           "github_token": "Genel GitHub Belirteci",
           "github_token_hint": "Panel Güncellemeleri ve Eklenti İndirmeleri Gibi Sunucu Tarafı GitHub İstekleri için Kullanılır. GITHUB_TOKEN Değerinden Önceliklidir. Ortam Kimlik Bilgilerini Kullanmak için Boş Bırak. Hiçbiri Yoksa Kimliği Doğrulanmamış İstekler Yapılır. Eşleşen Eklenti Mağazası Kimlik Doğrulama Kuralları Önceliklidir.",
           "host": "Ana Makine Adresi",
-          "port": "Bağlantı Noktası"
+          "port": "Bağlantı Noktası",
+          "title": "Server Configuration",
+          "description": "Listening address, port, and secure connection settings"
         },
         "tls": {
           "title": "TLS/SSL Yapılandırması",
@@ -1344,7 +1465,20 @@
         },
         "auth": {
           "auth_dir": "OAuth Kimlik Bilgisi Dizini (oauth.auth-dir)",
-          "auth_dir_hint": "Kimlik Doğrulama Dosyaları için Dizin Yolu (~ Desteklenir)"
+          "auth_dir_hint": "Kimlik Doğrulama Dosyaları için Dizin Yolu (~ Desteklenir)",
+          "title": "Access & Authentication",
+          "description": "API keys, authentication files, and blocked client addresses",
+          "ip_blacklist_blocked_title": "IP Blacklist",
+          "ip_blacklist_blocked_desc": "Manage blocked IP addresses that have exceeded failure thresholds",
+          "ip_blacklist_blocked_hint": "IPs that exceeded the failure threshold within the configured window",
+          "ip_blacklist_refresh": "Refresh",
+          "ip_blacklist_input_placeholder": "Enter IP address to block",
+          "ip_blacklist_add": "Block IP",
+          "ip_blacklist_empty": "No blocked IPs",
+          "ip_blacklist_until": "Blocked until {{value}}",
+          "ip_blacklist_remaining": "{{value}} remaining",
+          "ip_blacklist_attempts": "{{count}} failed attempts",
+          "ip_blacklist_unban": "Unblock"
         },
         "system": {
           "debug": "Hata Ayıklama Modu",
@@ -1403,7 +1537,9 @@
           "antigravity_signature_cache": "Antigravity İmza Önbelleğini Etkinleştir",
           "antigravity_signature_cache_desc": "Önbellekteki Düşünme Bloğu İmzalarını Tercih Et ve Doğrula",
           "antigravity_signature_strict": "Sıkı Atlama İmza Doğrulaması",
-          "antigravity_signature_strict_desc": "Yalnızca İmza Önbelleği Kapalıyken Uygulanır. Tam Claude Protobuf Ağacını Doğrular"
+          "antigravity_signature_strict_desc": "Yalnızca İmza Önbelleği Kapalıyken Uygulanır. Tam Claude Protobuf Ağacını Doğrular",
+          "title": "System Configuration",
+          "description": "Logging, retry behavior, plugins, and runtime settings"
         },
         "headers": {
           "title": "Üst Bilgi Varsayılanları",
@@ -1454,7 +1590,42 @@
           "disable_cooling_desc": "Hatalardan Sonra Kimlik/Model Soğuma Pencerelerini Genel Olarak Devre Dışı Bırak",
           "session_affinity": "Oturum Yakınlığı Yönlendirmesi",
           "ws_auth": "WebSocket Kimlik Doğrulaması",
-          "ws_auth_desc": "AI Studio WebSocket Bağlantıları için Kimlik Doğrulama İste (oauth.providers.aistudio.ws-auth)"
+          "ws_auth_desc": "AI Studio WebSocket Bağlantıları için Kimlik Doğrulama İste (oauth.providers.aistudio.ws-auth)",
+          "routing_mode": "Routing Mode",
+          "routing_mode_hint": "Select whether routing is per-provider or per-API-key",
+          "mode_provider_based": "Provider-Based",
+          "mode_key_based": "Key-Based",
+          "strategy_weight_robin": "Weight Robin",
+          "weight_robin_queue_title": "Weighted Queue",
+          "weight_robin_empty": "No active auth entries",
+          "weight_robin_total": "Total weight: {{weight}} • {{count}} active entries",
+          "token_threshold_rules_title": "Token Threshold Rules",
+          "token_threshold_rules_desc": "Define token limits per model pattern for billing class routing",
+          "model_time_gates_title": "Model Time Gates",
+          "model_time_gates_desc": "Exclude provider/auth/model picks during cron windows (UTC); excluded requests fail over quietly",
+          "add_time_gate": "Add Time Gate",
+          "time_gate_name": "Name",
+          "time_gate_schedule": "Cron (min hour dom month dow, UTC)",
+          "time_gate_duration": "Duration (e.g. 3h)",
+          "time_gate_provider": "Provider (empty = all)",
+          "time_gate_auth_id": "Auth ID (empty = all)",
+          "time_gate_mode": "Mode",
+          "time_gate_mode_exclude": "Exclude listed models",
+          "time_gate_mode_allow": "Allow only listed models",
+          "time_gate_models": "Models, comma separated (exclude: empty = all, allow: empty = none)",
+          "add_token_rule": "Add Token Rule",
+          "billing_class_metered": "Metered Billing Class",
+          "billing_class_per_request": "Per-Request Billing Class",
+          "token_rule_model_pattern": "Token Rule Model Pattern",
+          "token_rule_min_tokens": "Token Rule Min Tokens",
+          "token_rule_max_tokens": "Token Rule Max Tokens",
+          "ip_blacklist_title": "IP Blacklist",
+          "ip_blacklist_desc": "Automatically block IPs that exceed failure thresholds",
+          "ip_blacklist_threshold": "Failure Threshold",
+          "ip_blacklist_window": "Window",
+          "ip_blacklist_window_hint": "Time window to count failures (e.g. 10m, 1h)",
+          "ip_blacklist_duration": "Block Duration",
+          "ip_blacklist_duration_hint": "How long an IP stays blocked (e.g. 24h, 7d)"
         },
         "streaming": {
           "title": "Akış Yapılandırması",
@@ -1480,6 +1651,116 @@
           "override_raw_rules_desc": "Parametre Değerlerini Her Zaman Ham JSON Parçaları Olarak Üzerine Yaz. response_format, Şemalar ve Diğer Karmaşık Alanlar için Kullanışlıdır",
           "filter_rules": "Süzgeç Kuralları",
           "filter_rules_desc": "Yukarı Akış İstek Gövdesini JSON Path ile Önceden Süz. Uygun Olmayan veya Gereksiz Parametreleri Otomatik Kaldır (İstek Temizleme)"
+        },
+        "quota": {
+          "title": "Quota Fallback",
+          "description": "Fallback strategy when quota is exceeded",
+          "switch_project": "Switch Project",
+          "switch_project_desc": "Automatically switch to another project when quota is exceeded",
+          "switch_preview_model": "Switch to Preview Model",
+          "switch_preview_model_desc": "Switch to preview model version when quota is exceeded",
+          "antigravity_credits": "Use Antigravity Credits",
+          "claude_warmup": {
+            "title": "Claude OAuth warmup",
+            "description": "Sends one minimal request per Claude OAuth account on a schedule so each 5-hour usage window starts at a fixed time. Disabled accounts and accounts blocked by the 7-day limit are skipped; a 429 is not retried and missed fires are skipped.",
+            "enabled": "Enable scheduled warmup",
+            "enabled_desc": "Runs on the cron schedule below. Off by default.",
+            "schedule": "Schedule (cron)",
+            "schedule_hint": "Five fields: minute hour day-of-month month day-of-week. Empty uses 50 7 * * 1-5 (weekdays 07:50).",
+            "timezone": "Time zone",
+            "model": "Model",
+            "max_tokens": "Max tokens",
+            "jitter": "Jitter",
+            "jitter_hint": "Maximum random delay between accounts (Go duration, e.g. 60s). 0s disables it.",
+            "run_now": "Run now",
+            "run_hint": "Runs immediately with the saved settings, without delay between accounts.",
+            "run_failed": "Warmup run failed",
+            "run_summary": "{{succeeded}}/{{total}} accounts succeeded ({{model}})",
+            "run_empty": "No eligible Claude OAuth accounts.",
+            "col_account": "Account",
+            "col_result": "Result",
+            "col_attempts": "Attempts",
+            "col_detail": "Detail",
+            "result_ok": "OK",
+            "result_failed": "Failed"
+          }
+        },
+        "fallback": {
+          "title": "Model Fallback Chain",
+          "description": "Configure fallback models and chain for automatic failover when the primary model fails",
+          "models_title": "Fallback Model Mapping",
+          "models_hint": "Define specific model-to-fallback mappings. When a model fails, it will try the mapped fallback model first.",
+          "chain_title": "Fallback Chain",
+          "chain_hint": "Ordered list of fallback models to try when the primary model and model-specific fallbacks fail",
+          "add_model": "Add Fallback Model",
+          "add_chain": "Add Chain Item",
+          "source_placeholder": "Source model",
+          "target_placeholder": "Fallback model",
+          "chain_placeholder": "Fallback model",
+          "chain_max_error": "The fallback chain supports up to 20 models",
+          "max_depth_title": "Fallback Max Depth",
+          "max_depth_hint": "Maximum number of fallback models to try from the chain (default: 3). Set higher (e.g. 10) for long fallback chains.",
+          "max_depth_placeholder": "3"
+        },
+        "keeper_export": {
+          "title": "Keeper Export",
+          "description": "Durably push redacted usage and metadata to a Keeper instance without storing tokens in the browser.",
+          "fields": {
+            "enabled": "Enable Keeper Export",
+            "keeper_url": "Keeper URL",
+            "token_env": "Token environment variable",
+            "token_env_hint": "Enter the environment variable name only. Leave this blank when a direct token is set in the owner-only CPA YAML file; token values never enter this form or browser storage.",
+            "outbox_path": "Durable outbox path",
+            "outbox_quota": "Outbox quota (bytes)",
+            "delivery": "Delivery",
+            "max_batch_events": "Maximum batch events",
+            "max_batch_bytes": "Maximum batch bytes",
+            "flush_interval": "Flush interval (ms)",
+            "request_timeout": "Request timeout (ms)",
+            "initial_backoff": "Initial backoff (ms)",
+            "max_backoff": "Maximum backoff (ms)",
+            "metadata": "Metadata snapshots",
+            "metadata_enabled": "Send complete metadata snapshots",
+            "metadata_interval": "Metadata interval (ms)",
+            "metadata_categories": "Metadata category",
+            "auth_files": "Authentication files",
+            "api_keys": "API keys",
+            "provider_identities": "Provider identities",
+            "privacy": "Privacy controls",
+            "include_client_ip": "Include client IP",
+            "include_forwarded_for": "Include forwarded-for",
+            "include_user_agent": "Include user agent",
+            "tls": "TLS and client certificates",
+            "ca_file": "CA bundle path",
+            "client_cert_file": "Client certificate path",
+            "client_key_file": "Client key path"
+          },
+          "test_success": "Connection verified",
+          "token_configured": "Token configured",
+          "token_not_configured": "Token not configured",
+          "token_status_unknown": "Token status unavailable",
+          "actions": {
+            "refresh_status": "Refresh status",
+            "test_connection": "Test connection"
+          },
+          "status": {
+            "disabled": "Disabled",
+            "starting": "Starting",
+            "connected": "Connected",
+            "retrying": "Retrying",
+            "degraded": "Degraded",
+            "blocked": "Blocked",
+            "backlog": "backlog events",
+            "acknowledged": "ACK through",
+            "next": "next expected",
+            "revisions": "revisions"
+          },
+          "eyebrow": "KEEPER EXPORT / V1",
+          "search_placeholder": "Search visual fields",
+          "search_label": "Search visual fields",
+          "search_previous": "Previous visual field",
+          "search_next": "Next visual field",
+          "test_failed": "Connection test failed"
         }
       },
       "api_keys": {
@@ -1506,7 +1787,12 @@
           "fair": "Orta",
           "good": "İyi",
           "strong": "Güçlü"
-        }
+        },
+        "models_label": "Allowed model patterns",
+        "models_placeholder": "gpt-*\ngpt-5.2",
+        "models_hint": "One pattern per line. Leave empty to allow every model. Use * as a wildcard.",
+        "model_all": "Models: all allowed",
+        "model_restricted": "Models: {{patterns}}"
       },
       "payload_rules": {
         "rule": "Kural",
@@ -1576,15 +1862,48 @@
         "integer_range_1_3600": "1 ile 3600 Arasında Bir Tam Sayı Gir",
         "payload_invalid_number": "Geçerli Bir Sayı Gir",
         "payload_invalid_boolean": "true veya false Seç",
-        "payload_invalid_json": "Geçerli JSON Gir"
+        "payload_invalid_json": "Geçerli JSON Gir",
+        "usage_statistics_required": "Enable usage statistics before enabling Keeper Export",
+        "keeper_url_required": "Enter a Keeper URL",
+        "keeper_url_scheme": "Use an HTTP or HTTPS Keeper URL without query or fragment",
+        "keeper_token_env": "Use an uppercase environment variable name",
+        "keeper_outbox_path": "Use an absolute outbox path",
+        "keeper_outbox_bytes": "Outbox quota must be 16 MiB to 1 TiB",
+        "keeper_batch_events": "Batch events must be between 1 and 500",
+        "keeper_batch_bytes": "Batch bytes must be between 64 KiB and 1 MiB",
+        "keeper_flush_interval": "Flush interval must be between 100 ms and 60 s",
+        "keeper_request_timeout": "Request timeout must be between 1 s and 120 s",
+        "keeper_initial_backoff": "Initial backoff must be between 100 ms and 60 s",
+        "keeper_max_backoff": "Maximum backoff must be at least the initial backoff",
+        "keeper_metadata_interval": "Metadata interval must be between 1 minute and 24 hours",
+        "keeper_metadata_categories": "Select at least one metadata category"
       },
       "common": {
         "edit": "Düzenle",
         "delete": "Sil",
         "cancel": "İptal",
         "update": "Güncelle",
-        "add": "Ekle"
+        "add": "Ekle",
+        "enabled": "Enabled"
+      },
+      "quick_jump": "Quick jump",
+      "validation_blocked_short": "Fix errors",
+      "oauth_endpoints": {
+        "title": "OAuth endpoint overrides",
+        "description": "Override authorize, token, refresh, userinfo, device authorization, or API base URLs per OAuth provider.",
+        "add_override": "Add override",
+        "provider_placeholder": "Provider key, e.g. claude",
+        "api_base_url": "API base URL",
+        "authorize_url": "Authorize URL",
+        "token_url": "Token URL",
+        "refresh_url": "Refresh URL (optional)",
+        "userinfo_url": "Userinfo URL (optional)",
+        "device_authorize_url": "Device authorize URL (optional)"
       }
+    },
+    "tabs": {
+      "visual": "Visual editor",
+      "source": "Source editor"
     }
   },
   "quota_management": {
@@ -1632,7 +1951,12 @@
     "weekday_wed": "Çar",
     "weekday_thu": "Per",
     "weekday_fri": "Cum",
-    "weekday_sat": "Cmt"
+    "weekday_sat": "Cmt",
+    "refresh_files": "Refresh auth files",
+    "refresh_files_and_quota": "Refresh files & quota",
+    "card_idle_hint": "Use the top \"Refresh all credentials\" button to fetch the latest quota data.",
+    "primary_credential": "Primary",
+    "standby_credential": "Standby"
   },
   "routing": {
     "title": "Yönlendirme",
@@ -1919,7 +2243,8 @@
     "clear_login_title": "Yerel Giriş Verisi",
     "clear_login_desc": "Yerel Olarak Kaydedilen Giriş Verisini Temizle ve Oturumu Kapat.",
     "clear_login_button": "Giriş Verisini Temizle",
-    "clear_login_confirm": "Yerel Giriş Verisi Temizlensin ve Oturum Şimdi Kapatılsın Mı?"
+    "clear_login_confirm": "Yerel Giriş Verisi Temizlensin ve Oturum Şimdi Kapatılsın Mı?",
+    "request_log_disabled": "Request logging disabled"
   },
   "notification": {
     "trusted_proxies_restart_required": "Güvenilen Proxy Ayarları Kaydedildi. Uygulamak için Arka Ucu Yeniden Başlat.",
@@ -1941,7 +2266,45 @@
     "login_failed": "Giriş Başarısız",
     "commercial_mode_restart_required": "Ticari Mod Ayarı Değişti. Etki Etmesi için Hizmeti Yeniden Başlat",
     "copy_failed": "Kopyalama Başarısız",
-    "link_copied": "Bağlantı Panoya Kopyalandı"
+    "link_copied": "Bağlantı Panoya Kopyalandı",
+    "api_key_ip_blacklist_banned": "Blocked IP {{ip}}",
+    "api_key_ip_blacklist_unbanned": "Unblocked IP {{ip}}",
+    "load_failed": "Failed to load",
+    "please_enter": "Please enter",
+    "save_failed": "Failed to save",
+    "api_key_added": "API key added successfully",
+    "api_key_updated": "API key updated successfully",
+    "api_key_deleted": "API key deleted successfully",
+    "api_key_invalid_chars": "API key can only contain letters, numbers, and symbols",
+    "gemini_key_added": "Gemini key added successfully",
+    "gemini_key_updated": "Gemini key updated successfully",
+    "gemini_key_deleted": "Gemini key deleted successfully",
+    "gemini_multi_input_required": "Please enter at least one Gemini key",
+    "gemini_multi_failed": "Gemini bulk add failed",
+    "gemini_multi_summary": "Gemini bulk add finished: {{success}} added, {{skipped}} skipped, {{failed}} failed",
+    "codex_config_added": "Codex configuration added successfully",
+    "codex_config_updated": "Codex configuration updated successfully",
+    "codex_config_deleted": "Codex configuration deleted successfully",
+    "codex_base_url_required": "Please enter the Codex Base URL",
+    "claude_config_added": "Claude configuration added successfully",
+    "claude_config_updated": "Claude configuration updated successfully",
+    "claude_config_deleted": "Claude configuration deleted successfully",
+    "vertex_config_added": "Vertex configuration added successfully",
+    "vertex_config_updated": "Vertex configuration updated successfully",
+    "vertex_config_deleted": "Vertex configuration deleted successfully",
+    "config_enabled": "Configuration enabled",
+    "config_disabled": "Configuration disabled",
+    "field_required": "Required fields cannot be empty",
+    "openai_provider_required": "Please fill in provider name and Base URL",
+    "openai_provider_added": "OpenAI provider added successfully",
+    "openai_provider_updated": "OpenAI provider updated successfully",
+    "openai_provider_deleted": "OpenAI provider deleted successfully",
+    "ampcode_updated": "Ampcode configuration updated",
+    "ampcode_upstream_api_key_cleared": "Ampcode upstream API key override cleared",
+    "openai_model_name_required": "Model name is required",
+    "openai_test_url_required": "Please provide a valid Base URL before testing",
+    "openai_test_key_required": "Please add at least one API key before testing",
+    "openai_test_model_required": "Please select a model to test"
   },
   "language": {
     "switch": "Dil",
@@ -2080,7 +2443,10 @@
     "categories": {
       "title": "Sağlayıcılar",
       "quickFill": "Hızlı Doldur",
-      "activeCount": "{{active}} / {{total}} Aktif"
+      "activeCount": "{{active}} / {{total}} Aktif",
+      "ampcodeActive": "Connected",
+      "ampcodeInactive": "Not configured",
+      "sponsors": "Sponsors"
     },
     "providerNames": {
       "meta": "Muse (Meta)",
@@ -2094,7 +2460,12 @@
       "apikeyFun": "APIKEY.FUN",
       "fennoAI": "FennoAI",
       "qiniuCloud": "Qiniu Cloud",
-      "kimi": "Kimi"
+      "kimi": "Kimi",
+      "mistral": "Mistral AI",
+      "opencode": "OpenCode",
+      "ampcode": "Amp CLI",
+      "commandcode": "CommandCode",
+      "freebuff": "Freebuff"
     },
     "table": {
       "key": "Anahtar",
@@ -2106,14 +2477,17 @@
       "metrics": {
         "models": "Modeller",
         "keys": "Anahtarlar",
-        "headers": "Üst Bilgiler"
+        "headers": "Üst Bilgiler",
+        "mappings": "Mappings"
       },
       "websocketsTag": "WebSockets",
       "cloakTag": "Cloak",
       "cliProfileTag": "CLI Profili",
       "empty": "Henüz Kaynak Yok. Eklemek için \"Yeni\" Seçeneğine Tıkla.",
       "filterPlaceholder": "Anahtar, URL veya Önek Ara…",
-      "description": "{{route}} Altındaki Kaynakları Yönet"
+      "description": "{{route}} Altındaki Kaynakları Yönet",
+      "priority": "Priority",
+      "noFallbackKey": "No fallback key"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -2266,7 +2640,10 @@
         "high": "Yüksek",
         "xhigh": "Çok Yüksek",
         "max": "En Yüksek",
-        "auto": "Otomatik"
+        "auto": "Otomatik",
+        "enable": "Enable thinking",
+        "disable": "Disable thinking",
+        "adaptive": "Adaptive thinking"
       },
       "cloakCacheUserId": "user_id Önbelleğe Al",
       "cloakCacheUserIdHint": "Claude Cloak user_id Değerini API Anahtarı Başına Yeniden Kullan",
@@ -2280,11 +2657,26 @@
         "baseUrlRequired": "Temel URL Zorunlu",
         "weightInteger": "Zamanlama Ağırlığı Tam Sayı Olmalıdır",
         "weightMax": "Zamanlama Ağırlığı {{max}} Değerini Aşamaz"
-      }
+      },
+      "clientId": "Client ID",
+      "comment": "Comment",
+      "commentPlaceholder": "Optional note for this credential",
+      "systemContentAsString": "Send system content as a string",
+      "systemContentAsStringHint": "For this provider, convert system message text arrays to strings. Off by default; enable for gateways that require string content.",
+      "maxOutputTokens": "Max output tokens",
+      "maxOutputTokensPlaceholder": "e.g. 1024",
+      "modelEndpoints": "Upstream endpoints",
+      "modelEndpointsLabel": "Upstream endpoints for {{model}}",
+      "modelEndpointsAutomatic": "Automatic (provider default)",
+      "modelEndpointsResponses": "Responses only",
+      "modelEndpointsChat": "Chat Completions only",
+      "modelEndpointsHint": "Choose the endpoints this model accepts upstream. Automatic keeps the default; a single endpoint lets the proxy translate requests for this model only."
     },
     "delete": {
       "title": "Kaynağı Sil",
-      "confirm": "{{name}} Silinsin Mi? Bu Eylem Geri Alınamaz."
+      "confirm": "{{name}} Silinsin Mi? Bu Eylem Geri Alınamaz.",
+      "ampcodeTitle": "Clear Amp CLI configuration",
+      "ampcodeConfirm": "Clear all Amp CLI configuration? Upstream URL, keys and model mappings will be removed."
     },
     "toast": {
       "created": "Oluşturuldu",
@@ -2346,6 +2738,20 @@
     },
     "modelCatalog": {
       "notLoaded": "Yüklenmedi"
+    },
+    "ampcode": {
+      "upstreamUrl": "Upstream URL",
+      "upstreamApiKey": "Upstream API key (fallback)",
+      "upstreamApiKeyHint": "Used when no key mapping matches",
+      "keyMappingsSection": "Upstream key mappings",
+      "mappingRow": "Mapping #{{index}}",
+      "clientKeys": "Client keys",
+      "clientKeysHint": "One per line; matched keys forward to the upstream key above",
+      "addMapping": "Add key mapping",
+      "modelMappingsSection": "Model mappings",
+      "addModelMapping": "Add model mapping",
+      "forceModelMappings": "Force model mappings",
+      "forceModelMappingsHint": "Requests that don't match a mapping are rejected"
     }
   },
   "claude_reset": {
@@ -2415,5 +2821,109 @@
     "error": "Bağlama Başarısız Oldu. Lütfen Yeniden Başla.",
     "unsupported": "Bu Arka Uç SIWC Bağlamayı Desteklemiyor.",
     "expired": "Bağlama Oturumunun Süresi Doldu. Lütfen Yeniden Başla."
+  },
+  "weight_robin_queue": {
+    "select_model": "Select model/alias",
+    "all_models": "All models",
+    "auto_refresh_on": "Auto: ON",
+    "auto_refresh_off": "Auto: OFF",
+    "current_position": "Current Position",
+    "last_picked": "Last Picked",
+    "total_picks": "Total Picks",
+    "picks_delta": "Picks (last 2s)",
+    "last_picked_at": "Last Picked At",
+    "page_title": "Weight-Robin Queue",
+    "page_subtitle": "Detailed view of the weighted cycle used by weight-robin routing strategy.",
+    "back_to_config": "Back to Config",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "last_updated": "Last updated",
+    "active_entries": "Active Entries",
+    "total_weight": "Total Weight",
+    "avg_weight": "Average Weight",
+    "cycle_length": "Cycle Length",
+    "distribution_title": "Weight Distribution",
+    "table_title": "Auth File Details",
+    "cycle_title": "Shuffled Cycle Preview",
+    "cycle_hint": "Each auth appears N times (its weight), then the cycle is shuffled. The current position is highlighted.",
+    "cycle_hint_raw": "Shuffled Cycle Preview — the actual cycle as returned by the backend.",
+    "cycle_length_short": "length",
+    "cycle_slots": "slots",
+    "cycle_empty": "No active auths in this cycle",
+    "no_entries": "No active auth entries. Enable at least one auth file with a non-negative priority to use weight-robin.",
+    "alias_queue_title": "Queue by Alias / Model",
+    "no_alias_groups": "No alias or model mappings found. Configure aliases in your openai-compatibility providers to see per-alias queues.",
+    "alias_groups": "Alias / Model Groups",
+    "provider_group": "{{count}} auths",
+    "weight_unit": "w:",
+    "weight_normalized_format": "/ {{normalized}}",
+    "cycle_truncated": "Showing head + tail ({{shown}} of {{total}} slots) to keep the view compact.",
+    "col_provider": "Provider",
+    "col_name": "Name",
+    "col_priority": "Priority",
+    "col_weight": "Weight",
+    "col_share": "Share"
+  },
+  "kiro_quota": {
+    "title": "Kiro Quota",
+    "empty_title": "No Kiro Auth Files",
+    "empty_desc": "Connect a Kiro credential to view subscription usage.",
+    "idle": "Click here to refresh quota",
+    "loading": "Loading quota...",
+    "load_failed": "Failed to load quota: {{message}}",
+    "missing_auth_index": "Auth file missing auth_index",
+    "empty_data": "No quota data available",
+    "refresh_button": "Refresh Quota",
+    "fetch_all": "Fetch All",
+    "plan_label": "Plan"
+  },
+  "zcode_quota": {
+    "title": "Zcode (Z.AI) quota",
+    "empty_title": "No Zcode credentials",
+    "empty_desc": "Add a Zcode (Z.AI) credential to view its coding-plan quota here.",
+    "idle": "Click to load Zcode quota",
+    "loading": "Loading Zcode quota…",
+    "load_failed": "Failed to load Zcode quota: {{message}}",
+    "missing_auth_index": "Zcode credential is missing an auth index; refresh the file list.",
+    "empty_data": "No quota data returned for this credential.",
+    "refresh_button": "Refresh quota",
+    "fetch_all": "Fetch all",
+    "plan_label": "Plan level",
+    "window_five_hour": "5-hour window",
+    "window_weekly": "Weekly window",
+    "window_mcp": "MCP / time limit",
+    "window_monthly": "Monthly",
+    "used_of": "{{used}}% used"
+  },
+  "auth_file_details": {
+    "model_aliases": {
+      "label": "Model Aliases",
+      "name_placeholder": "Source model name",
+      "alias_placeholder": "Alias (required)",
+      "fork_label": "Keep original",
+      "add": "Add alias",
+      "hint": "Per-account model aliases. Requests for the source model are routed to the alias.",
+      "error_empty_name": "Alias rows need a source model name.",
+      "error_empty_alias": "Alias rows need an alias.",
+      "error_name_equals_alias": "Source model and alias must differ.",
+      "error_duplicate_alias": "Duplicate alias within this account."
+    }
+  },
+  "commandcode_quota": {
+    "title": "Command Code quota",
+    "empty_title": "No Command Code credentials",
+    "empty_desc": "Add a Command Code credential to view its account quota here.",
+    "idle": "Click to load Command Code quota",
+    "loading": "Loading Command Code quota…",
+    "load_failed": "Failed to load Command Code quota: {{message}}",
+    "missing_auth_index": "Command Code credential is missing an auth index; refresh the file list.",
+    "empty_data": "No quota data returned for this credential.",
+    "refresh_button": "Refresh quota",
+    "fetch_all": "Fetch all",
+    "window_five_hour": "5-hour window",
+    "window_weekly": "Weekly window",
+    "used_of": "{{used}}% used",
+    "credits_label": "Subscription credits",
+    "credits_used": "{{used}} / {{limit}} used"
   }
 }

@@ -91,8 +91,7 @@
     "error_server": "백엔드에서 관리 요청을 처리하는 동안 오류가 발생했습니다. 서버 로그를 확인하세요",
     "error_cors": "교차 출처 요청(CORS)이 차단되었습니다. 서버 설정을 확인하세요",
     "error_ssl": "SSL/TLS 인증서 확인에 실패했습니다",
-    "show_key": "키 표시",
-    "hide_key": "키 숨기기"
+    "subtitle": "CLI Proxy API v8 이상에 연결"
   },
   "header": {
     "refresh_all": "모두 새로 고침",

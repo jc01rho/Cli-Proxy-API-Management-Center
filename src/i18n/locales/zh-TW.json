@@ -78,8 +78,6 @@
     "remember_password_label": "記住密碼",
     "management_key_label": "管理金鑰",
     "management_key_placeholder": "請輸入管理金鑰",
-    "show_key": "顯示金鑰",
-    "hide_key": "隱藏金鑰",
     "submit_button": "登入",
     "submitting": "連線中...",
     "error_backend_detail": "後端返回",
@@ -178,7 +176,8 @@
     "col_name": "名稱",
     "col_priority": "優先級",
     "col_weight": "權重",
-    "col_share": "佔比"
+    "col_share": "佔比",
+    "cycle_truncated": "僅顯示頭尾部分（{{shown}} / {{total}} 個槽位），以保持檢視精簡。"
   },
   "dashboard": {
     "hero_verdict_good": "運行平穩",
@@ -511,7 +510,11 @@
     "quota_refresh_success": "已重新整理「{{name}}」的配額",
     "quota_refresh_failed": "重新整理「{{name}}」的配額失敗：{{message}}",
     "weight_display": "WRR 權重",
-    "filter_commandcode": "Command Code"
+    "filter_commandcode": "Command Code",
+    "cooldown_models_one": "{{count}} 個模型冷卻",
+    "cooldown_models_other": "{{count}} 個模型冷卻",
+    "cooldown_credential_and_models_one": "憑證及 {{count}} 個模型冷卻",
+    "cooldown_credential_and_models_other": "憑證及 {{count}} 個模型冷卻"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -2563,7 +2566,9 @@
       "fennoAI": "FennoAI",
       "qiniuCloud": "七牛雲",
       "kimi": "Kimi",
-      "interactions": "Interactions API"
+      "interactions": "Interactions API",
+      "commandcode": "CommandCode",
+      "freebuff": "Freebuff"
     },
     "table": {
       "key": "金鑰",
@@ -2952,4 +2957,3 @@
     "expired": "綁定工作階段已過期，請重新開始。"
   }
 }
-

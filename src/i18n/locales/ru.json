@@ -78,8 +78,6 @@
     "remember_password_label": "Запомнить пароль",
     "management_key_label": "Ключ управления",
     "management_key_placeholder": "Введите ключ управления",
-    "show_key": "Показать ключ",
-    "hide_key": "Скрыть ключ",
     "submit_button": "Войти",
     "submitting": "Подключение...",
     "error_backend_detail": "Ответ сервера",
@@ -121,7 +119,8 @@
     "operate": "Работа",
     "gateway": "Шлюз",
     "observe": "Наблюдение",
-    "control": "Управление"
+    "control": "Управление",
+    "plugin_pages": "Плагины"
   },
   "nav_meta": {
     "dashboard": "Обзор работы",
@@ -177,7 +176,8 @@
     "col_name": "Имя",
     "col_priority": "Приоритет",
     "col_weight": "Вес",
-    "col_share": "Доля"
+    "col_share": "Доля",
+    "cycle_truncated": "Показаны начало и конец ({{shown}} из {{total}} слотов), чтобы вид оставался компактным."
   },
   "dashboard": {
     "hero_verdict_good": "Всё стабильно",
@@ -2540,7 +2540,9 @@
       "fennoAI": "FennoAI",
       "qiniuCloud": "Qiniu Cloud",
       "kimi": "Kimi",
-      "interactions": "Interactions API"
+      "interactions": "Interactions API",
+      "commandcode": "CommandCode",
+      "freebuff": "Freebuff"
     },
     "table": {
       "key": "Ключ",
@@ -2929,4 +2931,3 @@
     "expired": "Сеанс привязки истёк. Начните заново."
   }
 }
-

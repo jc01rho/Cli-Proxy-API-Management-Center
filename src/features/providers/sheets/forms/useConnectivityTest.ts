@@ -2,12 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiCallApi, getApiCallErrorMessage } from '@/services/api';
 import {
   DEFAULT_COMMANDCODE_PROBE_MODEL,
-  DEFAULT_FREEBUFF_BASE_URL,
-  DEFAULT_FREEBUFF_PROBE_MODEL,
   buildCodexResponsesEndpoint,
   buildClaudeMessagesEndpoint,
   buildCommandCodeGenerateEndpoint,
-  buildFreebuffSessionEndpoint,
   buildGeminiGenerateContentEndpoint,
   buildInteractionsEndpoint,
   buildInteractionsProbePayload,
@@ -61,11 +58,6 @@ export const pickCommandCodeProbeModel = (
   models: ModelEntryInput[]
 ): string => pickModel(testModel, models) || DEFAULT_COMMANDCODE_PROBE_MODEL;
 
-export const pickFreebuffProbeModel = (
-  testModel: string | undefined,
-  models: ModelEntryInput[]
-): string => pickModel(testModel, models) || DEFAULT_FREEBUFF_PROBE_MODEL;
-
 const resolveBearerToken = (headers: Record<string, string>): string => {
   const auth = Object.entries(headers).find(([k]) => k.toLowerCase() === 'authorization')?.[1];
   if (!auth) return '';
@@ -101,21 +93,13 @@ const buildCommandCodeEndpoint = (baseUrl: string): string | null => {
   return buildCommandCodeGenerateEndpoint(baseUrl) || null;
 };
 
-const buildFreebuffEndpoint = (baseUrl: string): string | null => {
-  const source = baseUrl.trim() || DEFAULT_FREEBUFF_BASE_URL;
-  // Official Codebuff has no /api/v1/models catalog. GET /api/v1/freebuff/session
-  // is the first executor hop and returns JSON 401/200 instead of Next.js HTML.
-  return buildFreebuffSessionEndpoint(source) || null;
-};
-
-export type ApiKeyEntriesConnectivityKind = 'openaiCompatibility' | 'commandcode' | 'freebuff';
+export type ApiKeyEntriesConnectivityKind = 'openaiCompatibility' | 'commandcode';
 
 export function apiKeyEntriesConnectivityKind(
   brand: ProviderBrand
 ): ApiKeyEntriesConnectivityKind | null {
   if (brand === 'openaiCompatibility') return 'openaiCompatibility';
   if (brand === 'commandcode') return 'commandcode';
-  if (brand === 'freebuff') return 'freebuff';
   return null;
 }
 
@@ -198,7 +182,6 @@ export interface UseConnectivityTestResult {
   geminiStatus: ConnectivityStatus;
   claudeStatus: ConnectivityStatus;
   commandcodeStatus: ConnectivityStatus;
-  freebuffStatus: ConnectivityStatus;
   opencodeStatus: ConnectivityStatus;
   isTestingAny: boolean;
   runOpenAIKey: (idx: number) => Promise<boolean>;
@@ -211,9 +194,6 @@ export interface UseConnectivityTestResult {
   runCommandCode: () => Promise<void>;
   runCommandCodeKey: (idx: number) => Promise<boolean>;
   runCommandCodeAllKeys: () => Promise<void>;
-  runFreebuff: () => Promise<void>;
-  runFreebuffKey: (idx: number) => Promise<boolean>;
-  runFreebuffAllKeys: () => Promise<void>;
 }
 
 export function useConnectivityTest(
@@ -244,7 +224,6 @@ export function useConnectivityTest(
   const [geminiStatus, setGeminiStatus] = useState<ConnectivityStatus>(IDLE);
   const [claudeStatus, setClaudeStatus] = useState<ConnectivityStatus>(IDLE);
   const [commandcodeStatus, setCommandcodeStatus] = useState<ConnectivityStatus>(IDLE);
-  const [freebuffStatus, setFreebuffStatus] = useState<ConnectivityStatus>(IDLE);
   const [opencodeStatus, setOpencodeStatus] = useState<ConnectivityStatus>(IDLE);
   const [inFlight, setInFlight] = useState(0);
 
@@ -309,7 +288,6 @@ export function useConnectivityTest(
     setGeminiStatus(IDLE);
     setClaudeStatus(IDLE);
     setCommandcodeStatus(IDLE);
-    setFreebuffStatus(IDLE);
     setOpencodeStatus(IDLE);
   }, [signature]);
 
@@ -912,127 +890,6 @@ export function useConnectivityTest(
     }
   }, [apiKeyEntries, brand, runCommandCodeKey]);
 
-
-  const runFreebuff = useCallback(async (): Promise<void> => {
-    if (brand !== 'freebuff') return;
-
-    const endpoint = buildFreebuffEndpoint(baseUrl ?? '');
-    if (!endpoint) {
-      setFreebuffStatus({ state: 'error', message: messages.endpointInvalid });
-      return;
-    }
-
-    const customHeaders = buildHeaderObject(formHeaders);
-    const firstEntry = apiKeyEntries?.[0];
-    const explicitKey = ((firstEntry?.apiKey ?? '') || (apiKey ?? '')).trim();
-    const persistedKey = (
-      firstEntry?.existingApiKey?.trim() ||
-      (fallbackApiKey ?? '').trim()
-    );
-    const headerKey = resolveBearerToken(customHeaders);
-    const resolvedKey = explicitKey || persistedKey || headerKey;
-    const resolvedAuthIndex =
-      firstEntry?.authIndex?.trim() || (authIndex ?? '').trim() || undefined;
-
-    if (!resolvedKey && !resolvedAuthIndex) {
-      setFreebuffStatus({ state: 'error', message: messages.apiKeyRequired });
-      return;
-    }
-
-    const headerObj = buildCommandCodeHeaderObj(formHeaders, resolvedKey, resolvedAuthIndex);
-
-    setFreebuffStatus({ state: 'loading', message: '' });
-    setInFlight((n) => n + 1);
-    try {
-      const result = await apiCallApi.request(
-        {
-          authIndex: resolvedAuthIndex,
-          method: 'GET',
-          url: endpoint,
-          header: headerObj,
-        },
-        { timeout: DEFAULT_TIMEOUT_MS }
-      );
-      if (result.statusCode < 200 || result.statusCode >= 300) {
-        throw new Error(getApiCallErrorMessage(result));
-      }
-      setFreebuffStatus({ state: 'success', message: '' });
-    } catch (err) {
-      setFreebuffStatus({
-        state: 'error',
-        message: requestFailureMessage(err, messages),
-      });
-    } finally {
-      setInFlight((n) => n - 1);
-    }
-  }, [
-    apiKey,
-    apiKeyEntries,
-    authIndex,
-    baseUrl,
-    brand,
-    fallbackApiKey,
-    formHeaders,
-    messages,
-  ]);
-
-  const runFreebuffKey = useCallback(
-    async (idx: number): Promise<boolean> => {
-      if (brand !== 'freebuff') return false;
-      const entry = apiKeyEntries?.[idx];
-      if (!entry) return false;
-      const trimmedBase = (baseUrl ?? '').trim() || DEFAULT_FREEBUFF_BASE_URL;
-      const endpoint = buildFreebuffEndpoint(trimmedBase);
-      if (!endpoint) {
-        updateOpenaiStatus(idx, { state: 'error', message: messages.endpointInvalid });
-        return false;
-      }
-      const entryKey = (entry.apiKey ?? '').trim() || (entry.existingApiKey ?? '').trim();
-      const resolvedAuthIndex = (entry.authIndex ?? '').trim() || (authIndex ?? '').trim() || undefined;
-      if (!entryKey && !resolvedAuthIndex) {
-        updateOpenaiStatus(idx, { state: 'error', message: messages.apiKeyRequired });
-        return false;
-      }
-      const headerObj = buildCommandCodeHeaderObj(formHeaders, entryKey, resolvedAuthIndex);
-      updateOpenaiStatus(idx, { state: 'loading', message: '' });
-      setInFlight((n) => n + 1);
-      try {
-        const result = await apiCallApi.request(
-          {
-            authIndex: resolvedAuthIndex,
-            method: 'GET',
-            url: endpoint,
-            header: headerObj,
-          },
-          { timeout: DEFAULT_TIMEOUT_MS }
-        );
-        if (result.statusCode < 200 || result.statusCode >= 300) {
-          throw new Error(getApiCallErrorMessage(result));
-        }
-        updateOpenaiStatus(idx, { state: 'success', message: '' });
-        return true;
-      } catch (err) {
-        updateOpenaiStatus(idx, {
-          state: 'error',
-          message: requestFailureMessage(err, messages),
-        });
-        return false;
-      } finally {
-        setInFlight((n) => n - 1);
-      }
-    },
-    [apiKeyEntries, authIndex, baseUrl, brand, formHeaders, messages, updateOpenaiStatus]
-  );
-
-  const runFreebuffAllKeys = useCallback(async (): Promise<void> => {
-    if (brand !== 'freebuff') return;
-    const entries = apiKeyEntries ?? [];
-    for (let i = 0; i < entries.length; i += 1) {
-      await runFreebuffKey(i);
-    }
-  }, [apiKeyEntries, brand, runFreebuffKey]);
-
-
   const runMistral = useCallback(async (): Promise<void> => {
     if (brand !== 'mistral') return;
 
@@ -1130,7 +987,6 @@ export function useConnectivityTest(
     geminiStatus,
     claudeStatus,
     commandcodeStatus,
-    freebuffStatus,
     opencodeStatus,
     isTestingAny: inFlight > 0,
     runOpenAIKey,
@@ -1143,8 +999,5 @@ export function useConnectivityTest(
     runCommandCode,
     runCommandCodeKey,
     runCommandCodeAllKeys,
-    runFreebuff,
-    runFreebuffKey,
-    runFreebuffAllKeys,
   };
 }

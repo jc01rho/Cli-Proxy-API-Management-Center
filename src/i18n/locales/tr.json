@@ -2464,8 +2464,7 @@
       "mistral": "Mistral AI",
       "opencode": "OpenCode",
       "ampcode": "Amp CLI",
-      "commandcode": "CommandCode",
-      "freebuff": "Freebuff"
+      "commandcode": "CommandCode"
     },
     "table": {
       "key": "Anahtar",

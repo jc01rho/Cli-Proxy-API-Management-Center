@@ -64,7 +64,6 @@ function providerKeyToResource(
     | 'interactions'
     | 'codex'
     | 'commandcode'
-    | 'freebuff'
     | 'meta'
     | 'xai'
     | 'claude'
@@ -138,24 +137,6 @@ export function commandcodeToResource(config: ProviderKeyConfig, index: number):
   return {
     ...resource,
     id: buildId('commandcode', index, truncateForId(firstKey)),
-    identifier: maskApiKey(firstKey) || `#${index + 1}`,
-    apiKeyPreview: firstKey ? maskApiKey(firstKey) : null,
-    apiKey: firstKey || null,
-    apiKeyEntryCount: entries.length,
-    selector: {
-      ...resource.selector,
-      apiKey: firstKey,
-    } as ProviderResourceSelector,
-  };
-}
-
-export function freebuffToResource(config: ProviderKeyConfig, index: number): ProviderResource {
-  const resource = providerKeyToResource('freebuff', config, index);
-  const entries = config.apiKeyEntries ?? [];
-  const firstKey = (config.apiKey ?? '').trim() || entries[0]?.apiKey?.trim() || '';
-  return {
-    ...resource,
-    id: buildId('freebuff', index, truncateForId(firstKey)),
     identifier: maskApiKey(firstKey) || `#${index + 1}`,
     apiKeyPreview: firstKey ? maskApiKey(firstKey) : null,
     apiKey: firstKey || null,

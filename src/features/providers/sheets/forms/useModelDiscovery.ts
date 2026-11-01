@@ -14,7 +14,6 @@ export const MODEL_DISCOVERY_BRANDS: ReadonlyArray<ProviderBrand> = [
   'claude',
   'openaiCompatibility',
   'commandcode',
-  'freebuff',
   'opencode',
   'mistral',
 ];
@@ -153,23 +152,6 @@ export function useModelDiscovery(args: UseModelDiscoveryArgs): UseModelDiscover
           key,
           baseHeaders,
           resolvedAuthIndex
-        );
-      } else if (brand === 'freebuff') {
-        const firstEntry = (apiKeyEntries ?? []).find(
-          (e) =>
-            (e.apiKey ?? '').trim() || (e.existingApiKey ?? '').trim() || (e.authIndex ?? '').trim()
-        );
-        const entryKey =
-          (firstEntry?.apiKey ?? '').trim() ||
-          (firstEntry?.existingApiKey ?? '').trim() ||
-          (apiKey ?? '').trim() ||
-          (fallbackApiKey ?? '').trim();
-        const entryAuthIndex = (firstEntry?.authIndex ?? '').trim() || resolvedAuthIndex;
-        next = await modelsApi.fetchFreebuffModelsViaApiCall(
-          baseUrl,
-          entryKey,
-          baseHeaders,
-          entryAuthIndex
         );
       }
       setModels(next ?? []);

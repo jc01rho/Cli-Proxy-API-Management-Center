@@ -137,41 +137,6 @@ export const buildOpenCodeModelsEndpoint = (baseUrl: string): string =>
 export const buildOpenCodeChatCompletionsEndpoint = (baseUrl: string): string =>
   `${normalizeOpenCodeBase(baseUrl)}/chat/completions`;
 
-export const DEFAULT_FREEBUFF_BASE_URL = 'https://www.codebuff.com';
-export const DEFAULT_FREEBUFF_PROBE_MODEL = 'base2';
-
-export const pickFreebuffProbeModel = (
-  configured?: string,
-  models?: Array<{ name?: string }>,
-): string => {
-  const trimmed = (configured ?? '').trim();
-  if (trimmed) return trimmed;
-  const fromList = models?.find((m) => (m?.name ?? '').trim());
-  if (fromList?.name) return fromList.name.trim();
-  return DEFAULT_FREEBUFF_PROBE_MODEL;
-};
-
-const normalizeFreebuffHost = (baseUrl: string): string => {
-  let trimmed = normalizeUpstreamBaseUrl(baseUrl, DEFAULT_FREEBUFF_BASE_URL);
-  if (!trimmed) return DEFAULT_FREEBUFF_BASE_URL;
-  trimmed = trimmed.replace(/\/api\/v1\/freebuff\/session$/i, '');
-  trimmed = trimmed.replace(/\/api\/v1\/models$/i, '');
-  trimmed = trimmed.replace(/\/api\/v1\/chat\/completions$/i, '');
-  trimmed = trimmed.replace(/\/api\/v1$/i, '');
-  trimmed = trimmed.replace(/\/v1\/models$/i, '');
-  trimmed = trimmed.replace(/\/v1$/i, '');
-  return trimmed.replace(/\/+$/g, '') || DEFAULT_FREEBUFF_BASE_URL;
-};
-
-export const buildFreebuffModelsEndpoint = (baseUrl: string): string =>
-  `${normalizeFreebuffHost(baseUrl)}/api/v1/models`;
-
-export const buildFreebuffSessionEndpoint = (baseUrl: string): string =>
-  `${normalizeFreebuffHost(baseUrl)}/api/v1/freebuff/session`;
-
-export const buildFreebuffChatCompletionsEndpoint = (baseUrl: string): string =>
-  `${normalizeFreebuffHost(baseUrl)}/api/v1/chat/completions`;
-
 export const INTERACTIONS_API_REVISION = '2026-05-20';
 
 export const buildInteractionsProbePayload = (model: string) => ({

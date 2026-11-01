@@ -41,7 +41,7 @@ import { ConnectivityStatusIcon } from './ConnectivityStatusIcon';
 import { ApiKeyEntriesEditor } from './ApiKeyEntriesEditor';
 import { ModelEntriesEditor } from './ModelEntriesEditor';
 import styles from './sharedForm.module.scss';
-import { DEFAULT_COMMANDCODE_BASE_URL, DEFAULT_FREEBUFF_BASE_URL } from '@/components/providers/utils';
+import { DEFAULT_COMMANDCODE_BASE_URL } from '@/components/providers/utils';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
 import { readRuntimePolicy, validateRuntimePolicy } from '../../runtimePolicy';
 import { readModelOptions, validateModelOptions } from '../../modelOptions';
@@ -99,9 +99,7 @@ function buildInitialForm(
             ? XAI_API_BASE_URL
             : brand === 'commandcode'
               ? DEFAULT_COMMANDCODE_BASE_URL
-              : brand === 'freebuff'
-                ? DEFAULT_FREEBUFF_BASE_URL
-                : '',
+              : '',
       proxyUrl: '',
       prefix: '',
       disabled: false,
@@ -137,7 +135,7 @@ function buildInitialForm(
             ? 8
             : undefined,
       apiKeyEntries:
-        brand === 'openaiCompatibility' || brand === 'commandcode' || brand === 'freebuff'
+        brand === 'openaiCompatibility' || brand === 'commandcode'
           ? [emptyApiKeyEntry()]
           : undefined,
     };
@@ -257,7 +255,7 @@ function buildInitialForm(
           : undefined,
     comment: cfg.comment ?? '',
     apiKeyEntries:
-      brand === 'commandcode' || brand === 'freebuff'
+      brand === 'commandcode'
         ? (cfg as ProviderKeyConfig).apiKeyEntries?.length
           ? (cfg as ProviderKeyConfig).apiKeyEntries!.map((entry) => ({
               apiKey: '',
@@ -465,10 +463,10 @@ export function BaseProviderForm({
       return t('providersPage.form.validation.baseUrlRequired');
     }
     const weights = [
-      ...(brand === 'openaiCompatibility' || brand === 'commandcode' || brand === 'freebuff'
+      ...(brand === 'openaiCompatibility' || brand === 'commandcode'
         ? (form.apiKeyEntries ?? []).map((entry) => entry.weight)
         : []),
-      ...(brand !== 'openaiCompatibility' && brand !== 'commandcode' && brand !== 'freebuff' ? [form.weight] : []),
+      ...(brand !== 'openaiCompatibility' && brand !== 'commandcode' ? [form.weight] : []),
     ];
     if (weights.some((weight) => weight !== undefined && !Number.isSafeInteger(weight))) {
       return t('providersPage.form.validation.weightInteger');
@@ -651,40 +649,23 @@ export function BaseProviderForm({
               placeholder="https://api.example.com"
               disabled={mutating}
             />
-            {brand === 'commandcode' || brand === 'freebuff' ? (
+            {brand === 'commandcode' ? (
               <div className={styles.connectivityRow}>
                 <button
                   type="button"
                   className={styles.connectivityBtn}
                   disabled={mutating || connectivity.isTestingAny}
-                  onClick={() =>
-                    void (brand === 'freebuff'
-                      ? connectivity.runFreebuff()
-                      : connectivity.runCommandCode())
-                  }
+                  onClick={() => void connectivity.runCommandCode()}
                 >
-                  {(brand === 'freebuff'
-                    ? connectivity.freebuffStatus
-                    : connectivity.commandcodeStatus
-                  ).state === 'loading' ? (
+                  {connectivity.commandcodeStatus.state === 'loading' ? (
                     <span className={`${styles.statusIcon} ${styles.statusIconLoading}`}>
                       <IconLoader2 size={14} />
                     </span>
                   ) : null}
                   <span>{t('providersPage.connectivity.test')}</span>
                 </button>
-                <ConnectivityStatusIcon
-                  state={
-                    (brand === 'freebuff'
-                      ? connectivity.freebuffStatus
-                      : connectivity.commandcodeStatus
-                    ).state
-                  }
-                />
-                {(brand === 'freebuff'
-                  ? connectivity.freebuffStatus
-                  : connectivity.commandcodeStatus
-                ).state === 'success' ? (
+                <ConnectivityStatusIcon state={connectivity.commandcodeStatus.state} />
+                {connectivity.commandcodeStatus.state === 'success' ? (
                   <span className={styles.connectivityHintSuccess}>
                     {t('providersPage.connectivity.success')}
                   </span>
@@ -694,11 +675,6 @@ export function BaseProviderForm({
             {brand === 'commandcode' && connectivity.commandcodeStatus.state === 'error' ? (
               <div className={styles.connectivityError}>
                 {connectivity.commandcodeStatus.message}
-              </div>
-            ) : null}
-            {brand === 'freebuff' && connectivity.freebuffStatus.state === 'error' ? (
-              <div className={styles.connectivityError}>
-                {connectivity.freebuffStatus.message}
               </div>
             ) : null}
           </div>
@@ -757,7 +733,7 @@ export function BaseProviderForm({
         </div>
         ) : null}
 
-        {brand !== 'openaiCompatibility' && brand !== 'commandcode' && brand !== 'freebuff' ? (
+        {brand !== 'openaiCompatibility' && brand !== 'commandcode' ? (
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${fid}-weight`}>
               {t('providersPage.form.weight')}
@@ -962,20 +938,12 @@ export function BaseProviderForm({
                 void connectivity.runCommandCodeKey(idx);
                 return;
               }
-              if (kind === 'freebuff') {
-                void connectivity.runFreebuffKey(idx);
-                return;
-              }
               void connectivity.runOpenAIKey(idx);
             }}
             onTestAll={() => {
               const kind = apiKeyEntriesConnectivityKind(brand);
               if (kind === 'commandcode') {
                 void connectivity.runCommandCodeAllKeys();
-                return;
-              }
-              if (kind === 'freebuff') {
-                void connectivity.runFreebuffAllKeys();
                 return;
               }
               void connectivity.runOpenAIAllKeys();

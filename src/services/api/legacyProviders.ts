@@ -222,12 +222,12 @@ const mutateLatestProviderList = async (
 };
 
 /**
- * commandcode/freebuff records can carry their credential only inside
+ * commandcode records can carry their credential only inside
  * `api-key-entries` — once a legacy single-key config is saved through the
  * entries-aware builder, `serializeProviderKey` moves the key into the first
  * entry and clears the top-level `api-key` (it is "the source of truth" once
  * entries exist). The UI resource's selector still uses that original key
- * (see `commandcodeToResource`/`freebuffToResource`), so a plain top-level
+ * (see `commandcodeToResource`), so a plain top-level
  * comparison stops matching the record on every save after the first one:
  * the update silently no-ops (map finds nothing to replace), the PUT
  * round-trips the list unchanged, the backend returns 200, and the UI shows
@@ -685,21 +685,6 @@ export const legacyProvidersApi = {
   deleteCommandCodeConfig: (apiKey: string, baseUrl?: string) =>
     apiClient.delete(legacyManagementPath(`/commandcode-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`)),
 
-  async getFreebuffConfigs(): Promise<ProviderKeyConfig[]> {
-    const data = await apiClient.get(legacyManagementPath('/freebuff-api-key'));
-    const list = extractArrayPayload(data, 'freebuff-api-key');
-    return list.map((item) => normalizeProviderKeyConfig(item)).filter(Boolean) as ProviderKeyConfig[];
-  },
-
-  saveFreebuffConfigs: (configs: ProviderKeyConfig[]) =>
-    apiClient.put(legacyManagementPath('/freebuff-api-key'), configs.map((item) => serializeProviderKey(item))),
-
-  updateFreebuffConfig: (index: number, value: ProviderKeyConfig) =>
-    apiClient.patch(legacyManagementPath('/freebuff-api-key'), { index, value: serializeProviderKey(value) }),
-
-  deleteFreebuffConfig: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(legacyManagementPath(`/freebuff-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`)),
-
   async getMistralConfigs(): Promise<ProviderKeyConfig[]> {
     const data = await apiClient.get(legacyManagementPath('/mistral-api-key'));
     const list = extractArrayPayload(data, 'mistral-api-key');
@@ -742,25 +727,6 @@ export const legacyProvidersApi = {
     config: ProviderKeyConfig
   ) =>
     mutateLatestProviderList('commandcode-api-key', (latestItems) =>
-      latestItems.map((item) =>
-        matchesProviderKey(item as Record<string, unknown>, apiKey, baseUrl)
-          ? serializeProviderKey(config)
-          : item
-      )
-    ),
-
-  createFreebuffConfig: (config: ProviderKeyConfig) =>
-    mutateLatestProviderList('freebuff-api-key', (latestItems) => [
-      ...latestItems,
-      serializeProviderKey(config),
-    ]),
-
-  updateFreebuffConfigByKey: (
-    apiKey: string,
-    baseUrl: string | undefined,
-    config: ProviderKeyConfig
-  ) =>
-    mutateLatestProviderList('freebuff-api-key', (latestItems) =>
       latestItems.map((item) =>
         matchesProviderKey(item as Record<string, unknown>, apiKey, baseUrl)
           ? serializeProviderKey(config)

@@ -2541,8 +2541,7 @@
       "qiniuCloud": "Qiniu Cloud",
       "kimi": "Kimi",
       "interactions": "Interactions API",
-      "commandcode": "CommandCode",
-      "freebuff": "Freebuff"
+      "commandcode": "CommandCode"
     },
     "table": {
       "key": "Ключ",

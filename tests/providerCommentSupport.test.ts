@@ -30,7 +30,7 @@ function renderCreateForm(brand: ProviderBrand) {
 
 describe('provider comment support', () => {
   test('shows the provider comment input only where the backend stores it', () => {
-    for (const brand of ['commandcode', 'freebuff', 'mistral', 'opencode'] as const) {
+    for (const brand of ['commandcode', 'mistral', 'opencode'] as const) {
       expect(renderCreateForm(brand)).toMatch(/id="[^"]*-comment"/);
     }
     for (const brand of ['gemini', 'codex', 'claude', 'vertex', 'openaiCompatibility'] as const) {

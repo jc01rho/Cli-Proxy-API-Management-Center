@@ -13,7 +13,6 @@ import {
   claudeToResource,
   codexToResource,
   commandcodeToResource,
-  freebuffToResource,
   fennoAIToResource,
   geminiToResource,
   interactionsToResource,
@@ -151,7 +150,6 @@ const buildProviderKeyConfig = (
     | 'interactions'
     | 'codex'
     | 'commandcode'
-    | 'freebuff'
     | 'meta'
     | 'xai'
     | 'claude'
@@ -201,7 +199,7 @@ const buildProviderKeyConfig = (
   if (brand === 'claude') {
     next.fingerprintProfile = input.fingerprintProfile?.trim() || undefined;
   }
-  if (brand === 'commandcode' || brand === 'freebuff') {
+  if (brand === 'commandcode') {
     const entries =
       input.apiKeyEntries
         ?.map((entry, index) => {
@@ -442,9 +440,6 @@ export const buildProviderGroups = (config: Config): ProviderGroup[] => {
       case 'commandcode':
         resources = (config.commandcodeApiKeys ?? []).map((c, i) => commandcodeToResource(c, i));
         break;
-      case 'freebuff':
-        resources = (config.freebuffApiKeys ?? []).map((c, i) => freebuffToResource(c, i));
-        break;
       case 'meta':
         resources = (config.metaApiKeys ?? []).map((item, index) => metaToResource(item, index));
         break;
@@ -547,7 +542,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         vertexResult,
         openaiResult,
         commandcodeResult,
-        freebuffResult,
         mistralResult,
         opencodeResult,
       ] = await Promise.allSettled([
@@ -555,7 +549,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         providersApi.getVertexConfigs(),
         providersApi.getOpenAIProviders(),
         providersApi.getCommandCodeConfigs(),
-        providersApi.getFreebuffConfigs(),
         providersApi.getMistralConfigs(),
         providersApi.getOpenCodeConfigs(),
       ]);
@@ -571,10 +564,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       if (commandcodeResult.status === 'fulfilled') {
         updateConfigValue('commandcode-api-key', commandcodeResult.value || []);
         clearCache('commandcode-api-key');
-      }
-      if (freebuffResult.status === 'fulfilled') {
-        updateConfigValue('freebuff-api-key', freebuffResult.value || []);
-        clearCache('freebuff-api-key');
       }
       if (mistralResult.status === 'fulfilled') {
         updateConfigValue('mistral-api-key', mistralResult.value || []);
@@ -758,10 +747,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           await providersApi.createCommandCodeConfig(
             buildProviderKeyConfig('commandcode', input) as ProviderKeyConfig
           );
-        } else if (brand === 'freebuff') {
-          await providersApi.createFreebuffConfig(
-            buildProviderKeyConfig('freebuff', input) as ProviderKeyConfig
-          );
         } else if (brand === 'mistral') {
           await providersApi.createMistralConfig(
             buildProviderKeyConfig('mistral', input) as ProviderKeyConfig
@@ -837,13 +822,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             selector.apiKey,
             selector.baseUrl,
             buildProviderKeyConfig('commandcode', input, existing) as ProviderKeyConfig
-          );
-        } else if (brand === 'freebuff' && selector.brand === 'freebuff') {
-          const existing = resource.raw as ProviderKeyConfig;
-          await providersApi.updateFreebuffConfigByKey(
-            selector.apiKey,
-            selector.baseUrl,
-            buildProviderKeyConfig('freebuff', input, existing) as ProviderKeyConfig
           );
         } else if (brand === 'mistral' && selector.brand === 'mistral') {
           const existing = resource.raw as ProviderKeyConfig;
@@ -944,11 +922,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = (config?.commandcodeApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('commandcode-api-key', next);
           clearCache('commandcode-api-key');
-        } else if (sel.brand === 'freebuff') {
-          await providersApi.deleteFreebuffConfig(sel.apiKey, sel.baseUrl);
-          const next = (config?.freebuffApiKeys ?? []).filter((_, i) => i !== sel.index);
-          updateConfigValue('freebuff-api-key', next);
-          clearCache('freebuff-api-key');
         } else if (sel.brand === 'meta') {
           await providersApi.deleteMetaConfig(
             sel.apiKey,
@@ -1077,7 +1050,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         } else if (
           (brand === 'codex' && selector.brand === 'codex') ||
           (brand === 'commandcode' && selector.brand === 'commandcode') ||
-          (brand === 'freebuff' && selector.brand === 'freebuff') ||
           (brand === 'mistral' && selector.brand === 'mistral') ||
           (brand === 'opencode' && selector.brand === 'opencode') ||
           (brand === 'meta' && selector.brand === 'meta') ||
@@ -1094,8 +1066,6 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
             await providersApi.updateCodexConfig(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'commandcode') {
             await providersApi.updateCommandCodeConfigByKey(selector.apiKey, selector.baseUrl, next);
-          } else if (selector.brand === 'freebuff') {
-            await providersApi.updateFreebuffConfigByKey(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'mistral') {
             await providersApi.updateMistralConfigByKey(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'opencode') {

@@ -375,11 +375,16 @@ export function useConnectivityTest(
               input: 'Hi',
               stream: false,
               max_output_tokens: maxOutputTokens ?? 20,
+              // Pin an explicit low effort so the proxy thinking pipeline cannot
+              // inject a model-unsupported default (e.g. 'minimal'/'auto') that
+              // upstream rejects with 400 unsupported_value.
+              reasoning: { effort: 'low' },
             } : {
               model,
               messages: [{ role: 'user', content: 'Hi' }],
               stream: false,
               max_tokens: maxOutputTokens ?? 20,
+              reasoning_effort: 'low',
             }),
           },
           { timeout: DEFAULT_TIMEOUT_MS }
@@ -480,6 +485,7 @@ export function useConnectivityTest(
             input: 'Hi',
             stream: false,
             ...(maxOutputTokens != null ? { max_output_tokens: maxOutputTokens } : {}),
+            reasoning: { effort: 'low' },
           }),
         },
         { timeout: DEFAULT_TIMEOUT_MS }
@@ -739,6 +745,7 @@ export function useConnectivityTest(
             messages: [{ role: 'user', content: 'Hi' }],
             stream: false,
             max_tokens: maxOutputTokens ?? 20,
+            reasoning_effort: 'low',
           }),
         },
         { timeout: DEFAULT_TIMEOUT_MS }
@@ -950,6 +957,7 @@ export function useConnectivityTest(
             messages: [{ role: 'user', content: 'Hi' }],
             stream: false,
             max_tokens: maxOutputTokens ?? 20,
+            reasoning_effort: 'low',
           }),
         },
         { timeout: DEFAULT_TIMEOUT_MS }

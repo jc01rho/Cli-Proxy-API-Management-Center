@@ -330,6 +330,41 @@ test('OpenAI credential rotation retains per-key metadata using source identity'
   expect(b.groups()[0].keys).toEqual([{ ...group.keys[1], 'api-key': 'rotated' }, group.keys[0]]);
 });
 
+test('OpenAI save survives a backend-assigned auth_index on the edited key', async () => {
+  const group = {
+    name: 'compat',
+    'base-url': 'https://example.invalid',
+    keys: [{ 'api-key': 'fixture' }],
+  };
+  const b = backend('openai-compatibility', [group, { name: 'other', keys: [{ 'api-key': 'x' }] }]);
+  const current = (await providersApi.getOpenAIProviders())[0];
+  // The proxy binds the key to an auth file and rewrites the config after the read.
+  (b.groups()[0].keys as Record<string, unknown>[])[0].auth_index = 'runtime-index';
+  await providersApi.updateOpenAIProvider(current.name, 0, { ...current, prefix: 'edited' });
+  expect(b.writes).toHaveLength(1);
+  expect(b.groups()[0]).toMatchObject({ name: 'compat', prefix: 'edited' });
+  expect((b.groups()[0].keys as Record<string, unknown>[])[0]).toEqual({
+    'api-key': 'fixture',
+    auth_index: 'runtime-index',
+  });
+});
+
+test('OpenAI still refuses a real concurrent edit to the same group', async () => {
+  const group = {
+    name: 'compat',
+    'base-url': 'https://example.invalid',
+    models: [{ name: 'model', alias: 'alias' }],
+    keys: [{ 'api-key': 'fixture' }],
+  };
+  const b = backend('openai-compatibility', [group]);
+  const current = (await providersApi.getOpenAIProviders())[0];
+  (b.groups()[0].models as Record<string, unknown>[]).push({ name: 'added', alias: 'added' });
+  await expect(
+    providersApi.updateOpenAIProvider(current.name, 0, { ...current, prefix: 'edited' })
+  ).rejects.toThrow(/changed or is ambiguous/);
+  expect(b.writes).toHaveLength(0);
+});
+
 test('identical group/key rows remain individually editable against the unchanged snapshot', async () => {
   const group = { name: 'same', keys: [{ 'api-key': 'same' }, { 'api-key': 'same' }] };
   const b = backend('codex', [group, group]);

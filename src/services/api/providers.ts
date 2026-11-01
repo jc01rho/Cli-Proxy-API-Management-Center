@@ -295,6 +295,26 @@ const putGroups = (family: ProviderFamily, groups: Record<string, unknown>[]) =>
     }))
   );
 
+/**
+ * Backend-managed key fields. The proxy assigns them at runtime (binding a key to an
+ * auth file, rotating key material) and persists them by rewriting the config, so a
+ * page snapshot taken before that rewrite stops matching. The row form never edits
+ * them and every write passes the live value through, so they cannot invalidate a
+ * snapshot of the group it was taken from.
+ */
+const RUNTIME_KEY_FIELDS = new Set(['auth_index', 'auth-index']);
+const stripRuntimeFields = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(stripRuntimeFields);
+  if (!isRecord(value)) return value;
+  const next: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (RUNTIME_KEY_FIELDS.has(key)) continue;
+    next[key] = stripRuntimeFields(item);
+  }
+  return next;
+};
+const equalPersisted = (a: unknown, b: unknown) =>
+  equal(stripRuntimeFields(a), stripRuntimeFields(b));
 /** Locate by persisted snapshot, never by flattened row index. Refuse ambiguous duplicates. */
 export const locateProviderGroup = (
   groups: Record<string, unknown>[],
@@ -302,16 +322,17 @@ export const locateProviderGroup = (
 ): number => {
   if (
     source.groups &&
-    equal(groups, source.groups) &&
-    equal(groups[source.groupIndex], source.group)
+    equalPersisted(groups, source.groups) &&
+    equalPersisted(groups[source.groupIndex], source.group)
   )
     return source.groupIndex;
   const matches = groups.flatMap((group, index) => {
-    if (source.keyIndex === undefined) return equal(group, source.group) ? [index] : [];
+    if (source.keyIndex === undefined) return equalPersisted(group, source.group) ? [index] : [];
     const { keys: oldKeys, ...oldPolicy } = source.group;
     const { keys, ...policy } = group;
-    if (!equal(policy, oldPolicy) || !Array.isArray(oldKeys) || !Array.isArray(keys)) return [];
-    return keys.some((key) => equal(key, oldKeys[source.keyIndex!])) ? [index] : [];
+    if (!equalPersisted(policy, oldPolicy) || !Array.isArray(oldKeys) || !Array.isArray(keys))
+      return [];
+    return keys.some((key) => equalPersisted(key, oldKeys[source.keyIndex!])) ? [index] : [];
   });
   if (matches.length !== 1) throw conflict();
   return matches[0];

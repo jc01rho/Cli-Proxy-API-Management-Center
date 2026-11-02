@@ -174,7 +174,7 @@ test('OpenAI multimodal and token options round trip and can be cleared', async 
   });
 });
 
-test('OpenAI routing context limit persists and is never sent for non-OpenAI families', () => {
+test('OpenAI routing context limit is serialized only for OpenAI-compatible models', () => {
   const model = { name: 'm', routingMaxContextLength: 320000 };
   expect(serializeModelOptions(model, true)).toEqual({ 'routing-max-context-length': 320000 });
   expect(serializeModelOptions(model)).toEqual({});

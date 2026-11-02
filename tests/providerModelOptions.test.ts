@@ -225,7 +225,30 @@ describe('provider model options', () => {
       expect(html.includes('providersPage.modelOptions.useMaxCompletionTokens')).toBe(
         brand === 'openaiCompatibility'
       );
+      expect(html.includes('providersPage.modelOptions.routingMaxContextLength')).toBe(
+        brand === 'openaiCompatibility'
+      );
     }
+  });
+
+  test('routing context limit round trips separately from the advertised context length', () => {
+    const entry = draft({
+      name: 'model',
+      maxContextLength: 1048576,
+      routingMaxContextLength: 320000,
+    });
+    expect(entry.routingMaxContextLength).toBe('320000');
+    expect(buildModelOptions(entry)).toMatchObject({
+      maxContextLength: 1048576,
+      routingMaxContextLength: 320000,
+    });
+    expect(
+      buildModelOptions({ ...entry, routingMaxContextLength: '' }).routingMaxContextLength
+    ).toBe(undefined);
+    expect(validateModelOptions([{ ...entry, routingMaxContextLength: '32k' }])).toBe(
+      'providersPage.modelOptions.invalidRoutingContext'
+    );
+    expect(validateModelOptions([entry])).toBeNull();
   });
 
   test('mutating disables every control; default thinking disables budgets and levels', () => {

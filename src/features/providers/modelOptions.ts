@@ -5,6 +5,7 @@ import { buildThinkingFromLevels, readThinkingLevels, type ThinkingLevel } from 
 export interface ModelOptionsInput {
   displayName?: string;
   maxContextLength?: string;
+  routingMaxContextLength?: string;
   forceMapping?: boolean;
   isCompat?: boolean;
   supportConfigurationUpdate?: boolean;
@@ -30,6 +31,7 @@ export function readModelOptions(model: ModelAlias): ModelOptionsInput & {
   return {
     displayName: model.displayName,
     maxContextLength: model.maxContextLength?.toString(),
+    routingMaxContextLength: model.routingMaxContextLength?.toString(),
     forceMapping: model.forceMapping,
     isCompat: model.isCompat,
     supportConfigurationUpdate: model.supportConfigurationUpdate,
@@ -101,6 +103,7 @@ export function buildModelOptions(entry: ModelEntryInput): Partial<ModelAlias> {
   return {
     displayName: entry.displayName?.trim() || undefined,
     maxContextLength: numberValue(entry.maxContextLength),
+    routingMaxContextLength: numberValue(entry.routingMaxContextLength),
     forceMapping: entry.forceMapping,
     isCompat: entry.isCompat,
     supportConfigurationUpdate: entry.supportConfigurationUpdate,
@@ -126,6 +129,9 @@ export function validateModelOptions(entries: ModelEntryInput[]): string | null 
   for (const entry of entries) {
     if (!entry.name.trim()) continue;
     if (!validInteger(entry.maxContextLength)) return 'providersPage.modelOptions.invalidContext';
+    if (!validInteger(entry.routingMaxContextLength)) {
+      return 'providersPage.modelOptions.invalidRoutingContext';
+    }
     if (entry.thinkingEnabled === false) continue;
     let thinking: Record<string, unknown> | undefined;
     try {

@@ -18,6 +18,11 @@ import {
 import { computeApiUrl } from '@/utils/connection';
 import { parseApiErrorResponse, shouldDispatchUnauthorizedLogout } from './apiError';
 
+/** GET options; `onETag` receives the response ETag for a later conditional write. */
+export type ReadRequestConfig = AxiosRequestConfig & {
+  onETag?: (etag: string | null) => void;
+};
+
 class ApiClient {
   private instance: AxiosInstance;
   private apiBase: string = '';
@@ -219,8 +224,10 @@ class ApiClient {
   /**
    * GET request
    */
-  async get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.instance.get<T>(url, config);
+  async get<T = unknown>(url: string, config?: ReadRequestConfig): Promise<T> {
+    const { onETag, ...requestConfig } = config ?? {};
+    const response = await this.instance.get<T>(url, requestConfig);
+    onETag?.(this.readHeader(response.headers as Record<string, unknown> | undefined, ['etag']));
     return response.data;
   }
 

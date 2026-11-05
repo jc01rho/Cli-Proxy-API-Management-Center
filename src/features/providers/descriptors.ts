@@ -312,6 +312,26 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
     supportsApiKeyEntries: false,
     sheetSize: 'md',
   },
+  aiCodeMirror: {
+    id: 'aiCodeMirror',
+    supportsRequestScopedErrors: true,
+    supportsName: false,
+    supportsApiKey: true,
+    supportsDisabled: true,
+    supportsBaseUrl: false,
+    baseUrlRequired: false,
+    supportsProxyUrl: true,
+    supportsPrefix: true,
+    supportsModels: false,
+    supportsHeaders: false,
+    supportsExcludedModels: false,
+    supportsPriority: true,
+    supportsTestModel: false,
+    supportsWebsockets: false,
+    supportsCloak: false,
+    supportsApiKeyEntries: false,
+    sheetSize: 'md',
+  },
   kimi: {
     id: 'kimi',
     supportsRequestScopedErrors: true,
@@ -374,6 +394,7 @@ export const PROVIDER_BRAND_ORDER: ProviderBrand[] = [
   'apikeyFun',
   'fennoAI',
   'qiniuCloud',
+  'aiCodeMirror',
 ];
 
 export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
@@ -392,4 +413,5 @@ export const PROVIDER_PATHS: Record<ProviderBrand, string> = {
   apikeyFun: '/ai-providers/apikey-fun',
   fennoAI: '/ai-providers/fenno-ai',
   qiniuCloud: '/ai-providers/qiniu-cloud',
+  aiCodeMirror: '/ai-providers/aicodemirror',
 };

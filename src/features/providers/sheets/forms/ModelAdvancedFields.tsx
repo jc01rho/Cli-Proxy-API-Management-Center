@@ -31,6 +31,7 @@ export function ModelAdvancedFields({
     key:
       | 'displayName'
       | 'maxContextLength'
+      | 'routingMaxContextLength'
       | 'inputModalitiesText'
       | 'outputModalitiesText'
       | 'thinkingMin'
@@ -56,6 +57,9 @@ export function ModelAdvancedFields({
       />
       {key === 'maxContextLength' ? (
         <small>{t('providersPage.modelOptions.contextHint')}</small>
+      ) : null}
+      {key === 'routingMaxContextLength' ? (
+        <small>{t('providersPage.modelOptions.routingContextHint')}</small>
       ) : null}
     </label>
   );
@@ -89,6 +93,7 @@ export function ModelAdvancedFields({
     <>
       {textField('displayName')}
       {capabilities.maxContextLength ? textField('maxContextLength', true) : null}
+      {capabilities.routingMaxContextLength ? textField('routingMaxContextLength', true) : null}
       {checkbox('forceMapping')}
       {capabilities.isCompat ? checkbox('isCompat') : null}
       {capabilities.configurationUpdate ? checkbox('supportConfigurationUpdate') : null}

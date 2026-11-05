@@ -141,6 +141,7 @@ test('OpenAI multimodal and token options round trip and can be cleared', async 
         'input-modalities': ['text', 'image'],
         'output-modalities': ['text'],
         'use-max-completion-tokens': true,
+        'routing-max-context-length': 320000,
         thinking: {},
       },
     ],
@@ -150,6 +151,7 @@ test('OpenAI multimodal and token options round trip and can be cleared', async 
     inputModalities: ['text', 'image'],
     outputModalities: ['text'],
     useMaxCompletionTokens: true,
+    routingMaxContextLength: 320000,
     thinking: {},
   });
   await providersApi.updateOpenAIProvider(config.name, 0, {
@@ -160,6 +162,7 @@ test('OpenAI multimodal and token options round trip and can be cleared', async 
         inputModalities: undefined,
         outputModalities: [],
         useMaxCompletionTokens: false,
+        routingMaxContextLength: undefined,
         thinking: undefined,
       },
     ],
@@ -169,4 +172,10 @@ test('OpenAI multimodal and token options round trip and can be cleared', async 
     'output-modalities': [],
     'use-max-completion-tokens': false,
   });
+});
+
+test('OpenAI routing context limit is serialized only for OpenAI-compatible models', () => {
+  const model = { name: 'm', routingMaxContextLength: 320000 };
+  expect(serializeModelOptions(model, true)).toEqual({ 'routing-max-context-length': 320000 });
+  expect(serializeModelOptions(model)).toEqual({});
 });

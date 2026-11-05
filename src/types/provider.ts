@@ -44,6 +44,8 @@ export interface ModelAlias {
   supportedEndpoints?: string[];
   displayName?: string;
   maxContextLength?: number;
+  /** OpenAI-compatible only: estimated input tokens above this skip the provider. */
+  routingMaxContextLength?: number;
   forceMapping?: boolean;
   isCompat?: boolean;
   supportConfigurationUpdate?: boolean;

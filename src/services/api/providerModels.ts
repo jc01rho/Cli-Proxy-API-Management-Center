@@ -14,6 +14,9 @@ export function normalizeModelOptions(raw: Record<string, unknown>): Partial<Mod
   const context = raw['max-context-length'];
   if (typeof context === 'number' && Number.isSafeInteger(context))
     result.maxContextLength = context;
+  const routingContext = raw['routing-max-context-length'];
+  if (typeof routingContext === 'number' && Number.isSafeInteger(routingContext))
+    result.routingMaxContextLength = routingContext;
   for (const [key, wire] of MODEL_BOOLEAN_FIELDS) {
     const value = raw[wire];
     if (typeof value === 'boolean') result[key] = value;
@@ -74,6 +77,8 @@ export function serializeModelOptions(
     if (model[key] !== undefined) result[wire] = model[key];
   }
   if (openai) {
+    if (model.routingMaxContextLength !== undefined)
+      result['routing-max-context-length'] = model.routingMaxContextLength;
     if (model.inputModalities !== undefined) result['input-modalities'] = model.inputModalities;
     if (model.outputModalities !== undefined) result['output-modalities'] = model.outputModalities;
   }

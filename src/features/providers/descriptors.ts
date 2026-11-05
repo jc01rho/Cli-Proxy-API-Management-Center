@@ -343,6 +343,7 @@ export const getProviderBehaviorCapabilities = (brand: ProviderBrand) => ({
 
 export interface ProviderModelCapabilities {
   maxContextLength: boolean;
+  routingMaxContextLength: boolean;
   isCompat: boolean;
   configurationUpdate: boolean;
   modalities: boolean;
@@ -351,6 +352,7 @@ export interface ProviderModelCapabilities {
 /** API-key model capabilities; aliases of CodexModel do not imply runtime support. */
 export const getProviderModelCapabilities = (brand: ProviderBrand): ProviderModelCapabilities => ({
   maxContextLength: brand !== 'vertex',
+  routingMaxContextLength: brand === 'openaiCompatibility',
   isCompat: brand !== 'vertex',
   configurationUpdate: brand === 'codex',
   modalities: brand === 'openaiCompatibility',

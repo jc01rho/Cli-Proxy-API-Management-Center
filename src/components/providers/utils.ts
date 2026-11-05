@@ -137,6 +137,53 @@ export const buildOpenCodeModelsEndpoint = (baseUrl: string): string =>
 export const buildOpenCodeChatCompletionsEndpoint = (baseUrl: string): string =>
   `${normalizeOpenCodeBase(baseUrl)}/chat/completions`;
 
+// OpenCode's gateways reject requests that do not carry the official CLI's
+// wire identity: Cloudflare answers 403 "error code: 1010" for unknown user
+// agents, and the gateway itself answers 400 MissingSessionID unless an
+// x-opencode-session of the CLI's own ses_ shape is present. A connectivity
+// probe therefore has to impersonate that client instead of sending a bare
+// Authorization header.
+export const OPENCODE_PROBE_USER_AGENT = 'opencode/latest/2.0.27/cli';
+
+const OPENCODE_ID_TAIL_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+// Mirrors the CLI's identifier: ses_<12 lowercase hex><14 base62>, where the
+// hex segment is a bitwise-inverted 48-bit timestamp so ids sort descending.
+export const buildOpenCodeSessionId = (now: number = Date.now()): string => {
+  const inverted = ~((BigInt(Math.floor(now)) << 12n) | 1n) & 0xffffffffffffn;
+  const stamp = inverted.toString(16).padStart(12, '0');
+  const bytes = new Uint8Array(14);
+  const fill = (): boolean => {
+    const c = globalThis.crypto;
+    if (!c || typeof c.getRandomValues !== 'function') return false;
+    c.getRandomValues(bytes);
+    return true;
+  };
+  if (!fill()) {
+    for (let i = 0; i < bytes.length; i += 1) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  let tail = '';
+  for (const b of bytes) {
+    tail += OPENCODE_ID_TAIL_ALPHABET[b % OPENCODE_ID_TAIL_ALPHABET.length];
+  }
+  return `ses_${stamp}${tail}`;
+};
+
+// True when a provider base URL points at an OpenCode gateway (Zen tier,
+// Go tier, or the legacy /inference paths). Those hosts reject any client
+// that does not impersonate the official CLI.
+export const isOpenCodeHost = (baseUrl: string): boolean =>
+  /^https?:\/\/(?:[^/]+\.)?opencode\.ai(?:[/:]|$)/i.test(String(baseUrl || '').trim());
+
+export const buildOpenCodeProbeHeaders = (sessionId: string): Record<string, string> => ({
+  'User-Agent': OPENCODE_PROBE_USER_AGENT,
+  'x-opencode-client': 'cli',
+  'x-opencode-session': sessionId,
+  'x-opencode-request': sessionId.replace(/^ses_/, 'req_'),
+});
+
 export const INTERACTIONS_API_REVISION = '2026-05-20';
 
 export const buildInteractionsProbePayload = (model: string) => ({

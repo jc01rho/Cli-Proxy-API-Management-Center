@@ -12,12 +12,31 @@ import {
   buildOpenAIChatCompletionsEndpoint,
   buildMistralChatCompletionsEndpoint,
   buildOpenCodeChatCompletionsEndpoint,
+  buildOpenCodeProbeHeaders,
+  buildOpenCodeSessionId,
+  isOpenCodeHost,
 } from '@/components/providers/utils';
 
 const OPENCODE_ANONYMOUS_API_KEY = 'public';
+
 import { buildHeaderObject, hasHeader } from '@/utils/headers';
 import { getErrorMessage } from '@/utils/helpers';
 import type { ApiKeyEntryInput, ModelEntryInput, ProviderBrand } from '../../types';
+
+// OpenCode's gateways only accept the official CLI wire identity: without that
+// User-Agent Cloudflare answers 403 "error code: 1010", and without an
+// x-opencode-session of the CLI's ses_ shape the gateway answers
+// 400 MissingSessionID. Probes are keyed by session id so tests can inject one.
+const withOpenCodeProbeHeaders = (
+  headers: Record<string, string>,
+  sessionId: string
+): Record<string, string> => {
+  const fingerprinted = buildOpenCodeProbeHeaders(sessionId);
+  for (const [key, value] of Object.entries(fingerprinted)) {
+    if (!hasHeader(headers, key)) headers[key] = value;
+  }
+  return headers;
+};
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_ANTHROPIC_VERSION = '2023-06-01';
@@ -358,6 +377,12 @@ export function useConnectivityTest(
         } else if (resolvedAuthIndex) {
           headerObj.Authorization = 'Bearer $TOKEN$';
         }
+      }
+
+      if (isOpenCodeHost(trimmedBase)) {
+        // Route OpenCode traffic through the CLI fingerprint, otherwise the
+        // gateway answers 403/400 before the credential is even evaluated.
+        withOpenCodeProbeHeaders(headerObj, buildOpenCodeSessionId());
       }
 
       updateOpenaiStatus(idx, { state: 'loading', message: '' });
@@ -730,6 +755,8 @@ export function useConnectivityTest(
         headerObj.Authorization = `Bearer ${OPENCODE_ANONYMOUS_API_KEY}`;
       }
     }
+
+    withOpenCodeProbeHeaders(headerObj, buildOpenCodeSessionId());
 
     setOpencodeStatus({ state: 'loading', message: '' });
     setInFlight((n) => n + 1);

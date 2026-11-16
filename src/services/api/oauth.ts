@@ -70,6 +70,14 @@ const normalizeProviderForManagementPath = (provider: string): string => {
   return key === 'anthropic' ? 'claude' : key;
 };
 
+export interface OAuthStartOptions {
+  /**
+   * Session-only proxy for this login and the credential it produces. The backend accepts it
+   * only in a POST body; blank values keep the original GET request.
+   */
+  proxyUrl?: string;
+}
+
 export interface SiwcBindResponse {
   status: 'ok';
   url: string;
@@ -85,24 +93,52 @@ export const oauthApi = {
   startAuth: (
     provider: string,
     extraOrSignal?: Record<string, string> | AbortSignal,
-    signal?: AbortSignal
+    signalOrOptions?: AbortSignal | OAuthStartOptions,
+    maybeOptions?: OAuthStartOptions
   ) => {
     const providerKey = normalizeProviderForManagementPath(provider);
     const extra = extraOrSignal instanceof AbortSignal ? undefined : extraOrSignal;
-    const requestSignal = extraOrSignal instanceof AbortSignal ? extraOrSignal : signal;
+    const requestSignal =
+      extraOrSignal instanceof AbortSignal
+        ? extraOrSignal
+        : signalOrOptions instanceof AbortSignal
+          ? signalOrOptions
+          : undefined;
+    const options: OAuthStartOptions =
+      extraOrSignal instanceof AbortSignal
+        ? ((signalOrOptions as OAuthStartOptions | undefined) ?? {})
+        : signalOrOptions instanceof AbortSignal
+          ? (maybeOptions ?? {})
+          : ((signalOrOptions as OAuthStartOptions | undefined) ?? maybeOptions ?? {});
     const params: Record<string, string | boolean> = { ...(extra ?? {}) };
     const webUIKey = providerKey === 'claude' ? 'anthropic' : providerKey;
     if (WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(webUIKey as BuiltInOAuthProvider)) {
       params.is_webui = true;
     }
-    if (!LEGACY_OAUTH_START_PROVIDERS.has(providerKey)) {
-      return apiClient.get<OAuthStartResponse>('/oauth/auth-url', {
-        params: { provider: providerKey, ...params },
+    const proxyUrl = options.proxyUrl?.trim();
+    if (LEGACY_OAUTH_START_PROVIDERS.has(providerKey)) {
+      if (proxyUrl) {
+        return apiClient.post<OAuthStartResponse>(
+          '/oauth/auth-url',
+          { provider: providerKey, ...params, proxy_url: proxyUrl },
+          requestSignal ? { signal: requestSignal } : undefined
+        );
+      }
+      return apiClient.get<OAuthStartResponse>(legacyManagementPath(`/${providerKey}-auth-url`), {
+        params: Object.keys(params).length ? params : undefined,
         ...(requestSignal ? { signal: requestSignal } : {}),
       });
     }
-    return apiClient.get<OAuthStartResponse>(legacyManagementPath(`/${providerKey}-auth-url`), {
-      params: Object.keys(params).length ? params : undefined,
+    if (proxyUrl) {
+      // The backend rejects proxy_url in the query string, so everything moves to the body.
+      return apiClient.post<OAuthStartResponse>(
+        '/oauth/auth-url',
+        { provider: providerKey, ...params, proxy_url: proxyUrl },
+        requestSignal ? { signal: requestSignal } : undefined
+      );
+    }
+    return apiClient.get<OAuthStartResponse>('/oauth/auth-url', {
+      params: { provider: providerKey, ...params },
       ...(requestSignal ? { signal: requestSignal } : {}),
     });
   },

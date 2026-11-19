@@ -54,7 +54,9 @@
     "model_alias_placeholder": "模型别名 (可选)",
     "invalid_provider_index": "无效的提供商索引。",
     "unsaved_changes_title": "未保存的更改",
-    "unsaved_changes_message": "你有未保存的更改，离开后将丢失这些更改。确定要离开吗？"
+    "unsaved_changes_message": "你有未保存的更改，离开后将丢失这些更改。确定要离开吗？",
+    "more_info": "更多说明",
+    "more_info_about": "关于「{{label}}」的说明"
   },
   "title": {
     "login": "CLI Proxy API Management Center",
@@ -462,7 +464,7 @@
     "priority_hint": "仅支持整数；非法值会被忽略。数值越大优先级越高。",
     "weight_label": "调度权重（weight）",
     "weight_tooltip": "默认值为 1；小于或等于 0 时不参与加权调度；最大值为 1,000,000。填入后打开加权轮询设置即可生效。",
-    "weight_hint": "默认值为 1；小于或等于 0 时不参与加权调度；最大值为 1,000,000。填入后打开<settingsLink>加权轮询设置</settingsLink>即可生效。",
+    "weight_hint": "默认值为 1；小于或等于 0 时不参与加权调度；最大值为 1,000,000。",
     "weight_invalid_integer": "权重必须是整数。",
     "weight_invalid_max": "权重不能超过 1,000,000。",
     "disable_cooling_label": "禁用指数冷却（disable_cooling）",
@@ -515,7 +517,8 @@
     "cooldown_models_one": "{{count}} 个模型冷却",
     "cooldown_models_other": "{{count}} 个模型冷却",
     "cooldown_credential_and_models_one": "凭证及 {{count}} 个模型冷却",
-    "cooldown_credential_and_models_other": "凭证及 {{count}} 个模型冷却"
+    "cooldown_credential_and_models_other": "凭证及 {{count}} 个模型冷却",
+    "weight_strategy_note": "需开启<settingsLink>加权轮询</settingsLink>才会生效。"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -618,7 +621,7 @@
     "additional_secondary_window": "{{name}} 周限额",
     "additional_team_secondary_window": "{{name}} 月度限额",
     "plan_label": "套餐",
-    "expires_label": "到期时间",
+    "expires_label": "续期时间",
     "credit_balance_label": "Credit 余额",
     "credit_unlimited": "无限额",
     "reset_credits_label": "主动重置次数",
@@ -811,7 +814,7 @@
   "vertex_import": {
     "title": "Vertex JSON 登录",
     "description": "上传 Google 服务账号 JSON，使用 CLI vertex-import 同步规则写入 auth-dir/vertex-<project>.json。",
-    "location_label": "目标区域 (可选)",
+    "location_label": "目标区域",
     "location_placeholder": "global",
     "location_hint": "留空表示使用默认区域 global。",
     "file_label": "服务账号密钥 JSON",
@@ -966,7 +969,7 @@
     "devin_oauth_retry_hint": "服务器可能仍在等待授权。请先取消本次登录，再重新开始。",
     "devin_oauth_title": "Devin OAuth",
     "devin_oauth_button": "开始 Devin 登录",
-    "devin_oauth_hint": "通过浏览器 OAuth 登录 Devin / Cognition，自动保存认证文件。需要 CLI Proxy API v7.3.1 或更高版本，请在五分钟内完成授权。",
+    "devin_oauth_hint": "请在五分钟内完成授权。",
     "devin_copy_link": "复制链接",
     "devin_open_link": "打开链接",
     "workbuddy_oauth_title": "WorkBuddy OAuth",
@@ -1074,7 +1077,7 @@
     "anthropic_oauth_polling_error": "检查认证状态失败:",
     "antigravity_oauth_title": "Antigravity OAuth",
     "antigravity_oauth_button": "开始 Antigravity 登录",
-    "antigravity_oauth_hint": "通过 OAuth 流程登录 Antigravity（Google 账号）服务，自动获取并保存认证文件。",
+    "antigravity_oauth_hint": "使用 Google 账号登录。",
     "antigravity_open_link": "打开链接",
     "antigravity_copy_link": "复制链接",
     "antigravity_oauth_status_waiting": "等待认证中...",
@@ -1096,7 +1099,7 @@
     "device_code_copy": "复制设备码",
     "kimi_ai_oauth_title": "Kimi 国际站（kimi.ai）",
     "kimi_ai_oauth_button": "登录 Kimi 国际站",
-    "kimi_ai_oauth_hint": "通过设备授权登录 kimi.ai 国际站，自动保存独立的 kimi-ai 认证文件。国内站与国际站账号不互通。",
+    "kimi_ai_oauth_hint": "仅限 kimi.ai 国际站账号，保存为独立的 kimi-ai 认证文件。",
     "kimi_ai_open_link": "打开链接",
     "kimi_ai_copy_link": "复制链接",
     "kimi_ai_oauth_status_waiting": "等待认证中...",
@@ -1107,7 +1110,7 @@
     "kimi_oauth_title": "Kimi 国内站（kimi.com）",
     "kimi_oauth_button": "登录 Kimi 国内站",
     "kimi_sign_up_button": "立即注册",
-    "kimi_oauth_hint": "通过设备授权登录 kimi.com 国内站，自动获取并保存认证文件。国际站账号请使用独立的 kimi.ai 登录入口。",
+    "kimi_oauth_hint": "仅限 kimi.com 国内站账号；国际站账号请使用 kimi.ai 入口。",
     "kimi_open_link": "打开链接",
     "kimi_copy_link": "复制链接",
     "kimi_oauth_status_waiting": "等待认证中...",
@@ -1906,7 +1909,7 @@
         "models_hint": "每行一个模式。留空表示允许全部模型，* 可作为通配符。",
         "model_all": "模型：允许全部",
         "model_restricted": "模型：{{patterns}}",
-        "name_label": "名称 / 说明（可选）",
+        "name_label": "名称 / 说明",
         "name_placeholder": "例如：小明的笔记本",
         "name_hint": "名称立即保存在当前浏览器中，按服务器隔离，不写入服务器配置。清空此字段可移除名称。",
         "name_save_error": "无法将名称保存到浏览器存储，请检查浏览器存储设置。",
@@ -2003,7 +2006,12 @@
         "keeper_initial_backoff": "初始退避必须在 100 毫秒到 60 秒之间",
         "keeper_max_backoff": "最大退避必须不小于初始退避",
         "keeper_metadata_interval": "元数据间隔必须在 1 分钟到 24 小时之间",
-        "keeper_metadata_categories": "至少选择一个元数据类别"
+        "keeper_metadata_categories": "至少选择一个元数据类别",
+        "payload_replace_invalid_target": "目标角色必须为 user、system 或 developer。",
+        "payload_replace_invalid_positions": "请选择该角色的所有消息，或输入非空的正整数位置列表，两者不能同时指定。",
+        "payload_replace_invalid_paths": "请至少输入一个非空 JSON 路径。路径不能与角色、all 或 positions 同时指定。",
+        "payload_replace_invalid_models": "请至少添加一个模型，模型名称不能为空，且条件必须有效。",
+        "payload_replace_invalid_replacements": "请至少添加一项有效替换。字面量源文本不能为空；正则使用 Go RE2。替换文本为空时会删除匹配文本。"
       },
       "common": {
         "edit": "编辑",
@@ -2012,6 +2020,30 @@
         "update": "更新",
         "add": "添加",
         "enabled": "已启用"
+      },
+      "payload_replace": {
+        "title": "Payload 文本替换",
+        "description": "在覆盖之后、过滤之前执行，按列表顺序替换已有字符串。",
+        "target": "作用范围",
+        "replacements": "替换项",
+        "target_all": "该角色的所有消息",
+        "target_positions": "消息位置",
+        "target_hint": "按所选角色在最终上游 Payload 中的消息排序，从 1 开始；没有可编辑文本的消息也计数。多个位置用逗号分隔。",
+        "from": "源文本",
+        "to": "替换文本（留空则删除）",
+        "add_replacement": "添加替换",
+        "move_up": "上移",
+        "move_down": "下移",
+        "reset_invalid": "重置无效规则",
+        "invalid_hint": "此规则包含不支持或格式错误的值。请先在 YAML 中修复或重置规则，再进行编辑。",
+        "target_selector": "目标类型",
+        "target_paths": "JSON 路径",
+        "paths_hint": "路径相对于上游 Payload 根节点。不存在或非字符串的值会被跳过。",
+        "from_or_pattern": "源文本或正则",
+        "replacement_type": "替换类型",
+        "literal": "字面量",
+        "regex": "正则 (RE2)",
+        "pattern": "RE2 正则表达式"
       }
     },
     "tabs": {
@@ -2571,14 +2603,14 @@
     },
     "categories": {
       "title": "提供商",
-      "quickFill": "快速填入",
+      "quickFill": "快速接入",
       "activeCount": "{{active}}/{{total}} 活跃",
       "ampcodeActive": "已连接",
       "ampcodeInactive": "未配置",
       "sponsors": "赞助商"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "codex": "Codex",
@@ -2648,8 +2680,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "不同 URL 的使用规范一致,保存时只会写入当前分组协议对应地址。",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "全球高保线路",
-         "aiCodeMirrorDomestic": "国内优化线路",
+        "aiCodeMirrorGlobal": "全球高保线路",
+        "aiCodeMirrorDomestic": "国内优化线路",
         "standard": "普通 URL",
         "direct": "专线直连 URL",
         "domestic": "国内线路",
@@ -2658,8 +2690,8 @@
         "global": "全球"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "适用于全球访问的高防护线路。",
-         "aiCodeMirrorDomestic": "针对中国大陆网络优化的线路。",
+        "aiCodeMirrorGlobal": "适用于全球访问的高防护线路。",
+        "aiCodeMirrorDomestic": "针对中国大陆网络优化的线路。",
         "domestic": "面向中国大陆用户和部署在中国大陆网络环境中的业务，通常可获得更低延迟。",
         "overseas": "面向海外部署、跨境访问或需要访问境外模型的业务。",
         "mainlandChinaRecommended": "推荐中国大陆用户和部署在中国大陆网络环境中的业务使用。",
@@ -3008,5 +3040,29 @@
     "error": "绑定失败，请重新开始。",
     "unsupported": "当前后端不支持 SIWC 绑定。",
     "expired": "绑定会话已过期，请重新开始。"
+  },
+  "sensitive_replacements": {
+    "literal_title": "字面文本替换",
+    "pattern_title": "正则表达式替换",
+    "group_title": "敏感内容替换",
+    "literal_hint": "未填写字面文本的行只保留在草稿中，不会保存。",
+    "pattern_hint": "规则按顺序执行，使用 Go RE2 语法，不支持环视和模式内的反向引用。后端会丢弃无效或空白模式。",
+    "literal_key": "字面文本",
+    "replacement": "替换内容",
+    "replacement_placeholder": "留空则删除匹配内容",
+    "pattern": "正则模式",
+    "duplicate_key": "键重复。解决重复键之前，字面替换的修改不会生效。",
+    "add_literal": "添加字面替换",
+    "add_pattern": "添加正则规则",
+    "empty_literal": "尚未添加字面替换。",
+    "empty_pattern": "尚未添加正则规则。",
+    "literal_key_row": "第 {{row}} 行字面文本",
+    "literal_value_row": "第 {{row}} 行字面替换内容",
+    "pattern_row": "第 {{row}} 行正则模式",
+    "pattern_value_row": "第 {{row}} 行正则替换内容",
+    "remove_literal": "删除第 {{row}} 行字面替换",
+    "remove_pattern": "删除第 {{row}} 行正则规则",
+    "move_up": "上移第 {{row}} 行正则规则",
+    "move_down": "下移第 {{row}} 行正则规则"
   }
 }

@@ -54,7 +54,9 @@
     "model_alias_placeholder": "Bí danh model (tùy chọn)",
     "invalid_provider_index": "Chỉ mục provider không hợp lệ.",
     "unsaved_changes_title": "Thay đổi chưa lưu",
-    "unsaved_changes_message": "Bạn có thay đổi chưa lưu. Rời đi bây giờ sẽ mất các thay đổi đó. Bạn có muốn rời đi không?"
+    "unsaved_changes_message": "Bạn có thay đổi chưa lưu. Rời đi bây giờ sẽ mất các thay đổi đó. Bạn có muốn rời đi không?",
+    "more_info": "Thêm thông tin",
+    "more_info_about": "Thêm thông tin về {{label}}"
   },
   "title": {
     "login": "Trung tâm Quản lý CLI Proxy API",
@@ -65,8 +67,8 @@
     "subtitle": "Trung tâm Quản lý"
   },
   "login": {
-    "show_key": "Hiện khóa",
-    "hide_key": "Ẩn khóa",
+    "show_key": "Hiện key",
+    "hide_key": "Ẩn key",
     "subtitle": "Vui lòng nhập thông tin kết nối để truy cập giao diện quản lý",
     "connection_current": "URL hiện tại",
     "connection_edit": "Thay đổi",
@@ -78,8 +80,6 @@
     "remember_password_label": "Ghi nhớ mật khẩu",
     "management_key_label": "Key quản lý",
     "management_key_placeholder": "Nhập key quản lý",
-    "show_key": "Hiện key",
-    "hide_key": "Ẩn key",
     "submit_button": "Đăng nhập",
     "submitting": "Đang kết nối...",
     "error_backend_detail": "Phản hồi từ backend",
@@ -515,7 +515,8 @@
     "policy_rules_hint": "Các quy tắc tùy chỉnh được ưu tiên theo thứ tự danh sách. Kế thừa hoặc danh sách trống sẽ sử dụng quy tắc kế thừa; điều này không vô hiệu hóa chúng. Mẫu biểu thức chính quy (Regex) dùng cú pháp của Go.",
     "policy_retry_invalid": "Nhập một số nguyên an toàn không âm, hoặc chọn Kế thừa.",
     "policy_aliases_invalid": "Nhập tên model và bí danh không để trống cho mỗi hàng mới hoặc đã chỉnh sửa.",
-    "policy_rules_invalid": "Hoàn thành mỗi quy tắc đã chỉnh sửa với mã trạng thái dương, một hành động và ít nhất một điều kiện khớp không để trống."
+    "policy_rules_invalid": "Hoàn thành mỗi quy tắc đã chỉnh sửa với mã trạng thái dương, một hành động và ít nhất một điều kiện khớp không để trống.",
+    "weight_strategy_note": "Chỉ có hiệu lực khi bật <settingsLink>round robin có trọng số</settingsLink>."
   },
   "antigravity_subscription": {
     "plan_unknown": "Không rõ",
@@ -767,7 +768,7 @@
   "vertex_import": {
     "title": "Đăng nhập Vertex bằng JSON",
     "description": "Tải lên file JSON service account của Google để lưu thành auth-dir/vertex-<project>.json theo cùng quy tắc với công cụ vertex-import của CLI.",
-    "location_label": "Khu vực (tùy chọn)",
+    "location_label": "Khu vực",
     "location_placeholder": "global",
     "location_hint": "Để trống để dùng khu vực mặc định global.",
     "file_label": "JSON key của service account",
@@ -997,7 +998,7 @@
     "anthropic_oauth_polling_error": "Không thể kiểm tra trạng thái xác thực:",
     "antigravity_oauth_title": "Antigravity OAuth",
     "antigravity_oauth_button": "Bắt đầu đăng nhập Antigravity",
-    "antigravity_oauth_hint": "Đăng nhập dịch vụ Antigravity (tài khoản Google) qua luồng OAuth, tự động lấy và lưu file xác thực.",
+    "antigravity_oauth_hint": "Đăng nhập bằng tài khoản Google.",
     "antigravity_open_link": "Mở liên kết",
     "antigravity_copy_link": "Sao chép liên kết",
     "antigravity_oauth_status_waiting": "Đang chờ xác thực...",
@@ -1008,7 +1009,7 @@
     "kimi_oauth_title": "Kimi OAuth",
     "kimi_oauth_button": "Đăng nhập bằng Kimi",
     "kimi_sign_up_button": "Đăng ký ngay",
-    "kimi_oauth_hint": "Đăng nhập nhanh vào Kimi qua ủy quyền thiết bị. File xác thực được lấy và lưu tự động.",
+    "kimi_oauth_hint": "Chỉ dành cho tài khoản kimi.com (Trung Quốc); tài khoản quốc tế hãy dùng mục kimi.ai.",
     "kimi_open_link": "Mở liên kết",
     "kimi_copy_link": "Sao chép liên kết",
     "kimi_oauth_status_waiting": "Đang chờ xác thực...",
@@ -1103,7 +1104,7 @@
     "devin_oauth_retry_hint": "Máy chủ có thể vẫn đang chờ ủy quyền. Hãy hủy lượt đăng nhập này trước khi bắt đầu lại.",
     "devin_oauth_title": "Devin OAuth",
     "devin_oauth_button": "Bắt đầu đăng nhập Devin",
-    "devin_oauth_hint": "Đăng nhập Devin / Cognition qua trình duyệt OAuth để tự động lưu file xác thực. Yêu cầu CLI Proxy API v7.3.1 trở lên; vui lòng hoàn tất ủy quyền trong vòng năm phút.",
+    "devin_oauth_hint": "Vui lòng hoàn tất ủy quyền trong vòng năm phút.",
     "devin_copy_link": "Sao chép liên kết",
     "devin_open_link": "Mở liên kết",
     "workbuddy_oauth_title": "WorkBuddy OAuth",
@@ -1139,7 +1140,7 @@
     "device_code_copy": "Sao chép mã thiết bị",
     "kimi_ai_oauth_title": "Kimi quốc tế (kimi.ai)",
     "kimi_ai_oauth_button": "Đăng nhập Kimi quốc tế",
-    "kimi_ai_oauth_hint": "Ủy quyền tài khoản kimi.ai quốc tế qua đăng nhập thiết bị. File xác thực kimi-ai độc lập sẽ được lưu tự động. Tài khoản nội địa Trung Quốc và quốc tế không thể dùng thay thế cho nhau.",
+    "kimi_ai_oauth_hint": "Chỉ dành cho tài khoản kimi.ai (quốc tế); được lưu thành file xác thực kimi-ai riêng.",
     "kimi_ai_open_link": "Mở liên kết",
     "kimi_ai_copy_link": "Sao chép liên kết",
     "kimi_ai_oauth_status_waiting": "Đang chờ xác thực...",
@@ -1703,7 +1704,7 @@
           "good": "Tốt",
           "strong": "Mạnh"
         },
-        "name_label": "Tên / mô tả (tùy chọn)",
+        "name_label": "Tên / mô tả",
         "name_placeholder": "Ví dụ: Laptop của Alice",
         "name_hint": "Được lưu ngay trong trình duyệt này, riêng cho từng máy chủ. Không bao gồm trong cấu hình máy chủ. Xóa trường này để xóa tên.",
         "name_save_error": "Không thể lưu tên vào bộ lưu trữ trình duyệt. Vui lòng kiểm tra cài đặt lưu trữ của trình duyệt."
@@ -1790,7 +1791,12 @@
         "udp_port_capacity": "Phạm vi UDP phải chứa số cổng tối thiểu bằng hai lần số lượng phiên tối đa hiệu dụng (0 phiên sẽ tính là 32)",
         "invalid_ice_servers": "Mỗi máy chủ ICE cần ít nhất một URL stun:, stuns:, turn:, hoặc turns: hợp lệ",
         "integer_range_0_65535": "Nhập số nguyên từ 0 đến 65535",
-        "integer": "Nhập một số nguyên"
+        "integer": "Nhập một số nguyên",
+        "payload_replace_invalid_target": "Vai trò đích phải là user, system hoặc developer.",
+        "payload_replace_invalid_positions": "Chọn tất cả tin nhắn của vai trò đã chọn hoặc nhập danh sách vị trí gồm các số nguyên dương, không chọn cả hai.",
+        "payload_replace_invalid_paths": "Nhập ít nhất một đường dẫn JSON không rỗng. Không dùng đường dẫn cùng vai trò, all hoặc positions.",
+        "payload_replace_invalid_models": "Thêm ít nhất một mô hình có tên không rỗng và các điều kiện hợp lệ.",
+        "payload_replace_invalid_replacements": "Thêm ít nhất một phép thay thế hợp lệ. Văn bản nguồn không được rỗng; biểu thức chính quy dùng Go RE2. Văn bản thay thế rỗng sẽ xóa phần khớp."
       },
       "common": {
         "edit": "Chỉnh sửa",
@@ -1959,6 +1965,30 @@
           "label": "Máy chủ ICE",
           "hint": "Các máy chủ STUN/TURN tùy chọn dùng URL stun:, stuns:, turn:, hoặc turns:. Thông tin xác thực TURN được bỏ qua trong API cấu hình JSON. Nhập thông tin xác thực dưới dạng mật khẩu và không để lộ bí mật trong ảnh chụp màn hình hay log."
         }
+      },
+      "payload_replace": {
+        "title": "Thay thế văn bản trong payload",
+        "description": "Áp dụng sau khi ghi đè và trước khi lọc. Các phép thay thế chạy theo thứ tự trên những chuỗi hiện có.",
+        "target": "Phạm vi áp dụng",
+        "replacements": "Các phép thay thế",
+        "target_all": "Tất cả tin nhắn của vai trò này",
+        "target_positions": "Vị trí tin nhắn",
+        "target_hint": "Đếm từ 1 trong số tin nhắn của vai trò đã chọn ở payload cuối cùng, kể cả tin nhắn không có văn bản chỉnh sửa được. Phân tách bằng dấu phẩy.",
+        "from": "Văn bản nguồn",
+        "to": "Văn bản thay thế (để trống để xóa)",
+        "add_replacement": "Thêm phép thay thế",
+        "move_up": "Di chuyển lên",
+        "move_down": "Di chuyển xuống",
+        "reset_invalid": "Đặt lại quy tắc không hợp lệ",
+        "invalid_hint": "Quy tắc này chứa giá trị không được hỗ trợ hoặc sai định dạng. Hãy sửa trong YAML hoặc đặt lại quy tắc trước khi chỉnh sửa.",
+        "target_selector": "Loại đích",
+        "target_paths": "Đường dẫn JSON",
+        "paths_hint": "Đường dẫn tính từ gốc payload gửi đến nhà cung cấp. Bỏ qua giá trị không tồn tại hoặc không phải chuỗi.",
+        "from_or_pattern": "Văn bản nguồn hoặc mẫu",
+        "replacement_type": "Loại thay thế",
+        "literal": "Văn bản",
+        "regex": "Biểu thức chính quy (RE2)",
+        "pattern": "Mẫu RE2"
       }
     },
     "tabs": {
@@ -2442,7 +2472,7 @@
       "sponsors": "Nhà tài trợ"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "gemini": "Gemini",
       "interactions": "Interactions API",
       "codex": "Codex",
@@ -2515,8 +2545,8 @@
       "urlMode": "URL {{provider}}",
       "urlHint": "Mọi URL dùng cùng quy ước API. Lưu chỉ ghi endpoint của giao thức được nhóm hiện tại.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Tuyến toàn cầu được bảo vệ cao",
-         "aiCodeMirrorDomestic": "Tuyến tối ưu cho Trung Quốc đại lục",
+        "aiCodeMirrorGlobal": "Tuyến toàn cầu được bảo vệ cao",
+        "aiCodeMirrorDomestic": "Tuyến tối ưu cho Trung Quốc đại lục",
         "standard": "URL chuẩn",
         "direct": "URL trực tiếp",
         "domestic": "Tuyến Trung Quốc đại lục",
@@ -2525,8 +2555,8 @@
         "global": "Toàn cầu"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "Tuyến có mức bảo vệ cao dành cho truy cập toàn cầu.",
-         "aiCodeMirrorDomestic": "Tuyến được tối ưu cho mạng tại Trung Quốc đại lục.",
+        "aiCodeMirrorGlobal": "Tuyến có mức bảo vệ cao dành cho truy cập toàn cầu.",
+        "aiCodeMirrorDomestic": "Tuyến được tối ưu cho mạng tại Trung Quốc đại lục.",
         "domestic": "Dành cho người dùng và khối lượng công việc tại Trung Quốc đại lục; thường có độ trễ thấp hơn trên mạng đại lục.",
         "overseas": "Dành cho triển khai nước ngoài, truy cập xuyên biên giới hoặc khối lượng công việc cần model nước ngoài.",
         "mainlandChinaRecommended": "Khuyến nghị cho người dùng và khối lượng công việc trên mạng Trung Quốc đại lục.",
@@ -3009,5 +3039,29 @@
     "error": "Liên kết thất bại. Hãy bắt đầu lại.",
     "unsupported": "Máy chủ này không hỗ trợ liên kết SIWC.",
     "expired": "Phiên liên kết đã hết hạn. Hãy bắt đầu lại."
+  },
+  "sensitive_replacements": {
+    "literal_title": "Thay thế văn bản nguyên dạng",
+    "pattern_title": "Thay thế bằng biểu thức chính quy",
+    "group_title": "Thay thế nội dung nhạy cảm",
+    "literal_hint": "Các dòng chưa có văn bản nguyên dạng chỉ nằm trong bản nháp và không được lưu.",
+    "pattern_hint": "Các quy tắc chạy theo thứ tự với cú pháp Go RE2; không hỗ trợ lookaround và tham chiếu ngược trong mẫu. Máy chủ loại bỏ mẫu không hợp lệ hoặc trống.",
+    "literal_key": "Văn bản nguyên dạng",
+    "replacement": "Nội dung thay thế",
+    "replacement_placeholder": "Để trống để xóa phần khớp",
+    "pattern": "Mẫu",
+    "duplicate_key": "Khóa trùng lặp. Thay đổi thay thế nguyên dạng chưa được áp dụng cho đến khi xử lý các khóa trùng.",
+    "add_literal": "Thêm thay thế nguyên dạng",
+    "add_pattern": "Thêm quy tắc regex",
+    "empty_literal": "Chưa có thay thế nguyên dạng nào.",
+    "empty_pattern": "Chưa có quy tắc regex nào.",
+    "literal_key_row": "Văn bản nguyên dạng, dòng {{row}}",
+    "literal_value_row": "Thay thế nguyên dạng, dòng {{row}}",
+    "pattern_row": "Mẫu regex, dòng {{row}}",
+    "pattern_value_row": "Thay thế regex, dòng {{row}}",
+    "remove_literal": "Xóa thay thế nguyên dạng dòng {{row}}",
+    "remove_pattern": "Xóa quy tắc regex dòng {{row}}",
+    "move_up": "Chuyển quy tắc regex dòng {{row}} lên",
+    "move_down": "Chuyển quy tắc regex dòng {{row}} xuống"
   }
 }

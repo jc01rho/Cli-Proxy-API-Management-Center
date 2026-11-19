@@ -152,7 +152,7 @@ const buildModelAliases = (
     })
     .filter((m) => m.name);
 
-const buildProviderKeyConfig = (
+export const buildProviderKeyConfig = (
   brand:
     | 'gemini'
     | 'interactions'
@@ -201,6 +201,8 @@ const buildProviderKeyConfig = (
       mode: input.cloak.mode.trim() || undefined,
       strictMode: input.cloak.strictMode,
       sensitiveWords: parseTextList(input.cloak.sensitiveWordsText),
+      sensitiveWordsReplace: input.cloak.sensitiveWordsReplace,
+      sensitivePatternsReplace: input.cloak.sensitivePatternsReplace,
       cacheUserId: input.cloak.cacheUserId === true,
     };
   }

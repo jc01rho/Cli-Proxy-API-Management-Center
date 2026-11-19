@@ -54,7 +54,9 @@
     "model_alias_placeholder": "Model Takma Adı (İsteğe Bağlı)",
     "invalid_provider_index": "Geçersiz Sağlayıcı Dizini.",
     "unsaved_changes_title": "Kaydedilmemiş Değişiklikler",
-    "unsaved_changes_message": "Kaydedilmemiş Değişiklikler Var. Şimdi Ayrılırsan Bunlar Silinir. Ayrılmak İstiyor Musun?"
+    "unsaved_changes_message": "Kaydedilmemiş Değişiklikler Var. Şimdi Ayrılırsan Bunlar Silinir. Ayrılmak İstiyor Musun?",
+    "more_info": "Daha fazla bilgi",
+    "more_info_about": "{{label}} hakkında bilgi"
   },
   "title": {
     "login": "CLIProxyAPI Yönetim Merkezi",
@@ -407,7 +409,7 @@
     "priority_hint": "Yalnızca Tam Sayı. Geçersiz Değerler Yok Sayılır. Büyük Değer Daha Yüksek Öncelik Demektir.",
     "weight_label": "Zamanlama Ağırlığı (weight)",
     "weight_tooltip": "Varsayılan 1. 0 veya Altındaki Değerler Bu Kimlik Bilgisini Ağırlıklı Zamanlamanın Dışında Bırakır. Üst Sınır 1.000.000. Değer Girdikten Sonra Etki Etmesi için Ağırlıklı Round Robin Etkinleştir.",
-    "weight_hint": "Varsayılan 1. 0 veya Altındaki Değerler Bu Kimlik Bilgisini Ağırlıklı Zamanlamanın Dışında Bırakır. Üst Sınır 1.000.000. Değer Girdikten Sonra Etki Etmesi için <settingsLink>Ağırlıklı Round Robin</settingsLink> Etkinleştir.",
+    "weight_hint": "Varsayılan 1. 0 veya Altındaki Değerler Bu Kimlik Bilgisini Ağırlıklı Zamanlamanın Dışında Bırakır. Üst Sınır 1.000.000.",
     "weight_invalid_integer": "Ağırlık Tam Sayı Olmalıdır.",
     "weight_invalid_max": "Ağırlık 1.000.000 Değerini Aşamaz.",
     "disable_cooling_label": "Üstel Soğumayı Devre Dışı Bırak (disable_cooling)",
@@ -471,7 +473,8 @@
     "quota_url_hint": "Overrides the usage/quota endpoint used by the Quota page (for Claude-compatible third-party mirrors such as nekos). Leave empty to derive it from base_url.",
     "cloaking_label": "Cloaking (cloak_mode)",
     "cloaking_hint": "On by default for Claude credentials. Turn off to send the request as-is, including skipping the Fable 5.1 fallbacks field that some third-party gateways reject.",
-    "filter_commandcode": "Command Code"
+    "filter_commandcode": "Command Code",
+    "weight_strategy_note": "Yalnızca <settingsLink>Ağırlıklı Round Robin</settingsLink> Etkinken Geçerlidir."
   },
   "antigravity_subscription": {
     "plan_unknown": "Bilinmiyor",
@@ -736,7 +739,7 @@
   "vertex_import": {
     "title": "Vertex JSON Girişi",
     "description": "Bir Google Hizmet Hesabı JSON Dosyası Yükle. CLI Vertex-Import Yardımcısıyla Aynı Kurallarla auth-dir/vertex-<project>.json Olarak Saklanır.",
-    "location_label": "Bölge (İsteğe Bağlı)",
+    "location_label": "Bölge",
     "location_placeholder": "global",
     "location_hint": "Varsayılan Bölge global Kullanılsın Diye Boş Bırak.",
     "file_label": "Hizmet Hesabı Anahtarı JSON",
@@ -886,7 +889,7 @@
     "devin_oauth_retry_hint": "Sunucu Hâlâ Yetkilendirme Bekliyor Olabilir. Yeniden Başlamadan Önce Bu Girişi İptal Et.",
     "devin_oauth_title": "Devin OAuth",
     "devin_oauth_button": "Devin Girişini Başlat",
-    "devin_oauth_hint": "Bir Kimlik Doğrulama Dosyası Kaydetmek için Tarayıcı OAuth Üzerinden Devin / Cognition Hesabına Giriş Yap. CLIProxyAPI v7.3.1 veya Sonrası Gerekir. Yetkilendirmeyi Beş Dakika İçinde Tamamla.",
+    "devin_oauth_hint": "Yetkilendirmeyi Beş Dakika İçinde Tamamla.",
     "devin_copy_link": "Bağlantıyı Kopyala",
     "devin_open_link": "Bağlantıyı Aç",
     "devin_oauth_status_waiting": "Devin Kimlik Doğrulaması Bekleniyor...",
@@ -923,7 +926,7 @@
     "anthropic_oauth_polling_error": "Kimlik Doğrulama Durumu Kontrol Edilemedi:",
     "antigravity_oauth_title": "Antigravity OAuth",
     "antigravity_oauth_button": "Antigravity Girişini Başlat",
-    "antigravity_oauth_hint": "OAuth Akışıyla Antigravity Hizmetine (Google Hesabı) Giriş Yap. Kimlik Doğrulama Dosyaları Otomatik Alınır ve Kaydedilir.",
+    "antigravity_oauth_hint": "Google Hesabıyla Giriş Yap.",
     "antigravity_open_link": "Bağlantıyı Aç",
     "antigravity_copy_link": "Bağlantıyı Kopyala",
     "antigravity_oauth_status_waiting": "Kimlik Doğrulama Bekleniyor...",
@@ -945,7 +948,7 @@
     "device_code_copy": "Aygıt Kodunu Kopyala",
     "kimi_ai_oauth_title": "Kimi Uluslararası (kimi.ai)",
     "kimi_ai_oauth_button": "Kimi Uluslararası Hesabına Giriş Yap",
-    "kimi_ai_oauth_hint": "kimi.ai Uluslararası Hesabını Aygıt Girişiyle Yetkilendir. Ayrı Bir kimi-ai Kimlik Doğrulama Dosyası Otomatik Kaydedilir. Çin ve Uluslararası Hesaplar Birbiriyle Değiştirilemez.",
+    "kimi_ai_oauth_hint": "Yalnızca kimi.ai (Uluslararası) Hesapları İçin; Ayrı Bir kimi-ai Kimlik Doğrulama Dosyası Olarak Kaydedilir.",
     "kimi_ai_open_link": "Bağlantıyı Aç",
     "kimi_ai_copy_link": "Bağlantıyı Kopyala",
     "kimi_ai_oauth_status_waiting": "Kimlik Doğrulama Bekleniyor...",
@@ -956,7 +959,7 @@
     "kimi_oauth_title": "Kimi Çin (kimi.com)",
     "kimi_oauth_button": "Kimi Çin Hesabına Giriş Yap",
     "kimi_sign_up_button": "Hemen Kaydol",
-    "kimi_oauth_hint": "kimi.com Çin Hesabını Aygıt Girişiyle Yetkilendir. Kimlik Doğrulama Dosyaları Otomatik Kaydedilir. Uluslararası Hesaplar Ayrı kimi.ai Girişini Kullanmalıdır.",
+    "kimi_oauth_hint": "Yalnızca kimi.com (Çin) Hesapları İçin; Uluslararası Hesaplar kimi.ai Girişini Kullanır.",
     "kimi_open_link": "Bağlantıyı Aç",
     "kimi_copy_link": "Bağlantıyı Kopyala",
     "kimi_oauth_status_waiting": "Kimlik Doğrulama Bekleniyor...",
@@ -1806,7 +1809,7 @@
         "add_title": "API Anahtarı Ekle",
         "input_label": "API Anahtarı",
         "input_placeholder": "API Anahtarını Yapıştır",
-        "name_label": "Ad / Açıklama (İsteğe Bağlı)",
+        "name_label": "Ad / Açıklama",
         "name_placeholder": "Örnek: Alice'in Dizüstü Bilgisayarı",
         "name_hint": "Yalnızca Bu Tarayıcıda, Her Sunucu için Ayrı Olarak Hemen Kaydedilir. Sunucu Yapılandırmasına Dahil Değildir. Adı Kaldırmak için Bu Alanı Temizle.",
         "name_save_error": "Ad Tarayıcı Deposuna Kaydedilemedi. Tarayıcı Depolama Ayarlarını Kontrol Et.",
@@ -1909,7 +1912,12 @@
         "keeper_initial_backoff": "Initial backoff must be between 100 ms and 60 s",
         "keeper_max_backoff": "Maximum backoff must be at least the initial backoff",
         "keeper_metadata_interval": "Metadata interval must be between 1 minute and 24 hours",
-        "keeper_metadata_categories": "Select at least one metadata category"
+        "keeper_metadata_categories": "Select at least one metadata category",
+        "payload_replace_invalid_target": "Hedef rol user, system veya developer olmalıdır.",
+        "payload_replace_invalid_positions": "Seçili rolün tüm mesajlarını seçin veya pozitif tam sayılardan oluşan boş olmayan bir konum listesi girin. İkisini birden seçmeyin.",
+        "payload_replace_invalid_paths": "En az bir boş olmayan JSON yolu girin. Yollar rol, all veya positions ile birlikte kullanılamaz.",
+        "payload_replace_invalid_models": "Adı boş olmayan ve koşulları geçerli en az bir model ekleyin.",
+        "payload_replace_invalid_replacements": "En az bir geçerli değiştirme ekleyin. Düz metin kaynağı boş olamaz; düzenli ifadeler Go RE2 kullanır. Boş değiştirme metni eşleşmeyi siler."
       },
       "common": {
         "edit": "Düzenle",
@@ -1932,6 +1940,30 @@
         "refresh_url": "Refresh URL (optional)",
         "userinfo_url": "Userinfo URL (optional)",
         "device_authorize_url": "Device authorize URL (optional)"
+      },
+      "payload_replace": {
+        "title": "Payload metin değiştirmeleri",
+        "description": "Geçersiz kılmalardan sonra ve filtrelerden önce uygulanır. Mevcut dizeler listedeki sırayla değiştirilir.",
+        "target": "Kapsam",
+        "replacements": "Değiştirmeler",
+        "target_all": "Bu rolün tüm mesajları",
+        "target_positions": "Mesaj konumları",
+        "target_hint": "Son sağlayıcı yükündeki seçili rolün mesajları 1’den başlayarak sayılır. Düzenlenebilir metni olmayanlar da sayılır. Konumları virgülle ayırın.",
+        "from": "Kaynak metin",
+        "to": "Yerine yazılacak metin (boş bırakılırsa silinir)",
+        "add_replacement": "Değiştirme ekle",
+        "move_up": "Yukarı taşı",
+        "move_down": "Aşağı taşı",
+        "reset_invalid": "Geçersiz kuralı sıfırla",
+        "invalid_hint": "Bu kural desteklenmeyen veya hatalı biçimlendirilmiş değerler içeriyor. Düzenlemeden önce YAML içinde düzeltin veya kuralı sıfırlayın.",
+        "target_selector": "Hedef türü",
+        "target_paths": "JSON yolları",
+        "paths_hint": "Yollar, sağlayıcıya gönderilen yükün köküne göredir. Eksik veya dize olmayan değerler atlanır.",
+        "from_or_pattern": "Kaynak metin veya desen",
+        "replacement_type": "Değiştirme türü",
+        "literal": "Düz metin",
+        "regex": "Düzenli ifade (RE2)",
+        "pattern": "RE2 deseni"
       }
     },
     "tabs": {
@@ -2498,7 +2530,7 @@
       "sponsors": "Sponsors"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2568,8 +2600,8 @@
       "urlMode": "{{provider}} URL'si",
       "urlHint": "Tüm URL'ler Aynı API Kurallarını Kullanır. Kayıt Yalnızca Geçerli Gruplanmış Protokolün Uç Noktasını Yazar.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Yüksek Korumalı Küresel Rota",
-         "aiCodeMirrorDomestic": "Çin Ana Karası için Optimize Edilmiş Rota",
+        "aiCodeMirrorGlobal": "Yüksek Korumalı Küresel Rota",
+        "aiCodeMirrorDomestic": "Çin Ana Karası için Optimize Edilmiş Rota",
         "standard": "Standart URL",
         "direct": "Doğrudan URL",
         "domestic": "Çin Ana Karası Rotası",
@@ -2578,8 +2610,8 @@
         "global": "Küresel"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "Küresel erişim için yüksek korumalı bir rota.",
-         "aiCodeMirrorDomestic": "Çin ana karasındaki ağlar için optimize edilmiş bir rota.",
+        "aiCodeMirrorGlobal": "Küresel erişim için yüksek korumalı bir rota.",
+        "aiCodeMirrorDomestic": "Çin ana karasındaki ağlar için optimize edilmiş bir rota.",
         "domestic": "Çin Ana Karasındaki Kullanıcılar ve İş Yükleri için. Ana Kara Ağlarında Genellikle Daha Düşük Gecikme.",
         "overseas": "Yurt Dışı Dağıtımlar, Sınır Ötesi Erişim veya Yurt Dışı Modeller Gerektiren İş Yükleri için.",
         "mainlandChinaRecommended": "Çin Ana Karası Ağlarındaki Kullanıcılar ve İş Yükleri için Önerilir.",
@@ -3001,5 +3033,29 @@
     "used_of": "{{used}}% used",
     "credits_label": "Subscription credits",
     "credits_used": "{{used}} / {{limit}} used"
+  },
+  "sensitive_replacements": {
+    "literal_title": "Düz metin değiştirmeleri",
+    "pattern_title": "Düzenli ifade değiştirmeleri",
+    "group_title": "Hassas metin değiştirme",
+    "literal_hint": "Düz metni boş olan satırlar taslakta kalır ve kaydedilmez.",
+    "pattern_hint": "Kurallar Go RE2 sözdizimiyle sırayla çalışır; desenlerde ileri/geri bakış ve geri başvurular desteklenmez. Sunucu geçersiz veya boş desenleri atar.",
+    "literal_key": "Düz metin",
+    "replacement": "Değiştirme metni",
+    "replacement_placeholder": "Eşleşmeyi silmek için boş bırakın",
+    "pattern": "Desen",
+    "duplicate_key": "Yinelenen anahtar. Yinelenen anahtarlar düzeltilene kadar düz metin değişiklikleri uygulanmaz.",
+    "add_literal": "Düz metin değiştirmesi ekle",
+    "add_pattern": "Regex kuralı ekle",
+    "empty_literal": "Henüz düz metin değiştirmesi yok.",
+    "empty_pattern": "Henüz regex kuralı yok.",
+    "literal_key_row": "Düz metin, satır {{row}}",
+    "literal_value_row": "Düz metin değiştirmesi, satır {{row}}",
+    "pattern_row": "Regex deseni, satır {{row}}",
+    "pattern_value_row": "Regex değiştirmesi, satır {{row}}",
+    "remove_literal": "{{row}}. düz metin satırını sil",
+    "remove_pattern": "{{row}}. regex satırını sil",
+    "move_up": "{{row}}. regex satırını yukarı taşı",
+    "move_down": "{{row}}. regex satırını aşağı taşı"
   }
 }

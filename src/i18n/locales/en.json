@@ -54,7 +54,9 @@
     "model_alias_placeholder": "Model alias (optional)",
     "invalid_provider_index": "Invalid provider index.",
     "unsaved_changes_title": "Unsaved changes",
-    "unsaved_changes_message": "You have unsaved changes. Leaving now will discard them. Do you want to leave?"
+    "unsaved_changes_message": "You have unsaved changes. Leaving now will discard them. Do you want to leave?",
+    "more_info": "More information",
+    "more_info_about": "More information about {{label}}"
   },
   "title": {
     "login": "CLI Proxy API Management Center",
@@ -78,8 +80,6 @@
     "remember_password_label": "Remember password",
     "management_key_label": "Management Key",
     "management_key_placeholder": "Enter the management key",
-    "show_key": "Show key",
-    "hide_key": "Hide key",
     "submit_button": "Login",
     "submitting": "Connecting...",
     "error_backend_detail": "Backend response",
@@ -466,7 +466,7 @@
     "priority_hint": "Integers only. Invalid values are ignored. Larger value means higher priority.",
     "weight_label": "Scheduling weight (weight)",
     "weight_tooltip": "Defaults to 1. Values at or below 0 exclude this credential from weighted scheduling; maximum 1,000,000. After entering a value, enable weighted round robin for it to take effect.",
-    "weight_hint": "Defaults to 1. Values at or below 0 exclude this credential from weighted scheduling; maximum 1,000,000. After entering a value, enable <settingsLink>weighted round robin</settingsLink> for it to take effect.",
+    "weight_hint": "Defaults to 1. Values at or below 0 exclude this credential from weighted scheduling; maximum 1,000,000.",
     "weight_invalid_integer": "Weight must be an integer.",
     "weight_invalid_max": "Weight cannot exceed 1,000,000.",
     "disable_cooling_label": "Disable exponential cooldown (disable_cooling)",
@@ -515,7 +515,8 @@
     "quota_refresh_success": "Quota refreshed for \"{{name}}\"",
     "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}",
     "weight_display": "WRR weight",
-    "filter_commandcode": "Command Code"
+    "filter_commandcode": "Command Code",
+    "weight_strategy_note": "Takes effect only with <settingsLink>weighted round robin</settingsLink> enabled."
   },
   "antigravity_subscription": {
     "plan_unknown": "Unknown",
@@ -631,7 +632,7 @@
     "additional_secondary_window": "{{name}} weekly limit",
     "additional_team_secondary_window": "{{name}} monthly limit",
     "plan_label": "Plan",
-    "expires_label": "Expires",
+    "expires_label": "Renewal time",
     "credit_balance_label": "Credit balance",
     "credit_unlimited": "Unlimited",
     "reset_credits_label": "Manual resets",
@@ -811,7 +812,7 @@
   "vertex_import": {
     "title": "Vertex JSON Login",
     "description": "Upload a Google service account JSON to store it as auth-dir/vertex-<project>.json using the same rules as the CLI vertex-import helper.",
-    "location_label": "Region (optional)",
+    "location_label": "Region",
     "location_placeholder": "global",
     "location_hint": "Leave empty to use the default region global.",
     "file_label": "Service account key JSON",
@@ -961,7 +962,7 @@
     "devin_oauth_retry_hint": "The server may still be waiting for authorization. Cancel this login before starting again.",
     "devin_oauth_title": "Devin OAuth",
     "devin_oauth_button": "Start Devin Login",
-    "devin_oauth_hint": "Sign in to Devin / Cognition through browser OAuth to save an authentication file. Requires CLI Proxy API v7.3.1 or later; complete authorization within five minutes.",
+    "devin_oauth_hint": "Complete authorization within five minutes.",
     "devin_copy_link": "Copy Link",
     "devin_open_link": "Open Link",
     "workbuddy_oauth_title": "WorkBuddy OAuth",
@@ -1069,7 +1070,7 @@
     "anthropic_oauth_polling_error": "Failed to check authentication status:",
     "antigravity_oauth_title": "Antigravity OAuth",
     "antigravity_oauth_button": "Start Antigravity Login",
-    "antigravity_oauth_hint": "Login to Antigravity service (Google account) through OAuth flow, automatically obtain and save authentication files.",
+    "antigravity_oauth_hint": "Sign in with a Google account.",
     "antigravity_open_link": "Open Link",
     "antigravity_copy_link": "Copy Link",
     "antigravity_oauth_status_waiting": "Waiting for authentication...",
@@ -1091,7 +1092,7 @@
     "device_code_copy": "Copy device code",
     "kimi_ai_oauth_title": "Kimi International (kimi.ai)",
     "kimi_ai_oauth_button": "Log in to Kimi International",
-    "kimi_ai_oauth_hint": "Authorize your kimi.ai international account via device login. A separate kimi-ai authentication file is saved automatically. China and international accounts are not interchangeable.",
+    "kimi_ai_oauth_hint": "For kimi.ai (international) accounts only; saved as a separate kimi-ai auth file.",
     "kimi_ai_open_link": "Open link",
     "kimi_ai_copy_link": "Copy link",
     "kimi_ai_oauth_status_waiting": "Waiting for authentication...",
@@ -1102,7 +1103,7 @@
     "kimi_oauth_title": "Kimi China (kimi.com)",
     "kimi_oauth_button": "Log in to Kimi China",
     "kimi_sign_up_button": "Sign Up Now",
-    "kimi_oauth_hint": "Authorize your kimi.com China account via device login. Authentication files are saved automatically. International accounts must use the separate kimi.ai login.",
+    "kimi_oauth_hint": "For kimi.com (China) accounts only; international accounts use the kimi.ai entry.",
     "kimi_open_link": "Open Link",
     "kimi_copy_link": "Copy Link",
     "kimi_oauth_status_waiting": "Waiting for authentication...",
@@ -1901,7 +1902,7 @@
         "models_hint": "One pattern per line. Leave empty to allow every model. Use * as a wildcard.",
         "model_all": "Models: all allowed",
         "model_restricted": "Models: {{patterns}}",
-        "name_label": "Name / description (optional)",
+        "name_label": "Name / description",
         "name_placeholder": "For example: Alice's laptop",
         "name_hint": "Saved immediately in this browser only, separately for each server. Not included in server configuration. Clear this field to remove the name.",
         "name_save_error": "Could not save the name in browser storage. Check your browser storage settings.",
@@ -1998,7 +1999,12 @@
         "keeper_initial_backoff": "Initial backoff must be between 100 ms and 60 s",
         "keeper_max_backoff": "Maximum backoff must be at least the initial backoff",
         "keeper_metadata_interval": "Metadata interval must be between 1 minute and 24 hours",
-        "keeper_metadata_categories": "Select at least one metadata category"
+        "keeper_metadata_categories": "Select at least one metadata category",
+        "payload_replace_invalid_target": "Use user, system, or developer as the target role.",
+        "payload_replace_invalid_positions": "Choose all messages of the selected role or enter a non-empty list of positive integer positions, not both.",
+        "payload_replace_invalid_paths": "Enter at least one non-blank JSON path. Paths cannot be combined with a role, all, or positions.",
+        "payload_replace_invalid_models": "Add at least one model with a non-empty name and valid conditions.",
+        "payload_replace_invalid_replacements": "Add at least one valid replacement. Literal sources cannot be empty. Regex uses Go RE2; an empty replacement deletes the matched text."
       },
       "common": {
         "edit": "Edit",
@@ -2007,6 +2013,30 @@
         "update": "Update",
         "add": "Add",
         "enabled": "Enabled"
+      },
+      "payload_replace": {
+        "title": "Payload text replacements",
+        "description": "Runs after overrides and before filters. Replacements run in order on existing strings.",
+        "target": "Scope",
+        "replacements": "Replacements",
+        "target_all": "All messages of this role",
+        "target_positions": "Message positions",
+        "target_hint": "Positions start at 1 and count all messages of the selected role in the final upstream payload, including messages without editable text. Separate positions with commas.",
+        "from": "Source text",
+        "to": "Replacement text (empty deletes)",
+        "add_replacement": "Add replacement",
+        "move_up": "Move up",
+        "move_down": "Move down",
+        "reset_invalid": "Reset invalid rule",
+        "invalid_hint": "This rule contains unsupported or malformed values. Fix it in YAML or reset it before editing.",
+        "target_selector": "Target type",
+        "target_paths": "JSON paths",
+        "paths_hint": "Paths are relative to the upstream payload root. Missing or non-string values are skipped.",
+        "from_or_pattern": "Source text or pattern",
+        "replacement_type": "Replacement type",
+        "literal": "Literal",
+        "regex": "Regex (RE2)",
+        "pattern": "RE2 pattern"
       }
     },
     "tabs": {
@@ -2043,7 +2073,7 @@
     "meta_loaded": "{{count}} loaded",
     "meta_attention": "{{count}} need attention",
     "empty_title": "No quota-capable credentials",
-    "empty_desc": "Connect an Antigravity, Claude, Codex, xAI, Kiro, or Kimi credential to track its quota here.",
+    "empty_desc": "Connect an Antigravity, Claude, Codex, xAI, or Kimi credential to track its quota here.",
     "windows_title": "Quota windows",
     "windows_span_weekly": "two weeks",
     "windows_span_session": "three days",
@@ -2573,7 +2603,7 @@
       "sponsors": "Sponsors"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "codex": "Codex",
@@ -2643,8 +2673,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "All URLs use the same API conventions. Saving writes only the endpoint for the current grouped protocol.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Global high-protection route",
-         "aiCodeMirrorDomestic": "Mainland China optimized route",
+        "aiCodeMirrorGlobal": "Global high-protection route",
+        "aiCodeMirrorDomestic": "Mainland China optimized route",
         "standard": "Standard URL",
         "direct": "Direct URL",
         "domestic": "China mainland route",
@@ -2653,8 +2683,8 @@
         "global": "Global"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "A high-protection route for global access.",
-         "aiCodeMirrorDomestic": "A route optimized for mainland China networks.",
+        "aiCodeMirrorGlobal": "A high-protection route for global access.",
+        "aiCodeMirrorDomestic": "A route optimized for mainland China networks.",
         "domestic": "For users and workloads in mainland China; usually lower latency in mainland networks.",
         "overseas": "For overseas deployments, cross-border access, or workloads that need overseas models.",
         "mainlandChinaRecommended": "Recommended for users and workloads on mainland China networks.",
@@ -3003,7 +3033,29 @@
     "error": "Binding failed. Please start over.",
     "unsupported": "This backend does not support SIWC binding.",
     "expired": "The binding session expired. Please start over."
+  },
+  "sensitive_replacements": {
+    "literal_title": "Literal replacements",
+    "pattern_title": "Regular expression replacements",
+    "group_title": "Sensitive text replacement",
+    "literal_hint": "Rows without literal text stay in the draft and are not saved.",
+    "pattern_hint": "Rules run in order using Go RE2 syntax; lookaround and backreferences in patterns are not supported. The backend discards invalid or blank patterns.",
+    "literal_key": "Literal text",
+    "replacement": "Replacement",
+    "replacement_placeholder": "Leave empty to delete the match",
+    "pattern": "Pattern",
+    "duplicate_key": "Duplicate key. Literal changes are not applied until duplicate keys are resolved.",
+    "add_literal": "Add literal replacement",
+    "add_pattern": "Add regex rule",
+    "empty_literal": "No literal replacements yet.",
+    "empty_pattern": "No regex rules yet.",
+    "literal_key_row": "Literal text, row {{row}}",
+    "literal_value_row": "Literal replacement, row {{row}}",
+    "pattern_row": "Regex pattern, row {{row}}",
+    "pattern_value_row": "Regex replacement, row {{row}}",
+    "remove_literal": "Remove literal row {{row}}",
+    "remove_pattern": "Remove regex row {{row}}",
+    "move_up": "Move regex row {{row}} up",
+    "move_down": "Move regex row {{row}} down"
   }
 }
-
-

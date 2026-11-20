@@ -138,7 +138,8 @@ function buildInitialForm(
         isClaudeLikeBrand(brand) ||
         brand === 'gemini' ||
         brand === 'interactions' ||
-        brand === 'opencode'
+        brand === 'opencode' ||
+        brand === 'commandcode'
           ? ''
           : undefined,
       maxOutputTokens:
@@ -259,7 +260,8 @@ function buildInitialForm(
       isClaudeLikeBrand(brand) ||
       brand === 'gemini' ||
       brand === 'interactions' ||
-      brand === 'opencode'
+      brand === 'opencode' ||
+      brand === 'commandcode'
         ? ''
         : undefined,
     maxOutputTokens:
@@ -807,24 +809,28 @@ export function BaseProviderForm({
               ariaLabel={t('providersPage.form.testModel')}
               ariaDescribedBy={`${fid}-testModel-hint`}
             />
-            <label className={styles.label} htmlFor={`${fid}-maxOutputTokens`}>
-              {t('providersPage.form.maxOutputTokens')}
-            </label>
-            <input
-              id={`${fid}-maxOutputTokens`}
-              type="number"
-              min={1}
-              className={styles.input}
-              value={form.maxOutputTokens ?? ''}
-              onChange={(e) =>
-                updateField(
-                  'maxOutputTokens',
-                  e.target.value === '' ? undefined : Number(e.target.value)
-                )
-              }
-              disabled={mutating}
-              placeholder={t('providersPage.form.maxOutputTokensPlaceholder')}
-            />
+            {brand !== 'commandcode' ? (
+              <>
+                <label className={styles.label} htmlFor={`${fid}-maxOutputTokens`}>
+                  {t('providersPage.form.maxOutputTokens')}
+                </label>
+                <input
+                  id={`${fid}-maxOutputTokens`}
+                  type="number"
+                  min={1}
+                  className={styles.input}
+                  value={form.maxOutputTokens ?? ''}
+                  onChange={(e) =>
+                    updateField(
+                      'maxOutputTokens',
+                      e.target.value === '' ? undefined : Number(e.target.value)
+                    )
+                  }
+                  disabled={mutating}
+                  placeholder={t('providersPage.form.maxOutputTokensPlaceholder')}
+                />
+              </>
+            ) : null}
             {singleConnectivity ? (
               <div className={styles.connectivityRow}>
                 <button

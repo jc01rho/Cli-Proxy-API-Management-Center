@@ -26,6 +26,10 @@ interface ModelEntriesEditorProps {
   onRemove: (idx: number) => void;
 }
 
+/**
+ * Model rows: upstream name and alias inline, everything else one disclosure deeper.
+ * Capability badges summarise a collapsed row so it can stay collapsed.
+ */
 export function ModelEntriesEditor({
   models,
   oauthAliasOnly = false,
@@ -46,9 +50,7 @@ export function ModelEntriesEditor({
 
   const handleAdd = () => {
     // New rows are appended; make sure the truncated list doesn't hide them.
-    if (!showAll && models.length >= COLLAPSED_LIMIT) {
-      setShowAll(true);
-    }
+    if (!showAll && models.length >= COLLAPSED_LIMIT) setShowAll(true);
     onAdd();
   };
 
@@ -61,6 +63,9 @@ export function ModelEntriesEditor({
   };
 
   const visible = showAll ? models : models.slice(0, COLLAPSED_LIMIT);
+  const aliasLabel = t(
+    oauthAliasOnly ? 'auth_files.policy_alias_name' : 'providersPage.modelOptions.modelAlias'
+  );
 
   return (
     <>
@@ -80,6 +85,7 @@ export function ModelEntriesEditor({
         if (!endpointOptions.some((option) => option.value === endpointValue)) {
           endpointOptions.push({ value: endpointValue, label: endpoints.join(', ') });
         }
+        const toggleLabel = expanded ? t('common.collapse') : t('common.expand');
         return (
           <div key={idx} className={styles.modelEntry}>
             <div className={styles.modelAliasRow}>
@@ -93,16 +99,8 @@ export function ModelEntriesEditor({
               />
               <input
                 className={styles.input}
-                placeholder={t(
-                  oauthAliasOnly
-                    ? 'auth_files.policy_alias_name'
-                    : 'providersPage.modelOptions.modelAlias'
-                )}
-                aria-label={t(
-                  oauthAliasOnly
-                    ? 'auth_files.policy_alias_name'
-                    : 'providersPage.modelOptions.modelAlias'
-                )}
+                placeholder={aliasLabel}
+                aria-label={aliasLabel}
                 required={oauthAliasOnly}
                 value={entry.alias ?? ''}
                 onChange={(e) => onUpdate(idx, { alias: e.target.value })}
@@ -123,29 +121,27 @@ export function ModelEntriesEditor({
                   type="button"
                   className={styles.entryCardIconBtn}
                   onClick={() => setExpandedIdx(expanded ? null : idx)}
-                  title={expanded ? t('common.collapse') : t('common.expand')}
-                  aria-label={expanded ? t('common.collapse') : t('common.expand')}
+                  title={toggleLabel}
+                  aria-label={toggleLabel}
                   aria-expanded={expanded}
                   disabled={mutating}
                 >
                   <IconChevronDown
-                    className={[
-                      styles.entryCardChevron,
-                      expanded ? styles.entryCardChevronOpen : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    size={14}
+                    className={`${styles.entryCardChevron} ${
+                      expanded ? styles.entryCardChevronOpen : ''
+                    }`}
+                    size={15}
                   />
                 </button>
                 <button
                   type="button"
                   className={styles.removeBtn}
                   aria-label={t('providersPage.modelOptions.removeModel')}
+                  title={t('providersPage.modelOptions.removeModel')}
                   disabled={mutating || removeDisabled}
                   onClick={() => handleRemove(idx)}
                 >
-                  <IconX size={12} />
+                  <IconX size={14} />
                 </button>
               </div>
             </div>
@@ -200,6 +196,7 @@ export function ModelEntriesEditor({
                       <label key={field} className={styles.checkboxRow}>
                         <input
                           type="checkbox"
+                          role="switch"
                           className={styles.checkboxBox}
                           checked={entry[field] === true}
                           disabled={mutating}
@@ -237,7 +234,7 @@ export function ModelEntriesEditor({
         </button>
       ) : null}
       <button type="button" className={styles.addBtn} disabled={mutating} onClick={handleAdd}>
-        <IconPlus size={12} />
+        <IconPlus size={13} />
         <span>{t('providersPage.form.addModel')}</span>
       </button>
     </>

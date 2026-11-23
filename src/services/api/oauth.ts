@@ -22,7 +22,8 @@ export type BuiltInOAuthProvider =
   | 'kiro'
   | 'zcode'
   | 'devin'
-  | 'workbuddy';
+  | 'workbuddy'
+  | 'copilot';
 
 export interface OAuthStartResponse {
   url?: string;

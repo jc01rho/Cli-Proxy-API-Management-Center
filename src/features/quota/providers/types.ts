@@ -15,6 +15,7 @@ import type {
   DevinQuotaState,
   KiroQuotaState,
   KimiQuotaState,
+  CopilotQuotaState,
   MetaQuotaState,
   PluginQuotaState,
   XaiQuotaState,
@@ -27,6 +28,7 @@ export type QuotaProviderType =
   | 'antigravity'
   | 'claude'
   | 'codex'
+  | 'copilot'
   | 'devin'
   | 'kiro'
   | 'kimi'
@@ -44,6 +46,7 @@ export interface QuotaStore {
   devinQuota: Record<string, DevinQuotaState>;
   kiroQuota: Record<string, KiroQuotaState>;
   kimiQuota: Record<string, KimiQuotaState>;
+  copilotQuota: Record<string, CopilotQuotaState>;
   metaQuota: Record<string, MetaQuotaState>;
   pluginQuota: Record<string, PluginQuotaState>;
   xaiQuota: Record<string, XaiQuotaState>;
@@ -55,6 +58,7 @@ export interface QuotaStore {
   setDevinQuota: (updater: QuotaUpdater<Record<string, DevinQuotaState>>) => void;
   setKiroQuota: (updater: QuotaUpdater<Record<string, KiroQuotaState>>) => void;
   setKimiQuota: (updater: QuotaUpdater<Record<string, KimiQuotaState>>) => void;
+  setCopilotQuota: (updater: QuotaUpdater<Record<string, CopilotQuotaState>>) => void;
   setMetaQuota: (updater: QuotaUpdater<Record<string, MetaQuotaState>>) => void;
   setPluginQuota: (updater: QuotaUpdater<Record<string, PluginQuotaState>>) => void;
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;

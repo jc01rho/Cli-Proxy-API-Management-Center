@@ -5,6 +5,7 @@ import iconClineDark from '@/assets/icons/cline-dark.svg';
 import iconClineLight from '@/assets/icons/cline-light.svg';
 import iconCodex from '@/assets/icons/codex.svg';
 import iconMeta from '@/assets/icons/meta.svg';
+import iconCopilot from '@/assets/icons/copilot.svg';
 import iconDevin from '@/assets/icons/devin.svg';
 import iconDevinDark from '@/assets/icons/devin-dark.svg';
 import iconGemini from '@/assets/icons/gemini.svg';
@@ -40,6 +41,7 @@ export type AuthFileQuotaFilter = string | null;
 export type OAuthConfigLoadError = 'loading' | 'unsupported' | 'load' | null;
 
 export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
+  'copilot',
   'meta',
   'antigravity',
   'claude',
@@ -55,6 +57,7 @@ export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
 
 export const OAUTH_PROVIDER_PRESETS = [
   'meta',
+  'copilot',
   'vertex',
   'aistudio',
   'antigravity',
@@ -86,6 +89,7 @@ export const AUTH_FILE_USING_API_PROVIDERS = new Set(['xai']);
 /** Providers whose OAuth credential supports a per-credential endpoint (base_url) override. */
 export const AUTH_FILE_BASE_URL_PROVIDERS = new Set(['claude']);
 export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
+  'copilot',
   'meta',
   'antigravity',
   'claude',
@@ -114,6 +118,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   kilo: iconKilo,
   codex: iconCodex,
   meta: iconMeta,
+  copilot: iconCopilot,
   devin: { light: iconDevin, dark: iconDevinDark },
   workbuddy: iconWorkBuddy,
   codebuddy: iconCodeBuddy,

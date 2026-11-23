@@ -6,6 +6,7 @@ export interface ModelOptionsInput {
   displayName?: string;
   maxContextLength?: string;
   routingMaxContextLength?: string;
+  openapi?: boolean;
   forceMapping?: boolean;
   isCompat?: boolean;
   supportConfigurationUpdate?: boolean;
@@ -32,6 +33,7 @@ export function readModelOptions(model: ModelAlias): ModelOptionsInput & {
     displayName: model.displayName,
     maxContextLength: model.maxContextLength?.toString(),
     routingMaxContextLength: model.routingMaxContextLength?.toString(),
+    openapi: model.openapi,
     forceMapping: model.forceMapping,
     isCompat: model.isCompat,
     supportConfigurationUpdate: model.supportConfigurationUpdate,
@@ -104,6 +106,7 @@ export function buildModelOptions(entry: ModelEntryInput): Partial<ModelAlias> {
     displayName: entry.displayName?.trim() || undefined,
     maxContextLength: numberValue(entry.maxContextLength),
     routingMaxContextLength: numberValue(entry.routingMaxContextLength),
+    openapi: entry.openapi,
     forceMapping: entry.forceMapping,
     isCompat: entry.isCompat,
     supportConfigurationUpdate: entry.supportConfigurationUpdate,

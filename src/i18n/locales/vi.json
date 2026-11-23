@@ -17,6 +17,8 @@
     "success": "Thành công",
     "error": "Lỗi",
     "info": "Thông tin",
+    "more_info": "Thêm thông tin",
+    "more_info_about": "Thêm thông tin về {{label}}",
     "warning": "Cảnh báo",
     "loading": "Đang tải...",
     "connecting": "Đang kết nối...",
@@ -54,9 +56,7 @@
     "model_alias_placeholder": "Bí danh model (tùy chọn)",
     "invalid_provider_index": "Chỉ mục provider không hợp lệ.",
     "unsaved_changes_title": "Thay đổi chưa lưu",
-    "unsaved_changes_message": "Bạn có thay đổi chưa lưu. Rời đi bây giờ sẽ mất các thay đổi đó. Bạn có muốn rời đi không?",
-    "more_info": "Thêm thông tin",
-    "more_info_about": "Thêm thông tin về {{label}}"
+    "unsaved_changes_message": "Bạn có thay đổi chưa lưu. Rời đi bây giờ sẽ mất các thay đổi đó. Bạn có muốn rời đi không?"
   },
   "title": {
     "login": "Trung tâm Quản lý CLI Proxy API",
@@ -67,9 +67,6 @@
     "subtitle": "Trung tâm Quản lý"
   },
   "login": {
-    "show_key": "Hiện key",
-    "hide_key": "Ẩn key",
-    "subtitle": "Vui lòng nhập thông tin kết nối để truy cập giao diện quản lý",
     "connection_current": "URL hiện tại",
     "connection_edit": "Thay đổi",
     "connection_done": "Xong",
@@ -80,6 +77,9 @@
     "remember_password_label": "Ghi nhớ mật khẩu",
     "management_key_label": "Key quản lý",
     "management_key_placeholder": "Nhập key quản lý",
+    "show_key": "Hiện key",
+    "hide_key": "Ẩn key",
+    "subtitle": "Vui lòng nhập thông tin kết nối để truy cập giao diện quản lý",
     "submit_button": "Đăng nhập",
     "submitting": "Đang kết nối...",
     "error_backend_detail": "Phản hồi từ backend",
@@ -419,6 +419,7 @@
     "priority_hint": "Chỉ nhận số nguyên. Giá trị không hợp lệ sẽ bị bỏ qua. Giá trị lớn hơn nghĩa là ưu tiên cao hơn.",
     "weight_label": "Trọng số điều phối (weight)",
     "weight_hint": "Mặc định là 1. Giá trị ≤ 0 sẽ loại credential này khỏi điều phối có trọng số; tối đa 1.000.000.",
+    "weight_strategy_note": "Chỉ có hiệu lực khi bật <settingsLink>round robin có trọng số</settingsLink>.",
     "weight_invalid_integer": "Trọng số phải là số nguyên.",
     "weight_invalid_max": "Trọng số không được vượt quá 1.000.000.",
     "disable_cooling_label": "Tắt cooldown lũy thừa (disable_cooling)",
@@ -494,6 +495,7 @@
     "refresh_all_failed": "Không thể lấy kết quả làm mới hoàn chỉnh: {{message}}. Một số credential có thể đã được làm mới. Vui lòng kiểm tra danh sách trước khi thử lại.",
     "refresh_result_success": "Làm mới thành công",
     "refresh_result_failed": "Làm mới thất bại",
+    "filter_copilot": "GitHub Copilot",
     "filter_meta": "Muse (Meta)",
     "filter_devin": "Devin",
     "filter_zcode": "Zcode",
@@ -515,8 +517,7 @@
     "policy_rules_hint": "Các quy tắc tùy chỉnh được ưu tiên theo thứ tự danh sách. Kế thừa hoặc danh sách trống sẽ sử dụng quy tắc kế thừa; điều này không vô hiệu hóa chúng. Mẫu biểu thức chính quy (Regex) dùng cú pháp của Go.",
     "policy_retry_invalid": "Nhập một số nguyên an toàn không âm, hoặc chọn Kế thừa.",
     "policy_aliases_invalid": "Nhập tên model và bí danh không để trống cho mỗi hàng mới hoặc đã chỉnh sửa.",
-    "policy_rules_invalid": "Hoàn thành mỗi quy tắc đã chỉnh sửa với mã trạng thái dương, một hành động và ít nhất một điều kiện khớp không để trống.",
-    "weight_strategy_note": "Chỉ có hiệu lực khi bật <settingsLink>round robin có trọng số</settingsLink>."
+    "policy_rules_invalid": "Hoàn thành mỗi quy tắc đã chỉnh sửa với mã trạng thái dương, một hành động và ít nhất một điều kiện khớp không để trống."
   },
   "antigravity_subscription": {
     "plan_unknown": "Không rõ",
@@ -1126,6 +1127,15 @@
     "devin_callback_placeholder": "http://127.0.0.1:<cổng-máy-chủ>/devin/callback?code=...&state=...",
     "devin_callback_invalid": "Dán URL callback http/https hoàn chỉnh chứa state và mã ủy quyền hoặc thông báo lỗi.",
     "devin_callback_state_mismatch": "Callback này không thuộc về lượt đăng nhập Devin hiện tại. Vui lòng dùng URL cuối cùng từ lần thử này; không tái sử dụng callback cũ.",
+    "copilot_oauth_title": "GitHub Copilot OAuth",
+    "copilot_oauth_button": "Đăng nhập bằng GitHub Copilot",
+    "copilot_open_link": "Mở liên kết",
+    "copilot_copy_link": "Sao chép liên kết",
+    "copilot_oauth_status_waiting": "Đang chờ xác thực...",
+    "copilot_oauth_status_success": "Xác thực thành công!",
+    "copilot_oauth_status_error": "Xác thực thất bại:",
+    "copilot_oauth_start_error": "Không thể bắt đầu GitHub Copilot OAuth:",
+    "copilot_oauth_polling_error": "Không thể kiểm tra trạng thái xác thực:",
     "meta_oauth_title": "Muse (Meta) OAuth",
     "meta_oauth_button": "Đăng nhập bằng Muse",
     "meta_oauth_hint": "Mở liên kết ủy quyền và nhập mã thiết bị nếu được yêu cầu. File xác thực sẽ tự động được lưu sau khi ủy quyền.",
@@ -1781,6 +1791,8 @@
         "keeper_max_backoff": "Backoff tối đa phải lớn hơn hoặc bằng backoff ban đầu",
         "keeper_metadata_interval": "Khoảng thời gian metadata phải từ 1 phút đến 24 giờ",
         "keeper_metadata_categories": "Chọn ít nhất một danh mục metadata",
+        "invalid_server_id": "Nhập UUID khác không có dấu gạch nối.",
+        "invalid_oauth_error_rules": "Kiểm tra mã trạng thái, điều kiện khớp và hành động của {{channel}}.",
         "invalid_trusted_proxies": "Mỗi proxy đáng tin cậy phải là một địa chỉ IP hoặc CIDR hợp lệ.",
         "invalid_discovery_service_type": "Sử dụng định dạng _tên._tcp: tên phải gồm 1–15 chữ cái, chữ số hoặc dấu gạch nối, không bắt đầu hoặc kết thúc bằng dấu gạch nối.",
         "invalid_duration": "Nhập khoảng thời gian hợp lệ, chẳng hạn như 30s hoặc 3h",
@@ -1807,6 +1819,10 @@
         "enabled": "Đã bật"
       },
       "serverExtras": {
+        "serverId": {
+          "label": "ID triển khai",
+          "hint": "UUID cố định của bản triển khai. Lưu giá trị trống sẽ tạo ID mới."
+        },
         "trustedProxies": {
           "label": "Proxy đáng tin cậy",
           "hint": "Địa chỉ IP hoặc CIDR; để trống nghĩa là các header chuyển tiếp không được tin cậy. Tin cậy dải mạng chứa tất cả địa chỉ có nguy cơ giả mạo IP client. Yêu cầu khởi động lại backend."
@@ -1847,6 +1863,11 @@
         "discoveryHint": "Yêu cầu giao diện mạng vật lý hỗ trợ multicast và địa chỉ lắng nghe non-loopback. Docker thường cần host networking; không đảm bảo khả năng tiếp cận."
       },
       "additions": {
+        "oauthErrorRules": {
+          "label": "Quy tắc lỗi yêu cầu OAuth",
+          "hint": "Đối chiếu lỗi từ máy chủ nguồn theo thứ tự cho từng kênh OAuth để quyết định chuyển thông tin xác thực và thời gian chờ.",
+          "channel": "Kênh OAuth (có thể nhập kênh của plugin)"
+        },
         "oauthTitle": "Hành vi của provider OAuth",
         "oauthHint": "Các cài đặt provider này chỉ áp dụng cho credential OAuth / file xác thực, không áp dụng cho credential API key.",
         "claudeTitle": "Claude",
@@ -1931,7 +1952,7 @@
         },
         "antigravityConnectionPoolMaxIdleConnsPerHost": {
           "label": "Số kết nối nhàn rỗi tối đa trên mỗi host",
-          "hint": "Số kết nối nhàn rỗi tối đa được duy trì cho mỗi host upstream trên mỗi credential. Mặc định: 2; giới hạn tối đa 100. Bằng 0 sẽ dùng mặc định của Go là 2; giá trị âm sẽ chuyển sang kết nối ngắn hạn."
+          "hint": "Số kết nối nhàn rỗi tối đa cho mỗi máy chủ nguồn và mỗi thông tin xác thực. Để trống để dùng mặc định 2, giới hạn là 100. Giá trị 0 hoặc âm sử dụng kết nối ngắn hạn."
         },
         "xaiInjectXSearch": {
           "label": "Chèn x_search",
@@ -2444,6 +2465,43 @@
     "version": "Phiên bản giao diện quản lý"
   },
   "providersPage": {
+    "connections": {
+      "edit": "Chỉnh sửa kết nối",
+      "create": "Thêm kết nối",
+      "search": "Tìm theo kết nối, khóa, URL hoặc tiền tố…",
+      "keyCount_one": "{{count}} khóa",
+      "keyCount_other": "{{count}} khóa",
+      "keysActive_one": "{{active}}/{{count}} khóa đang bật",
+      "keysActive_other": "{{active}}/{{count}} khóa đang bật",
+      "disableKeys": "Tắt tất cả khóa trong “{{name}}”",
+      "enableKeys": "Bật tất cả khóa trong “{{name}}”"
+    },
+    "nativeGroup": {
+      "defaults": "Thiết lập mặc định của kết nối",
+      "description": "Các khóa kế thừa thiết lập này trừ khi có giá trị ghi đè riêng. URL cơ sở áp dụng cho mọi khóa.",
+      "name": "Tên kết nối",
+      "headersJson": "Tiêu đề yêu cầu (đối tượng JSON)",
+      "excluded": "Mô hình bị loại trừ (mỗi dòng một mô hình)",
+      "pool": "Nhóm kết nối",
+      "configurePool": "Cấu hình nhóm kết nối",
+      "poolHint": "Khi thêm nhóm kết nối, tính năng tái sử dụng kết nối được bật theo mặc định. Mỗi khóa có các kết nối riêng. Nếu thời gian chờ hoặc giới hạn bằng 0 hay âm, kết nối sẽ không được tái sử dụng.",
+      "poolEnabled": "Tái sử dụng kết nối",
+      "poolAuto": "Mặc định (bật)",
+      "poolTimeout": "Thời gian chờ của kết nối nhàn rỗi",
+      "poolLimit": "Số kết nối nhàn rỗi tối đa trên mỗi máy chủ",
+      "invalidLimit": "Số kết nối nhàn rỗi tối đa phải là số nguyên an toàn.",
+      "modelNameRequired": "Nhập tên mô hình phía nhà cung cấp cho từng mô hình.",
+      "disabled": "Tắt nhóm khóa này"
+    },
+    "groupActions": {
+      "search": "Tìm kết nối, khóa, URL hoặc tiền tố…",
+      "create": "Tạo kết nối",
+      "edit": "Sửa kết nối",
+      "delete": "Xóa kết nối",
+      "append": "Thêm khóa",
+      "confirm": "Xóa kết nối “{{name}}” và tất cả {{count}} khóa?",
+      "settings": "Cài đặt kết nối"
+    },
     "header": {
       "title": "AI Provider",
       "activeResources": "{{active}}/{{total}} tài nguyên đang hoạt động",
@@ -2461,7 +2519,9 @@
       "save": "Lưu",
       "create": "Tạo",
       "enable": "Bật",
-      "disable": "Tắt"
+      "disable": "Tắt",
+      "newFor": "Thêm {{provider}}",
+      "addProvider": "Thêm nhà cung cấp"
     },
     "categories": {
       "title": "Provider",
@@ -2495,13 +2555,7 @@
       "meta": "Muse (Meta)"
     },
     "table": {
-      "key": "Key",
-      "baseUrl": "Base URL",
-      "prefix": "Tiền tố",
       "priority": "Độ ưu tiên",
-      "models": "Model/Header",
-      "status": "Trạng thái",
-      "actions": "Hành động",
       "metrics": {
         "models": "Model",
         "keys": "Key",
@@ -2511,10 +2565,11 @@
       "websocketsTag": "WebSocket",
       "cloakTag": "Cloak",
       "noFallbackKey": "Không có key dự phòng",
-      "empty": "Chưa có tài nguyên nào, nhấn \"Mới\" để thêm.",
       "filterPlaceholder": "Tìm key, URL, tiền tố…",
       "description": "Quản lý tài nguyên trong {{route}}",
-      "cliProfileTag": "Hồ sơ CLI"
+      "cliProfileTag": "Hồ sơ CLI",
+      "emptyBrand": "Chưa có cấu hình {{provider}}",
+      "noMatch": "Không có tài nguyên phù hợp với bộ lọc"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -2711,7 +2766,15 @@
       "fingerprintProfile": "Dấu vân tay yêu cầu",
       "fingerprintProfileDefault": "Mặc định (do phía gọi kiểm soát)",
       "fingerprintProfileClaudeCodeCli": "Claude Code CLI",
-      "fingerprintProfileHint": "Mặc định giữ nguyên prompt và header của phía gọi, hoặc chọn sử dụng dấu vân tay yêu cầu của Claude Code CLI."
+      "fingerprintProfileHint": "Mặc định giữ nguyên prompt và header của phía gọi, hoặc chọn sử dụng dấu vân tay yêu cầu của Claude Code CLI.",
+      "sections": {
+        "connection": "Kết nối",
+        "connectivity": "Kiểm tra kết nối",
+        "routing": "Điều phối",
+        "advanced": "Nâng cao"
+      },
+      "headerName": "Tên header",
+      "headerValue": "Giá trị header"
     },
     "ampcode": {
       "upstreamUrl": "URL upstream",
@@ -2789,7 +2852,8 @@
         "selectAll": "Chọn tất cả",
         "clear": "Xóa",
         "empty": "Chưa cấu hình model nào"
-      }
+      },
+      "clearFilters": "Xóa bộ lọc"
     },
     "modelCatalog": {
       "notLoaded": "Chưa tải"
@@ -2838,6 +2902,22 @@
       "modelName": "Tên model",
       "modelAlias": "Bí danh (tùy chọn)"
     },
+    "nativeKey": {
+      "routing": "Cài đặt giao thức",
+      "nativeToolSearch": "Tin cậy điểm cuối tùy chỉnh để tìm công cụ gốc của Anthropic",
+      "interactions": "Dùng Vertex Interactions API",
+      "openapi": "Dùng điểm cuối Vertex OpenAPI",
+      "location": "Khu vực OpenAPI",
+      "pool": "Nhóm kết nối",
+      "poolHint": "Cấu hình tùy chỉnh bật nhóm kết nối trừ khi bị tắt tại đây hoặc ở nhóm cha. Trường trống sẽ kế thừa. Thời gian chờ hoặc giới hạn không dương sẽ tắt tái sử dụng.",
+      "reuse": "Tái sử dụng kết nối đến máy chủ",
+      "timeout": "Thời gian chờ khi rảnh (ví dụ: 5m)",
+      "maxIdle": "Số kết nối rảnh tối đa mỗi máy chủ",
+      "invalidMaxIdle": "Số kết nối rảnh tối đa phải là số nguyên an toàn.",
+      "inheritHint": "Chỉ điền những gì khóa này khác biệt; trường để trống sẽ kế thừa cài đặt kết nối.",
+      "disableKey": "Tắt khóa này",
+      "disableShort": "Tắt"
+    },
     "runtimePolicy": {
       "title": "Chính sách thực thi nâng cao",
       "description": "Kế thừa sẽ dùng chính sách nhóm cha, sau đó là mặc định của backend. Ghi đè chỉ áp dụng cho mục này.",
@@ -2880,6 +2960,21 @@
         "continue": "Tiếp tục",
         "continue-and-cooldown": "Tiếp tục và cooldown"
       }
+    },
+    "card": {
+      "requests": "Yêu cầu"
+    },
+    "picker": {
+      "featured": "Kết nối nhanh",
+      "featuredBadge": "Đề xuất",
+      "oneKey": "Một key cho {{count}} giao thức",
+      "official": "API chính thức",
+      "custom": "Tùy chỉnh",
+      "connect": "Kết nối",
+      "connected": "Đã kết nối {{count}}",
+      "offer": "Ưu đãi",
+      "onboardingTitle": "Kết nối nhà cung cấp AI đầu tiên",
+      "moreQuickConnect": "Thêm đối tác kết nối nhanh"
     }
   },
   "auth_file_details": {
@@ -2930,6 +3025,17 @@
     "load_failed": "Truy vấn quota thất bại: {{message}}",
     "empty_title": "Không có credential Devin",
     "empty_desc": "Tải lên file credential Devin hoặc đăng nhập bằng CLI backend để truy vấn quota."
+  },
+  "copilot_quota": {
+    "title": "Quota GitHub Copilot",
+    "empty_title": "Không có credential GitHub Copilot",
+    "empty_desc": "Đăng nhập bằng GitHub Copilot OAuth hoặc tải lên file credential GitHub Copilot để truy vấn quota.",
+    "idle": "Nhấn để truy vấn quota GitHub Copilot",
+    "loading": "Đang truy vấn quota GitHub Copilot…",
+    "load_failed": "Truy vấn quota thất bại: {{message}}",
+    "remaining": "Còn lại {{percent}}%",
+    "premium": "Tương tác cao cấp",
+    "unavailable": "Không thể lấy hạn mức. Hãy kiểm tra thông tin xác thực Copilot và thử lại."
   },
   "meta_quota": {
     "title": "Quota Muse (Meta)",

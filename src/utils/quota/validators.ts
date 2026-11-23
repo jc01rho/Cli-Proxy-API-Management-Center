@@ -58,6 +58,7 @@ export const BUILT_IN_QUOTA_PROVIDERS: ReadonlySet<string> = new Set([
   'devin',
   'kimi',
   'kiro',
+  'copilot',
   'meta',
   'xai',
   'zcode',

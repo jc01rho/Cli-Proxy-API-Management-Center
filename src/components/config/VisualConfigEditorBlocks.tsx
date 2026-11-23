@@ -646,7 +646,7 @@ export const OauthEndpointOverridesEditor = memo(function OauthEndpointOverrides
             padding: 12,
             border: '1px solid var(--border-primary)',
             borderRadius: 12,
-            background: 'var(--surface-secondary)',
+            background: 'var(--bg-secondary)',
           }}
         >
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>

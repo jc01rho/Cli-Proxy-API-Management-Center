@@ -17,6 +17,8 @@
     "success": "Success",
     "error": "Error",
     "info": "Info",
+    "more_info": "More information",
+    "more_info_about": "More information about {{label}}",
     "warning": "Warning",
     "loading": "Loading...",
     "connecting": "Connecting...",
@@ -54,9 +56,7 @@
     "model_alias_placeholder": "Model alias (optional)",
     "invalid_provider_index": "Invalid provider index.",
     "unsaved_changes_title": "Unsaved changes",
-    "unsaved_changes_message": "You have unsaved changes. Leaving now will discard them. Do you want to leave?",
-    "more_info": "More information",
-    "more_info_about": "More information about {{label}}"
+    "unsaved_changes_message": "You have unsaved changes. Leaving now will discard them. Do you want to leave?"
   },
   "title": {
     "login": "CLI Proxy API Management Center",
@@ -67,9 +67,6 @@
     "subtitle": "Management Center"
   },
   "login": {
-    "show_key": "Show key",
-    "hide_key": "Hide key",
-    "subtitle": "Connect to CLI Proxy API v8 or later",
     "connection_current": "Current URL",
     "connection_edit": "Change",
     "connection_done": "Done",
@@ -80,6 +77,9 @@
     "remember_password_label": "Remember password",
     "management_key_label": "Management Key",
     "management_key_placeholder": "Enter the management key",
+    "show_key": "Show key",
+    "hide_key": "Hide key",
+    "subtitle": "Connect to CLI Proxy API v8 or later",
     "submit_button": "Login",
     "submitting": "Connecting...",
     "error_backend_detail": "Backend response",
@@ -267,12 +267,12 @@
     "routing_strategy_hint": "round-robin cycles through keys; fill-first prioritizes the first available key; weight-robin distributes by priority weight.",
     "routing_strategy_update": "Update",
     "routing_strategy_round_robin": "round-robin (cycle)",
+    "routing_strategy_weighted_round_robin": "weighted-round-robin (weighted cycle)",
     "routing_strategy_fill_first": "fill-first (prioritize)",
     "routing_strategy_weight_robin": "weight-robin (weighted distribution)",
     "request_log_success_body_enable": "Log response body on success",
     "detailed_api_error_body_log_limit_label": "Error body log limit (bytes):",
-    "detailed_api_error_body_log_limit_hint": "Max bytes of request/response body to log on error. Set to 0 to log the full body.",
-    "routing_strategy_weighted_round_robin": "weighted-round-robin (weighted cycle)"
+    "detailed_api_error_body_log_limit_hint": "Max bytes of request/response body to log on error. Set to 0 to log the full body."
   },
   "auth_files": {
     "delete_all_title": "Delete All Files",
@@ -395,6 +395,8 @@
     "sort_az": "A-Z Name",
     "sort_priority": "Priority",
     "priority_display": "Priority",
+    "weight_display": "WRR weight",
+    "filter_commandcode": "Command Code",
     "page_size_label": "Per page",
     "filter_all": "All",
     "filter_qwen": "Qwen",
@@ -407,6 +409,7 @@
     "filter_cursor": "Cursor",
     "filter_kilo": "Kilo",
     "filter_kiro": "Kiro",
+    "filter_copilot": "GitHub Copilot",
     "filter_meta": "Muse (Meta)",
     "filter_devin": "Devin",
     "filter_zcode": "Zcode",
@@ -467,6 +470,7 @@
     "weight_label": "Scheduling weight (weight)",
     "weight_tooltip": "Defaults to 1. Values at or below 0 exclude this credential from weighted scheduling; maximum 1,000,000. After entering a value, enable weighted round robin for it to take effect.",
     "weight_hint": "Defaults to 1. Values at or below 0 exclude this credential from weighted scheduling; maximum 1,000,000.",
+    "weight_strategy_note": "Takes effect only with <settingsLink>weighted round robin</settingsLink> enabled.",
     "weight_invalid_integer": "Weight must be an integer.",
     "weight_invalid_max": "Weight cannot exceed 1,000,000.",
     "disable_cooling_label": "Disable exponential cooldown (disable_cooling)",
@@ -513,10 +517,7 @@
     "quota_refresh_single": "Refresh quota",
     "quota_refresh_hint": "Refresh quota only for this credential",
     "quota_refresh_success": "Quota refreshed for \"{{name}}\"",
-    "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}",
-    "weight_display": "WRR weight",
-    "filter_commandcode": "Command Code",
-    "weight_strategy_note": "Takes effect only with <settingsLink>weighted round robin</settingsLink> enabled."
+    "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}"
   },
   "antigravity_subscription": {
     "plan_unknown": "Unknown",
@@ -701,6 +702,17 @@
     "load_failed": "Failed to query quota: {{message}}",
     "empty_title": "No Devin credentials",
     "empty_desc": "Upload a Devin credential file or sign in using the backend CLI to query quota."
+  },
+  "copilot_quota": {
+    "title": "GitHub Copilot Quota",
+    "empty_title": "No GitHub Copilot credentials",
+    "empty_desc": "Sign in with GitHub Copilot OAuth or upload a GitHub Copilot credential file to query quota.",
+    "idle": "Click to query GitHub Copilot quota",
+    "loading": "Querying GitHub Copilot quota…",
+    "load_failed": "Failed to query quota: {{message}}",
+    "remaining": "{{percent}}% remaining",
+    "premium": "Premium interactions",
+    "unavailable": "Quota unavailable. Check the Copilot credential and try again."
   },
   "meta_quota": {
     "title": "Muse (Meta) Quota",
@@ -887,6 +899,7 @@
     "model_source_loaded": "{{count}} models loaded. Use the dropdown in 'Source model name', or type custom values. Saving an empty list removes that provider. Enable 'Keep original' to keep the original name while adding the alias.",
     "alias_name_placeholder": "Source model name",
     "alias_placeholder": "Alias (required)",
+    "duplicate_alias": "Each alias must be unique for this provider.",
     "alias_fork_label": "Keep original",
     "add_alias": "Add alias",
     "save_success": "Model aliases updated",
@@ -909,7 +922,6 @@
     "diagram_delete_alias": "Delete alias",
     "diagram_please_enter_alias": "Please enter an alias name.",
     "diagram_alias_exists": "This alias already exists.",
-    "duplicate_alias": "Each alias must be unique for this provider.",
     "diagram_add_alias_title": "Add alias",
     "diagram_add_alias_label": "Alias name",
     "diagram_add_placeholder": "Enter new alias name...",
@@ -1078,6 +1090,15 @@
     "antigravity_oauth_status_error": "Authentication failed:",
     "antigravity_oauth_start_error": "Failed to start Antigravity OAuth:",
     "antigravity_oauth_polling_error": "Failed to check authentication status:",
+    "copilot_oauth_title": "GitHub Copilot OAuth",
+    "copilot_oauth_button": "Log in with GitHub Copilot",
+    "copilot_open_link": "Open Link",
+    "copilot_copy_link": "Copy Link",
+    "copilot_oauth_status_waiting": "Waiting for authentication...",
+    "copilot_oauth_status_success": "Authentication successful!",
+    "copilot_oauth_status_error": "Authentication failed:",
+    "copilot_oauth_start_error": "Failed to start GitHub Copilot OAuth:",
+    "copilot_oauth_polling_error": "Failed to check authentication status:",
     "meta_oauth_title": "Muse (Meta) OAuth",
     "meta_oauth_button": "Log in with Muse",
     "meta_oauth_hint": "Open the authorization link and enter the device code if requested. Authentication files are saved automatically after authorization.",
@@ -1355,6 +1376,10 @@
     },
     "visual": {
       "serverExtras": {
+        "serverId": {
+          "label": "Deployment ID",
+          "hint": "Stable UUID for this deployment. Saving an empty value generates a new ID."
+        },
         "trustedProxies": {
           "label": "Trusted proxies",
           "hint": "IP addresses or CIDRs; empty means forwarded headers are not trusted. Trusting all-address ranges risks client IP spoofing. Requires a backend restart."
@@ -1395,6 +1420,11 @@
         "discoveryHint": "Requires multicast-capable physical interfaces and a non-loopback listener. Docker usually needs host networking; reachability is not guaranteed."
       },
       "additions": {
+        "oauthErrorRules": {
+          "label": "OAuth request error rules",
+          "hint": "Match upstream errors in order for each OAuth channel to control credential failover and cooldown.",
+          "channel": "OAuth channel (or enter a plugin channel)"
+        },
         "oauthTitle": "OAuth provider behavior",
         "oauthHint": "These provider settings apply only to OAuth/file-backed credentials, not API-key credentials.",
         "claudeTitle": "Claude",
@@ -1479,7 +1509,7 @@
         },
         "antigravityConnectionPoolMaxIdleConnsPerHost": {
           "label": "Maximum idle connections per host",
-          "hint": "Maximum idle connections retained per upstream host per credential. Default: 2; capped at 100. Zero uses Go's default of 2; a negative value switches to short-lived connections."
+          "hint": "Maximum idle connections per upstream host per credential. Leave blank for the default of 2. The limit is 100. Zero or a negative value uses short-lived connections."
         },
         "xaiInjectXSearch": {
           "label": "Inject x_search",
@@ -1706,6 +1736,7 @@
           "mode_provider_based": "Provider-Based",
           "mode_key_based": "Key-Based",
           "strategy_round_robin": "Round Robin",
+          "strategy_weighted_round_robin": "Weighted Round Robin",
           "strategy_fill_first": "Fill First",
           "strategy_weight_robin": "Weight Robin",
           "weight_robin_queue_title": "Weighted Queue",
@@ -1747,8 +1778,7 @@
           "ip_blacklist_window": "Window",
           "ip_blacklist_window_hint": "Time window to count failures (e.g. 10m, 1h)",
           "ip_blacklist_duration": "Block Duration",
-          "ip_blacklist_duration_hint": "How long an IP stays blocked (e.g. 24h, 7d)",
-          "strategy_weighted_round_robin": "Weighted Round Robin"
+          "ip_blacklist_duration_hint": "How long an IP stays blocked (e.g. 24h, 7d)"
         },
         "quota": {
           "title": "Quota Fallback",
@@ -1896,16 +1926,16 @@
         "add_title": "Add API Key",
         "input_label": "API Key",
         "input_placeholder": "Paste your API key",
+        "name_label": "Name / description",
+        "name_placeholder": "For example: Alice's laptop",
+        "name_hint": "Saved immediately in this browser only, separately for each server. Not included in server configuration. Clear this field to remove the name.",
+        "name_save_error": "Could not save the name in browser storage. Check your browser storage settings.",
         "input_hint": "Changes take effect after saving the configuration. Upstream provider keys are managed separately.",
         "models_label": "Allowed model patterns",
         "models_placeholder": "gpt-*\ngpt-5.2",
         "models_hint": "One pattern per line. Leave empty to allow every model. Use * as a wildcard.",
         "model_all": "Models: all allowed",
         "model_restricted": "Models: {{patterns}}",
-        "name_label": "Name / description",
-        "name_placeholder": "For example: Alice's laptop",
-        "name_hint": "Saved immediately in this browser only, separately for each server. Not included in server configuration. Clear this field to remove the name.",
-        "name_save_error": "Could not save the name in browser storage. Check your browser storage settings.",
         "error_empty": "Please enter an API key",
         "error_invalid": "API key contains invalid characters",
         "strength": {
@@ -1968,6 +1998,8 @@
         "boolean_false": "false"
       },
       "validation": {
+        "invalid_server_id": "Enter a nonzero UUID with hyphens.",
+        "invalid_oauth_error_rules": "Check the status, matches and action for {{channel}}.",
         "invalid_trusted_proxies": "Each trusted proxy must be a valid IP address or CIDR.",
         "invalid_discovery_service_type": "Use _name._tcp: name must be 1–15 letters, digits or hyphens, with no leading or trailing hyphen.",
         "validation_blocked": "Fix validation errors before saving",
@@ -2053,9 +2085,6 @@
     "hide_details": "Hide details"
   },
   "quota_management": {
-    "sort_label": "Sort",
-    "sort_default": "Default",
-    "sort_soonest": "Soonest recovery",
     "search_label": "Search accounts",
     "search_placeholder": "Search by filename or email",
     "search_empty_title": "No matching accounts",
@@ -2069,6 +2098,9 @@
     "card_idle_hint": "Use the top \"Refresh all credentials\" button to fetch the latest quota data.",
     "primary_credential": "Primary",
     "standby_credential": "Standby",
+    "sort_label": "Sort",
+    "sort_default": "Default",
+    "sort_soonest": "Soonest recovery",
     "meta_credentials": "{{count}} credentials",
     "meta_loaded": "{{count}} loaded",
     "meta_attention": "{{count}} need attention",
@@ -2256,6 +2288,12 @@
     "array_item_placeholder": "Enter array item",
     "add_array_item": "Add array item",
     "remove_array_item": "Remove array item",
+    "delete_plugin": "Delete",
+    "delete_confirm_title": "Delete plugin",
+    "delete_confirm_message": "Delete {{name}} ({{id}})? This removes the local plugin file and saved config.",
+    "delete_success": "Plugin deleted",
+    "delete_failed": "Failed to delete plugin",
+    "delete_restart_required": "The loaded plugin cannot be removed until the backend restarts.",
     "toggle_success": "Plugin status updated",
     "toggle_failed": "Failed to update plugin status",
     "runtime_pending": "Plugin change was saved, but the runtime state is still pending. Refresh later or check backend logs.",
@@ -2268,13 +2306,7 @@
     "invalid_json": "Enter valid JSON",
     "expected_array": "Enter a JSON array",
     "expected_object": "Enter a JSON object",
-    "invalid_enum": "Choose one of the declared enum values",
-    "delete_plugin": "Delete",
-    "delete_confirm_title": "Delete plugin",
-    "delete_confirm_message": "Delete {{name}} ({{id}})? This removes the local plugin file and saved config.",
-    "delete_success": "Plugin deleted",
-    "delete_failed": "Failed to delete plugin",
-    "delete_restart_required": "The loaded plugin cannot be removed until the backend restarts."
+    "invalid_enum": "Choose one of the declared enum values"
   },
   "plugin_store": {
     "description_show_more": "Show more",
@@ -2488,6 +2520,43 @@
     "version": "Management UI Version"
   },
   "providersPage": {
+    "connections": {
+      "edit": "Edit connection",
+      "create": "Add connection",
+      "search": "Search by connection, key, URL or prefix…",
+      "keyCount_one": "{{count}} key",
+      "keyCount_other": "{{count}} keys",
+      "keysActive_one": "{{active}}/{{count}} key enabled",
+      "keysActive_other": "{{active}}/{{count}} keys enabled",
+      "disableKeys": "Disable all keys in “{{name}}”",
+      "enableKeys": "Enable all keys in “{{name}}”"
+    },
+    "nativeGroup": {
+      "defaults": "Connection defaults",
+      "description": "Keys inherit these settings unless they provide their own override. The base URL applies to every key.",
+      "name": "Connection name",
+      "headersJson": "Request headers (JSON object)",
+      "excluded": "Excluded models (one per line)",
+      "pool": "Connection pool",
+      "configurePool": "Configure connection pool",
+      "poolHint": "Adding a pool enables connection reuse by default. Connections are kept separately for each key. A timeout or limit of zero or less disables reuse.",
+      "poolEnabled": "Reuse connections",
+      "poolAuto": "Default (enabled)",
+      "poolTimeout": "Idle connection timeout",
+      "poolLimit": "Maximum idle connections per host",
+      "invalidLimit": "Maximum idle connections must be a safe integer.",
+      "modelNameRequired": "Enter an upstream name for each model.",
+      "disabled": "Disable this key group"
+    },
+    "groupActions": {
+      "search": "Search connections, keys, URLs, prefixes…",
+      "create": "Create connection",
+      "edit": "Edit connection",
+      "delete": "Delete connection",
+      "append": "Add key",
+      "confirm": "Delete connection “{{name}}” and all its keys ({{count}})?",
+      "settings": "Connection settings"
+    },
     "behavior": {
       "title": "Provider-specific behavior",
       "alphaSearch": "Enable Alpha Search",
@@ -2531,6 +2600,22 @@
       "removeModel": "Remove model",
       "modelName": "Model name",
       "modelAlias": "Alias (optional)"
+    },
+    "nativeKey": {
+      "routing": "Protocol settings",
+      "nativeToolSearch": "Trust custom endpoint for Anthropic native tool search",
+      "interactions": "Use Vertex Interactions API",
+      "openapi": "Use Vertex OpenAPI endpoint",
+      "location": "OpenAPI location",
+      "pool": "Connection pool",
+      "poolHint": "A custom block enables pooling unless disabled here or by the group. Blank fields inherit. A non-positive timeout or limit disables reuse.",
+      "reuse": "Reuse upstream connections",
+      "timeout": "Idle timeout (e.g. 5m)",
+      "maxIdle": "Maximum idle connections per host",
+      "invalidMaxIdle": "Maximum idle connections must be a safe integer.",
+      "inheritHint": "Only fill in what this key does differently; blank fields inherit the connection settings.",
+      "disableKey": "Disable this key",
+      "disableShort": "Off"
     },
     "runtimePolicy": {
       "title": "Advanced runtime policy",
@@ -2592,7 +2677,9 @@
       "save": "Save",
       "create": "Create",
       "enable": "Enable",
-      "disable": "Disable"
+      "disable": "Disable",
+      "newFor": "New {{provider}}",
+      "addProvider": "Add provider"
     },
     "categories": {
       "title": "Providers",
@@ -2606,6 +2693,7 @@
       "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
+      "interactions": "Interactions API",
       "codex": "Codex",
       "xai": "xAI",
       "claude": "Claude",
@@ -2618,17 +2706,10 @@
       "apikeyFun": "APIKEY.FUN",
       "fennoAI": "FennoAI",
       "qiniuCloud": "Qiniu Cloud",
-      "kimi": "Kimi",
-      "interactions": "Interactions API"
+      "kimi": "Kimi"
     },
     "table": {
-      "key": "Key",
-      "baseUrl": "Base URL",
-      "prefix": "Prefix",
       "priority": "Priority",
-      "models": "Models/Headers",
-      "status": "Status",
-      "actions": "Actions",
       "metrics": {
         "models": "Models",
         "keys": "Keys",
@@ -2639,9 +2720,10 @@
       "cloakTag": "Cloak",
       "noFallbackKey": "No fallback key",
       "cliProfileTag": "CLI Profile",
-      "empty": "No resources yet, click \"New\" to add.",
       "filterPlaceholder": "Search keys, URLs, prefixes…",
-      "description": "Manage resources under {{route}}"
+      "description": "Manage resources under {{route}}",
+      "emptyBrand": "No {{provider}} configuration yet",
+      "noMatch": "No resources match the current filters"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -2765,6 +2847,8 @@
       "priority": "Priority",
       "comment": "Comment",
       "commentPlaceholder": "Optional note for this credential",
+      "weight": "Scheduling weight",
+      "weightHint": "Default 1 · ≤ 0 is excluded · maximum 1,000,000",
       "disabled": "Disable this entry",
       "disabledHint": "Disabled entries won't be used by the gateway",
       "websockets": "Enable WebSockets",
@@ -2835,8 +2919,14 @@
         "weightInteger": "Scheduling weight must be an integer",
         "weightMax": "Scheduling weight cannot exceed {{max}}"
       },
-      "weight": "Scheduling weight",
-      "weightHint": "Default 1 · ≤ 0 is excluded · maximum 1,000,000"
+      "sections": {
+        "connection": "Connection",
+        "connectivity": "Connectivity test",
+        "routing": "Routing",
+        "advanced": "Advanced"
+      },
+      "headerName": "Header name",
+      "headerValue": "Header value"
     },
     "ampcode": {
       "upstreamUrl": "Upstream URL",
@@ -2914,10 +3004,26 @@
         "selectAll": "Select all",
         "clear": "Clear",
         "empty": "No models configured yet"
-      }
+      },
+      "clearFilters": "Clear filters"
     },
     "modelCatalog": {
       "notLoaded": "Not loaded"
+    },
+    "card": {
+      "requests": "Requests"
+    },
+    "picker": {
+      "featured": "Quick connect",
+      "featuredBadge": "Recommended",
+      "oneKey": "One key for {{count}} protocols",
+      "official": "Official APIs",
+      "custom": "Custom",
+      "connect": "Connect",
+      "connected": "{{count}} connected",
+      "offer": "Offer",
+      "onboardingTitle": "Connect your first AI provider",
+      "moreQuickConnect": "More quick-connect partners"
     }
   },
   "auth_file_details": {

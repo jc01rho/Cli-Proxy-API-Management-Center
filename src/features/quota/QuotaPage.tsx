@@ -145,6 +145,7 @@ export function QuotaPage() {
   const devinQuota = useQuotaStore((state) => state.devinQuota);
   const kiroQuota = useQuotaStore((state) => state.kiroQuota);
   const kimiQuota = useQuotaStore((state) => state.kimiQuota);
+  const copilotQuota = useQuotaStore((state) => state.copilotQuota);
   const metaQuota = useQuotaStore((state) => state.metaQuota);
   const pluginQuota = useQuotaStore((state) => state.pluginQuota);
   const xaiQuota = useQuotaStore((state) => state.xaiQuota);
@@ -160,6 +161,7 @@ export function QuotaPage() {
         devin: devinQuota,
         kiro: kiroQuota,
         kimi: kimiQuota,
+        copilot: copilotQuota,
         meta: metaQuota,
         plugin: pluginQuota,
         xai: xaiQuota,
@@ -173,6 +175,7 @@ export function QuotaPage() {
       devinQuota,
       kiroQuota,
       kimiQuota,
+      copilotQuota,
       metaQuota,
       pluginQuota,
       xaiQuota,

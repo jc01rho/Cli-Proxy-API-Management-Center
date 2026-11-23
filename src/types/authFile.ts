@@ -14,6 +14,7 @@ export type AuthFileType =
   | 'cline'
   | 'devin'
   | 'meta'
+  | 'copilot'
   | 'antigravity'
   | 'cursor'
   | 'kiro'

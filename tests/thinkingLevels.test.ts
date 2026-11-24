@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  THINKING_LEVELS,
   buildThinkingFromLevels,
   readThinkingLevels,
-  THINKING_LEVELS,
 } from '../src/features/providers/thinkingLevels';
 
 describe('standard thinking level selector', () => {

@@ -8,7 +8,7 @@
 import type { ComponentType } from 'react';
 import type { TFunction } from 'i18next';
 import { useQuotaStore } from '@/stores';
-import type { AuthFileItem } from '@/types';
+import type { AntigravityQuotaState, AuthFileItem } from '@/types';
 import type { QuotaBodyProps } from '../types';
 import type { QuotaProviderType, QuotaStore } from './types';
 import { ANTIGRAVITY_CONFIG } from './antigravity/data';
@@ -41,6 +41,7 @@ export interface QuotaCardState {
   status: 'idle' | 'loading' | 'success' | 'error';
   error?: string;
   errorStatus?: number;
+  validation?: AntigravityQuotaState['validation'];
 }
 
 export interface QuotaAdapter {
@@ -55,7 +56,7 @@ export interface QuotaAdapter {
   storeSetter: keyof QuotaStore;
   buildLoadingState: () => QuotaCardState;
   buildSuccessState: (data: unknown) => QuotaCardState;
-  buildErrorState: (message: string, status?: number) => QuotaCardState;
+  buildErrorState: (message: string, status?: number, cause?: unknown) => QuotaCardState;
   Body: ComponentType<QuotaBodyProps<QuotaCardState>>;
 }
 

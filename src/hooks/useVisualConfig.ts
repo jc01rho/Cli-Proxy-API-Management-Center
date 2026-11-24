@@ -1,10 +1,10 @@
 import {
   readOAuthErrorRules,
   writeOAuthErrorRules,
-  invalidOAuthChannel,
+  invalidOAuthRule,
 } from '@/features/config/visualOAuthErrorRules';
 import { useCallback, useMemo, useReducer } from 'react';
-import { isAlias, isMap, isScalar, isSeq, parse as parseYaml, parseDocument } from 'yaml';
+import { isAlias, isMap, isScalar, isSeq, parseDocument } from 'yaml';
 import type { Node, Pair, YAMLMap, YAMLSeq } from 'yaml';
 import type {
   DisableImageGenerationMode,
@@ -39,6 +39,7 @@ import {
   parseKeeperExportYaml,
   serializeKeeperExportYaml,
 } from '@/types/keeperExportVisual';
+import { parseConfigDocument } from '@/services/api/configYaml';
 import { assertConfigListsUnchanged, ConfigDraftConflictError } from '@/services/api/configPatch';
 import {
   ADDITION_FIELDS,
@@ -513,7 +514,7 @@ export function getVisualConfigValidationErrors(
   return {
     ...validateVisualAdditions(values, dirtyFields),
     ...validateVisualServer(values),
-    oauthErrorRules: invalidOAuthChannel(values.oauthErrorRules)
+    oauthErrorRules: invalidOAuthRule(values.oauthErrorRules)
       ? 'invalid_oauth_error_rules'
       : undefined,
     port: getPortError(values.port),
@@ -1433,7 +1434,6 @@ function syncStringSequence(
   doc: YamlDocument,
   map: YAMLMap,
   key: string,
-  baseline: string[] | undefined,
   desired: string[] | undefined,
   normalize = (value: string) => value.trim()
 ): void {
@@ -1444,7 +1444,11 @@ function syncStringSequence(
   }
 
   const seq = ensureSeqValue(doc, map, key);
-  const available = (baseline ?? []).map((value, index) => ({ value: normalize(value), index }));
+  // Match actual nodes: the visual baseline omits blank rows, so its indices need not align.
+  const available = seq.items.map((node, index) => {
+    const scalar = isAlias(node) ? node.resolve(doc) : node;
+    return { value: isScalar(scalar) ? normalize(String(scalar.value ?? '')) : '', index };
+  });
   const used = new Set<number>();
   const items = values.map((value) => {
     const match = available.find((item) => item.value === value && !used.has(item.index));
@@ -1612,8 +1616,8 @@ function syncPayloadModels(
 
     syncConditionSequence(doc, modelMap, 'match', prior?.match, model.match);
     syncConditionSequence(doc, modelMap, 'not-match', prior?.notMatch, model.notMatch);
-    syncStringSequence(doc, modelMap, 'exist', prior?.exist, model.exist);
-    syncStringSequence(doc, modelMap, 'not-exist', prior?.notExist, model.notExist);
+    syncStringSequence(doc, modelMap, 'exist', model.exist);
+    syncStringSequence(doc, modelMap, 'not-exist', model.notExist);
     return modelMap;
   });
   replaceSequenceItems(seq, items);
@@ -1683,7 +1687,7 @@ function syncPayloadReplaceSequence(
           !mapPair(target, 'paths') ||
           JSON.stringify(prior?.target.paths) !== JSON.stringify(paths)
         ) {
-          syncStringSequence(doc, target, 'paths', prior?.target.paths, paths, (path) => path);
+          syncStringSequence(doc, target, 'paths', paths, (path) => path);
         }
       } else {
         deleteMapValue(target, 'paths');
@@ -1744,7 +1748,7 @@ function syncPayloadFilterSequence(
     const ruleMap = isMap(existing) ? existing : (doc.createNode({}) as YAMLMap);
     const prior = baseline.find((candidate) => candidate.id === rule.id);
     syncPayloadModels(doc, ruleMap, prior?.models ?? [], rule.models);
-    syncStringSequence(doc, ruleMap, 'params', prior?.params, rule.params);
+    syncStringSequence(doc, ruleMap, 'params', rule.params);
     return ruleMap;
   });
   replaceSequenceItems(seq, items);
@@ -2277,7 +2281,7 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
     throw new Error(document.errors[0]?.message ?? 'Invalid YAML');
   }
 
-  const parsedRaw: unknown = parseYaml(yamlContent) || {};
+  const parsedRaw: unknown = document.toJS() || {};
   const parsed = asRecord(parsedRaw) ?? {};
   const v8Server = asRecord(parsed?.['server']);
   const v8Routing = asRecord(parsed?.['routing']);
@@ -2311,7 +2315,7 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
   const newValues: VisualConfigValues = {
     ...readVisualAdditions(document),
     ...readVisualServer(document),
-    oauthErrorRules: readOAuthErrorRules(v8Oauth?.['request-scoped-errors']),
+    oauthErrorRules: readOAuthErrorRules(v8Oauth?.['request-scoped-errors'], document),
     host: typeof v8Server?.['host'] === 'string' ? v8Server?.['host'] : '',
     port: String(v8Server?.['port'] ?? ''),
 
@@ -2483,6 +2487,17 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
   return newValues;
 }
 
+function editVisualDocument(yaml: string, edit: (doc: YamlDocument) => string) {
+  const doc = parseConfigDocument(yaml);
+  if (doc.errors.length) throw doc.errors[0];
+  if (doc.contents && !isMap(doc.contents))
+    throw new ConfigDraftConflictError([], 'unsafe_yaml_structure');
+  if (!isMap(doc.contents)) {
+    doc.contents = doc.createNode({}) as unknown as typeof doc.contents;
+  }
+  return edit(doc);
+}
+
 export function useVisualConfig() {
   const [state, dispatch] = useReducer(
     visualConfigReducer,
@@ -2556,12 +2571,9 @@ export function useVisualConfig() {
       if (visualValues.payloadReplaceRules.some((rule) => getPayloadReplaceValidationError(rule))) {
         throw new Error('Invalid payload.replace rules');
       }
-      try {
-        const doc = parseDocument(currentYaml);
-        if (doc.errors.length > 0) return currentYaml;
-        if (!isMap(doc.contents)) {
-          doc.contents = doc.createNode({}) as unknown as typeof doc.contents;
-        }
+      const invalidRule = invalidOAuthRule(visualValues.oauthErrorRules);
+      if (invalidRule) throw invalidRule;
+      return editVisualDocument(currentYaml, (doc) => {
         // YAML has no stable rule IDs. For rebased payload edits, retain the already
         // merged draft's AST as well as its ID snapshot. Inferring lineage solely
         // from server/draft contents is ambiguous (e.g. delete + rename + append),
@@ -2841,24 +2853,22 @@ export function useVisualConfig() {
         }
         if (dirtyFields.has('antigravitySensitiveWords')) {
           ensureMapInDoc(doc, ['oauth', 'providers', 'antigravity']);
-          setStringListInDoc(
-            doc,
-            ['oauth', 'providers', 'antigravity', 'sensitive-words'],
-            values.antigravitySensitiveWords
-          );
+          const antigravity = doc.getIn(['oauth', 'providers', 'antigravity'], true);
+          if (isMap(antigravity)) {
+            syncStringSequence(
+              doc,
+              antigravity,
+              'sensitive-words',
+              values.antigravitySensitiveWords
+            );
+          }
           deleteIfMapEmpty(doc, ['oauth', 'providers', 'antigravity']);
         }
         if (dirtyFields.has('devinSensitiveWords')) {
           ensureMapInDoc(doc, ['oauth', 'providers', 'devin']);
           const devin = doc.getIn(['oauth', 'providers', 'devin'], true);
           if (isMap(devin)) {
-            syncStringSequence(
-              doc,
-              devin,
-              'sensitive-words',
-              baselineValues.devinSensitiveWords,
-              values.devinSensitiveWords
-            );
+            syncStringSequence(doc, devin, 'sensitive-words', values.devinSensitiveWords);
           }
           deleteIfMapEmpty(doc, ['oauth', 'providers', 'devin']);
         }
@@ -3267,10 +3277,7 @@ export function useVisualConfig() {
           assertConfigListsUnchanged(rebasedPayload.serverYaml, draftYaml, currentYaml, paths);
         }
         return draftYaml;
-      } catch (error) {
-        if (error instanceof ConfigDraftConflictError) throw error;
-        return currentYaml;
-      }
+      });
     },
     [baselineValues, baselineYaml, dirtyFields, visualValues, rebasedPayload]
   );

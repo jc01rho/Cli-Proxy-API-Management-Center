@@ -1,3 +1,4 @@
+import type { ProviderFamily } from './providers';
 import type {
   ApiKeyEntry,
   CloakConfig,
@@ -150,7 +151,10 @@ const normalizeRuntimePolicy = (record: Record<string, unknown> | null): Provide
   return policy;
 };
 
-const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => {
+const normalizeProviderKeyConfig = (
+  item: unknown,
+  allowKeyless = false
+): ProviderKeyConfig | null => {
   if (item === undefined || item === null) return null;
   const record = isRecord(item) ? item : null;
   const apiKey = record?.['api-key'] ?? record?.apiKey ?? (typeof item === 'string' ? item : '');
@@ -161,7 +165,7 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
         .map((entry) => normalizeApiKeyEntry(entry))
         .filter((entry): entry is ApiKeyEntry => entry !== null)
     : [];
-  if (!trimmed && apiKeyEntries.length === 0) return null;
+  if (!trimmed && apiKeyEntries.length === 0 && !allowKeyless) return null;
 
   const config: ProviderKeyConfig = { apiKey: trimmed, ...normalizeRuntimePolicy(record) };
   const pool = normalizeConnectionPool(record?.['connection-pool']);
@@ -423,12 +427,21 @@ const normalizeOauthEndpointOverrides = (payload: unknown): Record<string, Recor
   return map;
 };
 
+// The backend synthesizes a native auth for each actual member, even without an API key,
+// when these families route to a configured endpoint. An empty keys list has no members.
+export const supportsEndpointOnlyKey = (family?: ProviderFamily) =>
+  family === 'gemini' ||
+  family === 'interactions' ||
+  family === 'codex' ||
+  family === 'claude' ||
+  family === 'xai';
+
 /** Resolve effective values for display only; retain the complete persisted group for writes. */
-export const normalizeProviderGroups = (groups: unknown, openai = false) => {
+export const normalizeProviderGroups = (groups: unknown, family?: ProviderFamily) => {
   if (!Array.isArray(groups)) return [];
   return groups.flatMap<ProviderKeyConfig | OpenAIProviderConfig>((group, groupIndex) => {
     if (!isRecord(group) || !Array.isArray(group.keys)) return [];
-    if (openai) {
+    if (family === 'openai-compatibility') {
       const config = normalizeOpenAIProvider(group, groupIndex);
       return config ? [{ ...config, source: { groupIndex, group, groups } }] : [];
     }
@@ -442,7 +455,12 @@ export const normalizeProviderGroups = (groups: unknown, openai = false) => {
       });
       // Pool settings are edited as sparse overrides, never as a flattened group copy.
       effective['connection-pool'] = key['connection-pool'];
-      const config = normalizeProviderKeyConfig(effective);
+      const config = normalizeProviderKeyConfig(
+        effective,
+        supportsEndpointOnlyKey(family) &&
+          typeof group['base-url'] === 'string' &&
+          !!group['base-url'].trim()
+      );
       return config ? [{ ...config, source: { groupIndex, keyIndex, group, groups } }] : [];
     });
   });
@@ -479,18 +497,31 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
       normalizeBoolean(at('oauth.providers.antigravity.antigravity-credits')) ?? false,
   };
   config.providerGroups = isRecord(raw['api-keys']) ? raw['api-keys'] : {};
-  config.geminiApiKeys = normalizeProviderGroups(at('api-keys.gemini')) as ProviderKeyConfig[];
-  config.interactionsApiKeys = normalizeProviderGroups(
-    at('api-keys.interactions')
+  config.geminiApiKeys = normalizeProviderGroups(
+    at('api-keys.gemini'),
+    'gemini'
   ) as ProviderKeyConfig[];
-  config.codexApiKeys = normalizeProviderGroups(at('api-keys.codex')) as ProviderKeyConfig[];
-  config.metaApiKeys = normalizeProviderGroups(at('api-keys.meta')) as ProviderKeyConfig[];
-  config.xaiApiKeys = normalizeProviderGroups(at('api-keys.xai')) as ProviderKeyConfig[];
-  config.claudeApiKeys = normalizeProviderGroups(at('api-keys.claude')) as ProviderKeyConfig[];
-  config.vertexApiKeys = normalizeProviderGroups(at('api-keys.vertex')) as ProviderKeyConfig[];
+  config.interactionsApiKeys = normalizeProviderGroups(
+    at('api-keys.interactions'),
+    'interactions'
+  ) as ProviderKeyConfig[];
+  config.codexApiKeys = normalizeProviderGroups(
+    at('api-keys.codex'),
+    'codex'
+  ) as ProviderKeyConfig[];
+  config.metaApiKeys = normalizeProviderGroups(at('api-keys.meta'), 'meta') as ProviderKeyConfig[];
+  config.xaiApiKeys = normalizeProviderGroups(at('api-keys.xai'), 'xai') as ProviderKeyConfig[];
+  config.claudeApiKeys = normalizeProviderGroups(
+    at('api-keys.claude'),
+    'claude'
+  ) as ProviderKeyConfig[];
+  config.vertexApiKeys = normalizeProviderGroups(
+    at('api-keys.vertex'),
+    'vertex'
+  ) as ProviderKeyConfig[];
   config.openaiCompatibility = normalizeProviderGroups(
     at('api-keys.openai-compatibility'),
-    true
+    'openai-compatibility'
   ) as OpenAIProviderConfig[];
   config.oauthExcludedModels = normalizeOauthExcluded(at('oauth.excluded-models'));
   config.requestLogSuccessBody = normalizeBoolean(at('observability.logs.request-log-success-body'));

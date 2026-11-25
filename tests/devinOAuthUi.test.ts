@@ -43,11 +43,11 @@ describe('Devin OAuth UI support', () => {
   test('treats Devin as a callback-supported built-in OAuth provider', () => {
     const provider: BuiltInOAuthProvider = 'devin';
 
-    expect(WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(provider)).toBe(false);
+    expect(WEBUI_SUPPORTED_OAUTH_PROVIDERS.has(provider)).toBe(true);
     expect(CALLBACK_SUPPORTED.has(provider)).toBe(true);
   });
 
-  test('uses Devin’s management start-auth contract without is_webui', async () => {
+  test('uses Devin’s management start-auth contract with is_webui', async () => {
     let requestedPath = '';
     let requestedParams: unknown;
     apiClient.get = (async (path, config) => {
@@ -64,7 +64,7 @@ describe('Devin OAuth UI support', () => {
       state: 'x',
     });
     expect(requestedPath).toBe('/oauth/auth-url');
-    expect(requestedParams).toEqual({ provider: 'devin' });
+    expect(requestedParams).toEqual({ provider: 'devin', is_webui: true });
   });
 
   test('includes Devin in auth-file provider presets with a branded icon and label', () => {

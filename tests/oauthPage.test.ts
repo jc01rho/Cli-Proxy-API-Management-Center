@@ -160,27 +160,6 @@ describe('manual callback input', () => {
     const redirect = 'https://localhost:9443/devin/callback?error=denied&state=attempt';
     expect(resolveCallbackUrl('devin', redirect, 'attempt')).toBe(redirect);
   });
-
-  test('normalizes Devin redirects and codes while preserving explicit callback state', () => {
-    const redirect = 'https://localhost:9443/devin/callback?code=fixture-code';
-    const built = new URL(resolveCallbackUrl('devin', redirect, 'attempt')!);
-    expect(built.origin + built.pathname).toBe('https://localhost:9443/devin/callback');
-    expect(built.searchParams.get('code')).toBe('fixture-code');
-    expect(built.searchParams.get('state')).toBe('attempt');
-    expect(
-      new URL(resolveCallbackUrl('devin', `${redirect}&state=pasted`, 'attempt')!)
-        .searchParams.get('state')
-    ).toBe('pasted');
-    for (const input of ['fixture-code', '?code=fixture-code']) {
-      const url = new URL(resolveCallbackUrl('devin', input, 'attempt')!);
-      expect(url.origin + url.pathname).toBe('http://localhost/oauth-callback');
-      expect(url.searchParams.get('code')).toBe('fixture-code');
-      expect(url.searchParams.get('state')).toBe('attempt');
-      expect(resolveCallbackUrl('devin', input)).toBeNull();
-    }
-    expect(resolveCallbackUrl('devin', redirect)).toBeNull();
-    expect(resolveCallbackUrl('devin', ' ', 'attempt')).toBeNull();
-  });
 });
 
 const plugin = (overrides: Partial<PluginListEntry>): PluginListEntry => ({

@@ -42,13 +42,12 @@ export interface OAuthCancelResponse {
   cancelled: boolean;
 }
 
-// devin is intentionally excluded: its start-auth contract must not receive
-// is_webui, unlike the other WebUI-driven OAuth providers.
 export const WEBUI_SUPPORTED_OAUTH_PROVIDERS = new Set<BuiltInOAuthProvider>([
   'codex',
   'anthropic',
   'antigravity',
   'xai',
+  'devin',
   'cline',
 ]);
 

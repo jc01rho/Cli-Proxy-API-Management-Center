@@ -3,7 +3,7 @@ import { apiClient } from '@/services/api/client';
 import { oauthApi, type BuiltInOAuthProvider } from '@/services/api/oauth';
 
 describe('Devin Management OAuth v8 contract', () => {
-  test('starts a built-in Devin flow without web UI mode', async () => {
+  test('starts a built-in Devin flow with web UI mode', async () => {
     const provider: BuiltInOAuthProvider = 'devin';
     const response = {
       status: 'ok',
@@ -14,7 +14,7 @@ describe('Devin Management OAuth v8 contract', () => {
     try {
       expect(await oauthApi.startAuth(provider)).toEqual(response);
       expect(get).toHaveBeenCalledWith('/oauth/auth-url', {
-        params: { provider: 'devin' },
+        params: { provider: 'devin', is_webui: true },
       });
     } finally {
       get.mockRestore();
@@ -64,9 +64,9 @@ describe('Devin Management OAuth v8 contract', () => {
     const post = spyOn(apiClient, 'post').mockResolvedValue({});
     const remove = spyOn(apiClient, 'delete').mockResolvedValue({});
     try {
-      await oauthApi.startAuth('devin', undefined, signal);
+      await oauthApi.startAuth('devin', signal);
       expect(get).toHaveBeenLastCalledWith('/oauth/auth-url', {
-        params: { provider: 'devin' },
+        params: { provider: 'devin', is_webui: true },
         signal,
       });
       await oauthApi.getAuthStatus('test-state', signal);
